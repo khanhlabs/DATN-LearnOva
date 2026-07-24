@@ -2,22 +2,38 @@ import { useEffect, useState } from "react";
 import { FaFlag, FaTimes } from "react-icons/fa";
 import "./ReportCourseModal.css";
 
-const REASON_OPTIONS = [
-  { value: "MISLEADING_CONTENT", label: "Misleading / false information" },
-  { value: "SENSITIVE_CONTENT", label: "Sensitive / inappropriate content" },
-  { value: "SPAM", label: "Spam / advertising" },
-  { value: "COPYRIGHT", label: "Copyright violation" },
-  { value: "OTHER", label: "Other" },
+/** Course / video quality → admin + instructor notified. */
+const COURSE_ISSUE_OPTIONS = [
+  { value: "VIDEO_ERROR", label: "Video error / cannot play" },
+  { value: "AUDIO_ERROR", label: "Audio error" },
+  { value: "BROKEN_DOCUMENT", label: "Broken document / resource" },
+  { value: "OUTDATED_CONTENT", label: "Outdated content" },
+  { value: "INCORRECT_CONTENT", label: "Incorrect course content" },
+  { value: "OTHER_COURSE_ISSUE", label: "Other course issue" },
 ];
 
+/** Spam / fraud / policy → admin only. */
+const POLICY_VIOLATION_OPTIONS = [
+  { value: "SPAM", label: "Spam / advertising" },
+  { value: "FRAUD", label: "Fraud / scam video" },
+  { value: "COPYRIGHT", label: "Copyright violation" },
+  { value: "SENSITIVE_CONTENT", label: "Sensitive / inappropriate content" },
+  { value: "OTHER_VIOLATION", label: "Other policy violation" },
+];
+
+const DESCRIPTION_REQUIRED = new Set([
+  "OTHER_COURSE_ISSUE",
+  "OTHER_VIOLATION",
+]);
+
 function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
-  const [reason, setReason] = useState("MISLEADING_CONTENT");
+  const [reason, setReason] = useState("VIDEO_ERROR");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
-      setReason("MISLEADING_CONTENT");
+      setReason("VIDEO_ERROR");
       setDescription("");
       setError("");
     }
@@ -25,10 +41,12 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
 
   if (!isOpen) return null;
 
+  const needsDescription = DESCRIPTION_REQUIRED.has(reason);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (reason === "OTHER" && !description.trim()) {
-      setError("Please describe the issue when selecting Other.");
+    if (needsDescription && !description.trim()) {
+      setError("Please describe the issue for this reason.");
       return;
     }
     setError("");
@@ -61,14 +79,30 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
         </div>
 
         <p className="report-course-modal-subtitle">
-          Tell us if this course contains false information or sensitive content.
-          Admins will review your report.
+          Course or video problems are sent to the instructor and admins.
+          Spam, fraud, or policy violations go to admins only.
         </p>
 
         <form onSubmit={handleSubmit}>
           <fieldset className="report-course-reasons">
-            <legend>Reason</legend>
-            {REASON_OPTIONS.map((option) => (
+            <legend>Course / video issue</legend>
+            {COURSE_ISSUE_OPTIONS.map((option) => (
+              <label key={option.value} className="report-course-reason-option">
+                <input
+                  type="radio"
+                  name="report-reason"
+                  value={option.value}
+                  checked={reason === option.value}
+                  onChange={() => setReason(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset className="report-course-reasons">
+            <legend>Spam / fraud / policy (admins only)</legend>
+            {POLICY_VIOLATION_OPTIONS.map((option) => (
               <label key={option.value} className="report-course-reason-option">
                 <input
                   type="radio"
@@ -83,7 +117,7 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
           </fieldset>
 
           <label className="report-course-desc-label" htmlFor="report-description">
-            Description {reason === "OTHER" ? "(required)" : "(optional)"}
+            Description {needsDescription ? "(required)" : "(optional)"}
           </label>
           <textarea
             id="report-description"

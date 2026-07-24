@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import defaultAvatar from "../../../assets/default_user_avatar.jpg";
+import defaultAvatar from "../../../assets/default_avatar.jpg";
 import { useAuth } from "../../../hook/UseAuth.jsx";
 import NotificationBell from "./NotificationBell.jsx";
 import "./Header.css";

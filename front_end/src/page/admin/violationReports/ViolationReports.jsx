@@ -11,22 +11,50 @@ import AdminHoverSelect from "../shared/AdminHoverSelect";
 import ModerationActionModal from "./ModerationActionModal.jsx";
 import "./ViolationReports.css";
 
+const ALL_STATUSES = "All statuses";
+const ALL_COUNTS = "Report count";
+
 const REASON_LABELS = {
-  MISLEADING_CONTENT: "Nội dung sai / gây hiểu nhầm",
-  SENSITIVE_CONTENT: "Nội dung nhạy cảm / không phù hợp",
-  SPAM: "Spam / quảng cáo",
-  COPYRIGHT: "Vi phạm bản quyền",
-  OTHER: "Lý do khác",
+  VIDEO_ERROR: "Video error / cannot play",
+  AUDIO_ERROR: "Audio error",
+  BROKEN_DOCUMENT: "Broken document / resource",
+  OUTDATED_CONTENT: "Outdated content",
+  INCORRECT_CONTENT: "Incorrect content",
+  OTHER_COURSE_ISSUE: "Other course issue",
+  MISLEADING_CONTENT: "Misleading content",
+  SENSITIVE_CONTENT: "Sensitive / inappropriate content",
+  SPAM: "Spam / advertising",
+  FRAUD: "Fraud / scam",
+  COPYRIGHT: "Copyright violation",
+  HARASSMENT: "Harassment / abuse",
+  PROHIBITED_CONTENT: "Prohibited content",
+  INSTRUCTOR_BEHAVIOR: "Instructor behavior",
+  OTHER_VIOLATION: "Other policy violation",
+  OTHER: "Other",
 };
+
+const POLICY_REASONS = new Set([
+  "SPAM",
+  "FRAUD",
+  "COPYRIGHT",
+  "SENSITIVE_CONTENT",
+  "HARASSMENT",
+  "PROHIBITED_CONTENT",
+  "INSTRUCTOR_BEHAVIOR",
+  "OTHER_VIOLATION",
+]);
+
+const categoryLabel = (reason) =>
+  POLICY_REASONS.has(reason) ? "Policy violation" : "Course issue";
 
 const formatStatus = (status) => {
   const map = {
-    PENDING: "Chờ xử lý",
-    REVIEWING: "Đang xem xét",
-    RESOLVED: "Đã xử lý",
-    DISMISSED: "Đã bỏ qua",
+    PENDING: "Pending",
+    REVIEWING: "Reviewing",
+    RESOLVED: "Resolved",
+    DISMISSED: "Dismissed",
   };
-  if (!status) return "Chờ xử lý";
+  if (!status) return "Pending";
   return map[status] || status.charAt(0) + status.slice(1).toLowerCase();
 };
 
@@ -76,8 +104,8 @@ const ViolationReports = () => {
   });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("Tất cả trạng thái");
-  const [selectedCount, setSelectedCount] = useState("Số báo cáo");
+  const [selectedStatus, setSelectedStatus] = useState(ALL_STATUSES);
+  const [selectedCount, setSelectedCount] = useState(ALL_COUNTS);
   const [selectedReport, setSelectedReport] = useState(null);
   const [viewCourse, setViewCourse] = useState(null);
   const [viewLoading, setViewLoading] = useState(false);
@@ -101,7 +129,7 @@ const ViolationReports = () => {
         },
       );
     } catch (err) {
-      toast.error(apiErrorMessage(err, "Không tải được danh sách báo cáo."));
+      toast.error(apiErrorMessage(err, "Failed to load reports."));
       setReports([]);
     } finally {
       setLoading(false);
@@ -121,7 +149,7 @@ const ViolationReports = () => {
   const openReportView = useCallback(
     async (row) => {
       if (!row?.courseId) {
-        toast.error("Báo cáo thiếu mã khóa học.");
+        toast.error("This report is missing a course id.");
         return;
       }
       setSelectedReport(row);
@@ -131,7 +159,7 @@ const ViolationReports = () => {
         const detail = await getAdminCourseDetailApi(row.courseId, axiosPrivate);
         setViewCourse(normalizeCourseDetail(detail));
       } catch (err) {
-        toast.error(apiErrorMessage(err, "Không tải được chi tiết khóa học."));
+        toast.error(apiErrorMessage(err, "Failed to load course details."));
         setSelectedReport(null);
       } finally {
         setViewLoading(false);
@@ -163,7 +191,7 @@ const ViolationReports = () => {
   }, [reports, selectedReport?.id]);
 
   const statusOptions = useMemo(
-    () => ["Tất cả trạng thái", ...new Set(reports.map((row) => formatStatus(row.status)))],
+    () => [ALL_STATUSES, ...new Set(reports.map((row) => formatStatus(row.status)))],
     [reports],
   );
 
@@ -171,7 +199,7 @@ const ViolationReports = () => {
     const counts = [...new Set(reports.map((row) => Number(row.reportCount) || 0))]
       .filter((n) => n > 0)
       .sort((a, b) => b - a);
-    return ["Số báo cáo", ...counts.map((n) => String(n))];
+    return [ALL_COUNTS, ...counts.map((n) => String(n))];
   }, [reports]);
 
   const filteredReports = useMemo(() => {
@@ -179,9 +207,9 @@ const ViolationReports = () => {
     let rows = reports.filter((row) => {
       const statusLabel = formatStatus(row.status);
       const matchesStatus =
-        selectedStatus === "Tất cả trạng thái" || statusLabel === selectedStatus;
+        selectedStatus === ALL_STATUSES || statusLabel === selectedStatus;
       const matchesCount =
-        selectedCount === "Số báo cáo" || String(row.reportCount) === selectedCount;
+        selectedCount === ALL_COUNTS || String(row.reportCount) === selectedCount;
       const haystack = [
         row.reportCode,
         row.courseTitle,
@@ -198,33 +226,37 @@ const ViolationReports = () => {
       return matchesStatus && matchesCount && matchesSearch;
     });
 
-    if (selectedCount !== "Số báo cáo") {
+    if (selectedCount !== ALL_COUNTS) {
       rows = [...rows].sort((a, b) => (b.reportCount || 0) - (a.reportCount || 0));
     }
     return rows;
   }, [reports, search, selectedStatus, selectedCount]);
 
   const statCards = [
-    { label: "Báo cáo đang mở", value: stats.openReports, note: "chờ admin xử lý", icon: Flag },
+    { label: "Open reports", value: stats.openReports, note: "awaiting admin action", icon: Flag },
     {
-      label: "Khóa đang bị báo cáo",
+      label: "Reported courses",
       value: stats.reportedCourses,
-      note: "có báo cáo chưa đóng",
+      note: "with open reports",
       icon: TriangleAlert,
     },
     {
-      label: "Đã ẩn bởi kiểm duyệt",
+      label: "Hidden by moderation",
       value: stats.hiddenByModeration,
-      note: "khóa đã bị ẩn",
+      note: "courses currently hidden",
       icon: ShieldAlert,
     },
-    { label: "Đã xử lý", value: stats.resolvedCases, note: "đã đóng / đã xử lý", icon: Ban },
+    { label: "Resolved", value: stats.resolvedCases, note: "closed / resolved", icon: Ban },
   ];
 
   const openWarnModal = (row) => setActionModal({ kind: "warn", report: row });
   const openHideModal = (row) => {
     if (row.courseHidden) {
-      toast.info("Khóa học này đã bị ẩn rồi.");
+      toast.info("This course is already hidden.");
+      return;
+    }
+    if (!row.instructorWarned) {
+      toast.info("Notify the instructor first. Hide the course only if they do not fix it.");
       return;
     }
     setActionModal({ kind: "hide", report: row });
@@ -239,12 +271,12 @@ const ViolationReports = () => {
     setActionLoadingId(row.id);
     try {
       await axiosPrivate.patch(`/admin/reports/${row.id}/hide-course`);
-      toast.success("Đã ẩn khóa học. Giảng viên đã được thông báo.");
+      toast.success("Course hidden. The instructor has been notified.");
       setActionModal(null);
       closeCourseView();
       await loadData();
     } catch (err) {
-      toast.error(apiErrorMessage(err, "Ẩn khóa học thất bại."));
+      toast.error(apiErrorMessage(err, "Failed to hide course."));
     } finally {
       setActionLoadingId(null);
     }
@@ -256,11 +288,11 @@ const ViolationReports = () => {
       await axiosPrivate.patch(`/admin/reports/${row.id}/warn-instructor`, {
         message: message || null,
       });
-      toast.success("Đã gửi thông báo cho giảng viên để họ tự sửa nội dung video.");
+      toast.success("Instructor notified to fix the reported content.");
       setActionModal(null);
       await loadData();
     } catch (err) {
-      toast.error(apiErrorMessage(err, "Gửi thông báo cho giảng viên thất bại."));
+      toast.error(apiErrorMessage(err, "Failed to notify instructor."));
     } finally {
       setActionLoadingId(null);
     }
@@ -277,9 +309,92 @@ const ViolationReports = () => {
 
   const reportDescription = normalizeReportText(selectedReport?.description);
   const reportReason = REASON_LABELS[selectedReport?.reason] || selectedReport?.reason || "—";
-  const moderationHint = selectedReport?.instructorWarned
-    ? "Đã gửi thông báo cho giảng viên — họ có thể tự cập nhật video."
-    : "Bấm “Thông báo giảng viên” để yêu cầu họ tự sửa nội dung bị báo cáo.";
+  const instructorWarned = Boolean(selectedReport?.instructorWarned);
+  const canHideCourse = instructorWarned && !selectedReport?.courseHidden;
+  const moderationHint = selectedReport?.courseHidden
+    ? "This course is already hidden from students."
+    : instructorWarned
+      ? "Instructor was reminded. If they still do not fix the content, you can hide the course."
+      : 'Step 1: notify the instructor. Hide course is only available after they have been reminded and still do not fix it.';
+
+  const reportTabContent = selectedReport ? (
+    <div className="violation-report-tab">
+      <div className="violation-report-panel">
+        <div className="violation-report-panel__info">
+          <strong>{selectedReport.reportCode || `RPT-${selectedReport.id}`}</strong>
+          <span>
+            Type: {categoryLabel(selectedReport.reason)} · Reason: {reportReason}
+            {selectedReport.severity === "HIGH" ? " · High severity" : ""}
+          </span>
+          {selectedReport.reporterName ? (
+            <span>Reporter: {selectedReport.reporterName}</span>
+          ) : null}
+          <span className="violation-report-panel__description">
+            Note: {reportDescription || "No additional description."}
+          </span>
+          {selectedReport.lessonTitle ? (
+            <span>Reported lesson: {selectedReport.lessonTitle}</span>
+          ) : null}
+          <span>
+            Status: {formatStatus(selectedReport.status)}
+            {instructorWarned ? " · Instructor reminded" : ""}
+            {selectedReport.courseHidden ? " · Course hidden" : ""}
+          </span>
+          <span className="violation-report-panel__hint">{moderationHint}</span>
+        </div>
+      </div>
+
+      <ol className="violation-report-steps">
+        <li className={instructorWarned ? "done" : "current"}>
+          Remind the instructor to fix the reported content.
+        </li>
+        <li className={selectedReport.courseHidden ? "done" : instructorWarned ? "current" : ""}>
+          If they do not fix it, hide the course from students.
+        </li>
+      </ol>
+
+      <div className="violation-report-panel__actions">
+        <button
+          type="button"
+          className="violation-report-btn"
+          onClick={() => openWarnModal(selectedReport)}
+          disabled={
+            actionLoadingId === selectedReport.id ||
+            selectedReport.courseHidden ||
+            ["RESOLVED", "DISMISSED"].includes(selectedReport.status)
+          }
+        >
+          {instructorWarned ? "Remind instructor again" : "Notify instructor"}
+        </button>
+        <button
+          type="button"
+          className="violation-report-btn danger"
+          onClick={() => openHideModal(selectedReport)}
+          disabled={actionLoadingId === selectedReport.id || !canHideCourse}
+          title={
+            selectedReport.courseHidden
+              ? "Course already hidden"
+              : instructorWarned
+                ? "Hide course because instructor did not fix it"
+                : "Notify the instructor first"
+          }
+        >
+          Hide course
+        </button>
+      </div>
+    </div>
+  ) : null;
+
+  const reportExtraTabs = selectedReport
+    ? [
+        {
+          id: "report",
+          label: "Report",
+          Icon: Flag,
+          content: reportTabContent,
+        },
+      ]
+    : [];
 
   return (
     <section className="adminDataPage" aria-label="Violation reports">
@@ -305,7 +420,7 @@ const ViolationReports = () => {
         <div className="adminDataFilters">
           <input
             type="search"
-            placeholder="Tìm mã báo cáo hoặc tên khóa học..."
+            placeholder="Search report code or course title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -313,13 +428,13 @@ const ViolationReports = () => {
             options={statusOptions}
             value={selectedStatus}
             onChange={setSelectedStatus}
-            ariaLabel="Lọc theo trạng thái"
+            ariaLabel="Filter by status"
           />
           <AdminHoverSelect
             options={countOptions}
             value={selectedCount}
             onChange={setSelectedCount}
-            ariaLabel="Lọc theo số báo cáo"
+            ariaLabel="Filter by report count"
           />
         </div>
 
@@ -327,22 +442,22 @@ const ViolationReports = () => {
           <table className="adminDataTable violationReportsTable">
             <thead>
               <tr>
-                <th>Mã báo cáo</th>
-                <th>Đối tượng</th>
-                <th>Số lần</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th>Report code</th>
+                <th>Target</th>
+                <th>Count</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5}>Đang tải báo cáo…</td>
+                  <td colSpan={5}>Loading reports…</td>
                 </tr>
               )}
               {!loading && filteredReports.length === 0 && (
                 <tr>
-                  <td colSpan={5}>Chưa có báo cáo vi phạm nào.</td>
+                  <td colSpan={5}>No violation reports yet.</td>
                 </tr>
               )}
               {!loading &&
@@ -357,8 +472,10 @@ const ViolationReports = () => {
                       <td>
                         <div className="violation-report-target">
                           <span>{target}</span>
+                          <small>{categoryLabel(row.reason)}</small>
+                          <small>{REASON_LABELS[row.reason] || row.reason}</small>
                           {row.severity === "HIGH" ? (
-                            <small className="violation-report-severity">Mức độ cao</small>
+                            <small className="violation-report-severity">High severity</small>
                           ) : null}
                         </div>
                       </td>
@@ -375,8 +492,8 @@ const ViolationReports = () => {
                           <button
                             type="button"
                             className="adminDataIconButton"
-                            aria-label={`Xem ${row.reportCode}`}
-                            title="Xem toàn bộ khóa học và video bị báo cáo"
+                            aria-label={`View ${row.reportCode}`}
+                            title="View course and reported video"
                             onClick={() => openReportView(row)}
                             disabled={actionLoadingId === row.id || viewLoading}
                           >
@@ -385,8 +502,8 @@ const ViolationReports = () => {
                           <button
                             type="button"
                             className="adminDataIconButton"
-                            aria-label={`Thông báo giảng viên ${row.reportCode}`}
-                            title="Thông báo giảng viên tự sửa nội dung video"
+                            aria-label={`Notify instructor ${row.reportCode}`}
+                            title="Notify instructor to fix the video"
                             onClick={() => openWarnModal(row)}
                             disabled={actionLoadingId === row.id}
                           >
@@ -395,10 +512,20 @@ const ViolationReports = () => {
                           <button
                             type="button"
                             className="adminDataIconButton"
-                            aria-label={`Ẩn khóa ${row.reportCode}`}
-                            title="Ẩn khóa học khỏi học viên"
+                            aria-label={`Hide course ${row.reportCode}`}
+                            title={
+                              row.courseHidden
+                                ? "Course already hidden"
+                                : row.instructorWarned
+                                  ? "Hide course from students"
+                                  : "Notify instructor first"
+                            }
                             onClick={() => openHideModal(row)}
-                            disabled={actionLoadingId === row.id || row.courseHidden}
+                            disabled={
+                              actionLoadingId === row.id ||
+                              row.courseHidden ||
+                              !row.instructorWarned
+                            }
                           >
                             <LockKeyhole size={16} />
                           </button>
@@ -414,57 +541,19 @@ const ViolationReports = () => {
 
       {viewLoading && (
         <div className="violation-report-loading-overlay" role="status">
-          Đang tải chi tiết khóa học…
+          Loading course details…
         </div>
       )}
 
       {viewCourse && selectedReport && (
-        <>
-          <div className="violation-report-banner">
-            <div className="violation-report-banner__info">
-              <strong>{selectedReport.reportCode || `RPT-${selectedReport.id}`}</strong>
-              <span>
-                Lý do: {reportReason}
-                {selectedReport.severity === "HIGH" ? " · Mức độ cao" : ""}
-                {selectedReport.reporterName ? ` · Người báo cáo: ${selectedReport.reporterName}` : ""}
-              </span>
-              <span className="violation-report-banner__description">
-                Ghi chú: {reportDescription || "Không có mô tả thêm."}
-              </span>
-              {selectedReport.lessonTitle ? (
-                <span>Bài học bị báo cáo: {selectedReport.lessonTitle}</span>
-              ) : null}
-              <span className="violation-report-banner__hint">{moderationHint}</span>
-            </div>
-            <div className="violation-report-banner__actions">
-              <button
-                type="button"
-                className="violation-report-btn"
-                onClick={() => openWarnModal(selectedReport)}
-                disabled={actionLoadingId === selectedReport.id}
-              >
-                Thông báo giảng viên
-              </button>
-              <button
-                type="button"
-                className="violation-report-btn danger"
-                onClick={() => openHideModal(selectedReport)}
-                disabled={selectedReport.courseHidden || actionLoadingId === selectedReport.id}
-              >
-                Ẩn khóa học
-              </button>
-              <button type="button" className="violation-report-btn ghost" onClick={closeCourseView}>
-                Đóng
-              </button>
-            </div>
-          </div>
-          <CourseViewModal
-            course={viewCourse}
-            onClose={closeCourseView}
-            focusLessonId={selectedReport.lessonId}
-            enableVideoPreview
-          />
-        </>
+        <CourseViewModal
+          course={viewCourse}
+          onClose={closeCourseView}
+          focusLessonId={selectedReport.lessonId}
+          enableVideoPreview
+          initialTab="report"
+          extraTabs={reportExtraTabs}
+        />
       )}
 
       {actionModal ? (

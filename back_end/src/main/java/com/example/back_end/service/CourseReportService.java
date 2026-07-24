@@ -5,56 +5,80 @@ import com.example.back_end.dto.response.CourseReportResponse;
 import com.example.back_end.dto.response.CourseReportStatsResponse;
 import com.example.back_end.entity.Course;
 import com.example.back_end.entity.Lesson;
-import com.example.back_end.entity.Notification;
+import com.example.back_end.entity.Report;
+import com.example.back_end.entity.ReportCategory;
 import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.NotificationType;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.CourseRepository;
 import com.example.back_end.repository.LessonRepository;
-import com.example.back_end.repository.NotificationRepository;
+import com.example.back_end.repository.ReportCategoryRepository;
+import com.example.back_end.repository.ReportRepository;
 import com.example.back_end.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
- * Course reports reuse existing {@code notifications} (type COURSE_REPORTED + metadata).
- * No new table / entity / Flyway migration.
+ * Source of truth: {@code reports} / {@code report_categories} (Flyway V3).
+ * Notifications are only for admin/teacher bells.
  */
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CourseReportService {
 
-    private static final Set<String> ALLOWED_REASONS = Set.of(
+    public static final String CAT_COURSE_ISSUE = "COURSE_ISSUE";
+    public static final String CAT_POLICY_VIOLATION = "POLICY_VIOLATION";
+
+    private static final Set<String> COURSE_ISSUE_REASONS = Set.of(
+            "VIDEO_ERROR",
+            "AUDIO_ERROR",
+            "BROKEN_DOCUMENT",
+            "OUTDATED_CONTENT",
+            "INCORRECT_CONTENT",
+            "OTHER_COURSE_ISSUE",
             "MISLEADING_CONTENT",
-            "SENSITIVE_CONTENT",
-            "SPAM",
-            "COPYRIGHT",
             "OTHER"
     );
-    /** High-severity reasons: admin may soft-delete the reported lesson after a repeat report. */
+    private static final Set<String> POLICY_VIOLATION_REASONS = Set.of(
+            "SPAM",
+            "FRAUD",
+            "COPYRIGHT",
+            "SENSITIVE_CONTENT",
+            "HARASSMENT",
+            "PROHIBITED_CONTENT",
+            "INSTRUCTOR_BEHAVIOR",
+            "OTHER_VIOLATION"
+    );
+    private static final Set<String> ALLOWED_REASONS;
+    static {
+        ALLOWED_REASONS = new HashSet<>();
+        ALLOWED_REASONS.addAll(COURSE_ISSUE_REASONS);
+        ALLOWED_REASONS.addAll(POLICY_VIOLATION_REASONS);
+    }
     private static final Set<String> HIGH_SEVERITY_REASONS = Set.of(
             "SENSITIVE_CONTENT",
-            "COPYRIGHT"
+            "COPYRIGHT",
+            "FRAUD",
+            "HARASSMENT",
+            "PROHIBITED_CONTENT"
     );
     private static final Set<String> OPEN_STATUSES = Set.of("PENDING", "REVIEWING");
     private static final Set<String> CLOSED_STATUSES = Set.of("RESOLVED", "DISMISSED");
     private static final long REPEAT_THRESHOLD_FOR_DELETE = 2L;
 
-    private final NotificationRepository notificationRepository;
+    private final ReportRepository reportRepository;
+    private final ReportCategoryRepository reportCategoryRepository;
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
@@ -76,11 +100,13 @@ public class CourseReportService {
         if (!ALLOWED_REASONS.contains(reason)) {
             throw new BusinessException("Invalid report reason.");
         }
-        if ("OTHER".equals(reason) && (request.description() == null || request.description().isBlank())) {
-            throw new BusinessException("Description is required when reason is OTHER.");
+        if (requiresDescription(reason)
+                && (request.description() == null || request.description().isBlank())) {
+            throw new BusinessException("Description is required for this report reason.");
         }
 
-        if (hasPendingReport(reporterId, course.getId())) {
+        if (reportRepository.existsByReporter_IdAndCourse_IdAndStatus(
+                reporterId, course.getId(), "PENDING")) {
             throw new BusinessException("You already have a pending report for this course.");
         }
 
@@ -90,77 +116,82 @@ public class CourseReportService {
                     .orElseThrow(() -> new ResourceNotFoundException("Lesson not found id=" + request.lessonId()));
         }
 
-        String reportKey = UUID.randomUUID().toString();
-        String reporterName = reporter.getFullName() != null ? reporter.getFullName() : reporter.getEmail();
+        String categoryName = categoryOf(reason);
+        ReportCategory category = ensureCategory(categoryName);
+        boolean teacherVisible = CAT_COURSE_ISSUE.equals(categoryName);
+        String description = request.description() == null || request.description().isBlank()
+                ? ""
+                : request.description().trim();
+        String reasonLabel = reasonLabelOf(reason);
+        Instant now = Instant.now();
 
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put("reportKey", reportKey);
-        metadata.put("courseId", course.getId());
-        metadata.put("courseTitle", course.getTitle());
-        metadata.put("courseHidden", Boolean.TRUE.equals(course.getIsHidden()));
-        metadata.put("lessonId", lesson != null ? lesson.getId() : null);
-        metadata.put("lessonTitle", lesson != null ? lesson.getTitle() : null);
-        metadata.put("reporterId", reporter.getId());
-        metadata.put("reporterName", reporterName);
-        metadata.put("reason", reason);
-        metadata.put("severity", severityOf(reason));
-        metadata.put("description", request.description());
-        metadata.put("status", "PENDING");
-        metadata.put("adminNote", null);
-        metadata.put("resolvedAt", null);
-        boolean alreadyWarned = findMatchingCourseReasonReports(
-                course.getId(),
-                reason,
-                lesson != null ? lesson.getId() : null
-        ).stream().anyMatch(n -> Boolean.TRUE.equals(
-                n.getMetadata() != null ? n.getMetadata().get("instructorWarned") : null
-        ));
-        metadata.put("instructorWarned", alreadyWarned);
-        metadata.put("lessonDeleted", false);
+        Report report = new Report();
+        report.setReporter(reporter);
+        report.setCourse(course);
+        report.setLesson(lesson);
+        report.setReportedInstructor(course.getInstructor());
+        report.setCategory(category);
+        report.setReason(reason);
+        report.setDescription(description);
+        report.setStatus("PENDING");
+        report.setTeacherVisible(teacherVisible);
+        report.setCreatedAt(now);
+        report.setUpdatedAt(now);
+        report = reportRepository.save(report);
 
         List<User> admins = userRepository.findAllAdmins();
         if (admins.isEmpty()) {
             throw new BusinessException("No admin available to receive the report.");
         }
 
+        Map<String, Object> adminMeta = baseNotifyMeta(report, categoryName);
+        adminMeta.put("reporterId", reporter.getId());
+        adminMeta.put("reporterName",
+                reporter.getFullName() != null ? reporter.getFullName() : reporter.getEmail());
+
+        String adminTitle = CAT_POLICY_VIOLATION.equals(categoryName)
+                ? "Báo cáo vi phạm chính sách"
+                : "Báo cáo sự cố khóa học";
         notificationService.createForAll(
                 admins,
                 NotificationType.COURSE_REPORTED,
-                "Có báo cáo khóa học mới",
-                "Khóa \"" + course.getTitle() + "\" bị báo cáo vì: "
-                        + switch (reason) {
-                            case "MISLEADING_CONTENT" -> "nội dung sai / gây hiểu nhầm";
-                            case "SENSITIVE_CONTENT" -> "nội dung nhạy cảm / không phù hợp";
-                            case "SPAM" -> "spam / quảng cáo";
-                            case "COPYRIGHT" -> "vi phạm bản quyền";
-                            case "OTHER" -> "lý do khác";
-                            default -> reason;
-                        },
-                "/learnova/admin/violation-reports?id=" + reportKey,
-                metadata
+                adminTitle,
+                "Khóa \"" + course.getTitle() + "\" bị báo cáo vì: " + reasonLabel,
+                "/learnova/admin/violation-reports?id=" + report.getId(),
+                adminMeta
         );
 
-        Notification seed = findByReportKey(reportKey).stream()
-                .findFirst()
-                .orElseThrow(() -> new BusinessException("Failed to create report notification."));
+        if (teacherVisible && course.getInstructor() != null) {
+            Map<String, Object> teacherMeta = baseNotifyMeta(report, categoryName);
+            teacherMeta.put("action", "COURSE_ISSUE_REPORTED");
+            String lessonHint = lesson != null
+                    ? " (bài học \"" + lesson.getTitle() + "\")"
+                    : "";
+            notificationService.create(
+                    course.getInstructor(),
+                    NotificationType.GENERIC,
+                    "Học viên báo cáo sự cố khóa học",
+                    "Khóa \"" + course.getTitle() + "\"" + lessonHint
+                            + " có báo cáo: " + reasonLabel
+                            + ". Vui lòng kiểm tra và sửa nội dung nếu cần.",
+                    "/learnova/teacher/courses",
+                    teacherMeta
+            );
+        }
 
-        return reloadResponse(seed.getId());
-
+        return toResponse(report);
     }
 
     @Transactional(readOnly = true)
     public List<CourseReportResponse> listAll() {
-        List<Notification> unique = loadUniqueReports();
-        Map<Long, Long> counts = countByCourseId(unique);
-        return unique.stream().map(n -> toResponse(n, counts, unique)).toList();
+        return reportRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public CourseReportResponse getById(Long id) {
-        Notification notification = findReportNotification(id);
-        List<Notification> unique = loadUniqueReports();
-        Map<Long, Long> counts = countByCourseId(unique);
-        return toResponse(notification, counts, unique);
+        return toResponse(findReport(id));
     }
 
     @Transactional(readOnly = true)
@@ -184,95 +215,59 @@ public class CourseReportService {
     }
 
     public CourseReportResponse dismiss(Long id, Long adminId) {
-        return updateStatus(id, adminId, "DISMISSED", null);
+        return updateStatus(id, "DISMISSED");
     }
 
     public CourseReportResponse resolve(Long id, Long adminId) {
-        return updateStatus(id, adminId, "RESOLVED", null);
+        return updateStatus(id, "RESOLVED");
     }
 
     public CourseReportResponse hideCourse(Long id, Long adminId) {
-        Notification seed = findReportNotification(id);
-        Long courseId = metaLong(seed.getMetadata(), "courseId");
-        if (courseId == null) {
-            throw new BusinessException("Report is missing courseId.");
-        }
-
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course not found id=" + courseId));
+        Report report = findReport(id);
+        Course course = report.getCourse();
         course.setIsHidden(true);
         course.setUpdatedAt(Instant.now());
         courseRepository.save(course);
 
         Instant now = Instant.now();
-        List<Notification> toUpdate = new ArrayList<>();
-        for (Notification n : notificationRepository.findByTypeOrderByCreatedAtDesc(NotificationType.COURSE_REPORTED)) {
-            Map<String, Object> meta = n.getMetadata();
-            if (meta == null) continue;
-            if (!Objects.equals(metaLong(meta, "courseId"), courseId)) continue;
-
-            Map<String, Object> updated = copyMeta(meta);
-            String status = metaString(meta, "status");
-            if (OPEN_STATUSES.contains(status)) {
-                updated.put("status", "RESOLVED");
-                updated.put("adminNote", "Khóa học đã bị ẩn bởi kiểm duyệt");
-                updated.put("resolvedAt", now.toString());
-                updated.put("resolvedBy", adminId);
+        for (Report r : reportRepository.findAllByOrderByCreatedAtDesc()) {
+            if (!Objects.equals(r.getCourse().getId(), course.getId())) {
+                continue;
             }
-            updated.put("courseHidden", true);
-            n.setMetadata(updated);
-            toUpdate.add(n);
+            if (OPEN_STATUSES.contains(r.getStatus())) {
+                r.setStatus("RESOLVED");
+            }
+            r.setUpdatedAt(now);
         }
-        notificationRepository.saveAll(toUpdate);
 
         notifyInstructor(
                 course,
                 "Khóa học của bạn đã bị ẩn",
                 "Khóa học \"" + course.getTitle()
                         + "\" đã bị ẩn sau khi có báo cáo từ học viên. Vui lòng rà soát nội dung và liên hệ hỗ trợ nếu cần mở lại.",
-                Map.of("courseId", courseId, "action", "HIDE_COURSE", "reportId", id)
+                Map.of("courseId", course.getId(), "action", "HIDE_COURSE", "reportId", id)
         );
 
-        return reloadResponse(id);
+        return toResponse(findReport(id));
     }
 
-    /**
-     * Warn the course instructor to revise reported content. Does not close the report.
-     * Uses existing NotificationType.GENERIC — no new enum / table.
-     */
     public CourseReportResponse warnInstructor(Long id, Long adminId, String message) {
-        Notification seed = findReportNotification(id);
-        Map<String, Object> seedMeta = seed.getMetadata();
-        Long courseId = metaLong(seedMeta, "courseId");
-        if (courseId == null) {
-            throw new BusinessException("Report is missing courseId.");
-        }
-
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course not found id=" + courseId));
-
-        String reason = metaString(seedMeta, "reason");
-        String lessonTitle = metaString(seedMeta, "lessonTitle");
+        Report report = findReport(id);
+        Course course = report.getCourse();
+        String reason = report.getReason();
+        String lessonTitle = report.getLesson() != null ? report.getLesson().getTitle() : null;
         String note = (message == null || message.isBlank())
                 ? "Vui lòng kiểm tra và cập nhật lại nội dung video bị báo cáo trong thời gian sớm nhất."
                 : message.trim();
 
-        String reasonLabel = switch (reason == null ? "" : reason) {
-            case "MISLEADING_CONTENT" -> "nội dung sai / gây hiểu nhầm";
-            case "SENSITIVE_CONTENT" -> "nội dung nhạy cảm / không phù hợp";
-            case "SPAM" -> "spam / quảng cáo";
-            case "COPYRIGHT" -> "vi phạm bản quyền";
-            case "OTHER" -> "lý do khác";
-            default -> reason == null ? "chưa rõ" : reason;
-        };
-
+        String reasonLabel = reasonLabelOf(reason);
         String target = lessonTitle != null
                 ? "bài học \"" + lessonTitle + "\" trong khóa \"" + course.getTitle() + "\""
                 : "khóa học \"" + course.getTitle() + "\"";
 
         Map<String, Object> warnMeta = new HashMap<>();
-        warnMeta.put("courseId", courseId);
-        warnMeta.put("lessonId", metaLong(seedMeta, "lessonId"));
+        warnMeta.put("courseId", course.getId());
+        warnMeta.put("lessonId", report.getLesson() != null ? report.getLesson().getId() : null);
         warnMeta.put("reason", reason != null ? reason : "");
         warnMeta.put("action", "WARN_INSTRUCTOR");
         warnMeta.put("reportId", id);
@@ -287,52 +282,46 @@ public class CourseReportService {
         );
 
         Instant now = Instant.now();
-        List<Notification> matched = findMatchingCourseReasonReports(courseId, reason, metaLong(seedMeta, "lessonId"));
-        for (Notification n : matched) {
-            Map<String, Object> updated = copyMeta(n.getMetadata());
-            updated.put("instructorWarned", true);
-            if (OPEN_STATUSES.contains(metaString(updated, "status"))) {
-                updated.put("status", "REVIEWING");
-                updated.put("adminNote", "Đã thông báo giảng viên: " + note);
+        Long lessonId = report.getLesson() != null ? report.getLesson().getId() : null;
+        for (Report r : reportRepository.findAllByOrderByCreatedAtDesc()) {
+            if (!Objects.equals(r.getCourse().getId(), course.getId())) continue;
+            if (reason != null && !reason.equals(r.getReason())) continue;
+            if (lessonId != null && r.getLesson() != null
+                    && !Objects.equals(r.getLesson().getId(), lessonId)) {
+                continue;
             }
-            updated.put("warnedAt", now.toString());
-            updated.put("warnedBy", adminId);
-            n.setMetadata(updated);
+            r.setTeacherVisible(true);
+            if (OPEN_STATUSES.contains(r.getStatus())) {
+                r.setStatus("REVIEWING");
+            }
+            r.setUpdatedAt(now);
         }
-        notificationRepository.saveAll(matched);
 
-        return reloadResponse(id);
+        return toResponse(findReport(id));
     }
 
-    /**
-     * Soft-delete the reported lesson video when the same high-severity reason was reported again
-     * (sameReasonCount >= 2). Uses existing lessons.is_deleted — no schema change.
-     */
     public CourseReportResponse deleteReportedLesson(Long id, Long adminId) {
-        Notification seed = findReportNotification(id);
-        Map<String, Object> seedMeta = seed.getMetadata();
-        Long courseId = metaLong(seedMeta, "courseId");
-        Long lessonId = metaLong(seedMeta, "lessonId");
-        String reason = metaString(seedMeta, "reason");
+        Report report = findReport(id);
+        Course course = report.getCourse();
+        Lesson lesson = report.getLesson();
+        String reason = report.getReason();
 
-        if (courseId == null || lessonId == null) {
+        if (lesson == null) {
             throw new BusinessException("This report has no lesson target to delete.");
         }
         if (!HIGH_SEVERITY_REASONS.contains(reason)) {
             throw new BusinessException(
-                    "Lesson delete is only allowed for high-severity reasons (SENSITIVE_CONTENT, COPYRIGHT)."
+                    "Lesson delete is only allowed for high-severity reasons."
             );
         }
-        if (!Boolean.TRUE.equals(seedMeta.get("instructorWarned"))
-                && findMatchingCourseReasonReports(courseId, reason, lessonId).stream()
-                .noneMatch(n -> Boolean.TRUE.equals(n.getMetadata() != null
-                        ? n.getMetadata().get("instructorWarned") : null))) {
+        if (!"REVIEWING".equals(report.getStatus()) && !Boolean.TRUE.equals(report.getTeacherVisible())) {
             throw new BusinessException(
                     "Warn the instructor first, then delete only after the same high-severity reason is reported again."
             );
         }
 
-        long sameReason = countSameReason(loadUniqueReports(), courseId, lessonId, reason);
+        long sameReason = reportRepository.countSameReason(
+                course.getId(), reason, lesson.getId());
         if (sameReason < REPEAT_THRESHOLD_FOR_DELETE) {
             throw new BusinessException(
                     "Delete is only allowed after the same high-severity reason is reported again "
@@ -340,17 +329,11 @@ public class CourseReportService {
             );
         }
 
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course not found id=" + courseId));
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found id=" + lessonId));
-
         if (lesson.getSection() == null
                 || lesson.getSection().getCourse() == null
-                || !Objects.equals(lesson.getSection().getCourse().getId(), courseId)) {
+                || !Objects.equals(lesson.getSection().getCourse().getId(), course.getId())) {
             throw new BusinessException("Lesson does not belong to the reported course.");
         }
-
         if (Boolean.TRUE.equals(lesson.getIsDeleted())) {
             throw new BusinessException("This lesson was already deleted.");
         }
@@ -360,198 +343,104 @@ public class CourseReportService {
         lessonRepository.save(lesson);
 
         Instant now = Instant.now();
-        List<Notification> toUpdate = findMatchingCourseReasonReports(courseId, reason, lessonId);
-        for (Notification n : toUpdate) {
-            Map<String, Object> updated = copyMeta(n.getMetadata());
-            updated.put("lessonDeleted", true);
-            if (OPEN_STATUSES.contains(metaString(updated, "status"))) {
-                updated.put("status", "RESOLVED");
-                updated.put("adminNote", "Lesson video soft-deleted after repeated high-severity reports");
-                updated.put("resolvedAt", now.toString());
-                updated.put("resolvedBy", adminId);
+        for (Report r : reportRepository.findAllByOrderByCreatedAtDesc()) {
+            if (!Objects.equals(r.getCourse().getId(), course.getId())) continue;
+            if (reason != null && !reason.equals(r.getReason())) continue;
+            if (r.getLesson() != null && !Objects.equals(r.getLesson().getId(), lesson.getId())) continue;
+            if (OPEN_STATUSES.contains(r.getStatus())) {
+                r.setStatus("RESOLVED");
             }
-            n.setMetadata(updated);
+            r.setUpdatedAt(now);
         }
-        notificationRepository.saveAll(toUpdate);
 
         notifyInstructor(
                 course,
-                "Lesson removed by moderation",
-                "The lesson \"" + lesson.getTitle() + "\" in \"" + course.getTitle()
-                        + "\" was removed after repeated " + reason
-                        + " reports. Please replace the content if you republish a new lesson.",
+                "Bài học đã bị gỡ khỏi khóa học",
+                "Bài học \"" + lesson.getTitle() + "\" trong khóa \"" + course.getTitle()
+                        + "\" đã bị gỡ sau báo cáo vi phạm.",
                 Map.of(
-                        "courseId", courseId,
-                        "lessonId", lessonId,
-                        "reason", reason,
+                        "courseId", course.getId(),
+                        "lessonId", lesson.getId(),
                         "action", "DELETE_LESSON",
                         "reportId", id
                 )
         );
 
-        return reloadResponse(id);
+        return toResponse(findReport(id));
     }
 
-    private CourseReportResponse updateStatus(Long id, Long adminId, String status, String adminNote) {
-        Notification seed = findReportNotification(id);
-        String current = metaString(seed.getMetadata(), "status");
-        if (!OPEN_STATUSES.contains(current)) {
-            throw new BusinessException("Only open reports can be updated.");
-        }
-
-        String reportKey = metaString(seed.getMetadata(), "reportKey");
-        Instant now = Instant.now();
-        List<Notification> group = findByReportKey(reportKey);
-        for (Notification n : group) {
-            Map<String, Object> meta = copyMeta(n.getMetadata());
-            meta.put("status", status);
-            meta.put("adminNote", adminNote);
-            meta.put("resolvedAt", now.toString());
-            meta.put("resolvedBy", adminId);
-            n.setMetadata(meta);
-        }
-        notificationRepository.saveAll(group);
-
-        return reloadResponse(id);
+    private CourseReportResponse updateStatus(Long id, String status) {
+        Report report = findReport(id);
+        report.setStatus(status);
+        report.setUpdatedAt(Instant.now());
+        return toResponse(reportRepository.save(report));
     }
 
-    private List<Notification> loadUniqueReports() {
-        Map<String, Notification> unique = new LinkedHashMap<>();
-        for (Notification n : notificationRepository.findByTypeOrderByCreatedAtDesc(NotificationType.COURSE_REPORTED)) {
-            String key = metaString(n.getMetadata(), "reportKey");
-            if (key == null || key.isBlank()) {
-                key = "notif-" + n.getId();
-            }
-            unique.putIfAbsent(key, n);
-        }
-        return new ArrayList<>(unique.values());
+    private Report findReport(Long id) {
+        return reportRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Report not found id=" + id));
     }
 
-    private Map<Long, Long> countByCourseId(List<Notification> uniqueReports) {
-        return uniqueReports.stream()
-                .map(n -> metaLong(n.getMetadata(), "courseId"))
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
-    }
-
-    private boolean hasPendingReport(Long reporterId, Long courseId) {
-        // Block only while a report is still PENDING.
-        // After admin warns (REVIEWING), the same student may report again (= "báo cáo lại").
-        return loadUniqueReports().stream().anyMatch(n -> {
-            Map<String, Object> meta = n.getMetadata();
-            return Objects.equals(metaLong(meta, "reporterId"), reporterId)
-                    && Objects.equals(metaLong(meta, "courseId"), courseId)
-                    && "PENDING".equals(metaString(meta, "status"));
+    private ReportCategory ensureCategory(String code) {
+        return reportCategoryRepository.findByCode(code).orElseGet(() -> {
+            ReportCategory created = new ReportCategory();
+            created.setCode(code);
+            created.setName(CAT_COURSE_ISSUE.equals(code)
+                    ? "Vấn đề khóa học"
+                    : "Vi phạm chính sách");
+            return reportCategoryRepository.save(created);
         });
     }
 
-    private Notification findReportNotification(Long id) {
-        Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Report not found id=" + id));
-        if (notification.getType() != NotificationType.COURSE_REPORTED) {
-            throw new ResourceNotFoundException("Report not found id=" + id);
-        }
-        return notification;
-    }
+    private CourseReportResponse toResponse(Report report) {
+        Course course = report.getCourse();
+        User reporter = report.getReporter();
+        Lesson lesson = report.getLesson();
+        Long courseId = course != null ? course.getId() : null;
+        Long lessonId = lesson != null ? lesson.getId() : null;
+        String reason = report.getReason();
 
-    private List<Notification> findByReportKey(String reportKey) {
-        if (reportKey == null || reportKey.isBlank()) {
-            return List.of();
-        }
-        List<Notification> matched = new ArrayList<>();
-        for (Notification n : notificationRepository.findByTypeOrderByCreatedAtDesc(NotificationType.COURSE_REPORTED)) {
-            if (reportKey.equals(metaString(n.getMetadata(), "reportKey"))) {
-                matched.add(n);
-            }
-        }
-        return matched;
-    }
+        boolean courseHidden = course != null && Boolean.TRUE.equals(course.getIsHidden());
+        long reportCount = courseId == null ? 0L : reportRepository.countByCourse_Id(courseId);
+        long sameReasonCount = courseId == null
+                ? 0L
+                : reportRepository.countSameReason(courseId, reason, lessonId);
 
-    private CourseReportResponse toResponse(
-            Notification notification,
-            Map<Long, Long> countsByCourse,
-            List<Notification> uniqueReports
-    ) {
-        Map<String, Object> meta = notification.getMetadata() != null ? notification.getMetadata() : Map.of();
-        Long courseId = metaLong(meta, "courseId");
-        long reportCount = courseId == null ? 0L : countsByCourse.getOrDefault(courseId, 0L);
-
-        boolean courseHidden = Boolean.TRUE.equals(meta.get("courseHidden"));
-        if (courseId != null) {
-            courseHidden = courseRepository.findById(courseId)
-                    .map(c -> Boolean.TRUE.equals(c.getIsHidden()))
-                    .orElse(courseHidden);
-        }
-
-        String status = metaString(meta, "status");
-        if (status == null) status = "PENDING";
-
-        Instant resolvedAt = null;
-        String resolvedRaw = metaString(meta, "resolvedAt");
-        if (resolvedRaw != null && !resolvedRaw.isBlank()) {
-            try {
-                resolvedAt = Instant.parse(resolvedRaw);
-            } catch (Exception ignored) {
-                resolvedAt = null;
-            }
-        }
-
-        String reportKey = metaString(meta, "reportKey");
-        String reportCode = reportKey != null && reportKey.length() >= 8
-                ? "RPT-" + reportKey.substring(0, 8).toUpperCase()
-                : "RPT-" + notification.getId();
-
-        Long lessonId = metaLong(meta, "lessonId");
-        String reason = metaString(meta, "reason");
-        String severity = metaString(meta, "severity");
-        if (severity == null) {
-            severity = severityOf(reason);
-        }
-
-        long sameReasonCount = countSameReason(uniqueReports, courseId, lessonId, reason);
-
-        boolean instructorWarned = Boolean.TRUE.equals(meta.get("instructorWarned"));
-        if (!instructorWarned && courseId != null && reason != null) {
-            instructorWarned = uniqueReports.stream().anyMatch(n -> {
-                Map<String, Object> other = n.getMetadata();
-                return Objects.equals(metaLong(other, "courseId"), courseId)
-                        && reason.equals(metaString(other, "reason"))
-                        && (lessonId == null
-                            || metaLong(other, "lessonId") == null
-                            || Objects.equals(metaLong(other, "lessonId"), lessonId))
-                        && Boolean.TRUE.equals(other != null ? other.get("instructorWarned") : null);
-            });
-        }
-        boolean lessonDeleted = Boolean.TRUE.equals(meta.get("lessonDeleted"));
-        if (lessonId != null && !lessonDeleted) {
-            lessonDeleted = lessonRepository.findById(lessonId)
-                    .map(l -> Boolean.TRUE.equals(l.getIsDeleted()))
-                    .orElse(false);
-        }
-
+        boolean instructorWarned = "REVIEWING".equals(report.getStatus());
+        boolean lessonDeleted = lesson != null && Boolean.TRUE.equals(lesson.getIsDeleted());
+        String severity = severityOf(reason);
         boolean canDeleteLesson = "HIGH".equals(severity)
                 && lessonId != null
                 && !lessonDeleted
                 && sameReasonCount >= REPEAT_THRESHOLD_FOR_DELETE
                 && instructorWarned;
 
+        Instant resolvedAt = CLOSED_STATUSES.contains(report.getStatus())
+                ? report.getUpdatedAt()
+                : null;
+
+        String reportKey = String.valueOf(report.getId());
+        String reportCode = "RPT-" + report.getId();
+
         return new CourseReportResponse(
-                notification.getId(),
+                report.getId(),
                 reportCode,
                 reportKey,
                 courseId,
-                metaString(meta, "courseTitle"),
+                course != null ? course.getTitle() : null,
                 courseHidden,
                 lessonId,
-                metaString(meta, "lessonTitle"),
-                metaLong(meta, "reporterId"),
-                metaString(meta, "reporterName"),
+                lesson != null ? lesson.getTitle() : null,
+                reporter != null ? reporter.getId() : null,
+                reporter != null
+                        ? (reporter.getFullName() != null ? reporter.getFullName() : reporter.getEmail())
+                        : null,
                 reason,
-                metaString(meta, "description"),
-                status,
+                report.getDescription(),
+                report.getStatus(),
                 reportCount,
-                metaString(meta, "adminNote"),
-                notification.getCreatedAt(),
+                null,
+                report.getCreatedAt(),
                 resolvedAt,
                 severity,
                 sameReasonCount,
@@ -561,10 +450,18 @@ public class CourseReportService {
         );
     }
 
-    private CourseReportResponse reloadResponse(Long id) {
-        List<Notification> unique = loadUniqueReports();
-        Map<Long, Long> counts = countByCourseId(unique);
-        return toResponse(findReportNotification(id), counts, unique);
+    private Map<String, Object> baseNotifyMeta(Report report, String categoryName) {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("reportId", report.getId());
+        meta.put("reportKey", String.valueOf(report.getId()));
+        meta.put("courseId", report.getCourse().getId());
+        meta.put("courseTitle", report.getCourse().getTitle());
+        meta.put("lessonId", report.getLesson() != null ? report.getLesson().getId() : null);
+        meta.put("lessonTitle", report.getLesson() != null ? report.getLesson().getTitle() : null);
+        meta.put("category", categoryName);
+        meta.put("reason", report.getReason());
+        meta.put("status", report.getStatus());
+        return meta;
     }
 
     private void notifyInstructor(Course course, String title, String content, Map<String, Object> metadata) {
@@ -586,65 +483,45 @@ public class CourseReportService {
         }
     }
 
+    private String categoryOf(String reason) {
+        if (reason != null && POLICY_VIOLATION_REASONS.contains(reason)) {
+            return CAT_POLICY_VIOLATION;
+        }
+        return CAT_COURSE_ISSUE;
+    }
+
+    private boolean requiresDescription(String reason) {
+        return "OTHER".equals(reason)
+                || "OTHER_COURSE_ISSUE".equals(reason)
+                || "OTHER_VIOLATION".equals(reason);
+    }
+
+    private String reasonLabelOf(String reason) {
+        if (reason == null || reason.isBlank()) {
+            return "chưa rõ";
+        }
+        return switch (reason) {
+            case "VIDEO_ERROR" -> "lỗi video / không phát được";
+            case "AUDIO_ERROR" -> "lỗi âm thanh";
+            case "BROKEN_DOCUMENT" -> "tài liệu / tài nguyên bị lỗi";
+            case "OUTDATED_CONTENT" -> "nội dung lỗi thời";
+            case "INCORRECT_CONTENT" -> "nội dung sai / không chính xác";
+            case "OTHER_COURSE_ISSUE" -> "sự cố khóa học khác";
+            case "MISLEADING_CONTENT" -> "nội dung sai / gây hiểu nhầm";
+            case "OTHER" -> "lý do khác";
+            case "SPAM" -> "spam / quảng cáo";
+            case "FRAUD" -> "lừa đảo / gian lận";
+            case "COPYRIGHT" -> "vi phạm bản quyền";
+            case "SENSITIVE_CONTENT" -> "nội dung nhạy cảm / không phù hợp";
+            case "HARASSMENT" -> "quấy rối / xúc phạm";
+            case "PROHIBITED_CONTENT" -> "nội dung bị cấm";
+            case "INSTRUCTOR_BEHAVIOR" -> "hành vi giảng viên";
+            case "OTHER_VIOLATION" -> "vi phạm chính sách khác";
+            default -> reason;
+        };
+    }
+
     private String severityOf(String reason) {
         return HIGH_SEVERITY_REASONS.contains(reason) ? "HIGH" : "NORMAL";
-    }
-
-    private long countSameReason(List<Notification> uniqueReports, Long courseId, Long lessonId, String reason) {
-        if (courseId == null || reason == null) {
-            return 0L;
-        }
-        return uniqueReports.stream()
-                .filter(n -> Objects.equals(metaLong(n.getMetadata(), "courseId"), courseId))
-                .filter(n -> reason.equals(metaString(n.getMetadata(), "reason")))
-                .filter(n -> {
-                    if (lessonId == null) {
-                        return true;
-                    }
-                    Long reportedLesson = metaLong(n.getMetadata(), "lessonId");
-                    return reportedLesson == null || Objects.equals(reportedLesson, lessonId);
-                })
-                .count();
-    }
-
-    private List<Notification> findMatchingCourseReasonReports(Long courseId, String reason, Long lessonId) {
-        List<Notification> matched = new ArrayList<>();
-        for (Notification n : notificationRepository.findByTypeOrderByCreatedAtDesc(NotificationType.COURSE_REPORTED)) {
-            Map<String, Object> meta = n.getMetadata();
-            if (!Objects.equals(metaLong(meta, "courseId"), courseId)) continue;
-            if (reason != null && !reason.equals(metaString(meta, "reason"))) continue;
-            if (lessonId != null) {
-                Long reportedLesson = metaLong(meta, "lessonId");
-                if (reportedLesson != null && !Objects.equals(reportedLesson, lessonId)) continue;
-            }
-            matched.add(n);
-        }
-        return matched;
-    }
-
-    private Map<String, Object> copyMeta(Map<String, Object> source) {
-        return source == null ? new HashMap<>() : new HashMap<>(source);
-    }
-
-    private String metaString(Map<String, Object> meta, String key) {
-        if (meta == null || meta.get(key) == null) return null;
-        String value = String.valueOf(meta.get(key)).trim();
-        if (value.isEmpty() || "null".equalsIgnoreCase(value) || "undefined".equalsIgnoreCase(value)) {
-            return null;
-        }
-        return value;
-    }
-
-    private Long metaLong(Map<String, Object> meta, String key) {
-        if (meta == null || meta.get(key) == null) return null;
-        Object value = meta.get(key);
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        try {
-            return Long.parseLong(String.valueOf(value));
-        } catch (NumberFormatException ex) {
-            return null;
-        }
     }
 }

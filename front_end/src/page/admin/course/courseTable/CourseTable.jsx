@@ -115,14 +115,22 @@ const detailTabs = [
   { id: "curriculum", label: "Curriculum", Icon: List },
 ];
 
-const CourseViewModal = ({ course, onClose, focusLessonId = null, enableVideoPreview = false }) => {
-  const [activeTab, setActiveTab] = useState("overview");
+const CourseViewModal = ({
+  course,
+  onClose,
+  focusLessonId = null,
+  enableVideoPreview = false,
+  extraTabs = [],
+  initialTab = null,
+}) => {
+  const [activeTab, setActiveTab] = useState(initialTab || "overview");
   const [expandedSections, setExpandedSections] = useState({});
   const [previewLesson, setPreviewLesson] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState("");
   const thumbnailUrl = useCourseThumbnail(course?.thumbnailKey);
+  const allTabs = [...detailTabs, ...(Array.isArray(extraTabs) ? extraTabs : [])];
 
   useEffect(() => {
     const sections = Array.isArray(course?.sections) ? course.sections : [];
@@ -140,7 +148,9 @@ const CourseViewModal = ({ course, onClose, focusLessonId = null, enableVideoPre
         }
       }
     }
-    setActiveTab(focusLessonId != null ? "curriculum" : "overview");
+    const preferredTab =
+      initialTab || (focusLessonId != null ? "curriculum" : "overview");
+    setActiveTab(preferredTab);
     setExpandedSections(focusSectionId ? { [focusSectionId]: true } : {});
     setPreviewLesson(null);
     setPreviewUrl("");
@@ -165,7 +175,7 @@ const CourseViewModal = ({ course, onClose, focusLessonId = null, enableVideoPre
     return () => {
       alive = false;
     };
-  }, [course?.id, focusLessonId, enableVideoPreview]);
+  }, [course?.id, focusLessonId, enableVideoPreview, initialTab]);
 
   if (!course) return null;
 
@@ -240,7 +250,7 @@ const CourseViewModal = ({ course, onClose, focusLessonId = null, enableVideoPre
         </div>
 
         <div className="cdm__tabs">
-          {detailTabs.map(({ id, label, Icon }) => {
+          {allTabs.map(({ id, label, Icon }) => {
             const DetailIcon = Icon;
             return (
               <button
@@ -438,6 +448,14 @@ const CourseViewModal = ({ course, onClose, focusLessonId = null, enableVideoPre
                   )}
                 </div>
               ) : null}
+
+              {(Array.isArray(extraTabs) ? extraTabs : []).map((tab) =>
+                activeTab === tab.id ? (
+                  <div key={tab.id} className="cdm__tab-content">
+                    {tab.content}
+                  </div>
+                ) : null,
+              )}
 
             </>
         </div>

@@ -149,7 +149,7 @@ function CourseDetail() {
             await axiosClient.post("/reports", {
                 courseId: Number(courseId),
                 reason,
-                description: description || null,
+                description: description?.trim() ? description.trim() : "",
                 lessonId: activeLesson?.lessonId || null,
             });
             toast.success("Report submitted. Admins will review it.");

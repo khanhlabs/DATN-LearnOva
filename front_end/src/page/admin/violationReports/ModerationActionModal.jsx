@@ -3,10 +3,10 @@ import { useState } from "react";
 import "./ViolationReports.css";
 
 const DEFAULT_WARN_MESSAGE =
-  "Vui lòng kiểm tra và cập nhật lại nội dung video bị báo cáo trong thời gian sớm nhất.";
+  "Please review and update the reported video content as soon as possible.";
 
 /**
- * Modal thay cho window.prompt / window.confirm.
+ * Modal for warn / hide actions.
  * kind: "warn" | "hide"
  */
 const ModerationActionModal = ({
@@ -20,7 +20,7 @@ const ModerationActionModal = ({
   const isWarn = kind === "warn";
   const target = report?.lessonTitle
     ? `${report.courseTitle} · ${report.lessonTitle}`
-    : report?.courseTitle || "khóa học này";
+    : report?.courseTitle || "this course";
 
   return (
     <div className="violation-action-backdrop" role="presentation" onClick={onCancel}>
@@ -36,7 +36,7 @@ const ModerationActionModal = ({
           className="violation-action-close"
           onClick={onCancel}
           disabled={isSubmitting}
-          aria-label="Đóng"
+          aria-label="Close"
         >
           <X size={18} />
         </button>
@@ -46,27 +46,27 @@ const ModerationActionModal = ({
         </div>
 
         <h2 id="violation-action-title">
-          {isWarn ? "Gửi thông báo cho giảng viên" : "Ẩn khóa học khỏi học viên"}
+          {isWarn ? "Notify instructor" : "Hide course from students"}
         </h2>
 
         <p className="violation-action-desc">
           {isWarn ? (
             <>
-              Hệ thống sẽ gửi thông báo tới giảng viên của{" "}
-              <strong>{target}</strong> để họ tự kiểm tra và sửa nội dung video.
+              The instructor of <strong>{target}</strong> will be notified to
+              review and fix the reported video content.
             </>
           ) : (
             <>
-              Khóa học <strong>{target}</strong> sẽ bị ẩn khỏi danh sách công khai.
-              Các báo cáo đang mở của khóa này sẽ được đánh dấu đã xử lý, và giảng viên
-              sẽ nhận thông báo.
+              Course <strong>{target}</strong> will be hidden from the public
+              catalog. Open reports for this course will be marked resolved, and
+              the instructor will be notified.
             </>
           )}
         </p>
 
         {isWarn ? (
           <label className="violation-action-field">
-            <span>Nội dung gửi cho giảng viên</span>
+            <span>Message to instructor</span>
             <textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
@@ -84,7 +84,7 @@ const ModerationActionModal = ({
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Hủy
+            Cancel
           </button>
           <button
             type="button"
@@ -94,11 +94,11 @@ const ModerationActionModal = ({
           >
             {isSubmitting
               ? isWarn
-                ? "Đang gửi…"
-                : "Đang ẩn…"
+                ? "Sending…"
+                : "Hiding…"
               : isWarn
-                ? "Gửi thông báo"
-                : "Xác nhận ẩn khóa"}
+                ? "Send notification"
+                : "Confirm hide"}
           </button>
         </div>
       </div>
