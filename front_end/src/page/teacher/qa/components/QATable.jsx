@@ -11,7 +11,7 @@ const QATable = ({ questions, onToggleSolved, onTogglePinned, onAnswer }) => (
     </div>
 
     {questions.length === 0 ? (
-      <div className="teacher-qa-empty">Chưa có câu hỏi nào cho khóa học của bạn.</div>
+      <div className="teacher-qa-empty">No questions available.</div>
     ) : (
       questions.map((question) => (
         <QARow

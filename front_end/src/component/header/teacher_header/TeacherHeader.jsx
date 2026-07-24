@@ -4,9 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getCurrentUserApi } from "../../../api/UserApi.js";
 import { useAuth } from "../../../hook/UseAuth.jsx";
 import NotificationBell from "./NotificationBell.jsx";
+import default_avatar from '../../../assets/default_avatar.jpg'
 import "./TeacherHeader.css";
 
-const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=1d4ed8&color=fff&name=Instructor";
+const DEFAULT_AVATAR = default_avatar;
 
 const TeacherHeader = () => {
   const location = useLocation();
@@ -37,24 +38,27 @@ const TeacherHeader = () => {
 
   let title = "Dashboard";
   if (pathname === "/learnova/teacher") {
-    const firstName = user?.fullName?.split(" ")[0] || "Instructor";
-    title = `Welcome back, ${firstName} 👋`;
+    title = `Welcome back, ${user.fullName}!`;
   } else if (pathname === "/learnova/teacher/courses") {
     title = "Courses management";
   } else if (pathname === "/learnova/teacher/courses/create") {
     title = "Create Course";
-  } else if (pathname === "/learnova/teacher/promotions") {
-    title = "Promotions management";
-  } else if (pathname === "/learnova/teacher/students") {
+  }  else if (pathname === "/learnova/teacher/students") {
     title = "Students management";
-  } else if (pathname === "/learnova/teacher/revenue") {
+  }else if (pathname === "/learnova/teacher/reviews") {
+    title = "Reviews management";
+  }else if (pathname === "/learnova/teacher/qna") {
+    title = "Q&A";
+  }else if (pathname === "/learnova/teacher/promotions") {
+    title = "Promotions management";
+  }else if (pathname === "/learnova/teacher/announcements") {
+    title = "Announcements";
+  }else if (pathname === "/learnova/teacher/revenue") {
     title = "Revenue management";
   } else if (pathname === "/learnova/teacher/analytics") {
     title = "Analytics";
-  } else if (pathname === "/learnova/teacher/qa") {
-    title = "Messaging";
-  } else if (pathname === "/learnova/teacher/reviews") {
-    title = "Reviews management";
+  } else if (pathname === "/learnova/teacher/profile") {
+    title = "Profile";
   }
 
   const avatarSrc = user?.avatar || DEFAULT_AVATAR;
@@ -90,14 +94,14 @@ const TeacherHeader = () => {
                 <li>
                   <button type="button" onClick={handleSwitchToUser}>
                     <Repeat size={16} />
-                    Chuyển sang Học viên
+                    Switch to user
                   </button>
                 </li>
               )}
               <li>
                 <button type="button" className="is-danger" onClick={handleLogout}>
                   <LogOut size={16} />
-                  Đăng xuất
+                  Logout
                 </button>
               </li>
             </ul>

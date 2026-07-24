@@ -76,6 +76,7 @@ export default function CourseDetail() {
 
     const [promo, setPromo] = useState("");
     const [appliedVoucher, setAppliedVoucher] = useState(null);
+    const [voucherMessage, setVoucherMessage] = useState("");
     const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
 
     const [activePayment, setActivePayment] = useState(null);
@@ -125,6 +126,7 @@ export default function CourseDetail() {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setPromo("");
         setAppliedVoucher(null);
+        setVoucherMessage("");
         setActivePayment(null);
         setEnrolled(false);
     }, [id]);
@@ -152,6 +154,7 @@ export default function CourseDetail() {
     const handleVoucherChange = (event) => {
         setPromo(event.target.value);
         setAppliedVoucher(null);
+        setVoucherMessage("");
     };
 
     const handleApplyVoucher = async () => {
@@ -159,22 +162,31 @@ export default function CourseDetail() {
         const subtotal = Number(course?.basePrice || 0);
 
         if (!code) {
-            toast.error("Please enter a voucher code.");
+            const message = "Please enter a voucher code.";
+            setVoucherMessage(message);
+            toast.error(message);
             return;
         }
 
-        if (!course) {
-            toast.error("Course not found.");
+        if (!course || subtotal <= 0) {
+            const message = !course
+                ? "Course not found."
+                : "Course does not have a valid price.";
+            setVoucherMessage(message);
+            toast.error(message);
             return;
         }
 
         if (appliedVoucher?.code?.toLowerCase() === code.toLowerCase()) {
-            toast.info("This voucher is already applied.");
+            const message = "This voucher is already applied.";
+            setVoucherMessage(message);
+            toast.info(message);
             return;
         }
 
         try {
             setIsApplyingVoucher(true);
+            setVoucherMessage("");
 
             const result = await applyVoucherApi({
                 code,
@@ -182,6 +194,7 @@ export default function CourseDetail() {
             });
 
             setAppliedVoucher(result);
+            setVoucherMessage(`Applied ${result.code}.`);
             toast.success(`Voucher ${result.code} applied.`);
         } catch (err) {
             const message =
@@ -189,6 +202,7 @@ export default function CourseDetail() {
                 "Invalid or unavailable voucher.";
 
             setAppliedVoucher(null);
+            setVoucherMessage(message);
             toast.error(message);
         } finally {
             setIsApplyingVoucher(false);
@@ -561,6 +575,16 @@ export default function CourseDetail() {
                                             {isApplyingVoucher ? "..." : "Apply"}
                                         </button>
                                     </div>
+
+                                    {voucherMessage && (
+                                        <p
+                                            className={`course-detail-voucher-message ${
+                                                appliedVoucher ? "success" : "error"
+                                            }`}
+                                        >
+                                            {voucherMessage}
+                                        </p>
+                                    )}
                                 </div>
                             )}
 

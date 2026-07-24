@@ -18,7 +18,7 @@ const StudentsToolbar = ({
           type="search"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Tìm tên, email, SĐT học viên..."
+          placeholder="Search by name..."
         />
       </label>
 

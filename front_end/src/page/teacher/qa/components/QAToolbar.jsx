@@ -1,10 +1,10 @@
 import { Search } from "lucide-react";
 
 const statusOptions = [
-  { label: "Tất cả câu hỏi", value: "all" },
-  { label: "Chưa giải quyết", value: "unsolved" },
-  { label: "Đã giải quyết", value: "solved" },
-  { label: "Đã ghim", value: "pinned" },
+  { label: "All Questions", value: "all" },
+  { label: "Unsolved", value: "unsolved" },
+  { label: "Solved", value: "solved" },
+  { label: "Pinned", value: "pinned" },
 ];
 
 const QAToolbar = ({
@@ -24,7 +24,7 @@ const QAToolbar = ({
           type="search"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Tìm học viên, khóa học, bài học hoặc nội dung câu hỏi..."
+          placeholder="Search..."
         />
       </label>
 

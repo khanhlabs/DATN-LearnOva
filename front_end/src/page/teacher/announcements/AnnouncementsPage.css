@@ -1,7 +1,6 @@
 .teacher-announcements-page {
   display: grid;
   gap: 18px;
-  max-width: 720px;
 }
 
 .teacher-announcement-form {

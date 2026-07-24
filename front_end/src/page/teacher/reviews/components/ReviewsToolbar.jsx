@@ -18,7 +18,7 @@ const ReviewsToolbar = ({
           type="search"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Tìm học viên, khóa học hoặc nhận xét..."
+          placeholder="Search students or reviews..."
         />
       </label>
 

@@ -41,7 +41,7 @@ const QARow = ({ question, onToggleSolved, onTogglePinned, onAnswer }) => {
           <p className="teacher-qa-row__content">{question.content}</p>
           <span className="teacher-qa-row__answer-count">
             <MessageCircle size={13} />
-            {question.answerCount} phản hồi
+            {question.answerCount} answer
           </span>
         </div>
 
@@ -51,21 +51,21 @@ const QARow = ({ question, onToggleSolved, onTogglePinned, onAnswer }) => {
             onClick={() => onToggleSolved(question)}
           >
             <CheckCircle2 size={14} />
-            {question.isSolved ? "Đã giải quyết" : "Chưa giải quyết"}
+            {question.isSolved ? "Solved" : "Unsolved"}
           </button>
           <button
             className={`teacher-qa-row__pin-btn ${question.isPinned ? "is-pinned" : ""}`}
             onClick={() => onTogglePinned(question)}
           >
             {question.isPinned ? <PinOff size={14} /> : <Pin size={14} />}
-            {question.isPinned ? "Bỏ ghim" : "Ghim"}
+            {question.isPinned ? "Unpinned" : "Pined"}
           </button>
           <button
             className={`teacher-qa-row__reply-btn ${isReplying ? "is-active" : ""}`}
             onClick={() => setIsReplying((v) => !v)}
           >
             <Reply size={14} />
-            Trả lời
+            Answer
           </button>
         </div>
 
@@ -80,7 +80,7 @@ const QARow = ({ question, onToggleSolved, onTogglePinned, onAnswer }) => {
             rows={3}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Viết câu trả lời của bạn..."
+            placeholder="Write your answer..."
             autoFocus
           />
           <div className="teacher-qa-reply-actions">
@@ -92,7 +92,7 @@ const QARow = ({ question, onToggleSolved, onTogglePinned, onAnswer }) => {
               }}
               disabled={isSubmitting}
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="button"
@@ -101,7 +101,7 @@ const QARow = ({ question, onToggleSolved, onTogglePinned, onAnswer }) => {
               disabled={isSubmitting || !replyText.trim()}
             >
               <Send size={14} />
-              {isSubmitting ? "Đang gửi..." : "Gửi"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

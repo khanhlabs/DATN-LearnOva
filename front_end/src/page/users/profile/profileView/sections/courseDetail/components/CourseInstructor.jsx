@@ -1,5 +1,5 @@
 import { Award, BookOpen, Star, Users } from "lucide-react";
-import defaultAvatar from "../../../../../../../assets/default_user_avatar.jpg";
+import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
 
 const statIcons = [Award, BookOpen, Users, Star];
 

@@ -200,7 +200,7 @@ const CoursesPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.total}</strong>
-            <span>Tổng khóa học</span>
+            <span>Total courses</span>
           </div>
         </div>
         <div className="teacher-summary-item">
@@ -209,7 +209,7 @@ const CoursesPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.published}</strong>
-            <span>Đã xuất bản</span>
+            <span>Published</span>
           </div>
         </div>
         <div className="teacher-summary-item">
@@ -218,7 +218,7 @@ const CoursesPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.totalStudents}</strong>
-            <span>Tổng học viên</span>
+            <span>Total Students</span>
           </div>
         </div>
         <div className="teacher-summary-item">
@@ -227,7 +227,7 @@ const CoursesPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.avgRating}</strong>
-            <span>Đánh giá trung bình</span>
+            <span>Average rating</span>
           </div>
         </div>
       </div>

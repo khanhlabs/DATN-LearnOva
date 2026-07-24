@@ -60,7 +60,7 @@ const StudentsPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.total}</strong>
-            <span>Tổng học viên</span>
+            <span>Total students</span>
           </div>
         </div>
         <div className="teacher-summary-item">
@@ -69,7 +69,7 @@ const StudentsPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.inProgress}</strong>
-            <span>Đang học</span>
+            <span>In Progress</span>
           </div>
         </div>
         <div className="teacher-summary-item">
@@ -78,7 +78,7 @@ const StudentsPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.completed}</strong>
-            <span>Hoàn thành</span>
+            <span>Completed</span>
           </div>
         </div>
         <div className="teacher-summary-item">
@@ -87,7 +87,7 @@ const StudentsPage = () => {
           </span>
           <div className="teacher-summary-item__body">
             <strong>{summary.avgProgress}%</strong>
-            <span>Tiến độ trung bình</span>
+            <span>Average progress</span>
           </div>
         </div>
       </div>

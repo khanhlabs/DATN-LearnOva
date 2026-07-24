@@ -66,7 +66,7 @@ const ReviewsPage = () => {
           </span>
           <div>
             <strong>{averageRating.toFixed(1)}</strong>
-            <span>Đánh giá trung bình</span>
+            <span>Average rating</span>
           </div>
         </div>
         <div className="teacher-reviews-summary__item">
@@ -75,7 +75,7 @@ const ReviewsPage = () => {
           </span>
           <div>
             <strong>{reviews.length}</strong>
-            <span>Tổng số đánh giá</span>
+            <span>Total reviews</span>
           </div>
         </div>
       </div>

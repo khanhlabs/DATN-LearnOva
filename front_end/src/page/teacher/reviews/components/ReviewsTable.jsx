@@ -10,7 +10,7 @@ const ReviewsTable = ({ reviews, onReply }) => (
     </div>
 
     {reviews.length === 0 ? (
-      <div className="teacher-reviews-empty">Chưa có đánh giá nào cho khóa học của bạn.</div>
+      <div className="teacher-reviews-empty">No reviews found.</div>
     ) : (
       reviews.map((review) => <ReviewRow key={review.reviewId} review={review} onReply={onReply} />)
     )}

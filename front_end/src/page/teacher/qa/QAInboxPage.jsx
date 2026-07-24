@@ -62,9 +62,9 @@ const QAInboxPage = () => {
       setQuestions((prev) =>
         prev.map((q) => (q.id === question.id ? { ...q, answerCount: q.answerCount + 1 } : q))
       );
-      toast.success("Đã gửi câu trả lời.");
+      toast.success("Answer submitted successfully.");
     } catch (error) {
-      toast.error("Gửi câu trả lời thất bại. Vui lòng thử lại.");
+      toast.error("Failed to submit answer. Please try again.");
       throw error;
     }
   };
@@ -88,7 +88,7 @@ const QAInboxPage = () => {
           </span>
           <div>
             <strong>{unsolvedCount}</strong>
-            <span>Chưa giải quyết</span>
+            <span>Unsolved</span>
           </div>
         </div>
         <div className="teacher-qa-summary__item">
@@ -97,7 +97,7 @@ const QAInboxPage = () => {
           </span>
           <div>
             <strong>{questions.length}</strong>
-            <span>Tổng số câu hỏi</span>
+            <span>Total Questions</span>
           </div>
         </div>
       </div>

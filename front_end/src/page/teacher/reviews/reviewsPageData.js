@@ -1,12 +1,12 @@
-export const reviewsTableColumns = ["Học viên", "Khóa học", "Đánh giá", "Nhận xét", "Ngày đánh giá"];
+export const reviewsTableColumns = ["Name", "Courses", "Rating", "Review", "Review Date"];
 
 export const ratingFilterOptions = [
-  { value: "all", label: "Tất cả sao" },
-  { value: "5", label: "5 sao" },
-  { value: "4", label: "4 sao" },
-  { value: "3", label: "3 sao" },
-  { value: "2", label: "2 sao" },
-  { value: "1", label: "1 sao" },
+  { value: "all", label: "All Ratings" },
+  { value: "5", label: "5 Stars" },
+  { value: "4", label: "4 Stars" },
+  { value: "3", label: "3 Stars" },
+  { value: "2", label: "2 Stars" },
+  { value: "1", label: "1 Star" },
 ];
 
 export const formatReviewDate = (isoString) => {

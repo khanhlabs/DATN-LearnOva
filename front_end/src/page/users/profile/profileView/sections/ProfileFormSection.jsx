@@ -1,6 +1,6 @@
 import { Camera } from "lucide-react";
 import { useRef } from "react";
-import defaultAvatar from "../../../../../assets/default_user_avatar.jpg";
+import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
 
 

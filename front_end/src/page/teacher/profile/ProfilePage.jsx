@@ -109,10 +109,8 @@ const ProfilePage = () => {
   return (
     <section className="teacher-page teacher-profile-page">
       <header className="teacher-profile-header">
-        <h1>Instructor Profile</h1>
         <p>
-          This information is shown to students on your public instructor page
-          (visible once your account is approved as a teacher).
+          This information is shown to students on your public instructor page.
         </p>
       </header>
 

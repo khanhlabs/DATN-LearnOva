@@ -5,7 +5,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import defaultAvatar from "../../../../../../../assets/default_user_avatar.jpg";
+import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
 
 const CourseDetailHero = ({ course, onBack }) => {
 

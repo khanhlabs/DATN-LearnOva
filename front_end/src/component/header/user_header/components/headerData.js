@@ -1,5 +1,5 @@
 import {useAuth} from "../../../../hook/UseAuth.jsx";
-import defaultAvatar from "../../../../assets/default_user_avatar.jpg"
+import defaultAvatar from "../../../../assets/default_avatar.jpg"
 
 
 export const useUserData = () => {
