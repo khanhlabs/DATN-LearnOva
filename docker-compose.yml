@@ -2,6 +2,10 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: learnova-postgres
+    # để y hàng này mapping xuống dbear
+    ports:
+      - "5433:5432"
+      
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -19,6 +23,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.8
     container_name: learnova-elasticsearch
+    ports:
+      - "9200:9200"
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
