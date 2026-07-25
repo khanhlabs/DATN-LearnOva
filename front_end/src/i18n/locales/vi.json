@@ -264,6 +264,88 @@
       "emptySubtitle": "Bắt đầu hành trình học tập bằng cách chọn khóa học phù hợp với mục tiêu và sở thích của bạn.",
       "viewCatalog": "Xem danh mục khóa học"
     },
+    "learningDetail": {
+      "back": "Quay lại",
+      "watchLesson": "Xem bài học",
+      "instructorLabel": "Giảng viên: ",
+      "instructorFallback": "Giảng viên",
+      "reviewsCount": "({{count}} đánh giá)",
+      "studentsCount": "{{count}} học viên",
+      "tabCurriculum": "Nội dung khóa học",
+      "tabAbout": "Giới thiệu",
+      "tabInstructor": "Giảng viên",
+      "tabReviews": "Đánh giá",
+      "loadingCurriculum": "Đang tải nội dung khóa học...",
+      "noCurriculum": "Không tìm thấy nội dung khóa học.",
+      "loadingReviews": "Đang tải đánh giá...",
+      "chaptersLessons": "{{chapters}} chương - {{lessons}} bài học",
+      "expandAll": "Mở rộng tất cả",
+      "courseOverview": "Tổng quan khóa học",
+      "whatYoullLearn": "Bạn sẽ học được gì",
+      "reviewsBasedOn": "Dựa trên {{count}} đánh giá từ học viên đã đăng ký.",
+      "previous": "Trước",
+      "next": "Sau",
+      "learningProgress": "Tiến độ học tập",
+      "completed": "Hoàn thành",
+      "keepGoing": "Bạn đã hoàn thành",
+      "keepGoingHint": "Cố lên! Bạn đang tiến bộ rất tốt.",
+      "courseCompletedBtn": "Đã hoàn thành khóa học",
+      "continueLearningBtn": "Tiếp tục học",
+      "restartCourse": "Học lại từ đầu",
+      "courseInformation": "Thông tin khóa học",
+      "instructor": "Giảng viên",
+      "duration": "Thời lượng",
+      "students": "Học viên",
+      "lessons": "Bài học",
+      "lastUpdated": "Cập nhật lần cuối",
+      "level": "Trình độ"
+    },
+    "favoriteDetail": {
+      "back": "Về danh sách yêu thích",
+      "previewCourse": "Xem trước khóa học",
+      "previewAria": "Xem trước khóa học",
+      "reviewsCount": "({{count}} đánh giá)",
+      "lessonsCount": "{{count}} bài học",
+      "purchased": "Đã mua",
+      "notPurchased": "Chưa mua",
+      "continueLearning": "Tiếp tục học",
+      "removeFromFavorites": "Bỏ khỏi yêu thích",
+      "buyNow": "Mua ngay",
+      "learnAnywhere": "Học mọi lúc, mọi nơi",
+      "moneyBack": "Hoàn tiền trong vòng 7 ngày",
+      "tabOverview": "Tổng quan",
+      "tabCurriculum": "Nội dung khóa học",
+      "tabInstructor": "Giảng viên",
+      "tabReviews": "Đánh giá",
+      "courseContent": "Nội dung khóa học",
+      "lessonsDuration": "{{lessons}} bài học - {{duration}}",
+      "videoDuration": "Video - {{duration}}",
+      "instructor": "Giảng viên",
+      "studentsRated": "{{count}} học viên đã đánh giá khóa học này.",
+      "noReviews": "Chưa có đánh giá nào.",
+      "previous": "Trước",
+      "next": "Sau",
+      "whatYouWillLearn": "Bạn sẽ học được gì",
+      "requirements": "Yêu cầu",
+      "courseDescription": "Mô tả khóa học",
+      "courseInformation": "Thông tin khóa học",
+      "level": "Trình độ",
+      "numberOfLessons": "Số bài học",
+      "duration": "Thời lượng",
+      "language": "Ngôn ngữ",
+      "category": "Danh mục",
+      "shareCourse": "Chia sẻ khóa học",
+      "shareSubtitle": "Chia sẻ khóa học này với bạn bè",
+      "copyLinkAria": "Sao chép liên kết",
+      "shareFacebookAria": "Chia sẻ trên Facebook",
+      "shareTwitterAria": "Chia sẻ trên Twitter",
+      "shareLinkedInAria": "Chia sẻ trên LinkedIn",
+      "loading": "Đang tải chi tiết khóa học...",
+      "loadFailed": "Không thể tải chi tiết khóa học.",
+      "removedSuccess": "Đã bỏ khỏi danh sách yêu thích!",
+      "removeFailed": "Bỏ khỏi yêu thích thất bại",
+      "linkCopied": "Đã sao chép liên kết!"
+    },
     "achievements": {
       "title": "Thành tích",
       "subtitle": "Hành trình học tập của bạn",
@@ -612,5 +694,34 @@
     "termsOfService": "Điều khoản dịch vụ",
     "cookiePolicy": "Chính sách cookie",
     "sitemap": "Sơ đồ trang"
+  },
+  "chatbot": {
+    "issuePrompt": "Vấn đề bạn đang gặp là gì?",
+    "stillNeedHelp": "Vẫn cần hỗ trợ trực tiếp?",
+    "hotlineIntro": "Gọi hotline để được hỗ trợ trực tiếp:",
+    "supportFaq": {
+      "questions": [
+        {
+          "q": "Tôi quên mật khẩu / không đăng nhập được?",
+          "a": "Vào trang đăng nhập, bấm \"Quên mật khẩu\", nhập email đã đăng ký để nhận link đặt lại mật khẩu."
+        },
+        {
+          "q": "Tôi đã thanh toán nhưng chưa thấy khóa học trong \"Học tập của tôi\"?",
+          "a": "Đợi vài phút để hệ thống xử lý giao dịch. Nếu sau 15 phút vẫn chưa thấy, thử tải lại trang hoặc đăng xuất rồi đăng nhập lại."
+        },
+        {
+          "q": "Tôi muốn đăng ký trở thành giảng viên thì làm sao?",
+          "a": "Vào mục \"Đăng ký trở thành giảng viên\" trong menu tài khoản, điền hồ sơ và đợi admin xét duyệt đơn."
+        },
+        {
+          "q": "Mục \"Tiếp tục học\" / tiến độ khóa học của tôi không đúng?",
+          "a": "Tiến độ cập nhật mỗi khi bạn xem xong một bài học. Thử tải lại trang hồ sơ; nếu vẫn sai, đăng xuất rồi đăng nhập lại để đồng bộ dữ liệu mới nhất."
+        },
+        {
+          "q": "Tôi gửi câu hỏi trong tab Hỏi đáp (Q&A) của bài học nhưng không được?",
+          "a": "Kiểm tra bạn đã đăng nhập và đã đăng ký (mua) khóa học đó chưa — chỉ học viên đã đăng ký mới gửi được câu hỏi trong tab Hỏi đáp."
+        }
+      ]
+    }
   }
 }

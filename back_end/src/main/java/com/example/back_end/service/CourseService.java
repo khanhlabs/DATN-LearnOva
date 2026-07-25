@@ -41,6 +41,7 @@ public class CourseService {
     private final ReviewRepository reviewRepository;
     private final LessonRepository lessonRepository;
     private final InstructorProfileRepository instructorProfileRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public CourseDetailResponse getCourseDetail(Long courseId) {
@@ -100,7 +101,7 @@ public class CourseService {
                 new CourseDetailResponse.InstructorInfo(
                         instructor.getId(),
                         instructor.getFullName(),
-                        instructor.getAvatar(),
+                        s3Service.resolveAvatarUrl(instructor.getAvatar()),
                         instructorDescription
                 );
 

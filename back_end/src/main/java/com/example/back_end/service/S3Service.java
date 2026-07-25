@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
-import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
-import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -21,10 +19,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -38,21 +33,14 @@ public class S3Service {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-//    @Value("${cloudfront.domain}")
-//    private String cloudFrontDomain;
-//
-//    @Value("${cloudfront.key-pair-id}")
-//    private String cloudFrontKeyPairId;
-//
-//    @Value("${cloudfront.private-key-path}")
-//    private String cloudFrontPrivateKeyPath;
+    @Value("${aws.region}")
+    private String region;
 
     public UploadUrlResponse generateUploadUrl(
             UploadType type,
             String fileName,
             String contentType
     ) {
-
         if (type == UploadType.CV && !"application/pdf".equals(contentType)) {
             throw new BusinessException("CV must be a PDF file.");
         }
@@ -65,11 +53,10 @@ public class S3Service {
                 .contentType(contentType)
                 .build();
 
-        PutObjectPresignRequest presignRequest =
-                PutObjectPresignRequest.builder()
-                        .signatureDuration(Duration.ofMinutes(15))
-                        .putObjectRequest(putObjectRequest)
-                        .build();
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(15))
+                .putObjectRequest(putObjectRequest)
+                .build();
 
         String uploadUrl = s3Presigner
                 .presignPutObject(presignRequest)
@@ -79,54 +66,59 @@ public class S3Service {
         return new UploadUrlResponse(uploadUrl, fileKey);
     }
 
-    private String generateFileKey(
-            UploadType type,
-            String fileName
-    ) {
+    private String generateFileKey(UploadType type, String fileName) {
         String extension = "";
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex != -1) {
-            extension = fileName.substring(dotIndex);
+        if (fileName != null) {
+            int dotIndex = fileName.lastIndexOf('.');
+            if (dotIndex != -1) {
+                extension = fileName.substring(dotIndex);
+            }
         }
-        String uuid = UUID.randomUUID().toString();
 
-        return switch (type) {
-            case VIDEO -> "course-video/" + uuid + extension;
-            case THUMBNAIL -> "course-thumbnail/" + uuid + extension;
-            case RESOURCE -> "course-resource/" + uuid + extension;
-            case DOCUMENT -> "course-document/" + uuid + extension;
-            case CV -> "teacher-cv/" + uuid + extension;
-            case AVATAR -> "instructor-avatar/" + uuid + extension;
-        };
+        String uuid = UUID.randomUUID().toString();
+        String folder = resolveFolder(type);
+        return folder + "/" + uuid + extension;
     }
 
-//    public String generateCloudFrontSignedUrl(String fileKey) {
-//        return generateCloudFrontSignedUrl(fileKey, Duration.ofMinutes(30));
-//    }
+    private String resolveFolder(UploadType type) {
+        if (type == UploadType.VIDEO) {
+            return "course-video";
+        }
+        if (type == UploadType.THUMBNAIL) {
+            return "course-thumbnail";
+        }
+        if (type == UploadType.RESOURCE) {
+            return "course-resource";
+        }
+        if (type == UploadType.DOCUMENT) {
+            return "course-document";
+        }
+        if (type == UploadType.CV) {
+            return "teacher-cv";
+        }
+        if (type == UploadType.AVATAR) {
+            return "user-avatar";
+        }
+        if (type == UploadType.INSTRUCTOR_AVATAR) {
+            return "instructor-avatar";
+        }
+        throw new BusinessException("Unsupported upload type: " + type);
+    }
 
-//    public String generateCloudFrontSignedUrl(String fileKey, Duration validFor) {
-//
-//        String resourceUrl = "https://" + cloudFrontDomain + "/" + fileKey;
-//        Path privateKeyPath = Paths.get(cloudFrontPrivateKeyPath);
-//
-//        CannedSignerRequest signerRequest;
-//        try {
-//            signerRequest = CannedSignerRequest.builder()
-//                    .resourceUrl(resourceUrl)
-//                    .privateKey(privateKeyPath)
-//                    .keyPairId(cloudFrontKeyPairId)
-//                    .expirationDate(Instant.now().plus(validFor))
-//                    .build();
-//        } catch (Exception e) {
-//            throw new IllegalStateException("Failed to load CloudFront private key from " + privateKeyPath, e);
-//        }
-//
-//        SignedUrl signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(signerRequest);
-//
-//        return signedUrl.url();
-//    }
+    public String getPublicUrl(String fileKey) {
+        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileKey;
+    }
 
-    // phânf thay cho nó chạy được
+    public String resolveAvatarUrl(String avatar) {
+        if (avatar == null || avatar.isBlank()) {
+            return avatar;
+        }
+        if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
+            return avatar;
+        }
+        return getPublicUrl(avatar);
+    }
+
     public String generateCloudFrontSignedUrl(String fileKey) {
         return fileKey;
     }
@@ -170,5 +162,4 @@ public class S3Service {
             throw new UncheckedIOException("Failed to read S3 object " + key, e);
         }
     }
-
 }

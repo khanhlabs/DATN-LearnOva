@@ -87,9 +87,7 @@ function CourseDetail() {
                 }
 
                 if (data.instructor?.avatarKey) {
-                    getFileUrl(data.instructor.avatarKey)
-                        .then(setInstructorAvatarUrl)
-                        .catch(() => {});
+                    setInstructorAvatarUrl(data.instructor.avatarKey);
                 }
 
                 if (data.instructor?.id) {

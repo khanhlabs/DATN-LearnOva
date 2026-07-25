@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.back_end.dto.response.UserResponse;
 import com.example.back_end.dto.request.UpdateProfileRequest;
+import com.example.back_end.dto.request.UpdateAvatarRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import org.springframework.web.multipart.MultipartFile;
 import com.example.back_end.dto.request.ChangePasswordRequest;
 import com.example.back_end.dto.request.SwitchActiveRoleRequest;
 
@@ -75,13 +73,13 @@ public class UserController {
     @PostMapping("/user/avatar")
     public ResponseEntity<UserResponse> uploadAvatar(
             Authentication authentication,
-            @RequestParam("file") MultipartFile file
-    ) throws IOException {
+            @Valid @RequestBody UpdateAvatarRequest request
+    ) {
 
         String email = authentication.getName();
 
         return ResponseEntity.ok(
-                authService.updateAvatar(email, file)
+                authService.updateAvatar(email, request.avatarKey())
         );
     }
     @PutMapping("/user/change-password")

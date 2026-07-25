@@ -1,56 +1,57 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { adminNotifySuccess } from "../../../api/NotificationApi.js";
-import { useAuth } from "../../../hook/UseAuth.jsx";
 import {
-  getUserProfileApi,
-  updateUserProfileApi,
-  uploadAvatarApi,
-} from "../../../api/UserApi.js";
-import { DEFAULT_PROFILE } from "../../users/profile/profileView/data/profileData";
-import ProfileFormSection from "../../users/profile/profileView/sections/ProfileFormSection";
-import "../../users/profile/profileView/ProfileView.css";
+  getAdminPresignedUploadUrl,
+  getAdminProfileApi,
+  updateAdminProfileApi,
+  uploadAdminAvatarApi,
+} from "../../../api/admin/AdminProfileApi.js";
+import { uploadFileToS3 } from "../../../services/UploadService.js";
+import { useAuth } from "../../../hook/UseAuth.jsx";
+import AdminProfileForm from "./AdminProfileForm.jsx";
 import "./AdminProfilePage.css";
+
+const EMPTY_PROFILE = {
+  fullName: "",
+  email: "",
+  phone: "",
+  avatar: "",
+  coverImage: "",
+  dateOfBirth: "",
+  gender: "",
+  status: "",
+};
 
 const AdminProfilePage = () => {
   const { loading: authLoading, setCurrentUser } = useAuth();
   const [errors, setErrors] = useState({});
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [profileData, setProfileData] = useState(DEFAULT_PROFILE);
-  const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
-  const avatarPreviewUrlRef = useRef(null);
-
-  const clearAvatarPreviewUrl = () => {
-    if (avatarPreviewUrlRef.current) {
-      URL.revokeObjectURL(avatarPreviewUrlRef.current);
-      avatarPreviewUrlRef.current = null;
-    }
-  };
-
-  useEffect(() => () => clearAvatarPreviewUrl(), []);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [profileData, setProfileData] = useState(EMPTY_PROFILE);
 
   const validateProfile = () => {
-    const newErrors = {};
+    const nextErrors = {};
 
     if (!profileData.fullName?.trim()) {
-      newErrors.fullName = "Full name is required";
+      nextErrors.fullName = "Full name is required";
     }
 
     if (!profileData.phone?.trim()) {
-      newErrors.phone = "Phone is required";
+      nextErrors.phone = "Phone is required";
     } else if (!/^\d{9,11}$/.test(profileData.phone)) {
-      newErrors.phone = "Phone must be 9-11 digits";
+      nextErrors.phone = "Phone must be 9-11 digits";
     }
 
     if (!profileData.dateOfBirth) {
-      newErrors.dateOfBirth = "Date of birth is required";
+      nextErrors.dateOfBirth = "Date of birth is required";
     }
 
     if (!profileData.gender) {
-      newErrors.gender = "Gender is required";
+      nextErrors.gender = "Gender is required";
     }
 
-    return newErrors;
+    return nextErrors;
   };
 
   useEffect(() => {
@@ -58,9 +59,7 @@ const AdminProfilePage = () => {
 
     const fetchProfile = async () => {
       try {
-        const data = await getUserProfileApi();
-        clearAvatarPreviewUrl();
-        setPendingAvatarFile(null);
+        const data = await getAdminProfileApi();
         setProfileData({
           fullName: data.fullName || "",
           email: data.email || "",
@@ -72,7 +71,7 @@ const AdminProfilePage = () => {
           status: data.status || "",
         });
       } catch (error) {
-        console.error("Failed to load profile", error);
+        console.error("Failed to load admin profile", error);
         toast.error("Failed to load profile.");
       }
     };
@@ -82,20 +81,59 @@ const AdminProfilePage = () => {
 
   const handleInputChange = (field, value) => {
     setProfileData((current) => ({ ...current, [field]: value }));
+    setSaveSuccess(false);
   };
 
-  const handleAvatarChange = (event) => {
+  const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    event.target.value = "";
 
-    clearAvatarPreviewUrl();
-    const previewUrl = URL.createObjectURL(file);
-    avatarPreviewUrlRef.current = previewUrl;
-    setPendingAvatarFile(file);
-    setProfileData((prev) => ({
-      ...prev,
-      avatar: previewUrl,
-    }));
+    if (!file.type.startsWith("image/") && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
+      toast.error("Please choose a JPG, PNG, or WEBP image.");
+      return;
+    }
+
+    const contentType = file.type || "image/jpeg";
+    setUploadingAvatar(true);
+
+    try {
+      // Same flow as user: presigned URL → PUT file to S3 → save avatarKey
+      const presign = await getAdminPresignedUploadUrl({
+        type: "AVATAR",
+        fileName: file.name || `avatar-${Date.now()}.jpg`,
+        contentType,
+      });
+
+      const uploadUrl = presign?.uploadUrl;
+      const fileKey = presign?.fileKey;
+
+      if (!uploadUrl || !fileKey) {
+        throw new Error("Missing uploadUrl or fileKey from server");
+      }
+
+      await uploadFileToS3(uploadUrl, new File([file], file.name, { type: contentType }));
+
+      const res = await uploadAdminAvatarApi(fileKey);
+      const avatar = res?.avatar;
+
+      if (!avatar) {
+        throw new Error("Server did not return avatar URL");
+      }
+
+      setProfileData((prev) => ({ ...prev, avatar }));
+      setCurrentUser((prev) => ({ ...prev, avatar }));
+      toast.success("Avatar uploaded to S3 successfully!");
+    } catch (error) {
+      console.error("Admin avatar upload failed", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Upload failed. Image was not saved to S3."
+      );
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handleSaveProfile = async (event) => {
@@ -110,18 +148,7 @@ const AdminProfilePage = () => {
     setErrors({});
 
     try {
-      let uploadedAvatar = null;
-
-      if (pendingAvatarFile) {
-        const formData = new FormData();
-        formData.append("file", pendingAvatarFile);
-        const res = await uploadAvatarApi(formData);
-        uploadedAvatar = res.avatar || res.url || res;
-        clearAvatarPreviewUrl();
-        setPendingAvatarFile(null);
-      }
-
-      const response = await updateUserProfileApi({
+      const response = await updateAdminProfileApi({
         fullName: profileData.fullName,
         phone: profileData.phone,
         dateOfBirth: profileData.dateOfBirth,
@@ -131,13 +158,13 @@ const AdminProfilePage = () => {
       setProfileData((prev) => ({
         ...prev,
         ...response,
-        avatar: uploadedAvatar || response.avatar || prev.avatar,
+        avatar: response.avatar || prev.avatar,
       }));
 
       setCurrentUser((prev) => ({
         ...prev,
         fullName: response.fullName ?? prev?.fullName,
-        ...(uploadedAvatar ? { avatar: uploadedAvatar } : {}),
+        ...(response.avatar ? { avatar: response.avatar } : {}),
       }));
 
       setSaveSuccess(true);
@@ -148,20 +175,17 @@ const AdminProfilePage = () => {
   };
 
   return (
-    <div className="profile-view admin-profile-view">
-      <div className="profile-wrapper">
-        <main className="profile-main">
-          <div className="content-area">
-            <ProfileFormSection
-              profileData={profileData}
-              saveSuccess={saveSuccess}
-              onInputChange={handleInputChange}
-              onSaveProfile={handleSaveProfile}
-              onAvatarChange={handleAvatarChange}
-              errors={errors}
-            />
-          </div>
-        </main>
+    <div className="admin-profile-page">
+      <div className="admin-profile-panel">
+        <AdminProfileForm
+          profileData={profileData}
+          saveSuccess={saveSuccess}
+          uploadingAvatar={uploadingAvatar}
+          onInputChange={handleInputChange}
+          onSaveProfile={handleSaveProfile}
+          onAvatarChange={handleAvatarChange}
+          errors={errors}
+        />
       </div>
     </div>
   );

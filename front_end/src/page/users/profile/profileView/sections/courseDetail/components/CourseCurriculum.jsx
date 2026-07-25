@@ -6,8 +6,10 @@ import {
     Play,
     Unlock,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const CourseCurriculum = ({ course }) => {
+    const { t } = useTranslation();
     const [expandedChapters, setExpandedChapters] = useState([]);
 
     const toggleChapter = (chapterId) => {
@@ -22,10 +24,10 @@ const CourseCurriculum = ({ course }) => {
         <section className="learning-content-panel">
             <div className="learning-panel-heading">
         <span>
-          {course.chaptersTotal} Chapters - {course.lessonsTotal} Lessons
+          {t("profile.learningDetail.chaptersLessons", { chapters: course.chaptersTotal, lessons: course.lessonsTotal })}
         </span>
 
-                <button type="button">Expand All</button>
+                <button type="button">{t("profile.learningDetail.expandAll")}</button>
             </div>
 
             <div className="learning-chapter-list">

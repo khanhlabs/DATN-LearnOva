@@ -16,6 +16,7 @@ import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.RoleRepository;
 import com.example.back_end.repository.admin.AdminUserRepository;
+import com.example.back_end.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,7 @@ public class AdminUserService {
     private final AdminUserRepository adminUserRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     public List<AdminUserResponse> getAllUsers() {
         return adminUserRepository.findAll()
@@ -45,7 +47,7 @@ public class AdminUserService {
                     user.getFullName(),
                     user.getEmail(),
                     user.getPhone(),
-                    user.getAvatar(),
+                    s3Service.resolveAvatarUrl(user.getAvatar()),
                     user.getCoverImage(),
                     user.getDateOfBirth(),
                     user.getGender(),
@@ -108,7 +110,7 @@ public class AdminUserService {
             savedUser.getFullName(),
             savedUser.getEmail(),
             savedUser.getPhone(),
-            savedUser.getAvatar(),
+            s3Service.resolveAvatarUrl(savedUser.getAvatar()),
             savedUser.getCoverImage(),
             savedUser.getDateOfBirth(),
             savedUser.getGender(),
@@ -197,7 +199,7 @@ public class AdminUserService {
             updatedUser.getFullName(),
             updatedUser.getEmail(),
             updatedUser.getPhone(),
-            updatedUser.getAvatar(),
+            s3Service.resolveAvatarUrl(updatedUser.getAvatar()),
             updatedUser.getCoverImage(),
             updatedUser.getDateOfBirth(),
             updatedUser.getGender(),

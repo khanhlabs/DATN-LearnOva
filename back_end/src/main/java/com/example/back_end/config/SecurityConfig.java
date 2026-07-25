@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/categories").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/instructors/public/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/learnova/chatbot/message").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/learnova/chatbot/message/stream").permitAll()
                         // NOTE: matches course detail (GET /courses/{id}) but also shares this
                         // single-segment shape with teacher-only GET /courses/my-courses|my-students|my-reviews.
                         // Those three are gated by @PreAuthorize("hasRole('TEACHER')") on the controller

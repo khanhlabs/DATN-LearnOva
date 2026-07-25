@@ -198,7 +198,7 @@ public class AdminCourseService {
         User instructor = course.getInstructor();
         String instructorName = instructor == null ? null
                 : (instructor.getFullName() != null ? instructor.getFullName() : instructor.getEmail());
-        String instructorAvatar = instructor == null ? null : instructor.getAvatar();
+        String instructorAvatar = instructor == null ? null : s3Service.resolveAvatarUrl(instructor.getAvatar());
 
         String status = Boolean.TRUE.equals(course.getIsDeleted()) ? "DELETED"
                 : (course.getStatus() == null ? null : course.getStatus().name());

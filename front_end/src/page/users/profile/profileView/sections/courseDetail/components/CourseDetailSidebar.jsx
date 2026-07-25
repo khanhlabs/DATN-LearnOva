@@ -11,28 +11,28 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-
+import { useTranslation } from "react-i18next";
 
 const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => {
+  const { t } = useTranslation();
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (course.progress / 100) * circumference;
 
   const infoRows = [
-    { icon: User, label: "Instructor", value: course.instructor.name },
-    { icon: Clock, label: "Duration", value: course.duration },
-    { icon: Users, label: "Students", value: course.students },
-    { icon: BookOpen, label: "Lessons", value: course.lessonsTotal },
-    { icon: Calendar, label: "Last Updated", value: course.updatedAt },
-    { icon: BarChart3, label: "Level", value: course.level },
+    { icon: User, label: t("profile.learningDetail.instructor"), value: course.instructor.name },
+    { icon: Clock, label: t("profile.learningDetail.duration"), value: course.duration },
+    { icon: Users, label: t("profile.learningDetail.students"), value: course.students },
+    { icon: BookOpen, label: t("profile.learningDetail.lessons"), value: course.lessonsTotal },
+    { icon: Calendar, label: t("profile.learningDetail.lastUpdated"), value: course.updatedAt },
+    { icon: BarChart3, label: t("profile.learningDetail.level"), value: course.level },
   ];
   const navigate = useNavigate();
 
   return (
     <aside className="learning-detail-sidebar">
       <section className="learning-side-card">
-        <h3>Learning Progress</h3>
+        <h3>{t("profile.learningDetail.learningProgress")}</h3>
 
         <div className="learning-progress-ring">
           <svg viewBox="0 0 132 132" aria-hidden="true">
@@ -48,11 +48,11 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
 
           <div>
             <strong>{course.progress}%</strong>
-            <span>Completed</span>
+            <span>{t("profile.learningDetail.completed")}</span>
           </div>
         </div>
 
-        <p>You have completed</p>
+        <p>{t("profile.learningDetail.keepGoing")}</p>
 
         <strong className="learning-finished">
           {course.lessonsDone} / {course.lessonsTotal} lessons
@@ -62,13 +62,13 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
           <span style={{ width: `${course.progress}%` }} />
         </div>
 
-        <small>Keep it up! You're making great progress.</small>
+        <small>{t("profile.learningDetail.keepGoingHint")}</small>
 
         {course.progress === 100 ? (
             <>
               <button className="learning-primary-button completed" type="button">
                 <Play size={16} fill="white" />
-                Course Completed
+                {t("profile.learningDetail.courseCompletedBtn")}
               </button>
               {certificate && (
                 <button
@@ -77,7 +77,9 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
                     onClick={onDownloadCertificate}
                 >
                   <Download size={16} />
-                  Download Certificate
+                  {t("profile.learningDetail.downloadCertificate", {
+                    defaultValue: "Download Certificate",
+                  })}
                 </button>
               )}
             </>
@@ -88,18 +90,18 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
                 onClick={() => navigate(`/learnova/user/courses-detail/${course.courseId}`)}
             >
               <Play size={16} fill="currentColor" />
-              Continue Learning
+              {t("profile.learningDetail.continueLearningBtn")}
             </button>
         )}
 
         <button className="learning-secondary-button" type="button">
           <RotateCcw size={16} />
-          Restart Course
+          {t("profile.learningDetail.restartCourse")}
         </button>
       </section>
 
       <section className="learning-side-card">
-        <h3>Course Information</h3>
+        <h3>{t("profile.learningDetail.courseInformation")}</h3>
 
         <div className="learning-info-list">
           {infoRows.map((row) => {

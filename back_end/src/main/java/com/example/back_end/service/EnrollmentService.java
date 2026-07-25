@@ -33,6 +33,7 @@ public class EnrollmentService {
     private final LessonProgressRepository lessonProgressRepository;
     private final InstructorProfileRepository instructorProfileRepository;
     private final CourseRepository courseRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public List<MyEnrolledCourseResponse> getMyEnrolledCourses() {
@@ -102,7 +103,7 @@ public class EnrollmentService {
                 tags,
 
                 course.getInstructor().getFullName(),
-                course.getInstructor().getAvatar(),
+                s3Service.resolveAvatarUrl(course.getInstructor().getAvatar()),
                 instructorProfile != null ? instructorProfile.getHeadline() : null,
                 instructorProfile != null ? instructorProfile.getDescription() : null,
                 instructorCourseCount,

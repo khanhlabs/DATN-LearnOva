@@ -30,9 +30,6 @@ import java.time.Instant;
 import com.example.back_end.dto.response.UserResponse;
 import com.example.back_end.dto.request.UpdateProfileRequest;
 import com.example.back_end.dto.request.ChangePasswordRequest;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import java.util.Base64;
 
 
 @Service
@@ -47,6 +44,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final S3Service s3Service;
 
     @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
@@ -143,7 +141,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getDateOfBirth(),
                 user.getGender(),
@@ -232,7 +230,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getDateOfBirth(),
                 user.getGender(),
@@ -272,7 +270,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getDateOfBirth(),
                 user.getGender(),
@@ -284,15 +282,12 @@ public class AuthService {
         );
     }
     @Transactional
-    public UserResponse updateAvatar(String email, MultipartFile file) throws IOException {
+    public UserResponse updateAvatar(String email, String avatarKey) {
 
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String base64 = "data:image/png;base64," +
-                Base64.getEncoder().encodeToString(file.getBytes());
-
-        user.setAvatar(base64);
+        user.setAvatar(avatarKey);
         user.setUpdatedAt(Instant.now());
 
         userRepository.save(user);
@@ -310,7 +305,7 @@ public class AuthService {
                 ? "Active"
                 : "Inactive";
 
-        String avatar = user.getAvatar(); // base64 string
+        String avatar = s3Service.resolveAvatarUrl(user.getAvatar());
 
         return new UserResponse(
                 user.getId(),

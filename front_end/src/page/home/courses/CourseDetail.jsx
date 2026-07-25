@@ -109,13 +109,7 @@ export default function CourseDetail() {
                     setThumbnailUrl(null);
                 }
 
-                if (data.instructor?.avatarKey) {
-                    getFileUrl(data.instructor.avatarKey)
-                        .then(setInstructorAvatarUrl)
-                        .catch(() => setInstructorAvatarUrl(null));
-                } else {
-                    setInstructorAvatarUrl(null);
-                }
+                setInstructorAvatarUrl(data.instructor?.avatarKey || null);
             } catch (err) {
                 console.error("Failed to load course:", err);
                 setCourse(null);

@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const CourseReviews = ({ course, reviewsData }) => {
+    const { t } = useTranslation();
+
     if (!course || !reviewsData) {
-        return <p>Loading reviews...</p>;
+        return <p>{t("profile.learningDetail.loadingReviews")}</p>;
     }
     const REVIEWS_PER_PAGE = 3;
 
@@ -31,7 +34,7 @@ const CourseReviews = ({ course, reviewsData }) => {
                     </div>
 
                     <p>
-                        Based on {reviewsData.reviewCount} reviews from enrolled students.
+                        {t("profile.learningDetail.reviewsBasedOn", { count: reviewsData.reviewCount })}
                     </p>
                 </div>
             </div>
@@ -62,7 +65,7 @@ const CourseReviews = ({ course, reviewsData }) => {
                         disabled={currentPage === 1}
                         onClick={() => setCurrentPage((p) => p - 1)}
                     >
-                        Previous
+                        {t("profile.learningDetail.previous")}
                     </button>
 
                     {Array.from({ length: totalPages }, (_, index) => (
@@ -79,7 +82,7 @@ const CourseReviews = ({ course, reviewsData }) => {
                         disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage((p) => p + 1)}
                     >
-                        Next
+                        {t("profile.learningDetail.next")}
                     </button>
 
                 </div>
