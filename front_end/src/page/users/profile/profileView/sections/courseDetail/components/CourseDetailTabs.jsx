@@ -1,4 +1,5 @@
 import { BookOpen, Info, Star, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { COURSE_DETAIL_TABS } from "../data/courseDetailData";
 
 const tabIcons = {
@@ -8,11 +9,15 @@ const tabIcons = {
   reviews: Star,
 };
 
-const CourseDetailTabs = ({ activeTab, onChangeTab, reviews }) => (
+const CourseDetailTabs = ({ activeTab, onChangeTab, reviews }) => {
+  const { t } = useTranslation();
+
+  return (
   <div className="learning-detail-tabs">
     {COURSE_DETAIL_TABS.map((tab) => {
       const Icon = tabIcons[tab.id];
-      const label = tab.id === "reviews" ? `${tab.label} (${reviews})` : tab.label;
+      const tabLabel = t(tab.labelKey);
+      const label = tab.id === "reviews" ? `${tabLabel} (${reviews})` : tabLabel;
 
       return (
         <button
@@ -27,6 +32,7 @@ const CourseDetailTabs = ({ activeTab, onChangeTab, reviews }) => (
       );
     })}
   </div>
-);
+  );
+};
 
 export default CourseDetailTabs;

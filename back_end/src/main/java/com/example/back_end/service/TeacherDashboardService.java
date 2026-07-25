@@ -40,6 +40,7 @@ public class TeacherDashboardService {
     private final OrderRepository orderRepository;
     private final LessonQARepository lessonQARepository;
     private final CourseService courseService;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public TeacherDashboardResponse getDashboard(String email) {
@@ -211,7 +212,7 @@ public class TeacherDashboardService {
         return new TeacherDashboardResponse.RecentEnrollment(
                 enrollment.getUser().getId(),
                 enrollment.getUser().getFullName(),
-                enrollment.getUser().getAvatar(),
+                s3Service.resolveAvatarUrl(enrollment.getUser().getAvatar()),
                 enrollment.getCourse().getId(),
                 enrollment.getCourse().getTitle(),
                 enrollment.getEnrolledAt()

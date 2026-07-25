@@ -1,8 +1,8 @@
 export const COURSE_DETAIL_TABS = [
-  { id: "curriculum", label: "Course Content" },
-  { id: "about", label: "About" },
-  { id: "instructor", label: "Instructor" },
-  { id: "reviews", label: "Reviews" },
+  { id: "curriculum", labelKey: "profile.learningDetail.tabCurriculum" },
+  { id: "about", labelKey: "profile.learningDetail.tabAbout" },
+  { id: "instructor", labelKey: "profile.learningDetail.tabInstructor" },
+  { id: "reviews", labelKey: "profile.learningDetail.tabReviews" },
 ];
 
 export const DEFAULT_COURSE_DETAIL = {

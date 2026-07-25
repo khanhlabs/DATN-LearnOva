@@ -37,6 +37,7 @@ public class PublicInstructorService {
     private final EnrollmentRepository enrollmentRepository;
     private final ReviewRepository reviewRepository;
     private final InstructorFollowRepository instructorFollowRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public List<PublicInstructorResponse> getPublicInstructors() {
@@ -89,7 +90,7 @@ public class PublicInstructorService {
         return new PublicInstructorDetailResponse(
                 user.getId(),
                 user.getFullName(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 profile != null ? profile.getHeadline() : null,
                 profile != null ? profile.getDescription() : null,
                 parseExpertise(profile),
@@ -115,7 +116,7 @@ public class PublicInstructorService {
         return new PublicInstructorResponse(
                 user.getId(),
                 user.getFullName(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 profile != null ? profile.getHeadline() : null,
                 profile != null ? profile.getDescription() : null,
                 parseExpertise(profile),
@@ -129,7 +130,7 @@ public class PublicInstructorService {
     private ReviewSummary toReviewSummary(Review review) {
         return new ReviewSummary(
                 review.getUser().getFullName(),
-                review.getUser().getAvatar(),
+                s3Service.resolveAvatarUrl(review.getUser().getAvatar()),
                 review.getRating(),
                 review.getComment(),
                 review.getCreatedAt(),

@@ -18,6 +18,8 @@ import { getMyEnrolledCoursesApi } from "../../../../api/EnrollmentApi.js";
 import { useAuth } from "../../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../../../api/UserApi.js";
+import { generateUploadUrl } from "../../../../api/UploadApi.js";
+import { uploadFileToS3 } from "../../../../services/UploadService.js";
 import { getUserStatsApi } from "../../../../api/UserStatsApi.js";
 import { toast } from "react-toastify";
 
@@ -122,7 +124,7 @@ const ProfileView = ({
 
     const fetchProfile = async () => {
       try {
-        const data = await getUserProfileApi();
+        const data = await getUserProfileApi(accessToken);
 
         setProfileData({
           fullName: data.fullName || "",
@@ -136,11 +138,12 @@ const ProfileView = ({
         });
       } catch (error) {
         console.error("Failed to load profile", error);
+        toast.error(error?.response?.data?.message || "Không tải được thông tin hồ sơ. Vui lòng thử lại.");
       }
     };
 
     fetchProfile();
-  }, [authLoading]);
+  }, [authLoading, accessToken]);
 
   useEffect(() => {
     if (activeTab !== "courses" && activeTab !== "favorites") return undefined;
@@ -221,7 +224,7 @@ const ProfileView = ({
         dateOfBirth: profileData.dateOfBirth,
         gender: profileData.gender,
         avatar: profileData.avatar,
-      });
+      }, accessToken);
 
       setProfileData((prev) => ({
         ...prev,
@@ -238,14 +241,18 @@ const ProfileView = ({
     const file = event.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await uploadAvatarApi(formData);
+      const { uploadUrl, fileKey } = await generateUploadUrl({
+        type: "AVATAR",
+        fileName: file.name,
+        contentType: file.type,
+      });
 
-      const avatar = res.avatar || res.url || res;
+      await uploadFileToS3(uploadUrl, file);
 
+      const res = await uploadAvatarApi(fileKey, accessToken);
+
+      const avatar = res.avatar;
 
       setProfileData((prev) => ({
         ...prev,

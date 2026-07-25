@@ -1,19 +1,23 @@
 import { Award, BookOpen, Star, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import defaultAvatar from "../../../../../../../assets/default_user_avatar.jpg";
 
 const statIcons = [Award, BookOpen, Users, Star];
 
-const CourseInstructor = ({ instructor }) => (
+const CourseInstructor = ({ instructor }) => {
+    const { t } = useTranslation();
+
+    return (
     <section className="learning-content-panel learning-instructor-panel">
         <div className="learning-instructor-profile">
             <img
                 src={instructor?.avatar?.trim() ? instructor.avatar : defaultAvatar}
-                alt={instructor?.name || "Instructor"}
+                alt={instructor?.name || t("profile.learningDetail.instructorFallback")}
             />
 
             <div>
                 <h2>{instructor?.name}</h2>
-                <strong>{instructor?.role || "Instructor"}</strong>
+                <strong>{instructor?.role || t("profile.learningDetail.instructorFallback")}</strong>
                 <p>{instructor?.description}</p>
             </div>
         </div>
@@ -32,6 +36,7 @@ const CourseInstructor = ({ instructor }) => (
             </div>
         )}
     </section>
-);
+    );
+};
 
 export default CourseInstructor;

@@ -5,19 +5,21 @@ export const getCurrentUserApi = async () => {
 
     return response.data;
 };
-export const getUserProfileApi = async () => {
-    const response = await axiosClient.get("/user/profile");
+export const getUserProfileApi = async (accessToken) => {
+    const response = await axiosClient.get("/user/profile", {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    });
     return response.data;
 };
-export const updateUserProfileApi = async (data) => {
-    const response = await axiosClient.put("/user/profile", data);
+export const updateUserProfileApi = async (data, accessToken) => {
+    const response = await axiosClient.put("/user/profile", data, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    });
     return response.data;
 };
-export const uploadAvatarApi = async (formData) => {
-    const res = await axiosClient.post("/user/avatar", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
+export const uploadAvatarApi = async (avatarKey, accessToken) => {
+    const res = await axiosClient.post("/user/avatar", { avatarKey }, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
     });
 
     return res.data;

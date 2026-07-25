@@ -36,6 +36,9 @@ public class S3Service {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
+    @Value("${aws.region}")
+    private String region;
+
 //    @Value("${cloudfront.domain}")
 //    private String cloudFrontDomain;
 //
@@ -89,7 +92,27 @@ public class S3Service {
             case THUMBNAIL -> "course-thumbnail/" + uuid + extension;
             case RESOURCE -> "course-resource/" + uuid + extension;
             case DOCUMENT -> "course-document/" + uuid + extension;
+            case AVATAR -> "user-avatar/" + uuid + extension;
         };
+    }
+
+    // Avatars are uploaded to a public-read S3 bucket, so they're served directly
+    // via the standard virtual-hosted-style S3 URL — no CloudFront signing needed.
+    public String getPublicUrl(String fileKey) {
+        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileKey;
+    }
+
+    // User.avatar stores either an S3 key (self-uploaded via this app) or a
+    // ready-to-use external URL (Google OAuth profile picture, admin-entered
+    // URL). Resolve to a displayable URL regardless of which one it is.
+    public String resolveAvatarUrl(String avatar) {
+        if (avatar == null || avatar.isBlank()) {
+            return avatar;
+        }
+        if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
+            return avatar;
+        }
+        return getPublicUrl(avatar);
     }
 
 //    public String generateCloudFrontSignedUrl(String fileKey) {

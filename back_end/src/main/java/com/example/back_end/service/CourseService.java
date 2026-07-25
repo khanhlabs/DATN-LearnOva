@@ -60,6 +60,7 @@ public class CourseService {
         private final LessonRepository lessonRepository;
         private final NotificationService notificationService;
         private final InstructorProfileRepository instructorProfileRepository;
+        private final S3Service s3Service;
 
         private static final Set<CourseStatus> TEACHER_SETTABLE_STATUSES = EnumSet.of(CourseStatus.DRAFT,
                         CourseStatus.PENDING_REVIEW);
@@ -287,7 +288,7 @@ public class CourseService {
                 CourseDetailResponse.InstructorInfo instructorInfo = new CourseDetailResponse.InstructorInfo(
                                 instructor.getId(),
                                 instructor.getFullName(),
-                                instructor.getAvatar(),
+                                s3Service.resolveAvatarUrl(instructor.getAvatar()),
                                 instructorDescription);
 
                 return new CourseDetailResponse(
@@ -648,7 +649,7 @@ public class CourseService {
                                                         student.getId(),
                                                         student.getFullName(),
                                                         student.getEmail(),
-                                                        student.getAvatar(),
+                                                        s3Service.resolveAvatarUrl(student.getAvatar()),
                                                         courseNames,
                                                         earliestEnrolledAt,
                                                         avgProgress);
@@ -683,7 +684,7 @@ public class CourseService {
                                                 review.getCourse().getTitle(),
                                                 review.getUser().getId(),
                                                 review.getUser().getFullName(),
-                                                review.getUser().getAvatar(),
+                                                s3Service.resolveAvatarUrl(review.getUser().getAvatar()),
                                                 review.getRating(),
                                                 review.getComment(),
                                                 review.getCreatedAt()))

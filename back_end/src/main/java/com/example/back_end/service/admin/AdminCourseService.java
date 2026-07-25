@@ -19,6 +19,7 @@ import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.admin.AdminCourseRepository;
 import com.example.back_end.service.EmailService;
 import com.example.back_end.service.NotificationService;
+import com.example.back_end.service.S3Service;
 
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -35,11 +36,13 @@ public class AdminCourseService {
     private final AdminCourseRepository courseRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final S3Service s3Service;
 
-    public AdminCourseService(AdminCourseRepository courseRepository, NotificationService notificationService, EmailService emailService) {
+    public AdminCourseService(AdminCourseRepository courseRepository, NotificationService notificationService, EmailService emailService, S3Service s3Service) {
         this.courseRepository = courseRepository;
         this.notificationService = notificationService;
         this.emailService = emailService;
+        this.s3Service = s3Service;
     }
 
     public List<AdminCourseResponse> getAllCourses() {
@@ -176,7 +179,7 @@ public class AdminCourseService {
         User instructor = course.getInstructor();
         String instructorName = instructor == null ? null
                 : (instructor.getFullName() != null ? instructor.getFullName() : instructor.getEmail());
-        String instructorAvatar = instructor == null ? null : instructor.getAvatar();
+        String instructorAvatar = instructor == null ? null : s3Service.resolveAvatarUrl(instructor.getAvatar());
 
         String status = Boolean.TRUE.equals(course.getIsDeleted()) ? "DELETED"
                 : (course.getStatus() == null ? null : course.getStatus().name());

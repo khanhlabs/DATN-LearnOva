@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { buildCourseDetail } from "./data/courseDetailData";
 
 import CourseAbout from "./components/CourseAbout";
@@ -21,6 +22,7 @@ import { useAxiosPrivate } from "../../../../../../hook/UseAxiosPrivate.js";
 
 
 const CourseDetailSection = ({ course, onBack }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("curriculum");
   const axiosPrivate = useAxiosPrivate();
   const { accessToken } = useAuth();
@@ -49,11 +51,11 @@ const CourseDetailSection = ({ course, onBack }) => {
     }
 
     if (loadingCurriculum) {
-      return <p>Loading curriculum...</p>;
+      return <p>{t("profile.learningDetail.loadingCurriculum")}</p>;
     }
 
     if (!curriculum) {
-      return <p>No curriculum found.</p>;
+      return <p>{t("profile.learningDetail.noCurriculum")}</p>;
     }
 
     return <CourseCurriculum course={curriculum} />;

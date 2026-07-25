@@ -31,6 +31,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final AdminCourseRepository adminCourseRepository;
     private final LessonProgressService lessonProgressService;
+    private final S3Service s3Service;
 
     @Transactional
     public ReviewResponse createReview(
@@ -171,7 +172,7 @@ public class ReviewService {
                 .map(review -> new TestimonialResponse(
                         review.getId(),
                         review.getUser().getFullName(),
-                        review.getUser().getAvatar(),
+                        s3Service.resolveAvatarUrl(review.getUser().getAvatar()),
                         review.getRating(),
                         review.getComment(),
                         review.getCourse().getTitle()))
