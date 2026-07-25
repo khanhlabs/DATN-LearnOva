@@ -24,16 +24,6 @@ const AUTH_FACTS = [
     note: "From jwt.access-token-expiration (900000 ms).",
   },
   {
-    title: "Security Policy",
-    description: "Define administrator auth protection and session behavior.",
-    icon: ShieldCheck,
-    items: [
-      { label: "Two-factor authentication", value: "Required for admins" },
-      { label: "Session timeout", value: "30 minutes" },
-      { label: "Password rotation", value: "Every 90 days" },
-    ],
-  },
-  {
     label: "Password change",
     value: "On request only",
     note: "PUT /user/change-password or forgot-password. No forced rotation.",
