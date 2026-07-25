@@ -69,7 +69,7 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
               u.created_at,
               COALESCE(MIN(CAST(r.role_name AS text)), 'ROLE_USER') AS role_name
             FROM users u
-            LEFT JOIN userrole ur ON ur.user_id = u.user_id
+            LEFT JOIN user_role ur ON ur.user_id = u.user_id
             LEFT JOIN roles r ON r.role_id = ur.role_id
             WHERE u.is_deleted = false
             GROUP BY u.user_id, u.full_name, u.email, u.created_at
