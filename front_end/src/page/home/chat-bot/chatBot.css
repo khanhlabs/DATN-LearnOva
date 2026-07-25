@@ -136,6 +136,7 @@
     border-radius: 16px;
 
     max-width: 90%;
+
 }
 .message-box::before {
     content: "";
@@ -411,6 +412,7 @@
 
     margin-left: 12px;
     font-size: 12px;
+    margin-top: 10px;
 }
 .message.bot::before {
     content: "";
@@ -428,6 +430,10 @@
     border-bottom-right-radius: 12px;
 
     transform: rotate(35deg);
+}
+.typing-indicator {
+    font-style: italic;
+    opacity: 0.8;
 }
 .message.user {
     background: #e9f2ff;

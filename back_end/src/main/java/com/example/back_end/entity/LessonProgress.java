@@ -15,6 +15,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 @Entity
@@ -44,4 +46,10 @@ public class LessonProgress {
     @ColumnDefault("0")
     @Column(name = "watched_seconds", nullable = false)
     private Integer watchedSeconds;
+
+    @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
 }

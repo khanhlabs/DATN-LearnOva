@@ -32,7 +32,7 @@ public class InstructorProfile {
     @Column(name = "expertise")
     private String expertise;
 
-    @Column(name = "avatar_key")
+    @Column(name = "avatarkey")
     private String avatarKey;
 
     @JdbcTypeCode(SqlTypes.JSON)

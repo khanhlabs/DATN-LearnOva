@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import axiosClient from "../../../../api/AxiosClient.js";
 import { getFileUrl } from "../../../../api/PublicCourseApi.js";
-import CourseVideoPlayer from "../../../users/course/CourseDetail/VideoPlayer.jsx";
+import CourseVideoPlayer from "../../../users/course/CourseDetail/components/VideoPlayer.jsx";
 import "./CourseTable.css";
 
 const pageSize = 10;

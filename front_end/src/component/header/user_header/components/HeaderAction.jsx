@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ShoppingCart } from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
 import {
   CART_UPDATED_EVENT,
   getStoredCartItems,
 } from "../../../../utils/cartStorage.js";
 
 const HeaderAction = () => {
+  const { t } = useTranslation();
   const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
@@ -38,16 +41,14 @@ const HeaderAction = () => {
       </Link>
 
       <Link to="/learnova/auth/login" className="header-action-login">
-        Log in
+        {t("header.login")}
       </Link>
 
       <Link to="/learnova/auth/login?mode=register" className="header-action-signup">
-        Sign up
+        {t("header.signup")}
       </Link>
 
-      <button className="header-action-language" type="button">
-        <Globe size={22} />
-      </button>
+      <LanguageSwitcher />
     </div>
   );
 };

@@ -328,6 +328,36 @@ public class AuthService {
                 user.getUpdatedAt()
         );
     }
+    // Reveals whether the email exists — an explicit product decision for this
+    // flow (unlike resendVerificationEmail, which stays silent to avoid enumeration).
+    @Transactional
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email.trim().toLowerCase())
+                .orElseThrow(() -> new BusinessException("This email does not exist."));
+
+        VerificationToken resetToken = verificationTokenService.createResetPasswordToken(user);
+        String resetLink = frontendBaseUrl + "/reset-password?token=" + resetToken.getToken();
+
+        emailService.sendResetPasswordEmail(user.getEmail(), user.getFullName(), resetLink);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateResetToken(String token) {
+        verificationTokenService.verifyResetPasswordToken(token);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        VerificationToken resetToken = verificationTokenService.verifyResetPasswordToken(token);
+        User user = resetToken.getUser();
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(Instant.now());
+        userRepository.save(user);
+
+        verificationTokenService.markAsUsed(resetToken);
+    }
+
     public void changePassword(String email, ChangePasswordRequest request) {
 
         User user = userRepository.findByEmail(email)

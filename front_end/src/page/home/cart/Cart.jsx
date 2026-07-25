@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, Tag, Trash2, X } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -42,6 +43,7 @@ function normalizeTitle(title) {
 }
 
 const Cart = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const { accessToken, isAuthenticated, loading: authLoading } = useAuth();
@@ -50,6 +52,7 @@ const Cart = () => {
   const [dbCourses, setDbCourses] = useState([]);
   const [promo, setPromo] = useState("");
   const [appliedVoucher, setAppliedVoucher] = useState(null);
+  const [voucherMessage, setVoucherMessage] = useState("");
   const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [activePayment, setActivePayment] = useState(null);
@@ -78,6 +81,7 @@ const Cart = () => {
     const onCartChange = () => {
       loadCartItems();
       setAppliedVoucher(null);
+      setVoucherMessage("");
     };
 
     window.addEventListener(CART_UPDATED_EVENT, onCartChange);
@@ -94,6 +98,8 @@ const Cart = () => {
       .then((data) => setDbCourses(Array.isArray(data) ? data : []))
       .catch(() => setDbCourses([]));
   }, []);
+
+  const closeRemovePopup = () => setItemToRemove(null);
 
   const subtotal = items.reduce((sum, item) => sum + toUsdNumber(item.price), 0);
   const discount = Number(appliedVoucher?.discountAmount || 0);
@@ -125,37 +131,53 @@ const Cart = () => {
       }
 
       setAppliedVoucher(null);
-      setItemToRemove(null);
-      toast.success(`Removed "${title}" from cart.`);
+      setVoucherMessage("");
+      closeRemovePopup();
+      toast.success(t("cart.removedFromCart", { title }));
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to remove course from cart.");
     }
+  };
+
+  const handleVoucherChange = (event) => {
+    setPromo(event.target.value);
+    setAppliedVoucher(null);
+    setVoucherMessage("");
   };
 
   const handleApplyVoucher = async () => {
     const code = promo.trim();
 
     if (!code) {
-      toast.error("Please enter a voucher code.");
+      setVoucherMessage(t("cart.enterVoucherCode"));
       return;
     }
     if (items.length === 0 || subtotal <= 0) {
-      toast.error("Your cart is empty.");
+      setVoucherMessage(t("cart.cartEmpty"));
       return;
     }
     if (appliedVoucher?.code?.toLowerCase() === code.toLowerCase()) {
-      toast.info("Voucher already applied.");
+      setVoucherMessage(t("cart.voucherAlreadyApplied"));
       return;
     }
 
     try {
       setIsApplyingVoucher(true);
+      setVoucherMessage("");
       const result = await applyVoucherApi({ code, subtotal });
       setAppliedVoucher(result);
-      toast.success("Voucher applied.");
+      setVoucherMessage(
+        t("cart.voucherApplied", {
+          code: result.code,
+          usedCount: result.usedCount,
+          usageLimit: result.usageLimit,
+        }),
+      );
+      toast.success(t("cart.voucherAppliedSuccess"));
     } catch (err) {
       setAppliedVoucher(null);
-      const message = err?.response?.data?.message || "Invalid or unavailable voucher.";
+      const message = err?.response?.data?.message || t("cart.voucherInvalid");
+      setVoucherMessage(message);
       toast.error(message);
     } finally {
       setIsApplyingVoucher(false);
@@ -166,11 +188,11 @@ const Cart = () => {
     if (authLoading) return;
 
     if (!isAuthenticated) {
-      toast.error("Please log in to checkout.");
+      toast.error(t("cart.loginToCheckout"));
       return;
     }
     if (items.length === 0) {
-      toast.error("Your cart is empty.");
+      toast.error(t("cart.cartEmpty"));
       return;
     }
 
@@ -180,7 +202,7 @@ const Cart = () => {
       .filter((pair) => pair.course);
 
     if (checkoutPairs.length !== items.length) {
-      toast.error("Some courses in your cart are unavailable or not published.");
+      toast.error(t("cart.coursesUnavailable"));
       return;
     }
 
@@ -229,7 +251,7 @@ const Cart = () => {
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
-        "Unable to create payment.";
+        t("cart.paymentCreateError");
       toast.error(msg, { autoClose: 4000 });
     } finally {
       setIsCreatingPayment(false);
@@ -263,6 +285,7 @@ const Cart = () => {
     }
 
     setAppliedVoucher(null);
+    setVoucherMessage("");
   };
 
   return (
@@ -271,17 +294,17 @@ const Cart = () => {
         <div className="cart-left">
           <div className="cart-list">
             <div className="cart-list-header">
-              <div>Course</div>
-              <div>Price</div>
-              <div>Quantity</div>
-              <div>Total</div>
-              <div>Actions</div>
+              <div>{t("cart.colCourse")}</div>
+              <div>{t("cart.colPrice")}</div>
+              <div>{t("cart.colQuantity")}</div>
+              <div>{t("cart.colTotal")}</div>
+              <div>{t("cart.colActions")}</div>
             </div>
 
             {items.length === 0 && (
               <div className="cart-empty">
-                <p>Your cart is empty.</p>
-                <Link to="/learnova/courses">Continue shopping</Link>
+                <p>{t("cart.emptyMessage")}</p>
+                <Link to="/learnova/courses">{t("cart.continueBrowsing")}</Link>
               </div>
             )}
 
@@ -295,12 +318,14 @@ const Cart = () => {
                     <img src={item.image} alt={item.title} />
                     <div>
                       <Link
-                        to={`/learnova/CoursesDetail/${courseId}`}
+                        to={`/learnova/user/courses-detail/${courseId}`}
                         className="cart-item-title"
                       >
                         {item.title}
                       </Link>
-                      <div className="cart-item-teacher">By {item.teacher}</div>
+                      <div className="cart-item-teacher">
+                        {t("cart.byInstructor", { name: item.teacher })}
+                      </div>
                     </div>
                   </div>
 
@@ -313,7 +338,7 @@ const Cart = () => {
                   <button
                     className="cart-item-remove"
                     type="button"
-                    aria-label={`Remove ${item.title}`}
+                    aria-label={t("cart.removeAria", { title: item.title })}
                     onClick={() => setItemToRemove(item)}
                   >
                     <Trash2 size={18} />
@@ -326,31 +351,28 @@ const Cart = () => {
 
         <aside className="cart-right">
           <div className="order-card">
-            <h3>Order summary</h3>
+            <h3>{t("cart.orderSummary")}</h3>
 
             <div className="order-row">
-              <span>Subtotal ({items.length} courses)</span>
+              <span>{t("cart.subtotal", { count: items.length })}</span>
               <span>{formatUsd(subtotal)}</span>
             </div>
 
             <div className="order-row">
-              <span>Discount</span>
+              <span>{t("cart.discount")}</span>
               <span className="discount">-{formatUsd(discount)}</span>
             </div>
 
             <div className="voucher-box">
-              <label htmlFor="voucher-code">Voucher code</label>
+              <label htmlFor="voucher-code">{t("cart.voucherLabel")}</label>
               <div className="voucher-input-wrap">
                 <Tag size={18} />
                 <input
                   id="voucher-code"
                   type="text"
                   value={promo}
-                  placeholder="Enter voucher"
-                  onChange={(event) => {
-                    setPromo(event.target.value);
-                    setAppliedVoucher(null);
-                  }}
+                  onChange={handleVoucherChange}
+                  placeholder={t("cart.voucherPlaceholder")}
                 />
                 <button
                   type="button"
@@ -358,13 +380,22 @@ const Cart = () => {
                   onClick={handleApplyVoucher}
                   disabled={isApplyingVoucher}
                 >
-                  {isApplyingVoucher ? "..." : "Apply"}
+                  {isApplyingVoucher ? t("cart.applying") : t("cart.apply")}
                 </button>
               </div>
+              {voucherMessage ? (
+                <p
+                  className={`voucher-message ${
+                    appliedVoucher ? "voucher-message--success" : "voucher-message--error"
+                  }`}
+                >
+                  {voucherMessage}
+                </p>
+              ) : null}
             </div>
 
             <div className="order-total">
-              <span>Total</span>
+              <span>{t("cart.total")}</span>
               <span className="total-amount">{formatUsd(total)}</span>
             </div>
 
@@ -377,10 +408,10 @@ const Cart = () => {
               {isCreatingPayment
                 ? total <= 0
                   ? "Enrolling..."
-                  : "Creating payment..."
+                  : t("cart.creatingPayment")
                 : total <= 0
                   ? "Enroll for free"
-                  : "Proceed to checkout"}
+                  : t("cart.proceedToCheckout")}
             </button>
 
             <button
@@ -388,7 +419,7 @@ const Cart = () => {
               type="button"
               onClick={() => navigate("/learnova/courses")}
             >
-              Continue shopping
+              {t("cart.continueShopping")}
             </button>
           </div>
         </aside>
@@ -396,12 +427,17 @@ const Cart = () => {
 
       {itemToRemove && (
         <div className="cart-popup-backdrop" role="presentation">
-          <div className="cart-confirm-popup" role="dialog" aria-modal="true">
+          <div
+            className="cart-confirm-popup"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-cart-title"
+          >
             <button
               className="cart-popup-close"
               type="button"
-              aria-label="Close popup"
-              onClick={() => setItemToRemove(null)}
+              onClick={closeRemovePopup}
+              aria-label={t("cart.closePopup")}
             >
               <X size={18} />
             </button>
@@ -410,26 +446,26 @@ const Cart = () => {
               <AlertTriangle size={26} />
             </div>
 
-            <h3>Remove course?</h3>
+            <h3 id="remove-cart-title">{t("cart.removeTitle")}</h3>
             <p>
-              Are you sure you want to remove{" "}
-              <strong>{itemToRemove.title}</strong> from your cart?
+              {t("cart.removeConfirm")}{" "}
+              <strong>{itemToRemove.title}</strong> {t("cart.removeConfirmSuffix")}
             </p>
 
             <div className="cart-popup-actions">
               <button
                 className="cart-popup-cancel"
                 type="button"
-                onClick={() => setItemToRemove(null)}
+                onClick={closeRemovePopup}
               >
-                Cancel
+                {t("cart.cancel")}
               </button>
               <button
                 className="cart-popup-confirm"
                 type="button"
                 onClick={confirmRemoveItem}
               >
-                Remove
+                {t("cart.remove")}
               </button>
             </div>
           </div>

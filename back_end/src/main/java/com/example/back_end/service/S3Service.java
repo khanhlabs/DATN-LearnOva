@@ -38,14 +38,14 @@ public class S3Service {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${cloudfront.domain}")
-    private String cloudFrontDomain;
-
-    @Value("${cloudfront.key-pair-id}")
-    private String cloudFrontKeyPairId;
-
-    @Value("${cloudfront.private-key-path}")
-    private String cloudFrontPrivateKeyPath;
+//    @Value("${cloudfront.domain}")
+//    private String cloudFrontDomain;
+//
+//    @Value("${cloudfront.key-pair-id}")
+//    private String cloudFrontKeyPairId;
+//
+//    @Value("${cloudfront.private-key-path}")
+//    private String cloudFrontPrivateKeyPath;
 
     public UploadUrlResponse generateUploadUrl(
             UploadType type,
@@ -100,30 +100,39 @@ public class S3Service {
         };
     }
 
+//    public String generateCloudFrontSignedUrl(String fileKey) {
+//        return generateCloudFrontSignedUrl(fileKey, Duration.ofMinutes(30));
+//    }
+
+//    public String generateCloudFrontSignedUrl(String fileKey, Duration validFor) {
+//
+//        String resourceUrl = "https://" + cloudFrontDomain + "/" + fileKey;
+//        Path privateKeyPath = Paths.get(cloudFrontPrivateKeyPath);
+//
+//        CannedSignerRequest signerRequest;
+//        try {
+//            signerRequest = CannedSignerRequest.builder()
+//                    .resourceUrl(resourceUrl)
+//                    .privateKey(privateKeyPath)
+//                    .keyPairId(cloudFrontKeyPairId)
+//                    .expirationDate(Instant.now().plus(validFor))
+//                    .build();
+//        } catch (Exception e) {
+//            throw new IllegalStateException("Failed to load CloudFront private key from " + privateKeyPath, e);
+//        }
+//
+//        SignedUrl signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(signerRequest);
+//
+//        return signedUrl.url();
+//    }
+
+    // phânf thay cho nó chạy được
     public String generateCloudFrontSignedUrl(String fileKey) {
-        return generateCloudFrontSignedUrl(fileKey, Duration.ofMinutes(30));
+        return fileKey;
     }
 
     public String generateCloudFrontSignedUrl(String fileKey, Duration validFor) {
-
-        String resourceUrl = "https://" + cloudFrontDomain + "/" + fileKey;
-        Path privateKeyPath = Paths.get(cloudFrontPrivateKeyPath);
-
-        CannedSignerRequest signerRequest;
-        try {
-            signerRequest = CannedSignerRequest.builder()
-                    .resourceUrl(resourceUrl)
-                    .privateKey(privateKeyPath)
-                    .keyPairId(cloudFrontKeyPairId)
-                    .expirationDate(Instant.now().plus(validFor))
-                    .build();
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load CloudFront private key from " + privateKeyPath, e);
-        }
-
-        SignedUrl signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(signerRequest);
-
-        return signedUrl.url();
+        return fileKey;
     }
 
     public void putObject(byte[] content, String key, String contentType) {

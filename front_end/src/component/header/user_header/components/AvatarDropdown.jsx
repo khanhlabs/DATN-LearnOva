@@ -1,10 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, BookOpen, Heart, LogOut, Repeat, GraduationCap } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  User,
+  BookOpen,
+  Heart,
+  Shield,
+  LogOut,
+  Repeat,
+  GraduationCap,
+} from "lucide-react";
 import HeaderDropdown from "./HeaderDropdown.jsx";
 import {useUserData} from "./headerData.js";
 import {useAuth} from "../../../../hook/UseAuth.jsx";
 
 const AvatarDropdown = () => {
+  const { t } = useTranslation();
   const user = useUserData();
   const { logout, switchActiveRole } = useAuth();
   const navigate = useNavigate();
@@ -45,19 +55,28 @@ const AvatarDropdown = () => {
           <li>
             <Link to="/learnova/user/profile" className="user-logged-menu-link">
               <User size={16} />
-              Profile
+              {t("profile.sidebar.profile")}
             </Link>
           </li>
           <li>
             <Link to="/learnova/user/profile/courses" className="user-logged-menu-link">
               <BookOpen size={16} />
-              My Learning
+              {t("profile.sidebar.courses")}
             </Link>
           </li>
           <li>
             <Link to="/learnova/user/profile/favorites" className="user-logged-menu-link">
               <Heart size={16} />
-              My Favourite
+              {t("profile.sidebar.favorites")}
+            </Link>
+          </li>
+          <li>
+            <Link
+                to="/learnova/user/profile/security"
+                className="user-logged-menu-link"
+            >
+              <Shield size={16} />
+              {t("profile.sidebar.security")}
             </Link>
           </li>
           {!isAdmin && canSwitchToTeacher && (
@@ -79,7 +98,7 @@ const AvatarDropdown = () => {
           <li>
             <button type="button" className="user-logged-menu-link is-danger" onClick={handleLogout}>
               <LogOut size={16} />
-              Logout
+              {t("profile.sidebar.logout")}
             </button>
           </li>
         </ul>

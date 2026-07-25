@@ -1,17 +1,20 @@
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import HeaderSearch from "./HeaderSearch.jsx";
 
-const leftNav = [
-    { name: "Home", path: "/" },
-    { name: "Courses", path: "/learnova/courses" },
-];
-
-const rightNav = [
-    { name: "Instructors", path: "/learnova/intructors" },
-    { name: "About us", path: "/learnova/about" },
-];
-
 const NavMenu = () => {
+    const { t } = useTranslation();
+
+    const leftNav = [
+        { key: "header.home", path: "/learnova/home" },
+        { key: "header.courses", path: "/learnova/courses" },
+    ];
+
+    const rightNav = [
+        { key: "header.instructors", path: "/learnova/intructors" },
+        { key: "header.aboutUs", path: "/learnova/about" },
+    ];
+
     return (
         <nav className="nav-menu">
             <ul className="nav-list">
@@ -25,7 +28,7 @@ const NavMenu = () => {
                                 `nav-menu-link ${isActive ? "nav-menu-link-active" : ""}`
                             }
                         >
-                            {item.name}
+                            {t(item.key)}
                         </NavLink>
                     </li>
                 ))}
@@ -43,7 +46,7 @@ const NavMenu = () => {
                                 `nav-menu-link ${isActive ? "nav-menu-link-active" : ""}`
                             }
                         >
-                            {item.name}
+                            {t(item.key)}
                         </NavLink>
                     </li>
                 ))}

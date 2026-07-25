@@ -1,68 +1,83 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Testimonials.css';
+import { getPlatformTestimonialsApi } from '../../../api/ReviewApi.js';
 
-const testimonials = [
-    {
-        name: 'David Park',
-        role: 'Software Engineer at Google',
-        text: 'LearnOva transformed my career. The courses are incredibly well-structured and the instructors are world-class. I landed my dream job within 6 months.',
-        color: '#4361ee',
-        initial: 'DP',
-    },
-    {
-        name: 'Priya Sharma',
-        role: 'UX Designer at Airbnb',
-        text: "I went from zero design knowledge to landing a senior UX role at Airbnb. The course was exactly what I needed — practical, current, and genuinely engaging.",
-        color: '#f72585',
-        initial: 'PS',
-    },
-    {
-        name: 'Marcus Johnson',
-        role: 'Financial Analyst at Goldman',
-        text: 'The financial modeling course here is the best I have found anywhere. Real-world projects and case studies made all the difference in my interviews.',
-        color: '#06d6a0',
-        initial: 'MJ',
-    },
-];
+const CARD_COLORS = ['#4361ee', '#f72585', '#06d6a0', '#f59e0b', '#7209b7', '#2563eb'];
 
 export default function Testimonials() {
+    const { t } = useTranslation();
+    const [testimonials, setTestimonials] = useState([]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        getPlatformTestimonialsApi()
+            .then((data) => mounted && setTestimonials(Array.isArray(data) ? data : []))
+            .catch(() => {});
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    if (testimonials.length === 0) {
+        return null;
+    }
+
     return (
         <section className="testi" aria-labelledby="testi-heading">
             <div className="testi__container">
                 <div className="testi__header">
-                    <span className="section-eyebrow">Student Stories</span>
+                    <span className="section-eyebrow">{t('home.testimonials.eyebrow')}</span>
                     <h2 id="testi-heading" className="testi__title">
-                        Real learners,<br />real transformations
+                        {t('home.testimonials.titleLine1')}<br />{t('home.testimonials.titleLine2')}
                     </h2>
                 </div>
 
                 <div className="testi__grid">
-                    {testimonials.map((t) => (
-                        <article
-                            key={t.name}
-                            className="testi__card"
-                            style={{ '--corner': t.color + '0d' }}
-                        >
-                            <div className="testi__corner" aria-hidden="true" />
-                            <div className="testi__quote-mark" style={{ color: t.color }} aria-hidden="true">"</div>
-                            <div className="testi__stars" aria-label="5 stars">★★★★★</div>
-                            <blockquote className="testi__text">{t.text}</blockquote>
-                            <div className="testi__author">
-                                <div
-                                    className="testi__avatar"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${t.color}, ${t.color}88)`
-                                    }}
-                                    aria-hidden="true"
-                                >
-                                    {t.initial}
+                    {testimonials.map((item, i) => {
+                        const color = CARD_COLORS[i % CARD_COLORS.length];
+                        const initial = (item.reviewerName || '?').trim().charAt(0).toUpperCase();
+
+                        return (
+                            <article
+                                key={item.reviewId}
+                                className="testi__card"
+                                style={{ '--corner': color + '0d' }}
+                            >
+                                <div className="testi__corner" aria-hidden="true" />
+                                <div className="testi__quote-mark" style={{ color }} aria-hidden="true">"</div>
+                                <div className="testi__stars" aria-label={`${item.rating} stars`}>
+                                    {'★'.repeat(item.rating)}{'☆'.repeat(Math.max(0, 5 - item.rating))}
                                 </div>
-                                <div>
-                                    <p className="testi__name">{t.name}</p>
-                                    <p className="testi__role">{t.role}</p>
+                                <blockquote className="testi__text">{item.comment}</blockquote>
+                                <div className="testi__author">
+                                    {item.reviewerAvatar ? (
+                                        <img
+                                            src={item.reviewerAvatar}
+                                            alt={item.reviewerName}
+                                            className="testi__avatar testi__avatar--img"
+                                        />
+                                    ) : (
+                                        <div
+                                            className="testi__avatar"
+                                            style={{
+                                                background: `linear-gradient(135deg, ${color}, ${color}88)`
+                                            }}
+                                            aria-hidden="true"
+                                        >
+                                            {initial}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <p className="testi__name">{item.reviewerName}</p>
+                                        <p className="testi__role">{t('home.testimonials.studentOf', { courseTitle: item.courseTitle })}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
-                    ))}
+                            </article>
+                        );
+                    })}
                 </div>
             </div>
         </section>

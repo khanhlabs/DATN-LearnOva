@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {FaPlay, FaPlayCircle, FaClock, FaGraduationCap, FaCheckCircle, FaUserGraduate, FaGlobe, FaChevronDown, FaChevronUp, FaShoppingCart,} from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import {FaPlay, FaPlayCircle, FaClock, FaGraduationCap, FaCheckCircle, FaUserGraduate, FaGlobe, FaChevronDown, FaChevronUp, FaShoppingCart, FaHeart, FaRegHeart,} from "react-icons/fa";
 import { ChevronDown } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getCourseDetail, getFileUrl } from "../../../api/PublicCourseApi.js";
 import { checkEnrollment } from "../../../api/EnrollmentApi.js";
+import { addWishlistApi, removeWishlistApi, getWishlistApi } from "../../../api/WishlistApi.js";
 import { useAuth } from "../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
 import { addCourseToCart } from "../../../utils/cartStorage.js";
@@ -52,6 +54,7 @@ const formatHours = (seconds) => {
 };
 
 export default function CourseDetail() {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -70,6 +73,8 @@ export default function CourseDetail() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [enrolled, setEnrolled] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
 
     const [expandedSections, setExpandedSections] = useState([]);
     const [descExpanded, setDescExpanded] = useState(false);
@@ -143,6 +148,50 @@ export default function CourseDetail() {
             .catch(() => setEnrolled(false));
     }, [id, isAuthenticated, currentUser]);
 
+    useEffect(() => {
+        if (!id || !isAuthenticated) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setIsWishlisted(false);
+            return;
+        }
+
+        getWishlistApi()
+            .then((response) => {
+                const items = response?.data || [];
+                setIsWishlisted(items.some((item) => String(item.courseId) === String(id)));
+            })
+            .catch(() => setIsWishlisted(false));
+    }, [id, isAuthenticated, currentUser]);
+
+    const handleToggleWishlist = async () => {
+        if (authLoading || !course) return;
+
+        if (!isAuthenticated) {
+            toast.error(t("publicCourseDetail.loginToWishlist"));
+            return;
+        }
+
+        const courseId = course.courseId || course.id || id;
+
+        setIsTogglingWishlist(true);
+        try {
+            if (isWishlisted) {
+                await removeWishlistApi(courseId);
+                setIsWishlisted(false);
+                toast.success(t("publicCourseDetail.removedFromWishlist"));
+            } else {
+                await addWishlistApi(courseId);
+                setIsWishlisted(true);
+                toast.success(t("publicCourseDetail.addedToWishlist"));
+            }
+        } catch (err) {
+            console.error("Failed to toggle wishlist", err);
+            toast.error(t("publicCourseDetail.wishlistUpdateError"));
+        } finally {
+            setIsTogglingWishlist(false);
+        }
+    };
+
     const toggleSection = (sectionId) => {
         setExpandedSections((prev) =>
             prev.includes(sectionId)
@@ -162,25 +211,20 @@ export default function CourseDetail() {
         const subtotal = Number(course?.basePrice || 0);
 
         if (!code) {
-            const message = "Please enter a voucher code.";
-            setVoucherMessage(message);
-            toast.error(message);
+            setVoucherMessage(t("publicCourseDetail.enterVoucherCode"));
+            toast.error(t("publicCourseDetail.enterVoucherCode"));
             return;
         }
 
         if (!course || subtotal <= 0) {
-            const message = !course
-                ? "Course not found."
-                : "Course does not have a valid price.";
-            setVoucherMessage(message);
-            toast.error(message);
+            setVoucherMessage(t("publicCourseDetail.invalidCoursePrice"));
+            toast.error(t("publicCourseDetail.invalidCoursePrice"));
             return;
         }
 
         if (appliedVoucher?.code?.toLowerCase() === code.toLowerCase()) {
-            const message = "This voucher is already applied.";
-            setVoucherMessage(message);
-            toast.info(message);
+            setVoucherMessage(t("publicCourseDetail.voucherAlreadyApplied"));
+            toast.info(t("publicCourseDetail.voucherAlreadyApplied"));
             return;
         }
 
@@ -194,12 +238,12 @@ export default function CourseDetail() {
             });
 
             setAppliedVoucher(result);
-            setVoucherMessage(`Applied ${result.code}.`);
-            toast.success(`Voucher ${result.code} applied.`);
+            setVoucherMessage(t("publicCourseDetail.voucherApplied", { code: result.code }));
+            toast.success(t("publicCourseDetail.voucherAppliedSuccess"));
         } catch (err) {
             const message =
                 err?.response?.data?.message ||
-                "Invalid or unavailable voucher.";
+                t("publicCourseDetail.voucherInvalid");
 
             setAppliedVoucher(null);
             setVoucherMessage(message);
@@ -212,8 +256,13 @@ export default function CourseDetail() {
     const handleAddToCart = async () => {
         if (authLoading || !course) return;
 
+        if (!isAuthenticated) {
+            toast.error(t("publicCourseDetail.loginToCart"));
+            return;
+        }
+
         if (enrolled) {
-            toast.info("You already own this course.");
+            toast.info(t("publicCourseDetail.alreadyOwned"));
             return;
         }
 
@@ -230,11 +279,11 @@ export default function CourseDetail() {
             );
 
             if (result.alreadyInCart) {
-                toast.info("Already in cart.");
+                toast.info(t("publicCourseDetail.alreadyInCart"));
                 return;
             }
 
-            toast.success("Added to cart.");
+            toast.success(t("publicCourseDetail.addedToCart"));
         } catch (err) {
             toast.error(err?.response?.data?.message || "Failed to add to cart.");
         }
@@ -244,12 +293,12 @@ export default function CourseDetail() {
         if (authLoading || !course) return;
 
         if (!isAuthenticated) {
-            toast.error("Please log in to checkout.");
+            toast.error(t("publicCourseDetail.loginToCheckout"));
             return;
         }
 
         if (enrolled) {
-            toast.info("You already own this course.");
+            toast.info(t("publicCourseDetail.alreadyOwned"));
             navigate("/learnova/user/profile/courses");
             return;
         }
@@ -274,7 +323,7 @@ export default function CourseDetail() {
             ) {
                 setEnrolled(true);
                 toast.success("Enrolled successfully. Opening your course…");
-                navigate(`/learnova/user/CoursesDetail/${id}`);
+                navigate(`/learnova/user/courses-detail/${id}`);
                 return;
             }
 
@@ -283,14 +332,14 @@ export default function CourseDetail() {
             const message =
                 err?.response?.data?.message ||
                 err?.response?.data?.error ||
-                "Unable to create payment.";
+                t("publicCourseDetail.paymentCreateError");
 
             if (
                 err?.response?.status === 409 &&
                 message.toLowerCase().includes("already enrolled")
             ) {
                 setEnrolled(true);
-                toast.info("You already own this course.");
+                toast.info(t("publicCourseDetail.alreadyOwned"));
                 navigate("/learnova/user/profile/courses");
                 return;
             }
@@ -302,11 +351,11 @@ export default function CourseDetail() {
     };
 
     if (isLoading) {
-        return <div className="cdp__loading">Loading course...</div>;
+        return <div className="cdp__loading">{t("publicCourseDetail.loading")}</div>;
     }
 
     if (!course) {
-        return <div className="cdp__loading">Course not found.</div>;
+        return <div className="cdp__loading">{t("publicCourseDetail.notFound")}</div>;
     }
 
     const descParagraphs = (course.description || "")
@@ -340,7 +389,7 @@ export default function CourseDetail() {
                         </span>
 
                         <span className="cdp__hero-stat">
-                            <FaPlayCircle /> {course.lessonCount || 0} lessons
+                            <FaPlayCircle /> {t("publicCourseDetail.lessons", { count: course.lessonCount || 0 })}
                         </span>
 
                         <span className="cdp__hero-stat">
@@ -364,7 +413,7 @@ export default function CourseDetail() {
                 <div className="cdp__left">
                     {course.whatYouLearn?.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">What you'll learn</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.whatYouLearn")}</h2>
 
                             <ul className="cdp__learn-list">
                                 {course.whatYouLearn.map((item, index) => (
@@ -379,7 +428,7 @@ export default function CourseDetail() {
 
                     {descParagraphs.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">Course Description</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.description")}</h2>
 
                             <div className="cdp__desc">
                                 {visibleParas.map((item, index) => (
@@ -395,11 +444,11 @@ export default function CourseDetail() {
                                 >
                                     {descExpanded ? (
                                         <>
-                                            <FaChevronUp /> Show less
+                                            <FaChevronUp /> {t("publicCourseDetail.showLess")}
                                         </>
                                     ) : (
                                         <>
-                                            <FaChevronDown /> Show more
+                                            <FaChevronDown /> {t("publicCourseDetail.showMore")}
                                         </>
                                     )}
                                 </button>
@@ -409,11 +458,14 @@ export default function CourseDetail() {
 
                     {course.sections?.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">Course Content</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.courseContent")}</h2>
 
                             <p className="cdp__curriculum-meta">
-                                {course.sections.length} sections · {course.lessonCount || 0} lessons ·{" "}
-                                {formatHours(course.totalDurationSeconds)} total
+                                {t("publicCourseDetail.curriculumMeta", {
+                                    sections: course.sections.length,
+                                    lessons: course.lessonCount || 0,
+                                    duration: formatHours(course.totalDurationSeconds),
+                                })}
                             </p>
 
                             <div className="cdp__curriculum">
@@ -447,7 +499,7 @@ export default function CourseDetail() {
                                                 </span>
 
                                                 <span className="cdp__section-info">
-                                                    {(section.lessons || []).length} lessons ·{" "}
+                                                    {t("publicCourseDetail.lessonsCount", { count: (section.lessons || []).length })} ·{" "}
                                                     {formatHours(sectionDuration)}
                                                 </span>
                                             </button>
@@ -467,7 +519,7 @@ export default function CourseDetail() {
 
                                                             {lesson.isPreview && (
                                                                 <span className="cdp__preview-badge">
-                                                                    Preview
+                                                                    {t("publicCourseDetail.preview")}
                                                                 </span>
                                                             )}
 
@@ -487,7 +539,7 @@ export default function CourseDetail() {
 
                     {course.requirements?.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">Requirements</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.requirements")}</h2>
 
                             <ul className="cdp__req-list">
                                 {course.requirements.map((item, index) => (
@@ -498,7 +550,7 @@ export default function CourseDetail() {
                     )}
 
                     <section className="cdp__section">
-                        <h2 className="cdp__section-title">Instructor</h2>
+                        <h2 className="cdp__section-title">{t("publicCourseDetail.instructor")}</h2>
 
                         <div className="cdp__instructor">
                             <div className="cdp__instructor-avatar">
@@ -516,6 +568,11 @@ export default function CourseDetail() {
 
                             <div className="cdp__instructor-info">
                                 <h3>{course.instructor?.fullName}</h3>
+                                {course.instructor?.description && (
+                                    <p className="cdp__instructor-bio">
+                                        {course.instructor.description}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -541,12 +598,12 @@ export default function CourseDetail() {
                             {discount > 0 && (
                                 <div className="course-detail-order-lines">
                                     <div>
-                                        <span>Subtotal</span>
+                                        <span>{t("publicCourseDetail.subtotal")}</span>
                                         <strong>{formatUsd(subtotal)}</strong>
                                     </div>
 
                                     <div>
-                                        <span>Discount</span>
+                                        <span>{t("publicCourseDetail.discount")}</span>
                                         <strong>-{formatUsd(discount)}</strong>
                                     </div>
                                 </div>
@@ -555,7 +612,7 @@ export default function CourseDetail() {
                             {!enrolled && (
                                 <div className="course-detail-voucher">
                                     <label htmlFor="course-detail-voucher">
-                                        Voucher code
+                                        {t("publicCourseDetail.voucherLabel")}
                                     </label>
 
                                     <div className="course-detail-voucher-input">
@@ -564,7 +621,7 @@ export default function CourseDetail() {
                                             type="text"
                                             value={promo}
                                             onChange={handleVoucherChange}
-                                            placeholder="Enter voucher"
+                                            placeholder={t("publicCourseDetail.voucherPlaceholder")}
                                         />
 
                                         <button
@@ -572,7 +629,7 @@ export default function CourseDetail() {
                                             onClick={handleApplyVoucher}
                                             disabled={isApplyingVoucher}
                                         >
-                                            {isApplyingVoucher ? "..." : "Apply"}
+                                            {isApplyingVoucher ? t("publicCourseDetail.applying") : t("publicCourseDetail.apply")}
                                         </button>
                                     </div>
 
@@ -597,10 +654,10 @@ export default function CourseDetail() {
                                     className="cdp__btn cdp__btn--primary"
                                     type="button"
                                     onClick={() =>
-                                        navigate(`/learnova/user/CoursesDetail/${id}`)
+                                        navigate(`/learnova/user/courses-detail/${id}`)
                                     }
                                 >
-                                    <FaPlay /> Start Learning
+                                    <FaPlay /> {t("publicCourseDetail.startLearning")}
                                 </button>
                             ) : (
                                 <>
@@ -611,14 +668,16 @@ export default function CourseDetail() {
                                         disabled={isCreatingPayment}
                                     >
                                         {isCreatingPayment ? (
-                                            total <= 0 ? "Enrolling..." : "Creating payment..."
+                                            total <= 0
+                                                ? "Enrolling..."
+                                                : t("publicCourseDetail.creatingPayment")
                                         ) : total <= 0 ? (
                                             <>
                                                 <FaGraduationCap /> Enroll for free
                                             </>
                                         ) : (
                                             <>
-                                                <FaShoppingCart /> Buy Now
+                                                <FaShoppingCart /> {t("publicCourseDetail.buyNow")}
                                             </>
                                         )}
                                     </button>
@@ -628,18 +687,35 @@ export default function CourseDetail() {
                                         type="button"
                                         onClick={handleAddToCart}
                                     >
-                                        <FaShoppingCart /> Add to Cart
+                                        <FaShoppingCart /> {t("publicCourseDetail.addToCart")}
                                     </button>
                                 </>
                             )}
 
+                            <button
+                                className="cdp__btn cdp__btn--outline"
+                                type="button"
+                                onClick={handleToggleWishlist}
+                                disabled={isTogglingWishlist}
+                            >
+                                {isWishlisted ? (
+                                    <>
+                                        <FaHeart color="#e11d48" /> {t("publicCourseDetail.wishlisted")}
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaRegHeart /> {t("publicCourseDetail.addToWishlist")}
+                                    </>
+                                )}
+                            </button>
+
                             <ul className="cdp__card-features">
                                 <li>
-                                    <FaPlayCircle /> {course.lessonCount || 0} lessons on-demand
+                                    <FaPlayCircle /> {t("publicCourseDetail.lessonsOnDemand", { count: course.lessonCount || 0 })}
                                 </li>
 
                                 <li>
-                                    <FaClock /> {formatHours(course.totalDurationSeconds)} total
+                                    <FaClock /> {t("publicCourseDetail.totalDuration", { duration: formatHours(course.totalDurationSeconds) })}
                                 </li>
 
                                 <li>
@@ -652,8 +728,8 @@ export default function CourseDetail() {
                                     </li>
                                 )}
 
-                                <li>✓ Full lifetime access</li>
-                                <li>✓ Certificate of completion</li>
+                                <li>✓ {t("publicCourseDetail.fullLifetimeAccess")}</li>
+                                <li>✓ {t("publicCourseDetail.certificate")}</li>
                             </ul>
                         </div>
                     </div>

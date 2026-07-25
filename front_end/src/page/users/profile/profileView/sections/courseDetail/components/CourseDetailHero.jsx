@@ -8,9 +8,6 @@ import {
 import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
 
 const CourseDetailHero = ({ course, onBack }) => {
-
-  console.log("Course:", course);
-
   return (
       <header className="learning-detail-hero">
         <div className="learning-detail-actions">

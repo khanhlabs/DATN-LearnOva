@@ -1,338 +1,347 @@
-import React, { useEffect, useState } from "react";
-import "./intructor/InstructorsPage.css";
-import { FaSearch, FaStar, FaBookmark, FaCheckCircle } from "react-icons/fa";
-import { BsGrid3X3Gap, BsList } from "react-icons/bs";
-import {
-  BarChart3,
-  BookOpen,
-  Bot,
-  Cloud,
-  Code2,
-  Gamepad2,
-  Globe,
-  Languages,
-  Palette,
-  Settings,
-    ShieldCheck,
-    Smartphone,
-    Users,
-    Video,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom"
-import { MessageCircle } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import "./intructor/css/InstructorsPage.css";
+import { FaStar, FaCheckCircle } from "react-icons/fa";
+import { UserPlus, UserCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import LearnovaAI from "../home/chat-bot/chatBot.jsx";
-import { getInstructors } from "../../api/PublicInstructorApi.js";
-import { getFileUrl } from "../../api/PublicCourseApi.js";
+import { getPublicInstructorsApi } from "../../api/InstructorApi.js";
+import { getFollowStatusApi, followInstructorApi, unfollowInstructorApi } from "../../api/FollowApi.js";
+import { useAuth } from "../../hook/UseAuth.jsx";
+import defaultAvatar from "../../assets/default_avatar.jpg";
 
-const DEFAULT_AVATAR =
-  "https://api.dicebear.com/7.x/initials/svg?seed=Instructor&backgroundType=gradientLinear";
-
-const formatCompactNumber = (value) => {
-  if (value >= 1000) return `${(value / 1000).toFixed(1).replace(/\.0$/, "")}K+`;
-  return String(value);
-};
+const RATING_BUCKETS = [
+  { value: 5, label: "5.0" },
+  { value: 4.5, label: "4.5+" },
+  { value: 4.0, label: "4.0+" },
+  { value: 3.5, label: "3.5+" },
+];
 
 function InstructorsPage() {
-  const [viewMode, setViewMode] = useState("grid");
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  const SORT_OPTIONS = [
+    { value: "popular", label: t("instructorsPage.sortPopular") },
+    { value: "rating", label: t("instructorsPage.sortRating") },
+    { value: "students", label: t("instructorsPage.sortStudents") },
+    { value: "courses", label: t("instructorsPage.sortCourses") },
+  ];
+
+  const getBadge = (instructor) => {
+    if (instructor.studentCount >= 10000) return { class: "badge-best-seller", text: t("instructorsPage.badgeBestSeller") };
+    if (instructor.rating >= 4.8) return { class: "badge-top-rated", text: t("instructorsPage.badgeTopRated") };
+    if (instructor.courseCount > 0) return { class: "badge-verified", text: t("instructorsPage.badgeVerified") };
+    return null;
+  };
+
   const [instructors, setInstructors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [followMap, setFollowMap] = useState({});
+
+  const [selectedExpertise, setSelectedExpertise] = useState([]);
+  const [minRating, setMinRating] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("Popular");
+  const [sortBy, setSortBy] = useState("popular");
 
   useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
-      try {
-        const data = await getInstructors();
-        const mapped = await Promise.all(
-          data.map(async (item) => {
-            let avatar = item.avatar || DEFAULT_AVATAR;
-            if (item.avatarKey) {
-              try {
-                avatar = await getFileUrl(item.avatarKey);
-              } catch {
-                // keep fallback avatar
-              }
-            }
-            return {
-              id: item.instructorId,
-              name: item.fullName,
-              title: item.headline || "Instructor",
-              rating: item.avgRating || 0,
-              reviews: item.ratingCount || 0,
-              avatar,
-              skills: item.expertise
-                ? item.expertise.split(",").map((s) => s.trim()).filter(Boolean)
-                : [],
-              stats: {
-                students: formatCompactNumber(item.studentCount || 0),
-                courses: String(item.courseCount || 0),
-              },
-            };
-          })
-        );
-        if (isMounted) setInstructors(mapped);
-      } catch {
-        if (isMounted) setInstructors([]);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-    load();
+    let mounted = true;
+
+    getPublicInstructorsApi()
+      .then((data) => {
+        if (mounted) setInstructors(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error("Failed to load instructors", err);
+        if (mounted) setError(t("instructorsPage.loadError"));
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
+
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
 
-  const categories = [
-    "Popular",
-    "React",
-    "JavaScript",
-    "Python",
-    "chat-bot & ML",
-    "Design",
-    "Data Science",
-  ];
-  const filterData = {
-    expertise: [
-      { id: 1, name: "Web Development", count: 98, icon: Globe },
-      { id: 2, name: "Mobile Development", count: 96, icon: Smartphone },
-      { id: 3, name: "Data Science", count: 87, icon: BarChart3 },
-      { id: 4, name: "chat-bot & ML", count: 72, icon: Bot },
-      { id: 5, name: "UI/UX Design", count: 64, icon: Palette },
-      { id: 6, name: "DevOps", count: 80, icon: Settings },
-      { id: 7, name: "Cyber Security", count: 45, icon: ShieldCheck },
-      { id: 8, name: "Game Development", count: 34, icon: Gamepad2 },
-      { id: 9, name: "Blockchain", count: 26, icon: Code2 },
-      { id: 10, name: "Cloud Computing", count: 24, icon: Cloud },
-    ],
-    rating: [
-      { value: 5, label: "5.0", stars: 5, count: 120 },
-      { value: 4.5, label: "4.5 & up", stars: 4.5, count: 215 },
-      { value: 4.0, label: "4.0 & up", stars: 4, count: 386 },
-      { value: 3.5, label: "3.5 & up", stars: 3.5, count: 627 },
-    ],
-    experience: [
-      { id: 1, name: "1-3 years", count: 218 },
-      { id: 2, name: "3-5 years", count: 167 },
-      { id: 3, name: "5-10 years", count: 209 },
-      { id: 4, name: "10+ years", count: 186 },
-    ],
-    students: [
-      { id: 1, name: "1K - 10K", count: 122 },
-      { id: 2, name: "10K - 50K", count: 245 },
-      { id: 3, name: "50K - 100K", count: 321 },
-      { id: 4, name: "100K+", count: 92 },
-    ],
-    language: [
-      { id: 1, name: "English", count: 286 },
-      { id: 2, name: "Vietnamese", count: 98 }
+  useEffect(() => {
+    if (!isAuthenticated || instructors.length === 0) {
+      setFollowMap({});
+      return;
+    }
 
-    ],
+    let mounted = true;
+
+    Promise.all(
+      instructors.map((instructor) =>
+        getFollowStatusApi(instructor.instructorId)
+          .then((data) => [instructor.instructorId, data])
+          .catch(() => [instructor.instructorId, null]),
+      ),
+    ).then((results) => {
+      if (!mounted) return;
+      const map = {};
+      results.forEach(([id, data]) => {
+        if (data) map[id] = data;
+      });
+      setFollowMap(map);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAuthenticated, instructors]);
+
+  const handleToggleFollow = async (event, instructorId) => {
+    event.stopPropagation();
+
+    if (!isAuthenticated) {
+      toast.error(t("instructorsPage.loginToFollow"));
+      navigate("/learnova/auth/login");
+      return;
+    }
+
+    const isFollowing = followMap[instructorId]?.following;
+
+    try {
+      const data = isFollowing
+        ? await unfollowInstructorApi(instructorId)
+        : await followInstructorApi(instructorId);
+
+      setFollowMap((prev) => ({ ...prev, [instructorId]: data }));
+
+      if (data.following) {
+        toast.success(t("instructorsPage.nowFollowing"));
+      }
+    } catch (err) {
+      console.error("Failed to update follow status", err);
+      toast.error(t("instructorsPage.followError"));
+    }
   };
+
+  const expertiseOptions = useMemo(() => {
+    const counts = new Map();
+    instructors.forEach((instructor) => {
+      (instructor.expertiseTags || []).forEach((tag) => {
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+      });
+    });
+    return Array.from(counts.entries()).map(([name, count]) => ({ name, count }));
+  }, [instructors]);
+
+  const categories = useMemo(() => {
+    const topTags = [...expertiseOptions]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+      .map((item) => item.name);
+    return ["Popular", ...topTags];
+  }, [expertiseOptions]);
+
+  const toggleExpertise = (name) => {
+    setSelectedExpertise((prev) =>
+      prev.includes(name) ? prev.filter((item) => item !== name) : [...prev, name],
+    );
+  };
+
+  const filteredInstructors = useMemo(() => {
+    let result = instructors.filter((instructor) => {
+      const tags = instructor.expertiseTags || [];
+
+      if (activeCategory !== "Popular" && !tags.includes(activeCategory)) {
+        return false;
+      }
+
+      if (selectedExpertise.length > 0 && !selectedExpertise.some((tag) => tags.includes(tag))) {
+        return false;
+      }
+
+      if (minRating != null && instructor.rating < minRating) {
+        return false;
+      }
+
+      return true;
+    });
+
+    result = [...result].sort((a, b) => {
+      if (sortBy === "rating") return b.rating - a.rating;
+      if (sortBy === "students") return b.studentCount - a.studentCount;
+      if (sortBy === "courses") return b.courseCount - a.courseCount;
+      return b.rating * b.reviewCount - a.rating * a.reviewCount;
+    });
+
+    return result;
+  }, [instructors, activeCategory, selectedExpertise, minRating, sortBy]);
 
   return (
     <div className="instructors-page">
-
-
       <div className="page-container">
         <div className="sidebar-wrapper">
           <aside className="sidebar-in">
-            {/*<div className="sidebar-header">*/}
-            {/*  <h3>Filter instructors</h3>*/}
-            {/*  <button className="clear-all">Clear all</button>*/}
-            {/*</div>*/}
-
             <div className="filter-group-in">
               <div className="filter-title">
-                <span>Expertise</span>
-                <small>{filterData.expertise.length} topics</small>
+                <span>{t("instructorsPage.expertise")}</span>
+                <small>{t("instructorsPage.topicsCount", { count: expertiseOptions.length })}</small>
               </div>
               <div className="filter-chip-grid">
-                {filterData.expertise.map((item) => (
-                    <label key={item.id} className="filter-chip-in">
-                      <input type="checkbox" />
-                      <span className="filter-chip-name">
-
-                        {item.name}
-              </span>
-
-                    </label>
+                {expertiseOptions.map((item) => (
+                  <label key={item.name} className="filter-chip-in">
+                    <input
+                      type="checkbox"
+                      checked={selectedExpertise.includes(item.name)}
+                      onChange={() => toggleExpertise(item.name)}
+                    />
+                    <span className="filter-chip-name">
+                      {item.name} ({item.count})
+                    </span>
+                  </label>
                 ))}
               </div>
             </div>
 
             <div className="filter-group-in">
               <div className="filter-title">
-                <span>Rating</span>
-                <small>Minimum score</small>
+                <span>{t("instructorsPage.rating")}</span>
+                <small>{t("instructorsPage.minimumScore")}</small>
               </div>
               <div className="filter-list">
-                {filterData.rating.map((item, index) => (
-                    <label key={index} className="filter-row-in">
-                      <input type="radio" name="rating" />
-                      <span className="filter-row-main">
-
-                        {item.label}
-              </span>
-
-                    </label>
+                <label className="filter-row-in">
+                  <input
+                    type="radio"
+                    name="rating"
+                    checked={minRating == null}
+                    onChange={() => setMinRating(null)}
+                  />
+                  <span className="filter-row-main">{t("instructorsPage.allRatings")}</span>
+                </label>
+                {RATING_BUCKETS.map((item) => (
+                  <label key={item.value} className="filter-row-in">
+                    <input
+                      type="radio"
+                      name="rating"
+                      checked={minRating === item.value}
+                      onChange={() => setMinRating(item.value)}
+                    />
+                    <span className="filter-row-main">{item.label}</span>
+                  </label>
                 ))}
               </div>
             </div>
-
-            <div className="filter-group-in">
-              <div className="filter-title">
-                <span>Experience</span>
-                <small>Teaching years</small>
-              </div>
-              <div className="filter-pill-row">
-                {filterData.experience.map((item) => (
-                    <label key={item.id} className="filter-pill-in">
-                      <input type="checkbox" />
-                      <span>{item.name}</span>
-
-                    </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="filter-group-in">
-              <div className="filter-title">
-                <span>Students</span>
-                <small>Learner range</small>
-              </div>
-              <div className="filter-pill-row">
-                {filterData.students.map((item) => (
-                    <label key={item.id} className="filter-pill-in">
-                      <input type="checkbox" />
-                      <span>{item.name}</span>
-
-                    </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="filter-group-in">
-              <div className="filter-title">
-                <span>Language</span>
-                <small>{filterData.language.length} options</small>
-              </div>
-              <div className="filter-language-grid">
-                {filterData.language.map((item) => (
-                    <label key={item.id} className="filter-language">
-                      <input type="checkbox" />
-
-                      <span>{item.name}</span>
-
-                    </label>
-                ))}
-              </div>
-            </div>
-
           </aside>
         </div>
 
-        {/* MAIN CONTENT */}
         <main className="main-content">
-          {/* SEARCH & CONTROLS */}
-
-          {/* CATEGORY TAGS */}
           <div className="category-section">
-            <span className="tag-label">Popular:</span>
+            <span className="tag-label">{t("instructorsPage.popular")}</span>
             <div className="tags">
-              {categories.map((cat, idx) => (
+              {categories.map((cat) => (
                 <button
-                  key={idx}
-                  className={`tag ${idx === 0 ? "active" : ""}`}
+                  key={cat}
+                  className={`tag ${activeCategory === cat ? "active" : ""}`}
+                  onClick={() => setActiveCategory(cat)}
+                  type="button"
                 >
                   {cat}
                 </button>
               ))}
             </div>
             <label className="sort-control">
-              <span>Sort by:</span>
-              <select>
-                <option>Most Popular</option>
-                <option>Top Rated</option>
-                <option>Most Students</option>
-                <option>Newest</option>
+              <span>{t("instructorsPage.sortBy")}</span>
+              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
 
-          {/* INSTRUCTORS GRID */}
           {isLoading ? (
-            <p className="instructors-loading">Loading instructors…</p>
-          ) : instructors.length === 0 ? (
-            <p className="instructors-loading">No instructors found yet.</p>
+            <div className="empty-state">
+              <h4>{t("instructorsPage.loading")}</h4>
+            </div>
+          ) : error ? (
+            <div className="empty-state">
+              <h4>{error}</h4>
+            </div>
+          ) : filteredInstructors.length === 0 ? (
+            <div className="empty-state">
+              <h4>{t("instructorsPage.noResults")}</h4>
+            </div>
           ) : (
-          <div className="instructors-grid-in">
-            {instructors.map((instructor) => {
-              return (
-                <div key={instructor.id} className="instructor-card-in">
-                  {/* Avatar */}
-                  <div className="avatar-wrapper-in">
-                    <img
-                      src={instructor.avatar}
-                      alt={instructor.name}
-                      className="avatar"
-                    />
-                  </div>
-
-                  {/* Info */}
-                  <h3 className="instructor-name-new">
-                    {instructor.name}
-                    <FaCheckCircle className="check-icon" />
-                  </h3>
-                  <p className="instructor-title-new-in">{instructor.title}</p>
-
-                  {/* Skills */}
-                  <div className="skills-row-in">
-                    {instructor.skills.map((skill, idx) => (
-                      <span key={idx} className="skill-tag">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Rating & Stats */}
-                  <div className="rating-row">
-                    <div className="rating">
-                      <FaStar className="star-icon" />
-                      <span className="rating-value">{instructor.rating}</span>
-                      <span className="rating-count">
-                        ({instructor.reviews.toLocaleString()})
-                      </span>
+            <div className="instructors-grid-in">
+              {filteredInstructors.map((instructor) => {
+                const badge = getBadge(instructor);
+                return (
+                  <div key={instructor.instructorId} className="instructor-card-in">
+                    <div className="card-header-in-in">
+                      {badge && <div className={`badge-in-in ${badge.class}`}>{badge.text}</div>}
                     </div>
 
+                    <div className="avatar-wrapper-in">
+                      <img
+                        src={instructor.avatar?.trim() ? instructor.avatar : defaultAvatar}
+                        alt={instructor.fullName}
+                        className="avatar"
+                      />
+                    </div>
 
-                  </div>
+                    <h3 className="instructor-name-new">
+                      {instructor.fullName}
+                      <FaCheckCircle className="check-icon" />
+                    </h3>
+                    <p className="instructor-title-new-in">
+                      {instructor.headline || t("instructorsPage.instructorFallback")}
+                    </p>
 
-                  {/* Bio */}
-                  {instructor.bio && <p className="bio">{instructor.bio}</p>}
+                    {instructor.expertiseTags?.length > 0 && (
+                      <div className="skills-row-in">
+                        {instructor.expertiseTags.slice(0, 3).map((skill) => (
+                          <span key={skill} className="skill-tag">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Stats */}
-                  <div className="rating-row">
-                    <span className="rating-count">{instructor.stats.students} students</span>
-                    <span className="rating-count">{instructor.stats.courses} courses</span>
-                  </div>
+                    <div className="rating-row">
+                      <div className="rating">
+                        <FaStar className="star-icon" />
+                        <span className="rating-value">{instructor.rating.toFixed(1)}</span>
+                        <span className="rating-count">
+                          ({instructor.reviewCount.toLocaleString()})
+                        </span>
+                      </div>
+                    </div>
 
-                  {/* Buttons */}
-                  <div className="card-actions">
-                    <button
+                    <p className="bio">{instructor.description || t("instructorsPage.noDescription")}</p>
+
+                    <div className="card-actions">
+                      <button
                         className="view-profile-btn"
-                        onClick={() => navigate(`/learnova/intructorDetail/${instructor.id}`)}
-                    >
-                      View Profile
-                    </button>
-                    <button className="message-btn">
-                      <MessageCircle size={18} />
-                    </button>
+                        onClick={() => navigate(`/learnova/intructorDetail/${instructor.instructorId}`)}
+                      >
+                        {t("instructorsPage.viewProfile")}
+                      </button>
+                      <button
+                        className={`message-btn ${followMap[instructor.instructorId]?.following ? "following" : ""}`}
+                        onClick={(event) => handleToggleFollow(event, instructor.instructorId)}
+                        title={followMap[instructor.instructorId]?.following ? t("instructorsPage.unfollow") : t("instructorsPage.follow")}
+                      >
+                        {followMap[instructor.instructorId]?.following ? (
+                          <UserCheck size={18} />
+                        ) : (
+                          <UserPlus size={18} />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
           )}
         </main>
         <div className="chatbot-fixed">

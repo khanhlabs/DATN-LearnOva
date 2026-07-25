@@ -71,6 +71,10 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setAccessToken(null);
             setCurrentUser(null);
+            // Notify parts of the app (e.g. the chat widget) that this was a real,
+            // user-initiated logout — distinct from a transient isAuthenticated
+            // flicker during session restore on page load.
+            window.dispatchEvent(new Event("learnova:logout"));
         }
     }, []);
 

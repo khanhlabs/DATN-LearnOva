@@ -163,11 +163,25 @@ export const buildCourseDetail = (course = {}) => ({
   reviews: course.reviews || DEFAULT_COURSE_DETAIL.reviews,
   students: course.students ?? 0,
   duration: course.duration || DEFAULT_COURSE_DETAIL.duration,
+  updatedAt: course.updatedAt || DEFAULT_COURSE_DETAIL.updatedAt,
   level: course.level || DEFAULT_COURSE_DETAIL.level,
   image: course.image || DEFAULT_COURSE_DETAIL.image,
+  summary: course.summary || DEFAULT_COURSE_DETAIL.summary,
+  category: course.category || DEFAULT_COURSE_DETAIL.category,
+  tags: course.tags?.length ? course.tags : DEFAULT_COURSE_DETAIL.tags,
+  about: course.about?.length ? course.about : DEFAULT_COURSE_DETAIL.about,
+  outcomes: course.outcomes?.length
+    ? course.outcomes
+    : DEFAULT_COURSE_DETAIL.outcomes,
 
   instructor: {
     ...DEFAULT_COURSE_DETAIL.instructor,
     ...course.instructor,
+    description:
+      course.instructor?.description || DEFAULT_COURSE_DETAIL.instructor.bio,
+    bio: course.instructor?.description || DEFAULT_COURSE_DETAIL.instructor.bio,
+    stats: course.instructor?.stats?.length
+      ? course.instructor.stats
+      : DEFAULT_COURSE_DETAIL.instructor.stats,
   },
 });

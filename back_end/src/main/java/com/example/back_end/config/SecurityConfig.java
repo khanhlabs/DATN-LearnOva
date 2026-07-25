@@ -49,17 +49,22 @@ public class SecurityConfig {
                         .requestMatchers("/api/learnova/courses/hls/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/featured").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/learnova/courses/stats").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/top-categories").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/categories").permitAll()
-                        // Matches public course detail (GET /courses/{id}). Teacher-only course
-                        // operations now live under /api/learnova/teacher/courses/** (see
-                        // TeacherCourseController), not under this single-segment shape.
+                        .requestMatchers(HttpMethod.GET, "/api/learnova/instructors/public/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/learnova/chatbot/message").permitAll()
+                        // NOTE: matches course detail (GET /courses/{id}) but also shares this
+                        // single-segment shape with teacher-only GET /courses/my-courses|my-students|my-reviews.
+                        // Those three are gated by @PreAuthorize("hasRole('TEACHER')") on the controller
+                        // method itself, which is enforced independently of this permitAll.
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/enrollments/check").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/course/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/review/summary/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/instructors/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/learnova/review/testimonials").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/qna/course/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/qna/lesson/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/certificates/verify/**").permitAll()

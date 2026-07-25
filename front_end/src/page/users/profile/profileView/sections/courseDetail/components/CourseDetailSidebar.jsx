@@ -85,7 +85,7 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
             <button
                 className="learning-primary-button"
                 type="button"
-                onClick={() => navigate(`/learnova/user/CoursesDetail/${course.courseId}`)}
+                onClick={() => navigate(`/learnova/user/courses-detail/${course.courseId}`)}
             >
               <Play size={16} fill="currentColor" />
               Continue Learning
