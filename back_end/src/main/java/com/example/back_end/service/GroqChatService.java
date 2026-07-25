@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +70,7 @@ public class GroqChatService {
         String systemInstruction = buildSystemInstruction();
 
         try {
-            String requestBody = buildRequestBody(systemInstruction, messages);
+            String requestBody = buildRequestBody(systemInstruction, messages, false);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
@@ -93,6 +95,100 @@ public class GroqChatService {
             }
             throw new BusinessException(
                     "Không thể kết nối tới trợ lý AI lúc này. Vui lòng thử lại sau.");
+        }
+    }
+
+    // Streaming variant: validates/rate-limits synchronously (so those errors still
+    // surface as a normal JSON error response via GlobalExceptionHandler), then hands
+    // off the actual Groq call to a virtual thread that pushes each token to the
+    // client as it arrives instead of waiting for the full reply.
+    public SseEmitter streamChat(List<ChatMessageDto> messages, String clientIp) {
+        if (messages == null || messages.isEmpty()) {
+            throw new BusinessException("Tin nhắn không được để trống");
+        }
+
+        enforceRateLimit(clientIp);
+        enforceRepeatGuard(clientIp, messages.get(messages.size() - 1).text());
+
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new BusinessException("Chatbot AI chưa được cấu hình. Vui lòng thử lại sau.");
+        }
+
+        String systemInstruction = buildSystemInstruction();
+        SseEmitter emitter = new SseEmitter(60_000L);
+
+        Thread.ofVirtual().start(() -> runGroqStream(emitter, systemInstruction, messages));
+
+        return emitter;
+    }
+
+    private void runGroqStream(SseEmitter emitter, String systemInstruction, List<ChatMessageDto> messages) {
+        try {
+            String requestBody = buildRequestBody(systemInstruction, messages, true);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<Stream<String>> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
+
+            if (response.statusCode() != 200) {
+                emitter.send(SseEmitter.event().name("error")
+                        .data("Không thể kết nối tới trợ lý AI lúc này. Vui lòng thử lại sau."));
+                emitter.complete();
+                return;
+            }
+
+            boolean gotAnyContent = false;
+
+            try (Stream<String> lines = response.body()) {
+                for (String line : (Iterable<String>) lines::iterator) {
+                    if (!line.startsWith("data:")) {
+                        continue;
+                    }
+
+                    String data = line.substring(5).trim();
+
+                    if (data.equals("[DONE]")) {
+                        break;
+                    }
+                    if (data.isEmpty()) {
+                        continue;
+                    }
+
+                    JsonNode root = objectMapper.readTree(data);
+                    JsonNode contentNode = root.path("choices").path(0).path("delta").path("content");
+
+                    if (!contentNode.isMissingNode() && !contentNode.isNull() && !contentNode.asText().isEmpty()) {
+                        gotAnyContent = true;
+                        emitter.send(SseEmitter.event().name("chunk").data(contentNode.asText()));
+                    }
+                }
+            }
+
+            if (!gotAnyContent) {
+                emitter.send(SseEmitter.event().name("error")
+                        .data("Trợ lý AI hiện không thể trả lời câu hỏi này. Vui lòng thử lại."));
+            }
+
+            emitter.send(SseEmitter.event().name("done").data(""));
+            emitter.complete();
+
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            try {
+                emitter.send(SseEmitter.event().name("error")
+                        .data("Không thể kết nối tới trợ lý AI lúc này. Vui lòng thử lại sau."));
+            } catch (IOException ignored) {
+                // client đã ngắt kết nối, không gửi được nữa — bỏ qua
+            }
+            emitter.completeWithError(e);
         }
     }
 
@@ -215,7 +311,7 @@ public class GroqChatService {
                 + "=== DANH SÁCH GIẢNG VIÊN ===\n" + instructorCatalog;
     }
 
-    private String buildRequestBody(String systemInstruction, List<ChatMessageDto> messages)
+    private String buildRequestBody(String systemInstruction, List<ChatMessageDto> messages, boolean stream)
             throws IOException {
         List<Map<String, Object>> chatMessages = new ArrayList<>();
 
@@ -237,6 +333,7 @@ public class GroqChatService {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", model);
         body.put("messages", chatMessages);
+        body.put("stream", stream);
 
         return objectMapper.writeValueAsString(body);
     }

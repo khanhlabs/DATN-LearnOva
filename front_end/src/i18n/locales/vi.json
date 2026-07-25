@@ -694,5 +694,34 @@
     "termsOfService": "Điều khoản dịch vụ",
     "cookiePolicy": "Chính sách cookie",
     "sitemap": "Sơ đồ trang"
+  },
+  "chatbot": {
+    "issuePrompt": "Vấn đề bạn đang gặp là gì?",
+    "stillNeedHelp": "Vẫn cần hỗ trợ trực tiếp?",
+    "hotlineIntro": "Gọi hotline để được hỗ trợ trực tiếp:",
+    "supportFaq": {
+      "questions": [
+        {
+          "q": "Tôi quên mật khẩu / không đăng nhập được?",
+          "a": "Vào trang đăng nhập, bấm \"Quên mật khẩu\", nhập email đã đăng ký để nhận link đặt lại mật khẩu."
+        },
+        {
+          "q": "Tôi đã thanh toán nhưng chưa thấy khóa học trong \"Học tập của tôi\"?",
+          "a": "Đợi vài phút để hệ thống xử lý giao dịch. Nếu sau 15 phút vẫn chưa thấy, thử tải lại trang hoặc đăng xuất rồi đăng nhập lại."
+        },
+        {
+          "q": "Tôi muốn đăng ký trở thành giảng viên thì làm sao?",
+          "a": "Vào mục \"Đăng ký trở thành giảng viên\" trong menu tài khoản, điền hồ sơ và đợi admin xét duyệt đơn."
+        },
+        {
+          "q": "Mục \"Tiếp tục học\" / tiến độ khóa học của tôi không đúng?",
+          "a": "Tiến độ cập nhật mỗi khi bạn xem xong một bài học. Thử tải lại trang hồ sơ; nếu vẫn sai, đăng xuất rồi đăng nhập lại để đồng bộ dữ liệu mới nhất."
+        },
+        {
+          "q": "Tôi gửi câu hỏi trong tab Hỏi đáp (Q&A) của bài học nhưng không được?",
+          "a": "Kiểm tra bạn đã đăng nhập và đã đăng ký (mua) khóa học đó chưa — chỉ học viên đã đăng ký mới gửi được câu hỏi trong tab Hỏi đáp."
+        }
+      ]
+    }
   }
 }

@@ -694,5 +694,34 @@
     "termsOfService": "Terms of Service",
     "cookiePolicy": "Cookie Policy",
     "sitemap": "Sitemap"
+  },
+  "chatbot": {
+    "issuePrompt": "What issue are you having?",
+    "stillNeedHelp": "Still need direct support?",
+    "hotlineIntro": "Call our hotline for direct support:",
+    "supportFaq": {
+      "questions": [
+        {
+          "q": "I forgot my password / can't log in?",
+          "a": "Go to the login page, click \"Forgot password\", and enter your registered email to receive a password reset link."
+        },
+        {
+          "q": "I paid but the course isn't showing up in \"My Learning\"?",
+          "a": "Wait a few minutes for the transaction to process. If it still hasn't appeared after 15 minutes, try reloading the page or logging out and back in."
+        },
+        {
+          "q": "How do I apply to become an instructor?",
+          "a": "Go to \"Apply to become an instructor\" in the account menu, fill in your profile, and wait for admin review."
+        },
+        {
+          "q": "\"Continue Learning\" / my course progress looks wrong?",
+          "a": "Progress updates each time you finish watching a lesson. Try reloading your profile page; if it's still wrong, log out and back in to sync the latest data."
+        },
+        {
+          "q": "I can't submit a question in a lesson's Q&A tab?",
+          "a": "Make sure you're logged in and enrolled in that course — only enrolled students can post questions in the Q&A tab."
+        }
+      ]
+    }
   }
 }
