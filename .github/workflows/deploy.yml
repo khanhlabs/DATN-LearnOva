@@ -48,7 +48,8 @@ jobs:
             --parameters '{
               "commands": [
                 "cd /app",
-                "git pull",
+                "git fetch origin",
+                "git reset --hard origin/main",
                 "mkdir -p /home/ec2-user/secrets",
                 "aws ssm get-parameter --region ap-southeast-1 --name /learnova/cloudfront/private-key --with-decryption --query Parameter.Value --output text > /home/ec2-user/secrets/cloudfront-private-key.pem",
                 "chmod 400 /home/ec2-user/secrets/cloudfront-private-key.pem",
