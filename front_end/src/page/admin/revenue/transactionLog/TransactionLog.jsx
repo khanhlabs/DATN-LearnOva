@@ -1,137 +1,147 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, FileText } from "lucide-react";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
+import { getAdminCategoriesApi } from "../../../../api/admin/CategoryApi.js";
+import { getAdminRevenueTransactionsApi } from "../../../../api/admin/RevenueApi.js";
+import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import "./TransactionLog.css";
-
-const transactions = [
-  {
-    id: "GD-20240603-001",
-    student: "Nguyễn Thị An",
-    course: "Basic English Communication",
-    gateway: "VNPay",
-    amount: "$240",
-    status: "Successful",
-    type: "Completed",
-  },
-  {
-    id: "GD-20240603-002",
-    student: "Trần Minh Quân",
-    course: "Next.js Development from Beginner to Advanced",
-    gateway: "Momo",
-    amount: "$360",
-    status: "Pending",
-    type: "Payment",
-  },
-  {
-    id: "GD-20240603-003",
-    student: "Lê Thị Hương",
-    course: "UX/UI Design for Online Learning Products",
-    gateway: "Banking",
-    amount: "$180",
-    status: "Failed",
-    type: "Refund",
-  },
-  {
-    id: "GD-20240603-004",
-    student: "Phạm Văn Dũng",
-    course: "Data Analysis with Python",
-    gateway: "VNPay",
-    amount: "$420",
-    status: "Successful",
-    type: "Payment",
-  },
-  {
-    id: "GD-20240603-005",
-    student: "Hoàng Ngọc Mai",
-    course: "Agile Project Management for Instructors",
-    gateway: "Momo",
-    amount: "$95",
-    status: "Successful",
-    type: "Completed",
-  },
-  {
-    id: "GD-20240603-006",
-    student: "Đỗ Đức Anh",
-    course: "Course Marketing on Digital Platforms",
-    gateway: "Banking",
-    amount: "$275",
-    status: "Pending",
-    type: "Payment",
-  },
-  {
-    id: "GD-20240603-007",
-    student: "Nguyễn Thị Thu",
-    course: "Creating Interactive Video Content",
-    gateway: "VNPay",
-    amount: "$150",
-    status: "Successful",
-    type: "Completed",
-  },
-  {
-    id: "GD-20240603-008",
-    student: "Trần Duy Khang",
-    course: "Developing Online Teaching Skills",
-    gateway: "Momo",
-    amount: "$310",
-    status: "Successful",
-    type: "Payment",
-  },
-  {
-    id: "GD-20240603-009",
-    student: "Vũ Ngọc Mai",
-    course: "Advanced SEO for Courses",
-    gateway: "Banking",
-    amount: "$135",
-    status: "Successful",
-    type: "Completed",
-  },
-  {
-    id: "GD-20240603-010",
-    student: "Phạm Quốc Bảo",
-    course: "Building Corporate Learning Paths",
-    gateway: "VNPay",
-    amount: "$530",
-    status: "Pending",
-    type: "Payment",
-  },
-  {
-    id: "GD-20240603-011",
-    student: "Hà Thanh Vân",
-    course: "Interactive Livestreaming Techniques",
-    gateway: "Momo",
-    amount: "$210",
-    status: "Successful",
-    type: "Completed",
-  },
-  {
-    id: "GD-20240603-012",
-    student: "Trần Minh Tâm",
-    course: "Course Sales Strategy on LearnOva",
-    gateway: "Banking",
-    amount: "$390",
-    status: "Successful",
-    type: "Payment",
-  },
-];
 
 const statusClasses = {
   Successful: "statusSuccess",
   Pending: "statusPending",
   Failed: "statusFailed",
+  Refunded: "statusRefunded",
 };
+
+const GATEWAY_OPTIONS = [
+  { value: "ALL", label: "All Payment Gateways" },
+  { value: "VNPAY", label: "VNPay" },
+  { value: "MOMO", label: "Momo" },
+  { value: "PAYOS", label: "PayOS" },
+  { value: "PAYPAL", label: "PayPal" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "ALL", label: "All Statuses" },
+  { value: "SUCCESS", label: "Successful" },
+  { value: "PENDING", label: "Pending" },
+  { value: "FAILED", label: "Failed" },
+  { value: "REFUNDED", label: "Refunded" },
+];
 
 const PAGE_SIZE = 7;
 
+const formatMoney = (value) =>
+  `$ ${Number(value || 0).toLocaleString("en-US", {
+    maximumFractionDigits: 2,
+  })}`;
+
+const formatGateway = (method) => {
+  if (!method) return "—";
+  const map = {
+    VNPAY: "VNPay",
+    MOMO: "Momo",
+    PAYOS: "PayOS",
+    PAYPAL: "PayPal",
+  };
+  return map[method] || method;
+};
+
 const TransactionLog = () => {
+  const axiosPrivate = useAxiosPrivate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [selectedGateway, setSelectedGateway] = useState("All Payment Gateways");
-  const [selectedStatus, setSelectedStatus] = useState("All Statuses");
-  const totalPages = Math.ceil(transactions.length / PAGE_SIZE);
-  const pageStart = (currentPage - 1) * PAGE_SIZE;
-  const currentTransactions = transactions.slice(
-    pageStart,
-    pageStart + PAGE_SIZE,
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [selectedGateway, setSelectedGateway] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [categories, setCategories] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setCurrentPage(1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadCategories = async () => {
+      try {
+        const data = await getAdminCategoriesApi(axiosPrivate);
+        if (!mounted) return;
+        setCategories(Array.isArray(data) ? data.filter((item) => !item.isDeleted) : []);
+      } catch {
+        if (!mounted) return;
+        setCategories([]);
+      }
+    };
+
+    loadCategories();
+    return () => {
+      mounted = false;
+    };
+  }, [axiosPrivate]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadTransactions = async () => {
+      setLoading(true);
+      try {
+        const data = await getAdminRevenueTransactionsApi(
+          {
+            page: currentPage - 1,
+            size: PAGE_SIZE,
+            search,
+            categoryId: selectedCategory === "ALL" ? undefined : Number(selectedCategory),
+            paymentMethod: selectedGateway === "ALL" ? undefined : selectedGateway,
+            status: selectedStatus === "ALL" ? undefined : selectedStatus,
+          },
+          axiosPrivate
+        );
+        if (!mounted) return;
+        setTransactions(Array.isArray(data?.content) ? data.content : []);
+        setTotalPages(Number(data?.totalPages || 0));
+        setError("");
+      } catch {
+        if (!mounted) return;
+        setTransactions([]);
+        setTotalPages(0);
+        setError("Unable to load transactions.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadTransactions();
+    return () => {
+      mounted = false;
+    };
+  }, [
+    axiosPrivate,
+    currentPage,
+    search,
+    selectedCategory,
+    selectedGateway,
+    selectedStatus,
+  ]);
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: "ALL", label: "All Categories" },
+      ...categories.map((category) => ({
+        value: String(category.id),
+        label: category.name,
+      })),
+    ],
+    [categories]
   );
 
   const handlePageChange = (page) => {
@@ -140,9 +150,11 @@ const TransactionLog = () => {
     }
     setCurrentPage(page);
   };
-  const categoryOptions = ["All Categories", ...new Set(transactions.map((item) => item.type))];
-  const gatewayOptions = ["All Payment Gateways", ...new Set(transactions.map((item) => item.gateway))];
-  const statusOptions = ["All Statuses", ...new Set(transactions.map((item) => item.status))];
+
+  const handleFilterChange = (setter) => (value) => {
+    setter(value);
+    setCurrentPage(1);
+  };
 
   return (
     <section
@@ -163,32 +175,38 @@ const TransactionLog = () => {
         <div className="transactionLogControls">
           <label className="transactionSearch">
             <Search size={16} />
-            <input placeholder="Search by transaction ID, student name, course" />
+            <input
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search by transaction ID, student name, course"
+            />
           </label>
           <div className="transactionFilters">
             <AdminHoverSelect
               className="transactionFilterSelect"
               options={categoryOptions}
               value={selectedCategory}
-              onChange={setSelectedCategory}
+              onChange={handleFilterChange(setSelectedCategory)}
               ariaLabel="Filter transactions by category"
             />
             <AdminHoverSelect
               className="transactionFilterSelect transactionFilterSelectWide"
-              options={gatewayOptions}
+              options={GATEWAY_OPTIONS}
               value={selectedGateway}
-              onChange={setSelectedGateway}
+              onChange={handleFilterChange(setSelectedGateway)}
               ariaLabel="Filter transactions by payment gateway"
             />
             <AdminHoverSelect
               className="transactionFilterSelect"
-              options={statusOptions}
+              options={STATUS_OPTIONS}
               value={selectedStatus}
-              onChange={setSelectedStatus}
+              onChange={handleFilterChange(setSelectedStatus)}
               ariaLabel="Filter transactions by status"
             />
           </div>
         </div>
+
+        {error ? <p className="transactionLogError">{error}</p> : null}
 
         <div className="transactionLogTableWrapper">
           <table className="transactionLogTable">
@@ -204,16 +222,30 @@ const TransactionLog = () => {
               </tr>
             </thead>
             <tbody>
-              {currentTransactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td>{transaction.id}</td>
-                  <td>{transaction.student}</td>
-                  <td>{transaction.course}</td>
-                  <td>{transaction.gateway}</td>
-                  <td className="textRight">{transaction.amount}</td>
+              {loading && transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="transactionLogEmpty">
+                    Loading transactions…
+                  </td>
+                </tr>
+              ) : null}
+              {!loading && transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="transactionLogEmpty">
+                    No transactions found.
+                  </td>
+                </tr>
+              ) : null}
+              {transactions.map((transaction) => (
+                <tr key={`${transaction.orderItemId}-${transaction.paymentId}`}>
+                  <td>{transaction.transactionId}</td>
+                  <td>{transaction.studentName || "—"}</td>
+                  <td>{transaction.courseName}</td>
+                  <td>{formatGateway(transaction.paymentMethod)}</td>
+                  <td className="textRight">{formatMoney(transaction.amount)}</td>
                   <td>
                     <span
-                      className={`transactionStatus ${statusClasses[transaction.status]}`}
+                      className={`transactionStatus ${statusClasses[transaction.status] || ""}`}
                     >
                       {transaction.status}
                     </span>
@@ -222,7 +254,8 @@ const TransactionLog = () => {
                     <button
                       type="button"
                       className="transactionActionButton"
-                      aria-label={`View invoice ${transaction.id}`}
+                      aria-label={`View invoice ${transaction.transactionId}`}
+                      title={`Order #${transaction.orderId}`}
                     >
                       <FileText size={16} />
                     </button>

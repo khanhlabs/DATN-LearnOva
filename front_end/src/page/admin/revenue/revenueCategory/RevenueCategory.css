@@ -76,3 +76,9 @@
   height: 100%;
   border-radius: 999px;
 }
+
+.revenueCategoryEmpty {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}

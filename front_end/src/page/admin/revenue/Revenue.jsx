@@ -1,14 +1,46 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getAdminRevenueOverviewApi } from "../../../api/admin/RevenueApi.js";
+import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
 import RevenueCard from "./revenueCard/RevenueCard.jsx";
 import RevenueChart from "./revenueChart/RevenueChart.jsx";
 import RevenueDonut from "./revenueDonut/RevenueDonut.jsx";
 import "./Revenue.css";
 
+const EMPTY_BREAKDOWN = [];
+
 const Revenue = () => {
+  const axiosPrivate = useAxiosPrivate();
+  const [overview, setOverview] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        const data = await getAdminRevenueOverviewApi(axiosPrivate);
+        if (!mounted) return;
+        setOverview(data);
+        setError("");
+      } catch {
+        if (!mounted) return;
+        setOverview(null);
+        setError("Unable to load revenue overview.");
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [axiosPrivate]);
+
   return (
     <div className="revenuePage">
       <div className="revenuePageInner">
-        <RevenueCard />
+        {error ? <p className="revenuePageError">{error}</p> : null}
+        <RevenueCard kpis={overview?.kpis} />
         <nav className="revenueQuickNav" aria-label="Revenue detail pages">
           <Link className="revenueQuickNavItem" to="/learnova/admin/revenue/top-rankings">
             View top revenue tables
@@ -19,7 +51,7 @@ const Revenue = () => {
         </nav>
         <div className="revenueOverviewRow">
           <RevenueChart />
-          <RevenueDonut />
+          <RevenueDonut items={overview?.categoryBreakdown ?? EMPTY_BREAKDOWN} />
         </div>
       </div>
     </div>

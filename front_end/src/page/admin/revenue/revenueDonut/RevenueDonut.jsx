@@ -2,32 +2,55 @@ import { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import "./RevenueDonut.css";
 
-const revenueDonutLabels = [
-  "New Courses",
-  "VIP Bundle Sales",
-  "Support Services",
-  "Other Fees",
+const DONUT_COLORS = [
+  "#2563eb",
+  "#60a5fa",
+  "#22c55e",
+  "#8b5cf6",
+  "#f59e0b",
+  "#ef4444",
+  "#14b8a6",
+  "#64748b",
 ];
 
-const revenueDonutValues = [42, 28, 18, 12];
-const revenueDonutColors = ["#2563eb", "#60a5fa", "#22c55e", "#8b5cf6"];
+const formatCompactMoney = (value) => {
+  const amount = Number(value || 0);
+  if (amount >= 1_000_000) {
+    return `$${(amount / 1_000_000).toFixed(1)}M`;
+  }
+  if (amount >= 1_000) {
+    return `$${(amount / 1_000).toFixed(1)}K`;
+  }
+  return `$${amount.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+};
 
-const RevenueDonut = () => {
+const RevenueDonut = ({ items = [] }) => {
   const donutRef = useRef(null);
+  const chartRef = useRef(null);
+
+  const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const labels = items.map((item) => item.categoryName || "Uncategorized");
+  const values = items.map((item) => Number(item.amount || 0));
+  const colors = labels.map((_, index) => DONUT_COLORS[index % DONUT_COLORS.length]);
 
   useEffect(() => {
     if (!donutRef.current) {
       return undefined;
     }
 
-    const donutChart = new Chart(donutRef.current, {
+    if (chartRef.current) {
+      chartRef.current.destroy();
+      chartRef.current = null;
+    }
+
+    chartRef.current = new Chart(donutRef.current, {
       type: "doughnut",
       data: {
-        labels: revenueDonutLabels,
+        labels: labels.length ? labels : ["No data"],
         datasets: [
           {
-            data: revenueDonutValues,
-            backgroundColor: revenueDonutColors,
+            data: values.length ? values : [1],
+            backgroundColor: values.length ? colors : ["#e2e8f0"],
             borderColor: "#f8fafc",
             borderWidth: 4,
             hoverOffset: 4,
@@ -54,7 +77,12 @@ const RevenueDonut = () => {
             cornerRadius: 6,
             callbacks: {
               label(context) {
-                return `${context.label}: ${context.parsed}%`;
+                if (!values.length) {
+                  return "No paid revenue by category yet";
+                }
+                const amount = Number(context.parsed || 0);
+                const share = total > 0 ? ((amount / total) * 100).toFixed(1) : "0.0";
+                return `${context.label}: ${formatCompactMoney(amount)} (${share}%)`;
               },
             },
           },
@@ -63,9 +91,12 @@ const RevenueDonut = () => {
     });
 
     return () => {
-      donutChart.destroy();
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
     };
-  }, []);
+  }, [items]);
 
   return (
     <section className="revenueDonutCard" aria-label="Revenue source breakdown">
@@ -73,7 +104,7 @@ const RevenueDonut = () => {
         <div>
           <h2 className="revenueDonutTitle">Revenue Source Breakdown</h2>
           <p className="revenueDonutSubtitle">
-            Detailed revenue allocation by platform training category.
+            Paid course revenue allocated by training category.
           </p>
         </div>
       </div>
@@ -82,22 +113,30 @@ const RevenueDonut = () => {
         <div className="revenueDonutChartWrapper">
           <canvas ref={donutRef} aria-label="Revenue composition donut chart" />
           <div className="revenueDonutCenter">
-            <div className="revenueDonutCenterValue">$2.5M</div>
+            <div className="revenueDonutCenterValue">{formatCompactMoney(total)}</div>
             <div className="revenueDonutCenterLabel">TOTAL BREAKDOWN</div>
-            <div className="revenueDonutCenterPercent">100% Revenue</div>
+            <div className="revenueDonutCenterPercent">
+              {items.length ? "100% Revenue" : "No data"}
+            </div>
           </div>
         </div>
 
         <div className="revenueDonutLegend">
-          {revenueDonutLabels.map((label, index) => (
-            <div key={label} className="revenueDonutLegendItem">
-              <span
-                className="revenueDonutLegendDot"
-                style={{ backgroundColor: revenueDonutColors[index] }}
-              />
-              <span className="revenueDonutLegendText">{label}</span>
+          {labels.length === 0 ? (
+            <div className="revenueDonutLegendItem">
+              <span className="revenueDonutLegendText">No category revenue yet</span>
             </div>
-          ))}
+          ) : (
+            labels.map((label, index) => (
+              <div key={`${label}-${index}`} className="revenueDonutLegendItem">
+                <span
+                  className="revenueDonutLegendDot"
+                  style={{ backgroundColor: colors[index] }}
+                />
+                <span className="revenueDonutLegendText">{label}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>

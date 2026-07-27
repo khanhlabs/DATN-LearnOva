@@ -2,10 +2,14 @@ package com.example.back_end.repository.admin;
 
 import com.example.back_end.entity.OrderItem;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
 
@@ -31,6 +35,43 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
         BigDecimal getShare();
     }
 
+    interface CategoryRevenueProjection {
+        Long getCategoryId();
+        String getCategoryName();
+        BigDecimal getAmount();
+    }
+
+    interface PeriodAmountProjection {
+        LocalDate getPeriod();
+        BigDecimal getAmount();
+    }
+
+    interface TransactionLogProjection {
+        Long getOrderId();
+        Long getPaymentId();
+        Long getOrderItemId();
+        String getTransactionId();
+        String getStudentName();
+        String getCourseName();
+        Long getCategoryId();
+        String getCategoryName();
+        String getPaymentMethod();
+        BigDecimal getAmount();
+        String getCurrency();
+        String getStatus();
+        Instant getPaidAt();
+    }
+
+    interface PeakDayProjection {
+        LocalDate getDay();
+        BigDecimal getAmount();
+    }
+
+    interface PeakMonthProjection {
+        LocalDate getMonthStart();
+        BigDecimal getAmount();
+    }
+
     @Query(
             value = """
                     SELECT
@@ -52,14 +93,19 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                             cate.category_id,
                             cate.name AS category,
                             COUNT(DISTINCT e.user_id) AS students,
-                            COALESCE(SUM(o.total_amount), 0) AS revenue
+                            COALESCE(SUM(oi.price), 0) AS revenue
                         FROM courses c
                         LEFT JOIN users u
                                ON c.instructor_id = u.user_id
-                        LEFT JOIN course_categories cc
-                               ON c.course_id = cc.course_id
-                        LEFT JOIN categories cate
-                               ON cc.category_id = cate.category_id
+                        LEFT JOIN LATERAL (
+                            SELECT cat.category_id, cat.name
+                            FROM course_categories cc0
+                            JOIN categories cat ON cat.category_id = cc0.category_id
+                            WHERE cc0.course_id = c.course_id
+                              AND cat.is_deleted = FALSE
+                            ORDER BY cc0.is_primary DESC, cat.category_id
+                            LIMIT 1
+                        ) cate ON TRUE
                         JOIN order_items oi
                                ON c.course_id = oi.course_id
                         JOIN orders o
@@ -85,13 +131,8 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                     SELECT COUNT(*)
                     FROM (
                         SELECT
-                            c.course_id,
-                            cate.category_id
+                            c.course_id
                         FROM courses c
-                        LEFT JOIN course_categories cc
-                               ON c.course_id = cc.course_id
-                        LEFT JOIN categories cate
-                               ON cc.category_id = cate.category_id
                         JOIN order_items oi
                                ON c.course_id = oi.course_id
                         JOIN orders o
@@ -101,7 +142,7 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                                ON p.order_id = o.order_id
                               AND p.status = 'SUCCESS'
                         WHERE c.is_deleted = FALSE
-                        GROUP BY c.course_id, cate.category_id
+                        GROUP BY c.course_id
                     ) counted
                     """,
             nativeQuery = true
@@ -124,9 +165,9 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                             u.full_name AS instructor,
                             COUNT(DISTINCT c.course_id) AS total_courses,
                             COUNT(DISTINCT e.user_id) AS total_students,
-                            COALESCE(SUM(o.total_amount), 0) AS revenue,
+                            COALESCE(SUM(oi.price), 0) AS revenue,
                             ROUND(
-                                COALESCE(SUM(o.total_amount), 0) /
+                                COALESCE(SUM(oi.price), 0) /
                                 NULLIF(COUNT(DISTINCT c.course_id), 0),
                                 2
                             ) AS avg_per_course
@@ -182,4 +223,285 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
             nativeQuery = true
     )
     Page<InstructorRankingProjection> findTopEarningInstructors(Pageable pageable);
+
+    @Query(value = """
+            SELECT COALESCE(SUM(oi.price), 0)
+            FROM order_items oi
+            JOIN orders o ON o.order_id = oi.order_id
+            JOIN courses c ON c.course_id = oi.course_id
+            WHERE o.status = 'PAID'
+              AND c.is_deleted = FALSE
+              AND EXISTS (
+                    SELECT 1
+                    FROM payments p
+                    WHERE p.order_id = o.order_id
+                      AND p.status = 'SUCCESS'
+              )
+            """, nativeQuery = true)
+    BigDecimal sumPaidItemRevenueAllTime();
+
+    @Query(value = """
+            SELECT COALESCE(SUM(oi.price), 0)
+            FROM order_items oi
+            JOIN orders o ON o.order_id = oi.order_id
+            JOIN courses c ON c.course_id = oi.course_id
+            WHERE o.status = 'PAID'
+              AND c.is_deleted = FALSE
+              AND o.created_at >= :fromTs
+              AND o.created_at < :toTs
+              AND EXISTS (
+                    SELECT 1
+                    FROM payments p
+                    WHERE p.order_id = o.order_id
+                      AND p.status = 'SUCCESS'
+              )
+            """, nativeQuery = true)
+    BigDecimal sumPaidItemRevenueBetween(
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query(value = """
+            SELECT COUNT(DISTINCT p.payment_id)
+            FROM payments p
+            WHERE p.status = 'SUCCESS'
+            """, nativeQuery = true)
+    long countSuccessfulPaymentsAllTime();
+
+    @Query(value = """
+            SELECT COUNT(DISTINCT p.payment_id)
+            FROM payments p
+            WHERE p.status = 'SUCCESS'
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) >= :fromTs
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) < :toTs
+            """, nativeQuery = true)
+    long countSuccessfulPaymentsBetween(
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM payments p
+            WHERE p.status = 'REFUNDED'
+            """, nativeQuery = true)
+    long countRefundedPaymentsAllTime();
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM payments p
+            WHERE p.status = 'REFUNDED'
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) >= :fromTs
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) < :toTs
+            """, nativeQuery = true)
+    long countRefundedPaymentsBetween(
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query(value = """
+            SELECT
+                cate.category_id AS "categoryId",
+                cate.name AS "categoryName",
+                COALESCE(SUM(oi.price), 0) AS amount
+            FROM order_items oi
+            JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+            JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+            JOIN course_categories cc ON cc.course_id = c.course_id
+            JOIN categories cate ON cate.category_id = cc.category_id AND cate.is_deleted = FALSE
+            WHERE EXISTS (
+                    SELECT 1
+                    FROM payments p
+                    WHERE p.order_id = o.order_id
+                      AND p.status = 'SUCCESS'
+              )
+            GROUP BY cate.category_id, cate.name
+            ORDER BY amount DESC
+            """, nativeQuery = true)
+    List<CategoryRevenueProjection> findRevenueByCategory();
+
+    @Query(value = """
+            SELECT
+                (date_trunc(CAST(:bucket AS text), o.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh'))::date AS period,
+                COALESCE(SUM(oi.price), 0) AS amount
+            FROM order_items oi
+            JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+            JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+            WHERE o.created_at >= :fromTs
+              AND o.created_at < :toTs
+              AND EXISTS (
+                    SELECT 1
+                    FROM payments p
+                    WHERE p.order_id = o.order_id
+                      AND p.status = 'SUCCESS'
+              )
+            GROUP BY 1
+            ORDER BY 1
+            """, nativeQuery = true)
+    List<PeriodAmountProjection> findCashFlowByBucket(
+            @Param("bucket") String bucket,
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query(value = """
+            SELECT
+                (date_trunc(CAST(:bucket AS text), COALESCE(pr.processed_at, pr.created_at) AT TIME ZONE 'Asia/Ho_Chi_Minh'))::date AS period,
+                COALESCE(SUM(pr.amount), 0) AS amount
+            FROM payout_requests pr
+            WHERE pr.status = 'PAID'
+              AND COALESCE(pr.processed_at, pr.created_at) >= :fromTs
+              AND COALESCE(pr.processed_at, pr.created_at) < :toTs
+            GROUP BY 1
+            ORDER BY 1
+            """, nativeQuery = true)
+    List<PeriodAmountProjection> findPaidPayoutsByBucket(
+            @Param("bucket") String bucket,
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query(
+            value = """
+                    SELECT
+                        o.order_id AS "orderId",
+                        p.payment_id AS "paymentId",
+                        oi.order_item_id AS "orderItemId",
+                        CONCAT('PAY-', p.payment_id) AS "transactionId",
+                        u.full_name AS "studentName",
+                        c.title AS "courseName",
+                        cate.category_id AS "categoryId",
+                        cate.name AS "categoryName",
+                        CAST(p.payment_method AS text) AS "paymentMethod",
+                        COALESCE(oi.price, 0) AS amount,
+                        CAST('USD' AS text) AS currency,
+                        CAST(p.status AS text) AS status,
+                        COALESCE(p.paid_at, o.created_at) AS "paidAt"
+                    FROM order_items oi
+                    JOIN orders o ON o.order_id = oi.order_id
+                    JOIN users u ON u.user_id = o.user_id
+                    JOIN courses c ON c.course_id = oi.course_id
+                    JOIN payments p ON p.payment_id = (
+                        SELECT p2.payment_id
+                        FROM payments p2
+                        WHERE p2.order_id = o.order_id
+                        ORDER BY p2.payment_id DESC
+                        LIMIT 1
+                    )
+                    LEFT JOIN LATERAL (
+                        SELECT cat.category_id, cat.name
+                        FROM course_categories cc0
+                        JOIN categories cat ON cat.category_id = cc0.category_id
+                        WHERE cc0.course_id = c.course_id
+                          AND cat.is_deleted = FALSE
+                        ORDER BY cc0.is_primary DESC, cat.category_id
+                        LIMIT 1
+                    ) cate ON TRUE
+                    WHERE (:search IS NULL OR :search = ''
+                        OR LOWER(CONCAT('PAY-', p.payment_id)) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(COALESCE(p.transaction_id, '')) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(COALESCE(u.full_name, '')) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR CAST(p.payment_id AS text) LIKE CONCAT('%', :search, '%')
+                        OR CAST(o.order_id AS text) LIKE CONCAT('%', :search, '%'))
+                      AND (:categoryId IS NULL OR EXISTS (
+                            SELECT 1
+                            FROM course_categories cc2
+                            WHERE cc2.course_id = c.course_id
+                              AND cc2.category_id = :categoryId
+                      ))
+                      AND (:paymentMethod IS NULL OR :paymentMethod = ''
+                        OR CAST(p.payment_method AS text) = :paymentMethod)
+                      AND (:status IS NULL OR :status = ''
+                        OR CAST(p.status AS text) = :status)
+                    ORDER BY COALESCE(p.paid_at, o.created_at) DESC, oi.order_item_id DESC
+                    """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM order_items oi
+                    JOIN orders o ON o.order_id = oi.order_id
+                    JOIN users u ON u.user_id = o.user_id
+                    JOIN courses c ON c.course_id = oi.course_id
+                    JOIN payments p ON p.payment_id = (
+                        SELECT p2.payment_id
+                        FROM payments p2
+                        WHERE p2.order_id = o.order_id
+                        ORDER BY p2.payment_id DESC
+                        LIMIT 1
+                    )
+                    WHERE (:search IS NULL OR :search = ''
+                        OR LOWER(CONCAT('PAY-', p.payment_id)) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(COALESCE(p.transaction_id, '')) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(COALESCE(u.full_name, '')) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR CAST(p.payment_id AS text) LIKE CONCAT('%', :search, '%')
+                        OR CAST(o.order_id AS text) LIKE CONCAT('%', :search, '%'))
+                      AND (:categoryId IS NULL OR EXISTS (
+                            SELECT 1
+                            FROM course_categories cc2
+                            WHERE cc2.course_id = c.course_id
+                              AND cc2.category_id = :categoryId
+                      ))
+                      AND (:paymentMethod IS NULL OR :paymentMethod = ''
+                        OR CAST(p.payment_method AS text) = :paymentMethod)
+                      AND (:status IS NULL OR :status = ''
+                        OR CAST(p.status AS text) = :status)
+                    """,
+            nativeQuery = true
+    )
+    Page<TransactionLogProjection> findTransactionLog(
+            @Param("search") String search,
+            @Param("categoryId") Long categoryId,
+            @Param("paymentMethod") String paymentMethod,
+            @Param("status") String status,
+            Pageable pageable
+    );
+
+    @Query(value = """
+            SELECT
+                day_bucket::date AS day,
+                amount
+            FROM (
+                SELECT
+                    date_trunc('day', o.created_at) AS day_bucket,
+                    COALESCE(SUM(oi.price), 0) AS amount
+                FROM order_items oi
+                JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+                JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+                WHERE EXISTS (
+                        SELECT 1
+                        FROM payments p
+                        WHERE p.order_id = o.order_id
+                          AND p.status = 'SUCCESS'
+                  )
+                GROUP BY 1
+            ) ranked
+            ORDER BY amount DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    PeakDayProjection findPeakRevenueDay();
+
+    @Query(value = """
+            SELECT
+                month_bucket::date AS "monthStart",
+                amount
+            FROM (
+                SELECT
+                    date_trunc('month', o.created_at) AS month_bucket,
+                    COALESCE(SUM(oi.price), 0) AS amount
+                FROM order_items oi
+                JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+                JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+                WHERE EXISTS (
+                        SELECT 1
+                        FROM payments p
+                        WHERE p.order_id = o.order_id
+                          AND p.status = 'SUCCESS'
+                  )
+                GROUP BY 1
+            ) ranked
+            ORDER BY amount DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    PeakMonthProjection findPeakRevenueMonth();
 }

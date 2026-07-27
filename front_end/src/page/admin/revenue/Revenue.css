@@ -10,6 +10,13 @@
   gap: 20px;
 }
 
+.revenuePageError {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .revenueQuickNav {
   display: flex;
   justify-content: flex-end;

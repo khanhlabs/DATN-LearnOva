@@ -1,6 +1,6 @@
 import "./RefundRequestCard.css";
 
-const RefundRequestCard = ({ title, value, delta, label, icon: Icon }) => {
+const RefundRequestCard = ({ title, value, delta, label, icon: Icon, deltaTone = "negative" }) => {
   return (
     <article className="refundRequestCard">
       <header className="refundRequestCardHeader">
@@ -11,7 +11,7 @@ const RefundRequestCard = ({ title, value, delta, label, icon: Icon }) => {
       <div className="refundRequestCardBody">
         <p className="refundRequestCardValue">{value}</p>
         <div className="refundRequestCardMeta">
-          <span className="revenueDelta negative">{delta}</span>
+          <span className={`revenueDelta ${deltaTone}`}>{delta}</span>
           <span className="refundRequestCardLabel">{label}</span>
         </div>
       </div>
