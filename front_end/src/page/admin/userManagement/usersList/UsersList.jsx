@@ -7,26 +7,20 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import DeleteUserModal from "./DeleteUserModal";
 import EditUserModal from "./EditUserModal";
 import ViewUserModal from "./ViewUserModal";
 import "./UsersList.css";
 
-const tableColumns = [
-  { id: "user", label: "User" },
-  { id: "role", label: "Role" },
-  { id: "phone", label: "Phone" },
-  { id: "visibility", label: "Visibility" },
-  { id: "joinedAt", label: "Joined At" },
-  { id: "actions", label: "Actions" },
-];
+const tableColumns = ["user", "role", "phone", "visibility", "joinedAt", "actions"];
 
 const pageSize = 10;
 
 const getUserVisibility = (user) =>
   user.isDeleted
-    ? { label: "Hidden", tone: "deleted" }
-    : { label: "Active", tone: "visible" };
+    ? { label: "hidden", tone: "deleted" }
+    : { label: "active", tone: "visible" };
 
 const UserAvatar = ({ user, className }) => {
   const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
@@ -59,6 +53,7 @@ const UsersList = ({
   onUserUpdated = () => {},
   onNotify = () => {},
 }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAction, setSelectedAction] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -95,7 +90,7 @@ const UsersList = ({
               key={column.id}
               className={`userManagementUsersColumn userManagementUsersColumn--${column.id}`}
             >
-              {column.label}
+              {t(`admin.${column}`)}
             </span>
           ))}
         </div>
@@ -124,7 +119,7 @@ const UsersList = ({
                   <span
                     className={`userManagementUserRole userManagementUserRole--${user.roleTone}`}
                   >
-                    <span>{user.role}</span>
+                    <span>{t(`admin.${user.roleFilter === "student" ? "student" : user.roleFilter === "teacher" ? "instructors" : "admin"}`)}</span>
                   </span>
                 </div>
 
@@ -138,7 +133,7 @@ const UsersList = ({
                   <span
                     className={`userManagementUserVisibility userManagementUserVisibility--${visibility.tone}`}
                   >
-                    <span>{visibility.label}</span>
+                    <span>{t(`admin.${visibility.label}`)}</span>
                   </span>
                 </div>
 
@@ -183,7 +178,7 @@ const UsersList = ({
 
           {!isLoading && users.length === 0 ? (
             <div className="userManagementUsersEmpty">
-              No users match the current filter.
+              {t("admin.noMatchingUsers")}
             </div>
           ) : null}
         </div>
@@ -192,14 +187,14 @@ const UsersList = ({
 
       <div className="userManagementUsersFooter">
         <p className="userManagementUsersPageInfo">
-          Displaying {users.length ? (visiblePage - 1) * pageSize + 1 : 0}-
+          {t("admin.displaying")} {users.length ? (visiblePage - 1) * pageSize + 1 : 0}-
           {Math.min(visiblePage * pageSize, users.length)} out of {users.length}{" "}
-          users
+          {t("admin.users").toLowerCase()}
         </p>
 
         <div
           className="userManagementUsersPagination"
-          aria-label="User Pagination"
+          aria-label={t("admin.user")}
         >
           <button
             type="button"

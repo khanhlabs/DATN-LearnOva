@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search, FileText } from "lucide-react";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
 import "./TransactionLog.css";
+import { useTranslation } from "react-i18next";
 
 const transactions = [
   {
@@ -123,6 +124,7 @@ const statusClasses = {
 const PAGE_SIZE = 7;
 
 const TransactionLog = () => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedGateway, setSelectedGateway] = useState("All Payment Gateways");
@@ -151,10 +153,9 @@ const TransactionLog = () => {
     >
       <div className="transactionLogHeader">
         <div>
-          <h2 className="transactionLogTitle">Revenue Transaction Log</h2>
+          <h2 className="transactionLogTitle">{t("revenueDetails.log")}</h2>
           <p className="transactionLogSubtitle">
-            Quickly search all cash flow records, filter by payment gateway and
-            reconciliation status.
+            {t("revenueDetails.logDesc")}
           </p>
         </div>
       </div>
@@ -163,7 +164,7 @@ const TransactionLog = () => {
         <div className="transactionLogControls">
           <label className="transactionSearch">
             <Search size={16} />
-            <input placeholder="Search by transaction ID, student name, course" />
+            <input placeholder={t("revenueDetails.search")} />
           </label>
           <div className="transactionFilters">
             <AdminHoverSelect
@@ -194,13 +195,7 @@ const TransactionLog = () => {
           <table className="transactionLogTable">
             <thead>
               <tr>
-                <th>TRANSACTION ID</th>
-                <th>STUDENT</th>
-                <th>COURSE NAME</th>
-                <th>PAYMENT GATEWAY</th>
-                <th>TRANSACTION VALUE</th>
-                <th>STATUS</th>
-                <th>ACTION</th>
+                <th>{t("revenueDetails.transactionId")}</th><th>{t("revenueDetails.student")}</th><th>{t("revenueDetails.courseName")}</th><th>{t("revenueDetails.gateway")}</th><th>{t("revenueDetails.value")}</th><th>{t("revenueDetails.status")}</th><th>{t("revenueDetails.action")}</th>
               </tr>
             </thead>
             <tbody>

@@ -35,7 +35,15 @@ const LoginForm = ({ onSwitchToRegister }) => {
             const activeRole = data.user?.activeRole;
             // A stale activeRole (e.g. left over after a role was revoked) must not
             // send the user into a dashboard they no longer have access to.
-            const effectiveRole = activeRole && roles.includes(activeRole) ? activeRole : null;
+            // Admin accounts must always enter the admin dashboard even when
+            // activeRole is null/stale in imported legacy data.
+            const effectiveRole = roles.includes("ROLE_ADMIN")
+                ? "ROLE_ADMIN"
+                : activeRole && roles.includes(activeRole)
+                    ? activeRole
+                    : roles.includes("ROLE_TEACHER")
+                        ? "ROLE_TEACHER"
+                        : null;
 
             if (effectiveRole === "ROLE_ADMIN") {
                 navigate('/learnova/admin');

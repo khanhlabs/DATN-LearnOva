@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import axiosClient from "../../../../api/AxiosClient.js";
 
 const thumbnailUrlCache = new Map();
@@ -43,16 +44,17 @@ const ApprovalSidebarThumbnail = ({ course }) => {
   ) : null;
 };
 
-const ApprovalSidebar = ({ courses, selectedId, onSelect }) => (
-  <aside className="approvalSidebar">
+const ApprovalSidebar = ({ courses, selectedId, onSelect }) => {
+  const { t } = useTranslation();
+  return <aside className="approvalSidebar">
     <div className="approvalSidebarHeader">
-      <p className="approvalSidebarEyebrow">PENDING REVIEW</p>
-      <p className="approvalSidebarCount">{courses.length} courses</p>
+      <p className="approvalSidebarEyebrow">{t("courseApproval.pending")}</p>
+      <p className="approvalSidebarCount">{t("courseApproval.count", { count: courses.length })}</p>
     </div>
 
     <ul className="approvalSidebarList">
       {courses.length === 0 ? (
-        <li className="approvalSidebarEmpty">No draft courses are waiting for review.</li>
+        <li className="approvalSidebarEmpty">{t("courseApproval.empty")}</li>
       ) : (
         courses.map((course) => (
           <li key={course.id}>
@@ -74,7 +76,7 @@ const ApprovalSidebar = ({ courses, selectedId, onSelect }) => (
         ))
       )}
     </ul>
-  </aside>
-);
+  </aside>;
+};
 
 export default ApprovalSidebar;

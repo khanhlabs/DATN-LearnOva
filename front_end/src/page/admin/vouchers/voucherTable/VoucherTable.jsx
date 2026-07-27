@@ -1,5 +1,6 @@
 import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { adminNotifySuccess } from "../../../../api/NotificationApi.js";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
@@ -59,6 +60,7 @@ const VoucherTable = ({
   onVoucherDeleted,
   refreshKey,
 }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [vouchers, setVouchers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -151,6 +153,11 @@ const VoucherTable = ({
     [deletedVoucherIds, vouchers]
   );
 
+  const translatedStatusOptions = statusOptions.map((status) => ({
+    value: status,
+    label: t(`opsAdmin.status.${status.replaceAll(" ", "").toLowerCase()}`),
+  }));
+
   const filteredVouchers = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
 
@@ -236,13 +243,13 @@ const VoucherTable = ({
     <section className="voucherTableSection">
       <div className="voucherTableHeader">
         <div>
-          <h2 className="voucherTableTitle">Discount Program Archive</h2>
+          <h2 className="voucherTableTitle">{t("opsAdmin.archive")}</h2>
           <p className="voucherTableSubtitle">
-            Manage created discount programs and activity status.
+            {t("opsAdmin.archiveSubtitle")}
           </p>
         </div>
         <span className="voucherTableCount">
-          Count: {filteredVouchers.length} items
+          {t("opsAdmin.countItems", { count: filteredVouchers.length })}
         </span>
       </div>
 
@@ -250,24 +257,24 @@ const VoucherTable = ({
         <div className="voucherTableControls">
           <input
             type="text"
-            placeholder="Search code or campaign..."
+            placeholder={t("opsAdmin.searchVoucher")}
             className="voucherSearchInput"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
           <AdminHoverSelect
             className="voucherStatusSelect"
-            options={statusOptions}
+            options={translatedStatusOptions}
             value={selectedStatus}
             onChange={setSelectedStatus}
-            ariaLabel="Filter vouchers by status"
+            ariaLabel={t("opsAdmin.filterStatus")}
           />
           <button
             type="button"
             className="voucherCreateBtn"
             onClick={onCreateVoucher}
           >
-            Create New Voucher
+            {t("opsAdmin.createVoucher")}
           </button>
         </div>
 
@@ -275,20 +282,20 @@ const VoucherTable = ({
           <table className="voucherTable">
             <thead>
               <tr>
-                <th>CODE</th>
-                <th>CAMPAIGN NAME</th>
-                <th>DISCOUNT</th>
-                <th>USED / CAPACITY</th>
-                <th>EXPIRY DATE</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
+                <th>{t("opsAdmin.code")}</th>
+                <th>{t("opsAdmin.campaignName")}</th>
+                <th>{t("opsAdmin.discount")}</th>
+                <th>{t("opsAdmin.usedCapacity")}</th>
+                <th>{t("opsAdmin.expiryDate")}</th>
+                <th>{t("revenueDetails.status")}</th>
+                <th>{t("opsAdmin.actions")}</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="7" className="voucherTableLoading">
-                    Loading vouchers...
+                    {t("opsAdmin.loadingVouchers")}
                   </td>
                 </tr>
               ) : error ? (
@@ -300,7 +307,7 @@ const VoucherTable = ({
               ) : currentPageItems.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="voucherTableEmpty">
-                    No matching vouchers found.
+                    {t("opsAdmin.noVouchers")}
                   </td>
                 </tr>
               ) : (
@@ -313,7 +320,7 @@ const VoucherTable = ({
                     <td>{v.expires}</td>
                     <td>
                       <span className={`voucherBadge ${v.statusClass}`}>
-                        {v.status}
+                        {t(`opsAdmin.status.${v.status.replaceAll(" ", "").toLowerCase()}`)}
                       </span>
                     </td>
                     <td>
@@ -359,7 +366,7 @@ const VoucherTable = ({
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
           >
-            Prev
+            {t("opsAdmin.previous")}
           </button>
 
           {Array.from({ length: totalPages }, (_, index) => index + 1).map(
@@ -385,7 +392,7 @@ const VoucherTable = ({
               setCurrentPage((page) => Math.min(page + 1, totalPages))
             }
           >
-            Next
+            {t("opsAdmin.next")}
           </button>
         </div>
       </div>
@@ -406,10 +413,9 @@ const VoucherTable = ({
             <div className="voucherDeleteModalIcon">
               <FiTrash2 size={24} />
             </div>
-            <h3 id="voucher-delete-title">Delete voucher?</h3>
+            <h3 id="voucher-delete-title">{t("opsAdmin.deleteVoucherQuestion")}</h3>
             <p>
-              Voucher <strong>{deleteTarget.code}</strong> will be marked as
-              delete and remain visible in the archive.
+              {t("opsAdmin.deleteVoucherDescription", { code: deleteTarget.code })}
             </p>
             <div className="voucherDeleteModalActions">
               <button
@@ -418,7 +424,7 @@ const VoucherTable = ({
                 onClick={closeDeleteModal}
                 disabled={isDeleting}
               >
-                Cancel
+                {t("opsAdmin.cancel")}
               </button>
               <button
                 type="button"
@@ -426,7 +432,7 @@ const VoucherTable = ({
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? "Deleting..." : "Confirm Delete"}
+                {isDeleting ? t("opsAdmin.deleting") : t("opsAdmin.confirmDelete")}
               </button>
             </div>
           </div>

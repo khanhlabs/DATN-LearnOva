@@ -1,5 +1,6 @@
 import { AlertTriangle, Edit3, Plus, Tag as TagIcon, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { adminNotifySuccess } from "../../../api/NotificationApi.js";
 import {
@@ -47,15 +48,15 @@ const normalizeTag = (tag) => ({
   updatedAt: formatDate(tag.updatedAt),
 });
 
-const getTagStats = (tags) => {
+const getTagStats = (tags, t) => {
   const active = tags.filter((t) => !t.isDeleted).length;
   const hidden = tags.filter((t) => t.isDeleted).length;
   const withCourse = tags.filter((t) => t.courseId != null).length;
   return [
-    { label: "Total Tags", value: tags.length, note: "from database" },
-    { label: "Active Tags", value: active, note: "visible to users" },
-    { label: "Hidden Tags", value: hidden, note: "not visible to users" },
-    { label: "Attached to Course", value: withCourse, note: "linked to a course" },
+    { label: t("tagAdmin.total"), value: tags.length, note: t("tagAdmin.database") },
+    { label: t("tagAdmin.active"), value: active, note: t("tagAdmin.visible") },
+    { label: t("tagAdmin.hidden"), value: hidden, note: t("tagAdmin.notVisible") },
+    { label: t("tagAdmin.attached"), value: withCourse, note: t("tagAdmin.linked") },
   ];
 };
 
@@ -74,6 +75,7 @@ const CourseSelect = ({ value, onChange, courses }) => (
 );
 
 const Tag = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [tags, setTags] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -109,7 +111,7 @@ const Tag = () => {
     return () => { isMounted = false; };
   }, [axiosPrivate]);
 
-  const tagStats = useMemo(() => getTagStats(tags), [tags]);
+  const tagStats = useMemo(() => getTagStats(tags, t), [tags, t]);
   const statusOptions = useMemo(() => ["All", "Active", "Hidden"], []);
 
   const filteredTags = useMemo(() => {
@@ -250,7 +252,7 @@ const Tag = () => {
         <div className="adminTagFilters">
           <input
             type="search"
-            placeholder="Search tag name or course..."
+            placeholder={t("tagAdmin.search")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -263,7 +265,7 @@ const Tag = () => {
           />
           <button type="button" className="adminTagCreateButton" onClick={openCreate}>
             <Plus size={18} />
-            New Tag
+            + {t("tagAdmin.new")}
           </button>
         </div>
 
@@ -273,12 +275,7 @@ const Tag = () => {
           <table className="adminTagTable">
             <thead>
               <tr>
-                <th>Tag ID</th>
-                <th>Tag Name</th>
-                <th>Course</th>
-                <th>Status</th>
-                <th>Updated</th>
-                <th>Actions</th>
+                <th>{t("tagAdmin.tagId")}</th><th>{t("tagAdmin.tagName")}</th><th>{t("tagAdmin.course")}</th><th>{t("tagAdmin.status")}</th><th>{t("tagAdmin.updated")}</th><th>{t("tagAdmin.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -310,7 +307,7 @@ const Tag = () => {
                 </tr>
               ))}
               {!isLoading && visibleTags.length === 0 ? (
-                <tr><td colSpan={6} className="adminTagEmpty">No tags match the current filter.</td></tr>
+                <tr><td colSpan={6} className="adminTagEmpty">{t("tagAdmin.empty")}</td></tr>
               ) : null}
               {isLoading ? (
                 <tr><td colSpan={6} className="adminTagEmpty">Loading tags...</td></tr>
@@ -326,7 +323,7 @@ const Tag = () => {
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           >
-            Previous
+            {t("tagAdmin.previous")}
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
@@ -344,7 +341,7 @@ const Tag = () => {
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
           >
-            Next
+            {t("tagAdmin.next")}
           </button>
         </div>
       </div>
@@ -362,7 +359,7 @@ const Tag = () => {
             <div className="adminTagModalHeader">
               <div>
                 <h2 id="admin-tag-modal-title">
-                  {editingTag ? "Edit Tag" : "Create New Tag"}
+                  {editingTag ? t("tagAdmin.edit") : t("tagAdmin.create")}
                 </h2>
                 <p>
                   {editingTag
@@ -404,8 +401,8 @@ const Tag = () => {
                     value={createForm.status}
                     onChange={(e) => setCreateForm((f) => ({ ...f, status: e.target.value }))}
                   >
-                    <option value="Active">Active</option>
-                    <option value="Hidden">Hidden</option>
+                    <option value="Active">{t("tagAdmin.activeStatus")}</option>
+                    <option value="Hidden">{t("tagAdmin.hiddenStatus")}</option>
                   </select>
                 </label>
               )}

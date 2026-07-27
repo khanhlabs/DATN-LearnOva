@@ -4,6 +4,7 @@ import TeachersCard from "./cards/teachers/TeachersCard";
 import AdminsCard from "./cards/admins/AdminsCard";
 import LockedAccountsCard from "./cards/lockedAccounts/LockedAccountsCard";
 import "./UserManagementStats.css";
+import { useTranslation } from "react-i18next";
 
 const formatCount = (value) => new Intl.NumberFormat("en-US").format(value);
 
@@ -62,7 +63,12 @@ const getStatisticsCards = (users, isLoading) => {
 };
 
 const UserManagementStats = ({ users = [], isLoading = false }) => {
-  const statisticsCards = getStatisticsCards(users, isLoading);
+  const { t } = useTranslation();
+  const statisticsCards = getStatisticsCards(users, isLoading).map((card) => ({
+    ...card,
+    title: t(`admin.${{ "total-users": "totalUsers", students: "students", teachers: "instructors", admins: "administrators", "locked-accounts": "locked" }[card.id]}`),
+    trend: t(card.id === "locked-accounts" ? "admin.inactiveDeleted" : "admin.databaseLive"),
+  }));
 
   return (
     <section

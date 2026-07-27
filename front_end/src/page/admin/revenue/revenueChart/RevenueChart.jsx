@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
 import "./RevenueChart.css";
 
 const revenueChartLabels = [
@@ -54,6 +55,7 @@ const verticalHoverLinePlugin = {
 };
 
 const RevenueChart = () => {
+  const { t } = useTranslation();
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -67,8 +69,8 @@ const RevenueChart = () => {
         labels: revenueChartLabels,
         datasets: [
           {
-            label: "Gross Revenue (Recorded Transactions)",
-            tooltipShortLabel: "Gross Revenue",
+            label: `${t("revenueAdmin.gross")} (Recorded Transactions)`,
+            tooltipShortLabel: t("revenueAdmin.gross"),
             data: totalRevenueValues,
             borderColor: "#2563eb",
             pointBackgroundColor: "#2563eb",
@@ -80,8 +82,8 @@ const RevenueChart = () => {
             borderWidth: 3,
           },
           {
-            label: "Net Revenue (After Refund Deductions)",
-            tooltipShortLabel: "Net Revenue",
+            label: `${t("revenueAdmin.net")} (After Refund Deductions)`,
+            tooltipShortLabel: t("revenueAdmin.net"),
             data: netRevenueValues,
             borderColor: "#60a5fa",
             pointBackgroundColor: "#60a5fa",
@@ -205,15 +207,14 @@ const RevenueChart = () => {
   }, []);
 
   return (
-    <section className="revenueChartCard" aria-label="Revenue chart">
+    <section className="revenueChartCard" aria-label={t("revenueAdmin.metrics")}>
       <div className="revenueChartHeader">
         <div className="revenueChartTitleGroup">
           <h2 className="revenueChartTitle">
-            Revenue Metrics & Transaction Comparison
+            {t("revenueAdmin.metrics")}
           </h2>
           <p className="revenueChartSubtitle">
-            View overall gross revenue trends, net revenue, and liquidity
-            reserve
+            {t("revenueAdmin.metricsSubtitle")}
           </p>
         </div>
 
@@ -232,7 +233,7 @@ const RevenueChart = () => {
                   : "revenueChartFilterButton"
               }
             >
-              {filter.label}
+              {t(`revenueAdmin.${filter.value}`)}
             </button>
           ))}
         </div>
@@ -246,11 +247,11 @@ const RevenueChart = () => {
         <div className="revenueChartLegend">
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot gold" />
-            <span>Gross Revenue</span>
+            <span>{t("revenueAdmin.gross")}</span>
           </div>
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot purple" />
-            <span>Net Revenue</span>
+            <span>{t("revenueAdmin.net")}</span>
           </div>
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot red" />

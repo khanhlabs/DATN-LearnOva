@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import "./RevenueDonut.css";
+import { useTranslation } from "react-i18next";
 
 const revenueDonutLabels = [
   "New Courses",
@@ -13,6 +14,7 @@ const revenueDonutValues = [42, 28, 18, 12];
 const revenueDonutColors = ["#2563eb", "#60a5fa", "#22c55e", "#8b5cf6"];
 
 const RevenueDonut = () => {
+  const { t } = useTranslation();
   const donutRef = useRef(null);
 
   useEffect(() => {
@@ -71,9 +73,9 @@ const RevenueDonut = () => {
     <section className="revenueDonutCard" aria-label="Revenue source breakdown">
       <div className="revenueDonutHeader">
         <div>
-          <h2 className="revenueDonutTitle">Revenue Source Breakdown</h2>
+          <h2 className="revenueDonutTitle">{t("revenueAdmin.source")}</h2>
           <p className="revenueDonutSubtitle">
-            Detailed revenue allocation by platform training category.
+            {t("revenueAdmin.sourceSubtitle")}
           </p>
         </div>
       </div>
@@ -83,8 +85,8 @@ const RevenueDonut = () => {
           <canvas ref={donutRef} aria-label="Revenue composition donut chart" />
           <div className="revenueDonutCenter">
             <div className="revenueDonutCenterValue">$2.5M</div>
-            <div className="revenueDonutCenterLabel">TOTAL BREAKDOWN</div>
-            <div className="revenueDonutCenterPercent">100% Revenue</div>
+            <div className="revenueDonutCenterLabel">{t("revenueAdmin.breakdown")}</div>
+            <div className="revenueDonutCenterPercent">100% {t("revenueAdmin.revenueLabel")}</div>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import { Ban, Eye, Flag, LockKeyhole, Megaphone, ShieldAlert, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { getAdminCourseDetailApi } from "../../../api/admin/CourseApi.js";
 import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
@@ -92,6 +93,7 @@ const normalizeCourseDetail = (course = {}) => ({
 });
 
 const ViolationReports = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -233,20 +235,20 @@ const ViolationReports = () => {
   }, [reports, search, selectedStatus, selectedCount]);
 
   const statCards = [
-    { label: "Open reports", value: stats.openReports, note: "awaiting admin action", icon: Flag },
+    { label: t("opsAdmin.open"), value: stats.openReports, note: t("opsAdmin.awaiting"), icon: Flag },
     {
-      label: "Reported courses",
+      label: t("opsAdmin.reported"),
       value: stats.reportedCourses,
-      note: "with open reports",
+      note: t("opsAdmin.openReports"),
       icon: TriangleAlert,
     },
     {
-      label: "Hidden by moderation",
+      label: t("opsAdmin.hiddenModeration"),
       value: stats.hiddenByModeration,
-      note: "courses currently hidden",
+      note: t("opsAdmin.hiddenCourses"),
       icon: ShieldAlert,
     },
-    { label: "Resolved", value: stats.resolvedCases, note: "closed / resolved", icon: Ban },
+    { label: t("opsAdmin.resolved"), value: stats.resolvedCases, note: t("opsAdmin.closed"), icon: Ban },
   ];
 
   const openWarnModal = (row) => setActionModal({ kind: "warn", report: row });
@@ -420,7 +422,7 @@ const ViolationReports = () => {
         <div className="adminDataFilters">
           <input
             type="search"
-            placeholder="Search report code or course title..."
+            placeholder={t("opsAdmin.searchReport")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -457,7 +459,7 @@ const ViolationReports = () => {
               )}
               {!loading && filteredReports.length === 0 && (
                 <tr>
-                  <td colSpan={5}>No violation reports yet.</td>
+                  <td colSpan={5}>{t("opsAdmin.noReports")}</td>
                 </tr>
               )}
               {!loading &&

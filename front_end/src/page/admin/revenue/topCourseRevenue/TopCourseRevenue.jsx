@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAdminTopRevenueCoursesApi } from "../../../../api/admin/RevenueApi.js";
 import "./TopCourseRevenue.css";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 5;
 
@@ -12,6 +13,7 @@ const formatMoney = (value) =>
 const formatPercent = (value) => `${Number(value || 0).toFixed(0)}%`;
 
 const TopCourseRevenue = () => {
+  const { t } = useTranslation();
   const [courses, setCourses] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -61,12 +63,9 @@ const TopCourseRevenue = () => {
     >
       <div className="topRevenueBlockHeader">
         <div>
-          <h2 className="topRevenueBlockTitle">Top Revenue Courses</h2>
-          <p className="topRevenueBlockSubtitle">
-            Best-selling courses ranked by total student enrollments.
-          </p>
+          <h2 className="topRevenueBlockTitle">{t("revenueDetails.topCourses")}</h2><p className="topRevenueBlockSubtitle">{t("revenueDetails.topCoursesDesc")}</p>
         </div>
-        <span className="topRevenueBlockBadge">Monthly</span>
+        <span className="topRevenueBlockBadge">{t("revenueDetails.monthly")}</span>
       </div>
 
       <div className="topRevenueBlockCard">
@@ -74,13 +73,7 @@ const TopCourseRevenue = () => {
           <table className="topRevenueBlockTable">
             <thead>
               <tr>
-                <th>RANK</th>
-                <th>COURSE</th>
-                <th>INSTRUCTOR</th>
-                <th>CATEGORY</th>
-                <th>STUDENTS</th>
-                <th>REVENUE</th>
-                <th>SHARE</th>
+                <th>{t("revenueDetails.rank")}</th><th>{t("revenueDetails.course")}</th><th>{t("revenueDetails.instructor")}</th><th>{t("revenueDetails.category")}</th><th>{t("revenueDetails.students")}</th><th>{t("revenueDetails.revenue")}</th><th>{t("revenueDetails.share")}</th>
               </tr>
             </thead>
             <tbody>

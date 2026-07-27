@@ -5,8 +5,10 @@ import InstructorStatistics from "./statistics/InstructorStatistics";
 import InstructorFilters from "./filters/InstructorFilters";
 import InstructorTable from "./instructorTable/InstructorTable";
 import "./InstructorManagement.css";
+import { useTranslation } from "react-i18next";
 
 const InstructorManagement = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [instructors, setInstructors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");

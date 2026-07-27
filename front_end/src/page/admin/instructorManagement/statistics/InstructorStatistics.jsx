@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CourseLoadCard from "./cards/courseLoad/CourseLoadCard";
 import StudentEnrollmentCard from "./cards/studentEnrollment/StudentEnrollmentCard";
 import RevenueSummaryCard from "./cards/revenueSummary/RevenueSummaryCard";
@@ -33,6 +34,7 @@ const InstructorStatistics = ({
   isLoading: isLoadingProp,
   error: errorProp,
 }) => {
+  const { t } = useTranslation();
   const isControlled = instructorsProp !== undefined;
   const axiosPrivate = useAxiosPrivate();
 
@@ -83,23 +85,23 @@ const InstructorStatistics = ({
       <div className="instructorStatisticsGrid">
         <div>
           <CourseLoadCard
-            title="Managed Courses"
+            title={t("instructorAdmin.managedCourses")}
             value={isLoading ? "—" : String(stats.totalCourses)}
-            note="Number of courses currently managed by instructors."
+            note={t("instructorAdmin.managedCourses")}
           />
         </div>
         <div>
           <StudentEnrollmentCard
-            title="Student Enrollment"
+            title={t("instructorAdmin.studentEnrollment")}
             value={isLoading ? "—" : formatNumber(stats.totalStudents)}
-            note="Total number of student enrollments in existing classes."
+            note={t("instructorAdmin.studentEnrollment")}
           />
         </div>
         <div>
           <RevenueSummaryCard
-            title="System Revenue"
+            title={t("instructorAdmin.systemRevenue")}
             value={isLoading ? "—" : formatCurrency(stats.totalRevenue)}
-            note="Estimated total revenue from active instructors."
+            note={t("instructorAdmin.systemRevenue")}
           />
         </div>
       </div>

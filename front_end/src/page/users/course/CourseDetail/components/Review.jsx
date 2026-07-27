@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdStar } from "react-icons/md";
 import { FiSearch } from "react-icons/fi";
@@ -28,10 +28,43 @@ function ReviewsTab({
                         hasReviewed,
                         openReviewModal
                     }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [openMenuId, setOpenMenuId] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [editText, setEditText] = useState("");
+    const [now, setNow] = useState(() => Date.now());
+
+    useEffect(() => {
+        const timer = window.setInterval(() => setNow(Date.now()), 30000);
+        return () => window.clearInterval(timer);
+    }, []);
+
+    const formatReviewTime = (value) => {
+        if (!value) return t("courseDetail.reviews.justNow");
+
+        const timestamp = new Date(value).getTime();
+        if (!Number.isFinite(timestamp)) return t("courseDetail.reviews.justNow");
+
+        const elapsed = Math.max(0, now - timestamp);
+        const seconds = Math.floor(elapsed / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        if (seconds < 60) {
+            return t("courseDetail.reviews.secondsAgo", { count: Math.max(1, seconds) });
+        }
+        if (minutes < 60) {
+            return t("courseDetail.reviews.minutesAgo", { count: minutes });
+        }
+        if (hours < 24) {
+            return t("courseDetail.reviews.hoursAgo", { count: hours });
+        }
+
+        return new Intl.DateTimeFormat(
+            i18n.language === "vi" ? "vi-VN" : "en-US",
+            { day: "2-digit", month: "2-digit", year: "numeric" }
+        ).format(new Date(timestamp));
+    };
 
     // Toggle đóng mở menu 3 chấm
     const toggleMenu = (id) => {
@@ -164,6 +197,11 @@ function ReviewsTab({
                     const displayComment = r.comment || r.text || "";
                     const displayName = r.userName || r.name || "Anonymous";
                     const displayInitials = r.initials || displayName.charAt(0).toUpperCase();
+                    const reviewTime = r.updatedAt || r.createdAt;
+                    const isEdited = r.edited === true || (
+                        r.createdAt && r.updatedAt &&
+                        new Date(r.updatedAt).getTime() > new Date(r.createdAt).getTime()
+                    );
 
                     return (
                         <div key={r.reviewId} className="review-item">
@@ -177,7 +215,12 @@ function ReviewsTab({
                                                 <MdStar key={i} className="star small" />
                                             ))}
                                         </span>
-                                        <span className="review-time">{r.time || t("courseDetail.reviews.justNow")}</span>
+                                        <span className="review-time">{formatReviewTime(reviewTime)}</span>
+                                        {isEdited && (
+                                            <span className="review-edited">
+                                                {t("courseDetail.reviews.edited")}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {/* CHỈ HIỂN THỊ NÚT 3 CHẤM NẾU ĐÚNG CHỦ SỞ HỮU ĐANG ĐĂNG NHẬP */}
@@ -254,7 +297,13 @@ function ReviewsTab({
                                                             setReviewsData(prev =>
                                                                 prev.map(item =>
                                                                     item.reviewId === r.reviewId
-                                                                        ? { ...item, comment: editText, text: editText }
+                                                                        ? {
+                                                                            ...item,
+                                                                            comment: editText,
+                                                                            text: editText,
+                                                                            updatedAt: new Date().toISOString(),
+                                                                            edited: true
+                                                                        }
                                                                         : item
                                                                 )
                                                             );

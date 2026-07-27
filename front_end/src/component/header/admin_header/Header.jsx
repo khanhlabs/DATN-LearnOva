@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import i18n, { LANGUAGE_STORAGE_KEY } from "../../../i18n/i18n.js";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import defaultAvatar from "../../../assets/default_avatar.jpg";
 import { useAuth } from "../../../hook/UseAuth.jsx";
@@ -13,6 +15,7 @@ const formatRoleName = (roles = []) => {
 };
 
 const Header = () => {
+  const { t } = useTranslation();
   const { currentUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,27 +57,27 @@ const Header = () => {
   const normPath = pathname.replace(/\/$/, "");
 
   if (normPath === "/learnova/admin") {
-    title = "Overview";
+    title = t("admin.overview");
   } else if (normPath === "/learnova/admin/users") {
-    title = "User Management";
+    title = t("admin.users");
   } else if (normPath === "/learnova/admin/teachers") {
-    title = "Instructors";
+    title = t("admin.instructors");
   } else if (normPath === "/learnova/admin/courses") {
-    title = "Courses";
+    title = t("admin.courses");
   } else if (normPath === "/learnova/admin/categories") {
-    title = "Categories";
+    title = t("admin.categories");
   } else if (normPath === "/learnova/admin/revenue") {
-    title = "Revenue";
+    title = t("admin.revenue");
   } else if (normPath === "/learnova/admin/vouchers") {
-    title = "Vouchers";
+    title = t("admin.vouchers");
   } else if (normPath === "/learnova/admin/violation-reports") {
-    title = "Violation Reports";
+    title = t("admin.violationReports");
   } else if (normPath === "/learnova/admin/settings") {
-    title = "Settings";
+    title = t("admin.settings");
   } else if (normPath.startsWith("/learnova/admin/profile")) {
-    title = "Profile";
+    title = t("admin.profile");
   } else {
-    title = "Dashboard";
+    title = t("admin.dashboard");
   }
 
   return (
@@ -84,6 +87,9 @@ const Header = () => {
       </div>
 
       <div className="admin-topbar__actions">
+        <button type="button" className="admin-language-switch" aria-label={t("admin.language")} onClick={() => { const next = i18n.language === "vi" ? "en" : "vi"; i18n.changeLanguage(next); localStorage.setItem(LANGUAGE_STORAGE_KEY, next); }}>
+          {i18n.language === "vi" ? "EN" : "VI"}
+        </button>
         <NotificationBell />
         <Link
           to="/learnova/admin/settings"
@@ -135,7 +141,7 @@ const Header = () => {
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <User size={16} />
-                    Profile
+                    {t("admin.profile")}
                   </Link>
                 </li>
                 <li>
@@ -145,7 +151,7 @@ const Header = () => {
                     onClick={handleLogout}
                   >
                     <LogOut size={16} />
-                    Logout
+                    {t("admin.logout")}
                   </button>
                 </li>
               </ul>
