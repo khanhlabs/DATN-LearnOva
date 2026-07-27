@@ -38,7 +38,7 @@ const TeacherHeader = () => {
 
   let title = "Dashboard";
   if (pathname === "/learnova/teacher") {
-    title = `Welcome back, ${user.fullName}!`;
+    title = `Welcome back, ${user?.fullName || "Instructor"}!`;
   } else if (pathname === "/learnova/teacher/courses") {
     title = "Courses management";
   } else if (pathname === "/learnova/teacher/courses/create") {
