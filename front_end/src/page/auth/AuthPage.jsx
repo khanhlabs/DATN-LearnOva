@@ -24,12 +24,11 @@ const AuthPage = () => {
             hasFetched.current = true;
             setIsVerifying(true);
             setVerifyStatus("processing");
-            axios.get(`https://datn.khanh.engineer/api/learnova/auth/verify?token=${token}`)
+            axios.get(`http://localhost:5173/api/learnova/auth/verify?token=${token}`)
                 .then((res) => {
                     setVerifyStatus("success");
                     setVerifyMessage(res.data?.message || "Tài khoản của bạn đã được kích hoạt thành công. Hãy bắt đầu trải nghiệm học tập ngay!");
                     toast.success("Kích hoạt tài khoản thành công!");
-
                     setTimeout(() => {
                         setIsVerifying(false);
                         setSearchParams({ mode: "login" });

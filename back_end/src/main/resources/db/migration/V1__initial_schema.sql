@@ -499,7 +499,7 @@ CREATE FUNCTION public.refresh_course_rating_summary() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    REFRESH MATERIALIZED VIEW CONCURRENTLY CourseRatingSummary;
+    REFRESH MATERIALIZED VIEW CourseRatingSummary;
     RETURN NULL;
 END;
 $$;
