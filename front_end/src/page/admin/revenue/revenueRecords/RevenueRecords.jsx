@@ -67,4 +67,3 @@ const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
 
 export default RevenueRecords;
 
-export default RevenueRecords;
