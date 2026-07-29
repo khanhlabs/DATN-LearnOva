@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
 import "./GrowthChart.css";
 
@@ -25,12 +26,16 @@ const GrowthChart = ({
   onYearChange,
   emptyMessage = "No user growth data for the selected year.",
 }) => {
+  const { t } = useTranslation();
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const [fallbackYear, setFallbackYear] = useState(yearOptions[0]?.value || "");
   const currentYear = selectedYear || fallbackYear;
   const setCurrentYear = onYearChange || setFallbackYear;
-  const chartLabels = series.length ? series.map((item) => item.month) : monthLabels;
+  const translatedMonths = t("admin.months", { returnObjects: true });
+  const chartLabels = series.length
+    ? series.map((item) => translatedMonths[monthLabels.indexOf(item.month)] || item.month)
+    : translatedMonths;
   const chartData = series.length ? series.map((item) => item.value) : monthLabels.map(() => 0);
   const maxValue = Math.max(...chartData, 0);
   const chartMax = Math.max(4, Math.ceil((maxValue || 1) * 1.25));
@@ -51,7 +56,7 @@ const GrowthChart = ({
         labels: chartLabels,
         datasets: [
           {
-            label: "Users",
+            label: t("admin.users"),
             data: chartData,
             backgroundColor: "#2563EB",
             hoverBackgroundColor: "#1D4ED8",
@@ -140,10 +145,10 @@ const GrowthChart = ({
   }, [chartData, chartLabels, chartMax]);
 
   return (
-    <section className="growthChartCard" aria-label="User Growth Chart">
+    <section className="growthChartCard" aria-label={t("admin.userGrowth")}>
       <div className="growthChartCardHeader">
         <div className="growthChartCardTitleGroup">
-          <h3 className="growthChartCardTitle">User Growth</h3>
+          <h3 className="growthChartCardTitle">{t("admin.userGrowth")}</h3>
         </div>
 
         <div className="growthChartCardFilter">
@@ -153,7 +158,7 @@ const GrowthChart = ({
             options={yearOptions}
             value={currentYear}
             onChange={setCurrentYear}
-            ariaLabel="Select growth chart year"
+            ariaLabel={t("admin.selectGrowthYear")}
           />
         </div>
       </div>

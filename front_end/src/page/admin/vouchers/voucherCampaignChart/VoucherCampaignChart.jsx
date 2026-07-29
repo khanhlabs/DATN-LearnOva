@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
 import { getAdminVoucherCampaignStatsApi } from "../../../../api/admin/VoucherApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import "./VoucherCampaignChart.css";
@@ -19,6 +20,7 @@ const mapCampaignFromStats = (item) => ({
 });
 
 const VoucherCampaignChart = ({ refreshKey }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -120,8 +122,8 @@ const VoucherCampaignChart = ({ refreshKey }) => {
               label(context) {
                 const item = campaignData[context.dataIndex];
                 return [
-                  `Used: ${item.used} times`,
-                  `Discount: ${formatCurrency(item.revenue)}`,
+                  `${t("opsAdmin.applied")}: ${item.used}`,
+                  `${t("opsAdmin.discounted")}: ${formatCurrency(item.revenue)}`,
                 ];
               },
             },
@@ -161,7 +163,7 @@ const VoucherCampaignChart = ({ refreshKey }) => {
         chartRef.current.destroy();
       }
     };
-  }, [campaignData]);
+  }, [campaignData, t]);
 
   const totalRevenue = campaignData.reduce(
     (sum, item) => sum + item.revenue,
@@ -171,22 +173,22 @@ const VoucherCampaignChart = ({ refreshKey }) => {
   return (
     <section
       className="voucherCampaignChartSection"
-      aria-label="Top voucher campaigns"
+      aria-label={t("opsAdmin.campaigns")}
     >
       <div className="voucherCampaignChartHeader">
         <div>
-          <h2 className="voucherCampaignChartTitle">Top Voucher Campaigns</h2>
+          <h2 className="voucherCampaignChartTitle">{t("opsAdmin.campaigns")}</h2>
           <p className="voucherCampaignChartSubtitle">
-            Compare real voucher usage and accumulated discount from orders.
+            {t("opsAdmin.compare")}
           </p>
         </div>
       </div>
 
       <div className="voucherCampaignChartCanvasWrapper">
-        <canvas ref={canvasRef} aria-label="Voucher campaign chart" />
+        <canvas ref={canvasRef} aria-label={t("opsAdmin.campaigns")} />
         {isLoading && (
           <div className="voucherCampaignChartStatus">
-            Loading campaign data...
+            {t("common.loading")}
           </div>
         )}
         {!isLoading && error && (
@@ -196,13 +198,13 @@ const VoucherCampaignChart = ({ refreshKey }) => {
         )}
         {!isLoading && !error && campaignData.length === 0 && (
           <div className="voucherCampaignChartStatus">
-            No campaign data available yet.
+            {t("opsAdmin.noCampaigns")}
           </div>
         )}
       </div>
 
       <div className="voucherCampaignChartSummary">
-        <span>Accumulated discount:</span>
+        <span>{t("opsAdmin.accumulatedDiscount")}:</span>
         <strong>{formatCurrency(totalRevenue)}</strong>
       </div>
     </section>

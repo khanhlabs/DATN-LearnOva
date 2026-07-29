@@ -19,14 +19,13 @@ public class AdminHlsMigrationService {
     private final LessonRepository lessonRepository;
     private final MediaConvertService mediaConvertService;
 
-    // TODO: chưa có MediaConvert key, comment tạm để app chạy được. Bỏ comment khi có key.
-    /*
     @Transactional
     public int migrateAllPendingLessons() {
         List<Lesson> legacyLessons = lessonRepository.findByVideoKeyIsNotNullAndHlsStatusIsNull();
 
         int triggered = 0;
         for (Lesson lesson : legacyLessons) {
+
             try {
                 String jobId = mediaConvertService.createHlsJob(lesson.getVideoKey(), lesson.getId());
                 lesson.setMediaConvertJobId(jobId);
@@ -41,6 +40,6 @@ public class AdminHlsMigrationService {
         log.info("Triggered HLS migration for {} legacy lessons", triggered);
         return triggered;
     }
-    */
+
 
 }

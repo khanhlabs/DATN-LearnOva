@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import "./RevenueDonut.css";
+import { useTranslation } from "react-i18next";
 
 const DONUT_COLORS = [
   "#2563eb",
@@ -24,7 +25,9 @@ const formatCompactMoney = (value) => {
   return `$${amount.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 };
 
+
 const RevenueDonut = ({ items = [] }) => {
+  const { t } = useTranslation();
   const donutRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -102,7 +105,7 @@ const RevenueDonut = ({ items = [] }) => {
     <section className="revenueDonutCard" aria-label="Revenue source breakdown">
       <div className="revenueDonutHeader">
         <div>
-          <h2 className="revenueDonutTitle">Revenue Source Breakdown</h2>
+          <h2 className="revenueDonutTitle">{t("revenueAdmin.source")}</h2>
           <p className="revenueDonutSubtitle">
             Paid course revenue allocated by training category.
           </p>

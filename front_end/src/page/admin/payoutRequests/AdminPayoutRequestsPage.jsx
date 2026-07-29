@@ -1,5 +1,6 @@
 import { Banknote } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { adminNotifySuccess } from "../../../api/NotificationApi.js";
@@ -20,6 +21,7 @@ const statusLabel = {
 };
 
 const AdminPayoutRequestsPage = () => {
+  const { t } = useTranslation();
   const { requestId } = useParams();
   const navigate = useNavigate();
 
@@ -105,8 +107,8 @@ const AdminPayoutRequestsPage = () => {
   return (
     <div className="payoutReqPage">
       <header className="payoutReqPageHeader">
-        <h1>Payout Requests</h1>
-        <p>Review and process instructor withdrawal requests.</p>
+        <h1>{t("opsAdmin.payout")}</h1>
+        <p>{t("opsAdmin.payoutSubtitle")}</p>
       </header>
 
       <div className="payoutReqLayout">
@@ -114,7 +116,7 @@ const AdminPayoutRequestsPage = () => {
           {loadingList ? (
             <p className="payoutReqEmptyState">Loading...</p>
           ) : requests.length === 0 ? (
-            <p className="payoutReqEmptyState">No payout requests yet.</p>
+            <p className="payoutReqEmptyState">{t("opsAdmin.noPayout")}</p>
           ) : (
             <ul>
               {requests.map((r) => (
@@ -142,7 +144,7 @@ const AdminPayoutRequestsPage = () => {
           {!selected ? (
             <div className="payoutReqEmptyStateCenter">
               <Banknote size={48} />
-              <p>Select a payout request from the list to review it.</p>
+              <p>{t("opsAdmin.selectPayout")}</p>
             </div>
           ) : (
             <div className="payoutReqDetail">

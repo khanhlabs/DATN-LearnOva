@@ -26,8 +26,8 @@ const ITEMS_PER_PAGE = 8;
 
 const TAB_LABEL_KEYS = {
   all: "profile.favorites.tabAll",
-  purchased: "profile.favorites.tabPurchased",
-  unpurchased: "profile.favorites.tabUnpurchased",
+    unpurchased: "profile.favorites.tabPurchased",
+    purchased: "profile.favorites.tabUnpurchased",
 };
 
 const FavoritesSection = ({ onOpenCourse }) => {

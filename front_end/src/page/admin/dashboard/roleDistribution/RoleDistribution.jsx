@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import Chart from "chart.js/auto";
 import "./RoleDistribution.css";
 
 const RoleDistribution = ({ data = [] }) => {
+  const { t } = useTranslation();
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const roleData = data.length
@@ -13,7 +15,7 @@ const RoleDistribution = ({ data = [] }) => {
         { name: "Administrators", value: 0, color: "#1D4ED8", amount: "0" },
       ];
   const totalUsers = roleData.reduce((total, item) => total + Number(item.count || 0), 0);
-  const chartLabels = roleData.map((item) => item.name);
+  const chartLabels = roleData.map((item) => t(`admin.${item.name.toLowerCase()}`));
   const chartValues = roleData.map((item) => item.count || item.value);
   const chartColors = roleData.map((item) => item.color);
 
@@ -81,7 +83,7 @@ const RoleDistribution = ({ data = [] }) => {
   return (
     <section className="roleDistributionCard" aria-label="Role Distribution">
       <div className="roleDistributionHeader">
-        <h3 className="roleDistributionTitle">Role Distribution</h3>
+        <h3 className="roleDistributionTitle">{t("admin.roleDistribution")}</h3>
       </div>
 
       <div className="roleDistributionChartWrap">
@@ -91,7 +93,7 @@ const RoleDistribution = ({ data = [] }) => {
 
         <div className="roleDistributionCenterLabel" aria-hidden="true">
           <span className="roleDistributionCenterValue">{totalUsers}</span>
-          <span className="roleDistributionCenterText">Total Users</span>
+          <span className="roleDistributionCenterText">{t("admin.totalUsersLabel")}</span>
         </div>
       </div>
 
@@ -104,7 +106,7 @@ const RoleDistribution = ({ data = [] }) => {
             />
 
             <div className="roleDistributionLegendContent">
-              <p className="roleDistributionLegendName">{item.name}</p>
+              <p className="roleDistributionLegendName">{t(`admin.${item.name.toLowerCase()}`)}</p>
               <p className="roleDistributionLegendValue">
                 {item.value}% · {item.amount}
               </p>

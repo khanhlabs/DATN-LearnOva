@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getFileUrl } from "../../../../api/PublicCourseApi.js";
 import "./TeacherRow.css";
 
@@ -67,17 +68,18 @@ const TeacherAvatar = ({ instructor, getAvatarValue }) => {
 };
 
 const TeacherRow = ({ instructors = [], getAvatarValue = () => "" }) => {
+  const { t } = useTranslation();
   return (
     <section className="teacherRowSection" aria-label="Featured Instructors">
       <div className="teacherRowCard">
         <div className="teacherRowCardHeader">
           <div>
-            <h3 className="teacherRowCardTitle">Featured Instructors</h3>
+            <h3 className="teacherRowCardTitle">{t("admin.featuredInstructors")}</h3>
           </div>
         </div>
 
         <div className="teacherRowList">
-          {instructors.length === 0 && <p className="teacherRowEmpty">No instructors yet.</p>}
+          {instructors.length === 0 && <p className="teacherRowEmpty">{t("admin.noInstructors")}</p>}
           {instructors.map((instructor) => (
             <article key={instructor.id} className="teacherRowItem">
               <div className="teacherRowAvatarWrap">
@@ -91,7 +93,7 @@ const TeacherRow = ({ instructors = [], getAvatarValue = () => "" }) => {
               <div className="teacherRowContent">
                 <p className="teacherRowName">{instructor.name}</p>
                 <p className="teacherRowCourseCount">
-                  {instructor.courses} courses
+                  {t("admin.coursesCount", { count: instructor.courses })}
                 </p>
               </div>
 

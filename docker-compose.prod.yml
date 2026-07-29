@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: learnova-postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.8
+    container_name: learnova-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    # 768m OOM-killed the container (exit 137): -Xmx512m heap + 256m direct
+    # memory + JVM/Lucene overhead doesn't fit in 768m of cgroup headroom.
+    mem_limit: 1024m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  ai-service:
+    build: ./ai_services
+    container_name: learnova-ai-service
+    env_file:
+      - ai_services/.env
+    mem_limit: 256m
+    restart: unless-stopped
+
+  backend:
+    build: ./back_end
+    container_name: learnova-backend
+    env_file:
+      - back_end/.env
+    environment:
+      # Overrides for the internal docker network — back_end/.env still has
+      # localhost-based values for local dev, these win at runtime.
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      ES_URIS: http://elasticsearch:9200
+      CORS_ALLOWED_ORIGINS: https://datn.khanh.engineer
+      FRONTEND_BASE_URL: https://datn.khanh.engineer
+      COOKIE_SECURE: "true"
+      AI_SERVICE_URL: http://ai-service:8000
+
+      # CloudFront
+      CLOUDFRONT_PRIVATE_KEY_PATH: /app/secrets/cloudfront-private-key.pem
+      
+      JAVA_TOOL_OPTIONS: -Xmx768m
+
+    volumes:
+      - /home/ec2-user/secrets/cloudfront-private-key.pem:/app/secrets/cloudfront-private-key.pem:ro
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    mem_limit: 1024m
+    restart: unless-stopped
+
+  frontend:
+    build: ./front_end
+    container_name: learnova-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    mem_limit: 64m
+    restart: unless-stopped
+
+volumes:
+  es_data:
+  pg_data:

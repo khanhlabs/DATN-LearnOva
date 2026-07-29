@@ -6,6 +6,5 @@ public enum NotificationType {
     NEW_ENROLLMENT, NEW_REVIEW, NEW_QUESTION, CERTIFICATE_ISSUED,
     COURSE_ANNOUNCEMENT, PAYOUT_REQUESTED, PAYOUT_PAID, PAYOUT_REJECTED,
     COURSE_REPORTED,
-    /** Kept for rows already stored when admin self-notify briefly used this type. */
     ADMIN_ACTIVITY
 }

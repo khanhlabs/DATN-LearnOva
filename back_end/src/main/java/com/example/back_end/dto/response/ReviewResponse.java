@@ -15,6 +15,8 @@ public class ReviewResponse {
     private Integer rating;
     private String comment;
     private Instant createdAt;
+    private Instant updatedAt;
+    private boolean edited;
     private String avatar;
     private String instructorReply;
     private OffsetDateTime repliedAt;

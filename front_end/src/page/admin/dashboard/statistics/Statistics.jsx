@@ -5,6 +5,7 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 import "./Statistics.css";
+import { useTranslation } from "react-i18next";
 
 const createStatisticsData = (data, loading) => [
   {
@@ -34,7 +35,9 @@ const createStatisticsData = (data, loading) => [
 ];
 
 const Statistics = ({ data, loading = false }) => {
+  const { t } = useTranslation();
   const statisticsData = createStatisticsData(data, loading);
+  statisticsData.forEach((item) => { item.label = t(`admin.total${item.id[0].toUpperCase()}${item.id.slice(1)}`); });
 
   return (
     <section className="dashboardStatistics" aria-label="Dashboard statistics">

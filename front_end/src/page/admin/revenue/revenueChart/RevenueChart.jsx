@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
+
 import { getAdminRevenueComparisonApi } from "../../../../api/admin/RevenueApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import "./RevenueChart.css";
@@ -42,6 +44,7 @@ const verticalHoverLinePlugin = {
 };
 
 const RevenueChart = () => {
+  const { t } = useTranslation();
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const axiosPrivate = useAxiosPrivate();
@@ -228,11 +231,11 @@ const RevenueChart = () => {
   }, [points]);
 
   return (
-    <section className="revenueChartCard" aria-label="Revenue chart">
+    <section className="revenueChartCard" aria-label={t("revenueAdmin.metrics")}>
       <div className="revenueChartHeader">
         <div className="revenueChartTitleGroup">
           <h2 className="revenueChartTitle">
-            Revenue Metrics & Transaction Comparison
+            {t("revenueAdmin.metrics")}
           </h2>
           <p className="revenueChartSubtitle">
             Compare total cash flow from successful payments with instructor
@@ -256,7 +259,7 @@ const RevenueChart = () => {
               }
               onClick={() => setRange(filter.value)}
             >
-              {filter.label}
+              {t(`revenueAdmin.${filter.value}`)}
             </button>
           ))}
         </div>

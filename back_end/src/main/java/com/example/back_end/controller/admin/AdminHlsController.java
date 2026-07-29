@@ -13,10 +13,9 @@ public class AdminHlsController {
 
     private final AdminHlsMigrationService adminHlsMigrationService;
 
-    // TODO: chưa có MediaConvert key, comment tạm để app chạy được. Bỏ comment khi có key.
-    // @PostMapping
-    // public int migrateLegacyVideosToHls() {
-    //     return adminHlsMigrationService.migrateAllPendingLessons();
-    // }
+     @PostMapping
+     public int migrateLegacyVideosToHls() {
+         return adminHlsMigrationService.migrateAllPendingLessons();
+     }
 
 }

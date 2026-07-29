@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
 import { getAdminVouchersApi } from "../../../../api/admin/VoucherApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import "./VoucherChart.css";
@@ -52,6 +53,7 @@ const buildVoucherChartData = (voucherItems, year = getCurrentYear()) => {
 };
 
 const VoucherChart = ({ refreshKey }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const canvasRef = useRef(null);
   const [vouchers, setVouchers] = useState([]);
@@ -112,7 +114,7 @@ const VoucherChart = ({ refreshKey }) => {
       data: {
         labels: voucherChartData.labels,
         datasets: voucherChartData.series.map((series) => ({
-          label: series.name,
+          label: t("opsAdmin.programs"),
           data: series.values,
           borderColor: series.borderColor,
           backgroundColor: gradient,
@@ -151,7 +153,7 @@ const VoucherChart = ({ refreshKey }) => {
             displayColors: false,
             callbacks: {
               label(context) {
-                return `Vouchers: ${context.parsed.y}`;
+                return `${t("opsAdmin.vouchers")}: ${context.parsed.y}`;
               },
             },
           },
@@ -193,18 +195,18 @@ const VoucherChart = ({ refreshKey }) => {
     return () => {
       chart.destroy();
     };
-  }, [voucherChartData]);
+  }, [t, voucherChartData]);
 
   return (
     <section
       className="voucherChartSection"
-      aria-label="Voucher usage frequency chart"
+      aria-label={t("opsAdmin.usageFrequency")}
     >
       <div className="voucherChartHeader">
         <div>
-          <h2 className="voucherChartTitle">Voucher Usage Frequency</h2>
+          <h2 className="voucherChartTitle">{t("opsAdmin.usageFrequency")}</h2>
           <p className="voucherChartSubtitle">
-            Statistics of discount programs by expiry month.
+            {t("opsAdmin.usageStats")}
           </p>
         </div>
         <div className="voucherChartLegend">
@@ -214,15 +216,15 @@ const VoucherChart = ({ refreshKey }) => {
                 className="voucherChartLegendDot"
                 style={{ backgroundColor: series.borderColor }}
               />
-              <span>{series.name}</span>
+              <span>{t("opsAdmin.programs")}</span>
             </div>
           ))}
         </div>
       </div>
       <div className="voucherChartCanvasWrapper">
-        <canvas ref={canvasRef} aria-label="Voucher usage frequency chart" />
+        <canvas ref={canvasRef} aria-label={t("opsAdmin.usageFrequency")} />
         {isLoading && (
-          <div className="voucherChartStatus">Loading voucher data...</div>
+          <div className="voucherChartStatus">{t("common.loading")}</div>
         )}
         {!isLoading && error && (
           <div className="voucherChartStatus voucherChartStatusError">
@@ -231,7 +233,7 @@ const VoucherChart = ({ refreshKey }) => {
         )}
         {!isLoading && !error && !hasCurrentYearData && (
           <div className="voucherChartStatus">
-            No voucher usage data available yet.
+            {t("opsAdmin.noUsage")}
           </div>
         )}
       </div>

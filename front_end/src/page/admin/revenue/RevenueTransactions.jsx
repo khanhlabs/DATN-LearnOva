@@ -6,10 +6,12 @@ import RevenueCategory from "./revenueCategory/RevenueCategory.jsx";
 import RevenueRecords from "./revenueRecords/RevenueRecords.jsx";
 import TransactionLog from "./transactionLog/TransactionLog.jsx";
 import "./Revenue.css";
+import { useTranslation } from "react-i18next";
 
 const EMPTY_METRICS = [];
 
 const RevenueTransactions = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [insights, setInsights] = useState(null);
   const [error, setError] = useState("");
@@ -41,11 +43,10 @@ const RevenueTransactions = () => {
       <div className="revenuePageInner">
         <div className="revenueDetailHeader">
           <div>
-            <h2>Revenue Transaction Details</h2>
-            <p>Inspect transaction logs, category metrics, and system revenue records.</p>
+            <h2>{t("revenueDetails.transactionDetails")}</h2><p>{t("revenueDetails.transactionDesc")}</p>
           </div>
           <Link className="revenueDetailBack" to="/learnova/admin/revenue">
-            Back to overview
+            {t("revenueDetails.back")}
           </Link>
         </div>
 

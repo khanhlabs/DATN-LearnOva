@@ -36,6 +36,21 @@
   gap: 16px;
 }
 
+.admin-language-switch {
+  min-width: 44px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #2563eb;
+  border-radius: 18px;
+  background: #fff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-language-switch:hover { background: #2563eb; color: #fff; }
+
 .admin-topbar__btn {
   position: relative;
   width: 44px;

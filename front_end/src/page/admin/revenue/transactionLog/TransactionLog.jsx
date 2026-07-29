@@ -5,6 +5,7 @@ import { getAdminCategoriesApi } from "../../../../api/admin/CategoryApi.js";
 import { getAdminRevenueTransactionsApi } from "../../../../api/admin/RevenueApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import "./TransactionLog.css";
+import { useTranslation } from "react-i18next";
 
 const statusClasses = {
   Successful: "statusSuccess",
@@ -48,6 +49,7 @@ const formatGateway = (method) => {
 };
 
 const TransactionLog = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
@@ -163,10 +165,9 @@ const TransactionLog = () => {
     >
       <div className="transactionLogHeader">
         <div>
-          <h2 className="transactionLogTitle">Revenue Transaction Log</h2>
+          <h2 className="transactionLogTitle">{t("revenueDetails.log")}</h2>
           <p className="transactionLogSubtitle">
-            Quickly search all cash flow records, filter by payment gateway and
-            reconciliation status.
+            {t("revenueDetails.logDesc")}
           </p>
         </div>
       </div>
@@ -178,7 +179,7 @@ const TransactionLog = () => {
             <input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by transaction ID, student name, course"
+              placeholder={t("revenueDetails.search")}
             />
           </label>
           <div className="transactionFilters">
@@ -212,13 +213,7 @@ const TransactionLog = () => {
           <table className="transactionLogTable">
             <thead>
               <tr>
-                <th>TRANSACTION ID</th>
-                <th>STUDENT</th>
-                <th>COURSE NAME</th>
-                <th>PAYMENT GATEWAY</th>
-                <th>TRANSACTION VALUE</th>
-                <th>STATUS</th>
-                <th>ACTION</th>
+                <th>{t("revenueDetails.transactionId")}</th><th>{t("revenueDetails.student")}</th><th>{t("revenueDetails.courseName")}</th><th>{t("revenueDetails.gateway")}</th><th>{t("revenueDetails.value")}</th><th>{t("revenueDetails.status")}</th><th>{t("revenueDetails.action")}</th>
               </tr>
             </thead>
             <tbody>

@@ -40,19 +40,16 @@ public class AdminCourseController {
         return ResponseEntity.ok(new GetFileUrlResponse(signedUrl));
     }
 
-    /** Returns full course details with sections and lessons. */
     @GetMapping("/{id}/detail")
     public ResponseEntity<AdminCourseDetailResponse> getDetail(@PathVariable Long id) {
         return ResponseEntity.ok(adminCourseService.getCourseDetail(id));
     }
 
-    /** Approves a course: PENDING_REVIEW to PUBLISHED. */
     @PatchMapping("/{id}/approve")
     public ResponseEntity<AdminCourseDetailResponse> approve(@PathVariable Long id) {
         return ResponseEntity.ok(adminCourseService.approveCourse(id));
     }
 
-    /** Rejects a course and records the rejection reason. */
     @PatchMapping("/{id}/reject")
     public ResponseEntity<AdminCourseDetailResponse> reject(
             @PathVariable Long id,

@@ -63,8 +63,9 @@ public class ReviewService {
         review.setCourse(course);
         review.setRating(request.getRating());
         review.setComment(request.getComment());
-        review.setCreatedAt(Instant.now());
-        review.setUpdatedAt(Instant.now());
+        Instant now = Instant.now();
+        review.setCreatedAt(now);
+        review.setUpdatedAt(now);
         reviewRepository.save(review);
 
         notificationService.create(
@@ -97,6 +98,10 @@ public class ReviewService {
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())
+                .updatedAt(review.getUpdatedAt())
+                .edited(review.getCreatedAt() != null
+                        && review.getUpdatedAt() != null
+                        && review.getUpdatedAt().isAfter(review.getCreatedAt()))
                 .instructorReply(review.getInstructorReply())
                 .repliedAt(review.getRepliedAt())
                 .build();

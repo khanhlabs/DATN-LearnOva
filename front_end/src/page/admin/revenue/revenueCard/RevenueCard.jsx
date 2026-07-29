@@ -13,6 +13,7 @@ import PendingPaymentCard from "./pendingPaymentCard/PendingPaymentCard.jsx";
 import RefundRequestCard from "./refundRequestCard/RefundRequestCard.jsx";
 import GrowthRateCard from "./growthRateCard/GrowthRateCard.jsx";
 import "./RevenueCard.css";
+import { useTranslation } from "react-i18next";
 
 const formatMoney = (value) =>
   `$ ${Number(value || 0).toLocaleString("en-US", {
@@ -31,6 +32,16 @@ const formatDelta = (value) => {
 const formatCount = (value) => Number(value || 0).toLocaleString("en-US");
 
 const RevenueCard = ({ kpis = null }) => {
+  const { t } = useTranslation();
+  const labels = {
+    totalRevenue: t("revenueAdmin.total"),
+    monthlyRevenue: t("revenueAdmin.monthly"),
+    transactions: t("revenueAdmin.transactions"),
+    pendingPayment: t("revenueAdmin.pending"),
+    refundRequest: t("revenueAdmin.refunds"),
+    growthRate: t("revenueAdmin.growth"),
+  };
+
   const revenueBlocks = [
     {
       id: "totalRevenue",
@@ -94,12 +105,12 @@ const RevenueCard = ({ kpis = null }) => {
   ];
 
   return (
-    <section className="revenueSection" aria-label="Revenue Dashboard">
+    <section className="revenueSection" aria-label={t("admin.revenue")}>
       <div className="revenueContainer">
         <div className="revenueGrid">
           {revenueBlocks.map((block) => {
             const { id, component: BlockComponent, ...cardProps } = block;
-            return <BlockComponent key={id} {...cardProps} />;
+            return <BlockComponent key={id} {...cardProps} title={labels[id]} subtitle={id === "totalRevenue" ? t("revenueAdmin.quarter") : id === "monthlyRevenue" ? t("revenueAdmin.monthStart") : id === "transactions" ? t("revenueAdmin.previous") : cardProps.subtitle} note={id === "pendingPayment" ? `0 ${t("revenueAdmin.settlement")}` : cardProps.note} label={id === "refundRequest" ? t("revenueAdmin.lowRate") : cardProps.label} detail={id === "growthRate" ? t("revenueAdmin.target") : cardProps.detail} />;
           })}
         </div>
       </div>

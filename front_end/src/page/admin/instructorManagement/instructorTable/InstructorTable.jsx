@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Eye } from "lucide-react";
 import { getAdminInstructorByIdApi } from "../../../../api/admin/InstructorApi.js";
 import { getFileUrl } from "../../../../api/PublicCourseApi.js";
@@ -43,6 +44,7 @@ const InstructorTable = ({
   isLoading = false,
   error = "",
 }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
@@ -109,7 +111,7 @@ const InstructorTable = ({
       });
     } catch (e) {
       console.error(e);
-      setViewError("Could not load instructor details. Showing table data instead.");
+      setViewError(t("instructorAdmin.noResults"));
     } finally {
       setIsViewLoading(false);
     }
@@ -131,19 +133,19 @@ const InstructorTable = ({
 
           <thead>
             <tr>
-              <th>Instructor ID</th>
-              <th>Instructor / Specialization</th>
-              <th>Number of Classes</th>
-              <th>Students</th>
-              <th>Management Actions</th>
+              <th>{t("instructorAdmin.instructorId")}</th>
+              <th>{t("instructorAdmin.instructorSpecialization")}</th>
+              <th>{t("instructorAdmin.numberOfClasses")}</th>
+              <th>{t("instructorAdmin.students")}</th>
+              <th>{t("instructorAdmin.managementActions")}</th>
             </tr>
           </thead>
 
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="5">Loading instructors...</td></tr>
+              <tr><td colSpan="5">{t("instructorAdmin.loading")}</td></tr>
             ) : currentItems.length === 0 ? (
-              <tr><td colSpan="5">No instructors found.</td></tr>
+              <tr><td colSpan="5">{t("instructorAdmin.noResults")}</td></tr>
             ) : currentItems.map((instructor) => (
               <tr key={instructor.instructorId}>
                 <td><span className="instructorTableBadge">{instructor.displayId}</span></td>
@@ -160,7 +162,7 @@ const InstructorTable = ({
                 <td><div className="instructorTableStat"><strong>{instructor.displayStudents}</strong></div></td>
                 <td>
                   <div className="instructorTableActions">
-                    <button type="button" className="instructorActionButton" aria-label="View" onClick={() => handleView(instructor)}><Eye size={16} /></button>
+                    <button type="button" className="instructorActionButton" aria-label={t("instructorAdmin.view")} onClick={() => handleView(instructor)}><Eye size={16} /></button>
                   </div>
                 </td>
               </tr>
@@ -169,11 +171,11 @@ const InstructorTable = ({
         </table>
 
         <div className="instructorTablePagination" style={{ padding: 12 }}>
-          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>Previous</button>
+          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>{t("instructorAdmin.previous")}</button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <button key={p} type="button" className={`instructorPaginationButton ${currentPage === p ? "instructorPaginationButton--active" : ""}`} onClick={() => setCurrentPage(p)}>{p}</button>
           ))}
-          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Next</button>
+          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>{t("instructorAdmin.next")}</button>
         </div>
       </div>
 

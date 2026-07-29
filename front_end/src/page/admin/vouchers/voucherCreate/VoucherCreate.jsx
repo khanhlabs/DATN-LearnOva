@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { adminNotifySuccess } from "../../../../api/NotificationApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
@@ -77,6 +78,7 @@ const VoucherCreate = ({
   onEdit,
   onSaved,
 }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const { currentUser } = useAuth();
   const [form, setForm] = useState(() => getInitialForm(voucher));
@@ -105,37 +107,37 @@ const VoucherCreate = ({
     if (isView) return;
 
     if (!currentUser?.id && !voucher?.createdById) {
-      setError("Failed to identify user. Please login again.");
+      setError(t("opsAdmin.identifyUser"));
       return;
     }
 
     if (!form.code.trim() || !form.description.trim()) {
-      setError("Code and description are required.");
+      setError(t("opsAdmin.codeDescriptionRequired"));
       return;
     }
 
     if (Number(form.discountValue || 0) <= 0) {
-      setError("Discount value must be greater than 0.");
+      setError(t("opsAdmin.discountPositive"));
       return;
     }
 
     if (form.discountType === "Percent" && Number(form.discountValue) > 100) {
-      setError("Discount percentage cannot exceed 100.");
+      setError(t("opsAdmin.discountPercentMax"));
       return;
     }
 
     if (form.discountType === "Fixed" && Number(form.discountValue) > maxVoucherMoneyValue) {
-      setError("Discount amount cannot exceed $99,999,999.99.");
+      setError(t("opsAdmin.discountAmountMax"));
       return;
     }
 
     if (Number(form.usageLimit || 0) < 0) {
-      setError("Usage limit cannot be negative.");
+      setError(t("opsAdmin.usageLimitNegative"));
       return;
     }
 
     if (form.startDate && form.endDate && form.endDate < form.startDate) {
-      setError("End date must be greater than or equal to start date.");
+      setError(t("opsAdmin.endDateInvalid"));
       return;
     }
 
@@ -174,18 +176,18 @@ const VoucherCreate = ({
             <span className="voucherCreateIcon">🎟️</span>
             <h2 className="voucherCreateTitle" id="voucher-create-title">
               {isView
-                ? "Voucher Details"
+                ? t("opsAdmin.voucherDetails")
                 : isEdit
-                ? "Edit Voucher"
-                : "Create Voucher"}
+                ? t("opsAdmin.editVoucher")
+                : t("opsAdmin.createVoucherTitle")}
             </h2>
           </div>
           <p className="voucherCreateSubtitle">
             {isView
-              ? "View voucher information. Click Edit to modify."
+              ? t("opsAdmin.viewVoucherSubtitle")
               : isEdit
-              ? "Modify voucher details."
-              : "Enter information to create a new voucher."}
+              ? t("opsAdmin.editVoucherSubtitle")
+              : t("opsAdmin.createVoucherSubtitle")}
           </p>
         </div>
         {onClose && (
@@ -204,7 +206,7 @@ const VoucherCreate = ({
         <div className="voucherCreateFormCard">
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Discount Code
+              {t("opsAdmin.discountCode")}
               <input
                 type="text"
                 value={form.code}
@@ -214,7 +216,7 @@ const VoucherCreate = ({
               />
             </label>
             <label className="voucherCreateLabel">
-              Campaign Name
+              {t("opsAdmin.campaignName")}
               <input
                 type="text"
                 value={form.description}
@@ -227,15 +229,15 @@ const VoucherCreate = ({
 
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Discount Type
+              {t("opsAdmin.discountType")}
               <select
                 value={form.discountType}
                 onChange={handleDiscountTypeChange}
                 className="voucherCreateInput"
                 disabled={isView}
               >
-                <option value="Fixed">Fixed amount</option>
-                <option value="Percent">Percent</option>
+                <option value="Fixed">{t("opsAdmin.fixedAmount")}</option>
+                <option value="Percent">{t("opsAdmin.percent")}</option>
               </select>
             </label>
 
@@ -258,14 +260,14 @@ const VoucherCreate = ({
                 </span>
               </div>
               {form.discountType === "Fixed" ? (
-                <small className="voucherCreateHint">USD (catalog). Decimals allowed, e.g. 57.97</small>
+                <small className="voucherCreateHint">{t("opsAdmin.usdHint")}</small>
               ) : null}
             </label>
           </div>
 
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Usage Limit
+              {t("opsAdmin.usageLimit")}
               <input
                 type="number"
                 min="0"
@@ -276,7 +278,7 @@ const VoucherCreate = ({
               />
             </label>
             <label className="voucherCreateLabel">
-              Active
+              {t("opsAdmin.active")}
               <select
                 value={form.isActive ? "true" : "false"}
                 onChange={(event) =>
@@ -288,15 +290,15 @@ const VoucherCreate = ({
                 className="voucherCreateInput"
                 disabled={isView}
               >
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="true">{t("opsAdmin.active")}</option>
+                <option value="false">{t("opsAdmin.inactive")}</option>
               </select>
             </label>
           </div>
 
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Start Date
+              {t("opsAdmin.startDate")}
               <input
                 type="date"
                 value={form.startDate}
@@ -306,7 +308,7 @@ const VoucherCreate = ({
               />
             </label>
             <label className="voucherCreateLabel">
-              End Date
+              {t("opsAdmin.endDate")}
               <input
                 type="date"
                 value={form.endDate}
@@ -326,7 +328,7 @@ const VoucherCreate = ({
                 className="voucherCreateSubmitBtn"
                 onClick={onEdit}
               >
-                Edit
+                {t("opsAdmin.edit")}
               </button>
             ) : (
               <button
@@ -335,10 +337,10 @@ const VoucherCreate = ({
                 disabled={isSaving}
               >
                 {isSaving
-                  ? "Saving..."
+                  ? t("opsAdmin.saving")
                   : isEdit
-                  ? "Save Changes"
-                  : "Create Voucher"}
+                  ? t("opsAdmin.saveChanges")
+                  : t("opsAdmin.createVoucher")}
               </button>
             )}
             <button
@@ -346,46 +348,46 @@ const VoucherCreate = ({
               className="voucherCreateCancelBtn"
               onClick={onClose}
             >
-              {isView ? "Close" : "Cancel"}
+              {isView ? t("opsAdmin.close") : t("opsAdmin.cancel")}
             </button>
           </div>
         </div>
 
-        <aside className="voucherCreateSummaryCard" aria-label="Voucher preview">
+        <aside className="voucherCreateSummaryCard" aria-label={t("opsAdmin.preview")}>
           <div className="voucherCreateSummaryHeader">
             <div>
-              <p className="voucherCreateSummaryLabel">Live Preview</p>
+              <p className="voucherCreateSummaryLabel">{t("opsAdmin.livePreview")}</p>
               <h3 className="voucherCreateSummaryTitle">
-                {form.description.trim() || "New Campaign"}
+                {form.description.trim() || t("opsAdmin.newCampaign")}
               </h3>
             </div>
             <span className="voucherCreateSummaryCode">
-              {form.code.trim() || "CODE"}
+              {form.code.trim() || t("opsAdmin.code")}
             </span>
           </div>
 
           <div className="voucherCreatePreviewBox">
-            <span>Discount</span>
+            <span>{t("opsAdmin.discount")}</span>
             <strong>{formatDiscountPreview(form.discountType, form.discountValue)}</strong>
             <small>
-              {form.discountType === "Percent" ? "Percent" : "Fixed amount"}
+              {form.discountType === "Percent" ? t("opsAdmin.percent") : t("opsAdmin.fixedAmount")}
             </small>
           </div>
 
           <div className="voucherCreateSummaryItem">
-            <span>Usage limit</span>
+            <span>{t("opsAdmin.usageLimit")}</span>
             <strong>{Number(form.usageLimit || 0).toLocaleString("en-US")}</strong>
           </div>
           <div className="voucherCreateSummaryItem">
-            <span>Status</span>
-            <strong>{form.isActive ? "Active" : "Inactive"}</strong>
+            <span>{t("revenueDetails.status")}</span>
+            <strong>{form.isActive ? t("opsAdmin.active") : t("opsAdmin.inactive")}</strong>
           </div>
           <div className="voucherCreateSummaryItem">
-            <span>Start date</span>
+            <span>{t("opsAdmin.startDate")}</span>
             <strong>{formatDateLabel(form.startDate)}</strong>
           </div>
           <div className="voucherCreateSummaryItem">
-            <span>End date</span>
+            <span>{t("opsAdmin.endDate")}</span>
             <strong>{formatDateLabel(form.endDate)}</strong>
           </div>
         </aside>

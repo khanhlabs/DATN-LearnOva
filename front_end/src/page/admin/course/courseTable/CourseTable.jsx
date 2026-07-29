@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BookOpen,
   Clock,
@@ -123,6 +124,7 @@ const CourseViewModal = ({
   extraTabs = [],
   initialTab = null,
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(initialTab || "overview");
   const [expandedSections, setExpandedSections] = useState({});
   const [previewLesson, setPreviewLesson] = useState(null);
@@ -476,6 +478,7 @@ const CourseTable = ({
   error,
   onViewCourse,
 }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loadingDetailId, setLoadingDetailId] = useState(null);
@@ -521,22 +524,16 @@ const CourseTable = ({
         <table className="courseTable" aria-label="Course List">
           <thead>
             <tr>
-              <th>Course</th>
-              <th>Instructor</th>
-              <th>Category</th>
-              <th>Level</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t("courseAdmin.course")}</th><th>{t("courseAdmin.instructor")}</th><th>{t("courseAdmin.category")}</th><th>{t("courseAdmin.level")}</th><th>{t("courseAdmin.priceColumn")}</th><th>{t("courseAdmin.status")}</th><th>{t("courseAdmin.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td className="courseTableEmpty" colSpan="7">Loading...</td></tr>
+              <tr><td className="courseTableEmpty" colSpan="7">{t("instructorAdmin.loadingDetails")}</td></tr>
             ) : error ? (
               <tr><td className="courseTableEmpty" colSpan="7">{error}</td></tr>
             ) : currentPageItems.length === 0 ? (
-              <tr><td className="courseTableEmpty" colSpan="7">No courses found.</td></tr>
+              <tr><td className="courseTableEmpty" colSpan="7">{t("courseAdmin.noResults", { defaultValue: "No courses found." })}</td></tr>
             ) : (
               currentPageItems.map((course) => (
                 <tr key={course.id}>
@@ -549,9 +546,7 @@ const CourseTable = ({
                       </div>
                     </div>
                   </td>
-                  <td>{course.instructorName || "N/A"}</td>
-                  <td>{course.categoryName || "N/A"}</td>
-                  <td>{course.level || "N/A"}</td>
+                  <td>{course.instructorName || "N/A"}</td><td>{course.categoryName || "N/A"}</td><td>{course.level || "N/A"}</td>
                   <td>{formatPrice(course.basePrice)}</td>
                   <td>
                     <span className={`courseStatusBadge courseStatusBadge--${getCourseDisplayStatus(course).toLowerCase()}`}>
@@ -563,8 +558,8 @@ const CourseTable = ({
                       <button
                         type="button"
                         className="actionButton actionButton--view"
-                        aria-label="View Course Details"
-                        title="View Details"
+                        aria-label={t("courseAdmin.viewDetails")}
+                        title={t("courseAdmin.viewDetails")}
                         disabled={loadingDetailId === course.id}
                         onClick={() => openCourseDetails(course)}
                       >
@@ -581,7 +576,7 @@ const CourseTable = ({
 
       <div className="courseTablePagination">
         <button className="paginationButton" type="button" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}>
-          Previous
+          {t("courseAdmin.previous")}
         </button>
         {Array.from({ length: totalPages }, (_, i) => (
           <button
@@ -594,7 +589,7 @@ const CourseTable = ({
           </button>
         ))}
         <button className="paginationButton" type="button" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}>
-          Next
+          {t("courseAdmin.next")}
         </button>
       </div>
 
