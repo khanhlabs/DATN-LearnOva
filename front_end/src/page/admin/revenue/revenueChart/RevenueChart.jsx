@@ -102,15 +102,9 @@ const RevenueChart = () => {
         labels,
         datasets: [
           {
-<<<<<<< HEAD
-            label: `${t("revenueAdmin.gross")} (Recorded Transactions)`,
-            tooltipShortLabel: t("revenueAdmin.gross"),
-            data: totalRevenueValues,
-=======
             label: "Total Cash Flow",
             tooltipShortLabel: "Total Cash Flow",
             data: cashFlowValues,
->>>>>>> origin/hieu
             borderColor: "#2563eb",
             pointBackgroundColor: "#2563eb",
             pointBorderColor: "#2563eb",
@@ -121,28 +115,9 @@ const RevenueChart = () => {
             borderWidth: 3,
           },
           {
-<<<<<<< HEAD
-            label: `${t("revenueAdmin.net")} (After Refund Deductions)`,
-            tooltipShortLabel: t("revenueAdmin.net"),
-            data: netRevenueValues,
-            borderColor: "#60a5fa",
-            pointBackgroundColor: "#60a5fa",
-            pointBorderColor: "#60a5fa",
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            tension: 0.35,
-            fill: false,
-            borderWidth: 3,
-          },
-          {
-            label: "Reserve Liquidity Fund for Tuition Refund Requests",
-            tooltipShortLabel: "Refunds",
-            data: reserveFundValues,
-=======
             label: "Instructor Payouts",
             tooltipShortLabel: "Instructor Payouts",
             data: payoutValues,
->>>>>>> origin/hieu
             borderColor: "#ef4444",
             pointBackgroundColor: "#ef4444",
             pointBorderColor: "#ef4444",
@@ -262,12 +237,8 @@ const RevenueChart = () => {
             {t("revenueAdmin.metrics")}
           </h2>
           <p className="revenueChartSubtitle">
-<<<<<<< HEAD
-            {t("revenueAdmin.metricsSubtitle")}
-=======
             Compare total cash flow from successful payments with instructor
             payouts over time.
->>>>>>> origin/hieu
           </p>
         </div>
 
@@ -305,15 +276,7 @@ const RevenueChart = () => {
         <div className="revenueChartLegend">
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot gold" />
-<<<<<<< HEAD
-            <span>{t("revenueAdmin.gross")}</span>
-          </div>
-          <div className="revenueChartLegendItem">
-            <span className="revenueChartLegendDot purple" />
-            <span>{t("revenueAdmin.net")}</span>
-=======
             <span>Total Cash Flow</span>
->>>>>>> origin/hieu
           </div>
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot red" />
