@@ -16,13 +16,10 @@ import {
 import { updateAdminUserApi } from "../../../../api/admin/AdminUserApi.js";
 import "./ViewUserModal.css";
 
-const defaultCoverImage =
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop";
-
 const roleOptions = [
-  { value: "ROLE_ADMIN", label: "Admin", role: "Admin", tone: "admin", filter: "admin" },
-  { value: "ROLE_TEACHER", label: "Instructor", role: "Instructor", tone: "teacher", filter: "teacher" },
   { value: "ROLE_USER", label: "Student", role: "Student", tone: "student", filter: "student" },
+  { value: "ROLE_TEACHER", label: "Instructor", role: "Instructor", tone: "teacher", filter: "teacher" },
+  { value: "ROLE_ADMIN", label: "Admin", role: "Admin", tone: "admin", filter: "admin" },
 ];
 
 const genderOptions = ["Male", "Female", "Other"];
@@ -71,14 +68,8 @@ const getInitials = (name) =>
     .join("")
     .toUpperCase() || "U";
 
-const getAvatarFallback = (name) =>
-  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=2563eb&color=fff`;
-
 const toRoleValue = (role) => {
-  const normalizedRole = String(role || "USER")
-    .replace("ROLE_", "")
-    .toUpperCase();
-
+  const normalizedRole = String(role || "USER").replace("ROLE_", "").toUpperCase();
   if (normalizedRole === "ADMIN") return "ROLE_ADMIN";
   if (["TEACHER", "INSTRUCTOR"].includes(normalizedRole)) return "ROLE_TEACHER";
   return "ROLE_USER";
@@ -91,12 +82,8 @@ const buildSavedUser = (user, form) => {
   const coverImage = form.coverImage.trim() || null;
   const dateOfBirthRaw = form.dateOfBirth || null;
   const gender = form.gender || "N/A";
-  const roleInfo = roleOptions.find((option) => option.value === form.role) || roleOptions[2];
+  const roleInfo = roleOptions.find((option) => option.value === form.role) || roleOptions[0];
   const isDeleted = form.isDeleted === "true";
-  const status = isDeleted ? "Locked" : user.status === "Locked" ? "Active" : user.status || "Active";
-  const statusTone = isDeleted ? "locked" : user.statusTone === "locked" ? "active" : user.statusTone || "active";
-  const visibility = isDeleted ? "Hidden" : "Active";
-  const visibilityTone = isDeleted ? "deleted" : "visible";
   const updatedAtRaw = new Date().toISOString();
 
   return {
@@ -112,18 +99,18 @@ const buildSavedUser = (user, form) => {
     role: roleInfo.role,
     roleTone: roleInfo.tone,
     roleFilter: roleInfo.filter,
-    status,
-    statusTone,
-    statusFilter: statusTone,
-    visibility,
-    visibilityTone,
+    status: isDeleted ? "Locked" : "Active",
+    statusTone: isDeleted ? "locked" : "active",
+    statusFilter: isDeleted ? "locked" : "active",
+    visibility: isDeleted ? "Hidden" : "Active",
+    visibilityTone: isDeleted ? "deleted" : "visible",
     isDeleted,
     updatedAtRaw,
     updatedAt: formatDate(updatedAtRaw),
   };
 };
 
-const EditUserModal = ({ user, onClose, onSaved }) => {
+const EditUserModal = ({ user, onClose, onSaved, onNotify = () => {} }) => {
   const [form, setForm] = useState({
     fullName: user.fullName || user.name || "",
     email: user.email || "",
@@ -137,12 +124,23 @@ const EditUserModal = ({ user, onClose, onSaved }) => {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
+  const [failedCoverSrc, setFailedCoverSrc] = useState("");
 
   const previewName = form.fullName.trim() || user.name || "Unknown user";
-  const previewAvatar = form.avatar || getAvatarFallback(previewName);
-  const previewCoverImage = form.coverImage || defaultCoverImage;
+  const previewAvatar =
+    form.avatar === (user.avatar || "")
+      ? user.avatarUrl || form.avatar
+      : form.avatar;
+  const previewCoverImage =
+    form.coverImage === (user.coverImage || "")
+      ? user.coverImageUrl || form.coverImage
+      : form.coverImage;
   const selectedRole =
     roleOptions.find((option) => option.value === form.role)?.role || "User";
+  const shouldShowAvatar = previewAvatar && failedAvatarSrc !== previewAvatar;
+  const shouldShowCover =
+    previewCoverImage && failedCoverSrc !== previewCoverImage;
 
   const updateForm = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -239,7 +237,7 @@ const EditUserModal = ({ user, onClose, onSaved }) => {
       },
       {
         icon: Calendar,
-        label: "Create",
+        label: "Created At",
         input: (
           <input
             className="view-user-input view-user-input-readonly"
@@ -282,7 +280,7 @@ const EditUserModal = ({ user, onClose, onSaved }) => {
       },
       {
         icon: Clock,
-        label: "Update",
+        label: "Updated At",
         input: (
           <input
             className="view-user-input view-user-input-readonly"
@@ -331,12 +329,15 @@ const EditUserModal = ({ user, onClose, onSaved }) => {
 
     try {
       await updateAdminUserApi(user.id, payload);
-      onSaved(buildSavedUser(user, form));
+      await onSaved(buildSavedUser(user, form));
+      onNotify("User updated successfully", "success");
     } catch (saveError) {
-      setError(
+      const message =
         saveError?.response?.data?.message ||
-          "Could not save this user. Please try again.",
-      );
+        "Could not save this user. Please try again.";
+
+      setError(message);
+      onNotify("Failed to update user", "error");
     } finally {
       setIsSaving(false);
     }
@@ -362,21 +363,31 @@ const EditUserModal = ({ user, onClose, onSaved }) => {
         </button>
 
         <div className="view-user-cover">
-          <img src={previewCoverImage} alt="" />
+          {shouldShowCover ? (
+            <img
+              src={previewCoverImage}
+              alt=""
+              onError={() => setFailedCoverSrc(previewCoverImage)}
+            />
+          ) : null}
           <div className="view-user-title">
             <div>EDIT USER</div>
           </div>
         </div>
 
         <div className="view-user-top view-user-top--profile">
-          <img
-            className="view-user-avatar"
-            src={previewAvatar}
-            alt={previewName}
-            onError={(event) => {
-              event.currentTarget.src = getAvatarFallback(getInitials(previewName));
-            }}
-          />
+          {shouldShowAvatar ? (
+            <img
+              className="view-user-avatar"
+              src={previewAvatar}
+              alt={previewName}
+              onError={() => setFailedAvatarSrc(previewAvatar)}
+            />
+          ) : (
+            <span className="view-user-avatar view-user-avatar-fallback" aria-hidden="true">
+              {getInitials(previewName)}
+            </span>
+          )}
           <h2>{previewName}</h2>
           <span className="view-user-profile-role">{selectedRole}</span>
         </div>

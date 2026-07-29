@@ -1,7 +1,9 @@
 import { GraduationCap } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { adminNotifySuccess } from "../../../api/NotificationApi.js";
 import {
   approveTeacherApplicationApi,
   getAdminTeacherApplicationDetailApi,
@@ -12,6 +14,7 @@ import {
 import "./TeacherApplicationPage.css";
 
 const TeacherApplicationPage = () => {
+  const { t } = useTranslation();
   const { applicationId } = useParams();
   const navigate = useNavigate();
 
@@ -100,7 +103,9 @@ const TeacherApplicationPage = () => {
     try {
       setIsSubmitting(true);
       await approveTeacherApplicationApi(selectedId);
-      toast.success("Application approved. The user is now an instructor.");
+      await adminNotifySuccess("Application approved. The user is now an instructor.", {
+        title: "Teacher applications",
+      });
       removeFromList(selectedId);
       setDetail(null);
     } catch (error) {
@@ -116,7 +121,9 @@ const TeacherApplicationPage = () => {
     try {
       setIsSubmitting(true);
       await rejectTeacherApplicationApi(selectedId, rejectReason.trim());
-      toast.success("Application rejected. The user has been notified.");
+      await adminNotifySuccess("Application rejected. The user has been notified.", {
+        title: "Teacher applications",
+      });
       removeFromList(selectedId);
       setDetail(null);
       setShowRejectForm(false);
@@ -131,16 +138,16 @@ const TeacherApplicationPage = () => {
   return (
     <div className="teacherAppPage">
       <header className="teacherAppPageHeader">
-        <h1>Instructor Applications</h1>
-        <p>Review pending applications to become an instructor.</p>
+        <h1>{t("teacherApplication.title")}</h1>
+        <p>{t("teacherApplication.subtitle")}</p>
       </header>
 
       <div className="teacherAppLayout">
         <aside className="teacherAppSidebar">
           {loadingList ? (
-            <p className="teacherAppEmptyState">Loading...</p>
+            <p className="teacherAppEmptyState">{t("teacherApplication.loading")}</p>
           ) : applications.length === 0 ? (
-            <p className="teacherAppEmptyState">No pending applications.</p>
+            <p className="teacherAppEmptyState">{t("teacherApplication.empty")}</p>
           ) : (
             <ul>
               {applications.map((app) => (
@@ -166,10 +173,10 @@ const TeacherApplicationPage = () => {
           {!selectedId ? (
             <div className="teacherAppEmptyState teacherAppEmptyStateCenter">
               <GraduationCap size={48} />
-              <p>Select an application from the list to start reviewing.</p>
+              <p>{t("teacherApplication.select")}</p>
             </div>
           ) : loadingDetail ? (
-            <div className="teacherAppEmptyStateCenter">Loading detail...</div>
+            <div className="teacherAppEmptyStateCenter">{t("teacherApplication.loadingDetail")}</div>
           ) : !detail ? (
             <div className="teacherAppEmptyStateCenter">Application detail could not be loaded.</div>
           ) : (

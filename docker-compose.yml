@@ -2,7 +2,6 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: learnova-postgres
-
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -25,7 +24,6 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.8
     container_name: learnova-elasticsearch
-
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"

@@ -5,12 +5,14 @@ import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.RoleName;
 import com.example.back_end.repository.RoleRepository;
 import com.example.back_end.repository.UserRepository;
+import com.example.back_end.service.CookieService;
 import com.example.back_end.service.VerificationTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -30,6 +32,7 @@ public class OAuth2AuthenticationSuccessHandler
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final VerificationTokenService verificationTokenService;
+    private final CookieService cookieService;
 
     @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
@@ -107,13 +110,14 @@ public class OAuth2AuthenticationSuccessHandler
 
         String refreshToken =
                 verificationTokenService
-                        .createRefreshToken(email, false)
+                        .createRefreshToken(email, true)
                         .getToken();
 
-        response.sendRedirect(
-                frontendBaseUrl + "/oauth2-success"
-                        + "?accessToken=" + accessToken
-                        + "&refreshToken=" + refreshToken
-        );
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieService.createRefreshTokenCookie(refreshToken, true).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieService.createAccessTokenCookie(accessToken).toString());
+
+        response.sendRedirect(frontendBaseUrl + "/oauth2-success");
     }
 }

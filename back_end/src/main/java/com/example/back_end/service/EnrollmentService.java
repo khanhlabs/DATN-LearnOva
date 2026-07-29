@@ -1,9 +1,13 @@
 package com.example.back_end.service;
 
+import com.example.back_end.dto.response.ContinueLearningResponse;
 import com.example.back_end.dto.response.MyEnrolledCourseResponse;
 import com.example.back_end.entity.Course;
 import com.example.back_end.entity.Enrollment;
+import com.example.back_end.entity.InstructorProfile;
+import com.example.back_end.repository.CourseRepository;
 import com.example.back_end.repository.EnrollmentRepository;
+import com.example.back_end.repository.InstructorProfileRepository;
 import com.example.back_end.repository.LessonRepository;
 import com.example.back_end.repository.LessonProgressRepository;
 import com.example.back_end.repository.ReviewRepository;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,9 @@ public class EnrollmentService {
     private final LessonRepository lessonRepository;
     private final ReviewRepository reviewRepository;
     private final LessonProgressRepository lessonProgressRepository;
+    private final InstructorProfileRepository instructorProfileRepository;
+    private final CourseRepository courseRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public List<MyEnrolledCourseResponse> getMyEnrolledCourses() {
@@ -50,6 +58,8 @@ public class EnrollmentService {
                         course.getId()
                 );
 
+        long totalDurationSeconds =
+                lessonRepository.sumDurationSecondsBySectionCourseId(course.getId());
 
         double averageRating =
                 reviewRepository.getAverageRating(course.getId());
@@ -59,28 +69,111 @@ public class EnrollmentService {
         long studentCount =
                 enrollmentRepository.countByCourseId(course.getId());
 
+        String categoryName = course.getCourseCategories().stream()
+                .filter(cc -> Boolean.TRUE.equals(cc.getIsPrimary()))
+                .findFirst()
+                .map(cc -> cc.getCategory().getName())
+                .orElse(null);
+
+        List<String> tags = course.getTags().stream()
+                .filter(tag -> !Boolean.TRUE.equals(tag.getIsDeleted()))
+                .map(com.example.back_end.entity.Tag::getName)
+                .sorted(Comparator.naturalOrder())
+                .toList();
+
+        Long instructorId = course.getInstructor().getId();
+
+        InstructorProfile instructorProfile = instructorProfileRepository
+                .findById(instructorId)
+                .orElse(null);
+
+        long instructorCourseCount =
+                courseRepository.countByInstructorIdAndIsDeletedFalse(instructorId);
+        long instructorStudentCount =
+                enrollmentRepository.countDistinctStudentsByInstructorId(instructorId);
+        double instructorRating =
+                reviewRepository.getAverageRatingByInstructorId(instructorId);
+
         return new MyEnrolledCourseResponse(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
+                course.getWhatYouLearn(),
+                categoryName,
+                tags,
 
                 course.getInstructor().getFullName(),
-                course.getInstructor().getAvatar(), // ✅ instructorAvatar
+                s3Service.resolveAvatarUrl(course.getInstructor().getAvatar()),
+                instructorProfile != null ? instructorProfile.getHeadline() : null,
+                instructorProfile != null ? instructorProfile.getDescription() : null,
+                instructorCourseCount,
+                instructorStudentCount,
+                instructorRating,
 
-                course.getLevel(),                  // ✅ level
+                course.getLevel(),
 
-                course.getThumbnailKey(),           // ✅ thumbnailKey
+                course.getThumbnailKey(),
 
                 enrollment.getProgressPercent(),
 
                 (int) totalLessons,
                 (int) completedLessons,
+                totalDurationSeconds,
                 averageRating,
                 reviewCount,
                 studentCount,
 
                 enrollment.getEnrolledAt(),
-                enrollment.getCompletedAt()
+                enrollment.getCompletedAt(),
+                course.getUpdatedAt()
+        );
+    }
+
+    // Picks the in-progress course to resume: prefers the one with the most
+    // recently updated lesson-progress row (real "last watched" signal), and
+    // falls back to the most recently enrolled incomplete course if the user
+    // has never watched a lesson yet.
+    @Transactional(readOnly = true)
+    public ContinueLearningResponse getContinueLearning() {
+        Long userId = getCurrentUserId();
+
+        List<MyEnrolledCourseResponse> enrolledCourses = getMyEnrolledCourses();
+        if (enrolledCourses.isEmpty()) {
+            return null;
+        }
+
+        java.util.Map<Long, MyEnrolledCourseResponse> byCourseId = enrolledCourses.stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        MyEnrolledCourseResponse::courseId, c -> c, (a, b) -> a));
+
+        List<Long> recentCourseIds = lessonProgressRepository.findCourseIdsOrderByLastActivity(userId);
+
+        for (Long courseId : recentCourseIds) {
+            MyEnrolledCourseResponse course = byCourseId.get(courseId);
+            if (course != null && course.completedLessons() < course.totalLessons()) {
+                return toContinueLearningResponse(course);
+            }
+        }
+
+        return enrolledCourses.stream()
+                .filter(c -> c.completedLessons() < c.totalLessons())
+                .max(Comparator.comparing(MyEnrolledCourseResponse::enrolledAt))
+                .map(this::toContinueLearningResponse)
+                .orElse(null);
+    }
+
+    private ContinueLearningResponse toContinueLearningResponse(MyEnrolledCourseResponse course) {
+        int progressPercent = course.totalLessons() > 0
+                ? (int) Math.round((course.completedLessons() * 100.0) / course.totalLessons())
+                : 0;
+
+        return new ContinueLearningResponse(
+                course.courseId(),
+                course.title(),
+                course.thumbnailKey(),
+                progressPercent,
+                course.completedLessons(),
+                course.totalLessons()
         );
     }
 

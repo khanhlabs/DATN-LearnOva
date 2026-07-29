@@ -124,7 +124,8 @@
   font-weight: 700;
 }
 
-.adminSettingsRow input {
+.adminSettingsRow input,
+.adminSettingsRow select {
   width: 100%;
   min-height: 40px;
   padding: 0 12px;
@@ -138,7 +139,25 @@
   box-sizing: border-box;
 }
 
-.adminSettingsAccessCard ul {
+.adminSettingsRow input[readonly] {
+  background: #eef2f7;
+  color: #475569;
+  cursor: default;
+}
+
+.adminSettingsRow select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.adminSettingsHint {
+  margin: 12px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.adminSettingsList {
   display: grid;
   gap: 10px;
   margin: 16px 0 0;

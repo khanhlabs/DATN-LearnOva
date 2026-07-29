@@ -1,19 +1,18 @@
 import { Camera } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
-
-
-
-  function ProfileFormSection({
-                                profileData,
-                                saveSuccess,
-                                onInputChange,
-                                onSaveProfile,
-                                onAvatarChange,
-                                errors = {}
-                              }) {
-    const fileInputRef = useRef(null);
+function ProfileFormSection({
+  profileData,
+  saveSuccess,
+  onInputChange,
+  onSaveProfile,
+  onAvatarChange,
+  errors = {},
+}) {
+  const { t } = useTranslation();
+  const fileInputRef = useRef(null);
 
   return (
       <form onSubmit={onSaveProfile} className="profile-form">
@@ -29,7 +28,7 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
               />
 
               <div className="avatar-overlay">
-                <span>Change</span>
+                <span>{t("profile.form.changeAvatar")}</span>
               </div>
             </div>
 
@@ -51,11 +50,11 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
           </div>
 
           <h2 className="profile-name">
-            {profileData.fullName || "Unknown User"}
+            {profileData.fullName || t("profile.form.unknownUser")}
           </h2>
 
           <p className="profile-subtitle">
-            Honor Student • Joined in 2026
+            {t("profile.form.subtitle")}
           </p>
         </div>
 
@@ -64,7 +63,7 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
           {/* FULL NAME */}
           <div className="form-group">
-            <label>Full Name</label>
+            <label>{t("profile.form.fullName")}</label>
             <input
                 type="text"
                 value={profileData.fullName || ""}
@@ -78,7 +77,7 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
           {/* EMAIL (READ ONLY) */}
           <div className="form-group">
-            <label>Email Address</label>
+            <label>{t("profile.form.email")}</label>
             <input
                 type="email"
                 value={profileData.email || ""}
@@ -89,11 +88,11 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
           {/* PHONE */}
           <div className="form-group">
-            <label>Phone Number</label>
+            <label>{t("profile.form.phone")}</label>
             <input
                 type="text"
                 value={profileData.phone || ""}
-                placeholder="Not provided"
+                placeholder={t("profile.form.phonePlaceholder")}
                 onChange={(e) => onInputChange("phone", e.target.value)}
                 className="form-input"
             />
@@ -104,7 +103,7 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
           {/* DATE OF BIRTH */}
           <div className="form-group">
-            <label>Date of Birth</label>
+            <label>{t("profile.form.dateOfBirth")}</label>
             <input
                 type="date"
                 value={profileData.dateOfBirth || ""}
@@ -118,16 +117,16 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
           {/* GENDER */}
           <div className="form-group">
-            <label>Gender</label>
+            <label>{t("profile.form.gender")}</label>
             <select
                 value={profileData.gender || ""}
                 onChange={(e) => onInputChange("gender", e.target.value)}
                 className="form-input"
             >
-              <option value="">Not specified</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="">{t("profile.form.genderNotSpecified")}</option>
+              <option value="Male">{t("profile.form.genderMale")}</option>
+              <option value="Female">{t("profile.form.genderFemale")}</option>
+              <option value="Other">{t("profile.form.genderOther")}</option>
             </select>
 
             {errors?.gender && (
@@ -137,10 +136,10 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
 
           {/* STATUS */}
           <div className="form-group">
-            <label>Account Status</label>
+            <label>{t("profile.form.accountStatus")}</label>
             <input
                 type="text"
-                value={profileData.status || "Unknown"}
+                value={profileData.status || t("profile.form.statusUnknown")}
                 className="form-input"
                 readOnly
             />
@@ -153,19 +152,19 @@ import defaultAvatar from "../../../../../assets/default_avatar.jpg";
               type="button"
               className="cancel-button"
           >
-            Cancel
+            {t("profile.form.cancel")}
           </button>
 
           <button
               type="submit"
               className="save-button"
           >
-            Save Changes
+            {t("profile.form.saveChanges")}
           </button>
         </div>
 
       </form>
   );
-};
+}
 
 export default ProfileFormSection;

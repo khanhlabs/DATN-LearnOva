@@ -1,12 +1,8 @@
-const SLIDES = [
-    {
-        title: 'Welcome back to your journey of ',
-        highlight: 'knowledge discovery',
-        description: 'Continue your journey of discovering knowledge and new heights with LearnOva. Each lesson will be an important step towards the future'
-    }
-];
+import { useTranslation } from "react-i18next";
 
 const AuthBanner = ({mode}) => {
+    const { t } = useTranslation();
+
     return (
       <div className="auth-banner" data-mode={mode}>
           <div className="auth-banner-overlay"/>
@@ -15,12 +11,12 @@ const AuthBanner = ({mode}) => {
               <div className="wave-lines" aria-hidden="true"/>
 
               <h1 className="auth-banner-title">
-                {SLIDES[0].title}{''}
-                  <em>{SLIDES[0].highlight}</em>
+                {t("auth.banner.titleLine")}{' '}
+                  <em>{t("auth.banner.highlight")}</em>
               </h1>
 
               <p className="auth-banner-description">
-                  {SLIDES[0].description}
+                  {t("auth.banner.description")}
               </p>
 
               <div className="promo-card">
@@ -32,8 +28,8 @@ const AuthBanner = ({mode}) => {
                       </svg>
                   </div>
                   <div>
-                      <h3 className="card-title">Upload samples of your work</h3>
-                      <p className="card-description">to impress potential collaborators.</p>
+                      <h3 className="card-title">{t("auth.banner.cardTitle")}</h3>
+                      <p className="card-description">{t("auth.banner.cardDescription")}</p>
                   </div>
               </div>
 

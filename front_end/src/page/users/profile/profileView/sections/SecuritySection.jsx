@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getSecurityContactRows,
   PASSWORD_FIELDS,
@@ -17,6 +18,7 @@ const initialPasswordValues = PASSWORD_FIELDS.reduce(
 );
 
 const SecuritySection = ({ profileData = {} }) => {
+  const { t } = useTranslation();
   const [passwordValues, setPasswordValues] = useState(initialPasswordValues);
   const [status, setStatus] = useState(null);
 
@@ -44,7 +46,7 @@ const SecuritySection = ({ profileData = {} }) => {
     if (hasEmpty) {
       setStatus({
         type: "error",
-        message: "Please fill in all required fields.",
+        message: t("profile.security.fillRequiredFields"),
       });
       return;
     }
@@ -52,7 +54,7 @@ const SecuritySection = ({ profileData = {} }) => {
     if (passwordValues.newPassword.length < 8) {
       setStatus({
         type: "error",
-        message: "Password must be at least 8 characters.",
+        message: t("profile.security.passwordTooShort"),
       });
       return;
     }
@@ -60,7 +62,7 @@ const SecuritySection = ({ profileData = {} }) => {
     if (passwordValues.newPassword !== passwordValues.confirmPassword) {
       setStatus({
         type: "error",
-        message: "Passwords do not match.",
+        message: t("profile.security.passwordMismatch"),
       });
       return;
     }
@@ -70,15 +72,15 @@ const SecuritySection = ({ profileData = {} }) => {
 
       setStatus({
         type: "success",
-        message: "Password changed successfully.",
+        message: t("profile.security.passwordChangeSuccess"),
       });
 
-      toast.success("Password changed successfully");
+      toast.success(t("profile.security.passwordChangeSuccess"));
 
       setPasswordValues(initialPasswordValues);
     } catch (err) {
       const msg =
-          err?.response?.data?.message || "Change password failed";
+          err?.response?.data?.message || t("profile.security.passwordChangeError");
 
       setStatus({
         type: "error",

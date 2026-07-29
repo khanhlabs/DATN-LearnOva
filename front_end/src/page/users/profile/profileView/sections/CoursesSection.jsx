@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import CourseCardGrid from "./CourseCardGrid";
 
 const ITEMS_PER_PAGE = 8;
@@ -16,6 +17,8 @@ const CoursesSection = ({
   // notification link (or any navigation) to this same route always lands on the
   // right tab, even when the component doesn't remount.
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
+  const [filterTab, setFilterTab] = useState("in_progress");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const statusFilter = searchParams.get("tab") === "completed" ? "completed" : "inProgress";
@@ -34,13 +37,18 @@ const CoursesSection = ({
     rating: course.rating || 4.8,
     reviews: course.reviews || "0",
   }));
-  const filteredCourses = useMemo(
-    () =>
-      courses.filter((course) =>
-        statusFilter === "completed" ? course.progress >= 100 : course.progress < 100,
-      ),
-    [courses, statusFilter],
-  );
+  const filteredCourses = useMemo(() => {
+    return courses.filter((course) => {
+      if (filterTab === "in_progress") {
+        return course.progress < 100;
+      }
+      if (filterTab === "completed") {
+        return course.progress >= 100;
+      }
+      return true;
+    });
+  }, [courses, filterTab]);
+
   const sortedCourses = useMemo(() => {
     const nextCourses = [...filteredCourses];
 
@@ -86,28 +94,28 @@ const CoursesSection = ({
     <div className="courses-dashboard">
       <div className="courses-topbar">
         <div>
-          <h2>Enrolled Courses</h2>
+          <h2>{t("profile.myLearning.title")}</h2>
           <div className="course-tabs">
             <button
-              className={`course-tab ${statusFilter === "inProgress" ? "active" : ""}`}
+              className={`course-tab ${filterTab === "in_progress" ? "active" : ""}`}
               type="button"
-              onClick={() => selectTab("inProgress")}
+              onClick={() => { setFilterTab("in_progress"); setCurrentPage(1); }}
             >
-              In Progress
+              {t("profile.myLearning.tabInProgress")}
             </button>
             <button
-              className={`course-tab ${statusFilter === "completed" ? "active" : ""}`}
+              className={`course-tab ${filterTab === "completed" ? "active" : ""}`}
               type="button"
-              onClick={() => selectTab("completed")}
+              onClick={() => { setFilterTab("completed"); setCurrentPage(1); }}
             >
-              Completed
+              {t("profile.myLearning.tabCompleted")}
             </button>
           </div>
         </div>
 
         <div className="course-tools">
           <label className="course-search">
-            <input type="text" placeholder="Search courses..." />
+            <input type="text" placeholder={t("profile.myLearning.searchPlaceholder")} />
             <Search size={15} />
           </label>
           <select
@@ -117,23 +125,23 @@ const CoursesSection = ({
               setSortBy(event.target.value);
               setCurrentPage(1);
             }}
-            aria-label="Sort courses"
+            aria-label={t("profile.myLearning.sortAria")}
           >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="az">A-Z</option>
-            <option value="progress">Highest progress</option>
+            <option value="newest">{t("profile.myLearning.sortNewest")}</option>
+            <option value="oldest">{t("profile.myLearning.sortOldest")}</option>
+            <option value="az">{t("profile.myLearning.sortAz")}</option>
+            <option value="progress">{t("profile.myLearning.sortProgress")}</option>
           </select>
         </div>
       </div>
 
       {isLoading ? (
         <div className="empty-state">
-          <h4>Đang tải khóa học của bạn...</h4>
+          <h4>{t("profile.myLearning.loading")}</h4>
         </div>
       ) : error ? (
         <div className="empty-state">
-          <h4>Không tải được khóa học</h4>
+          <h4>{t("profile.myLearning.loadError")}</h4>
           <p>{error}</p>
         </div>
       ) : sortedCourses.length > 0 ? (
@@ -196,13 +204,12 @@ const CoursesSection = ({
         </div>
       ) : (
         <div className="empty-state">
-          <h4>You Don't Own Any Courses Yet</h4>
+          <h4>{t("profile.myLearning.emptyTitle")}</h4>
           <p>
-            Start your learning journey by choosing courses that match your
-            goals and interests.
+            {t("profile.myLearning.emptySubtitle")}
           </p>
           <button onClick={onBack} className="btn btn-primary" type="button">
-            View Course Catalog
+            {t("profile.myLearning.viewCatalog")}
           </button>
         </div>
       )}

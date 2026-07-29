@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+.instructorStatistics__error {
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: #fee;
+  color: #c00;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+}
+
 .instructorStatisticsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

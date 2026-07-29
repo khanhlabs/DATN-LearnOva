@@ -1,17 +1,17 @@
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
+import { useTranslation } from "react-i18next";
 import "./UserManagementFilters.css";
 
 const searchFields = {
-  searchPlaceholder: "Search...",
-  roleLabel: "Role",
+  searchPlaceholder: "search",
+  roleLabel: "role",
 };
 
-
 const roleOptions = [
-  { id: "all", label: "All" },
-  { id: "student", label: "Students" },
-  { id: "teacher", label: "Instructors" },
-  { id: "admin", label: "Admins" },
+  { id: "all", label: "all" },
+  { id: "student", label: "students" },
+  { id: "teacher", label: "instructors" },
+  { id: "admin", label: "administrators" },
 ];
 
 
@@ -20,6 +20,7 @@ const UserManagementFilters = ({
   onRoleChange = () => { },
   onAddUser = () => { },
 }) => {
+  const { t } = useTranslation();
 
 
   return (
@@ -36,17 +37,17 @@ const UserManagementFilters = ({
           <input
             type="search"
             className="userManagementFilterSearch"
-            placeholder={searchFields.searchPlaceholder}
-            aria-label={searchFields.searchPlaceholder}
+            placeholder={t(`admin.${searchFields.searchPlaceholder}`)}
+            aria-label={t(`admin.${searchFields.searchPlaceholder}`)}
             onChange={(event) =>
               onSearchChange(event.target.value)
             }
           />
           <AdminHoverSelect
             className="userManagementFilterSelect"
-            ariaLabel={searchFields.roleLabel}
+            ariaLabel={t("admin.role")}
             defaultValue="all"
-            options={roleOptions}
+            options={roleOptions.map((option) => ({ ...option, label: t(`admin.${option.label}`) }))}
             onChange={onRoleChange}
           />
         </div>
@@ -55,7 +56,7 @@ const UserManagementFilters = ({
           className="addUserButton"
           onClick={onAddUser}
         >
-          + Add User
+          + {t("admin.addUser")}
         </button>
       </div>
     </div>

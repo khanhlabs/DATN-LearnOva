@@ -1,6 +1,8 @@
 package com.example.back_end.controller;
 
+import com.example.back_end.dto.response.PublicInstructorDetailResponse;
 import com.example.back_end.dto.response.PublicInstructorProfileResponse;
+import com.example.back_end.dto.response.PublicInstructorResponse;
 import com.example.back_end.dto.response.PublicInstructorSummaryResponse;
 import com.example.back_end.service.PublicInstructorService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +28,15 @@ public class PublicInstructorController {
     @GetMapping("/{instructorId}")
     public PublicInstructorProfileResponse getInstructorProfile(@PathVariable Long instructorId) {
         return publicInstructorService.getInstructorProfile(instructorId);
+    }
+
+    @GetMapping("/public")
+    public List<PublicInstructorResponse> getPublicInstructors() {
+        return publicInstructorService.getPublicInstructors();
+    }
+
+    @GetMapping("/public/{instructorId}")
+    public PublicInstructorDetailResponse getPublicInstructorDetail(@PathVariable Long instructorId) {
+        return publicInstructorService.getPublicInstructorDetail(instructorId);
     }
 }

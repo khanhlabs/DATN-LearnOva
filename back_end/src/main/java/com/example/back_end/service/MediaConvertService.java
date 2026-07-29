@@ -39,13 +39,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MediaConvertService {
 
-    private final MediaConvertClient mediaConvertClient;
+    // TODO: chưa có MediaConvert key, comment tạm để app chạy được. Bỏ comment khi có key.
+    // private final MediaConvertClient mediaConvertClient;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${mediaconvert.role-arn}")
-    private String roleArn;
+    // @Value("${mediaconvert.role-arn}")
+    // private String roleArn;
 
     public static final String HLS_OUTPUT_PREFIX = "course-video-hls/";
     public static final String HLS_BASE_FILENAME = "index";
@@ -56,6 +57,8 @@ public class MediaConvertService {
         return dotIndex == -1 ? fileName : fileName.substring(0, dotIndex);
     }
 
+    // TODO: chưa có MediaConvert key, comment tạm để app chạy được. Bỏ comment khi có key.
+    /*
     public String createHlsJob(String videoKey, Long lessonId) {
 
         String videoUuid = videoUuidFromKey(videoKey);
@@ -142,6 +145,12 @@ public class MediaConvertService {
                                 .build())
                         .build())
                 .build();
+    }
+    */
+
+    // Stub while MediaConvert is disabled — real implementation is commented above.
+    public String createHlsJob(String videoKey, Long lessonId) {
+        return "disabled-" + videoUuidFromKey(videoKey);
     }
 
 }

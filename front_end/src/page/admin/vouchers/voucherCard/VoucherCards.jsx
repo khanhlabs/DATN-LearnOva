@@ -6,6 +6,7 @@ import {
   FiDollarSign,
   FiPercent,
 } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import "./VoucherCards.css";
 import TotalVoucherCard from "./TotalVoucherCard/TotalVoucherCard.jsx";
 import ActivatedVoucherCard from "./ActivatedVoucherCard/ActivatedVoucherCard.jsx";
@@ -75,9 +76,35 @@ const cardComponents = {
 };
 
 const VoucherCards = () => {
+  const { t } = useTranslation();
+
+  const translatedCards = voucherCards.map((card) => ({
+    ...card,
+    title: t(`opsAdmin.${
+      {
+        total: "totalVouchers",
+        activated: "activated",
+        expired: "expired",
+        applied: "applied",
+        reduced: "discounted",
+        conversion: "conversion",
+      }[card.id]
+    }`),
+    note: t(`opsAdmin.${
+      {
+        total: "lastMonth",
+        activated: "currentlyActive",
+        expired: "noLongerValid",
+        applied: "couponUsage",
+        reduced: "monthlyDiscount",
+        conversion: "couponPerformance",
+      }[card.id]
+    }`),
+  }));
+
   return (
     <div className="voucherCardsRow">
-      {voucherCards.map((card) => {
+      {translatedCards.map((card) => {
         const Card = cardComponents[card.id];
         return <Card key={card.id} {...card} />;
       })}

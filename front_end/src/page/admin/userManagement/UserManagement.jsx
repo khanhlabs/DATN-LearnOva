@@ -1,5 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { adminNotifySuccess } from "../../../api/NotificationApi.js";
 import { createAdminUserApi, getAdminUsersApi } from "../../../api/admin/AdminUserApi.js";
+import { getFileUrl } from "../../../api/PublicCourseApi.js";
 import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";  // ← Thêm import này
 import UserManagementStats from "./statistics/UserManagementStats";
 import UserManagementFilters from "./filters/UserManagementFilters";
@@ -13,7 +16,7 @@ const formatDate = (value) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "N/A";
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -21,18 +24,9 @@ const formatDate = (value) => {
 };
 
 const normalizeRole = (role) => {
-  const normalizedRole = String(role ?? "USER")
-    .replace("ROLE_", "")
-    .toUpperCase();
-
-  if (normalizedRole === "ADMIN") {
-    return { label: "Admin", tone: "admin", filter: "admin" };
-  }
-
-  if (["TEACHER", "INSTRUCTOR"].includes(normalizedRole)) {
-    return { label: "Instructor", tone: "teacher", filter: "teacher" };
-  }
-
+  const normalizedRole = String(role ?? "USER").replace("ROLE_", "").toUpperCase();
+  if (normalizedRole === "ADMIN") return { label: "Admin", tone: "admin", filter: "admin" };
+  if (["TEACHER", "INSTRUCTOR"].includes(normalizedRole)) return { label: "Instructor", tone: "teacher", filter: "teacher" };
   return { label: "Student", tone: "student", filter: "student" };
 };
 
@@ -55,16 +49,54 @@ const normalizeStatus = (user) => {
   return { label: "Active", tone: "active", filter: "active" };
 };
 
-const normalizeVisibility = (isDeleted) => {
-  if (isDeleted) {
-    return { label: "Hidden", tone: "deleted" };
-  }
-
-  return { label: "Active", tone: "visible" };
-};
+const normalizeVisibility = (isDeleted) =>
+  isDeleted
+    ? { label: "Hidden", tone: "deleted" }
+    : { label: "Active", tone: "visible" };
 
 const getDisplayName = (user) =>
   user.fullName?.trim() || user.email?.split("@")[0] || "Unknown user";
+
+const API_URL = import.meta.env.VITE_API_URL || "";
+const API_ORIGIN = API_URL.replace(/\/api\/learnova\/?$/, "");
+
+const cleanMediaValue = (value) => {
+  const mediaValue = String(value ?? "").trim();
+  const normalizedValue = mediaValue.toLowerCase();
+
+  if (
+    !mediaValue ||
+    normalizedValue === "null" ||
+    normalizedValue === "[null]" ||
+    normalizedValue === "undefined" ||
+    normalizedValue === "n/a"
+  ) {
+    return "";
+  }
+
+  return mediaValue;
+};
+
+const isResolvedMediaUrl = (value) =>
+  /^(https?:)?\/\//i.test(value) || /^(data|blob):/i.test(value);
+
+const getBackendMediaUrl = (value) => {
+  if (!value || isResolvedMediaUrl(value) || !API_ORIGIN) return value;
+
+  return `${API_ORIGIN}/${String(value).replace(/^\/+/, "")}`;
+};
+
+const resolveMediaUrl = async (value) => {
+  const mediaValue = cleanMediaValue(value);
+
+  if (!mediaValue || isResolvedMediaUrl(mediaValue)) return mediaValue;
+
+  try {
+    return await getFileUrl(mediaValue);
+  } catch {
+    return getBackendMediaUrl(mediaValue);
+  }
+};
 
 const normalizeUser = (user) => {
   const role = normalizeRole(user.role);
@@ -73,6 +105,8 @@ const normalizeUser = (user) => {
   const joinedAt = user.createdAt ?? user.joinedAt;
   const isDeleted = Boolean(user.isDeleted);
   const visibility = normalizeVisibility(isDeleted);
+  const avatar = cleanMediaValue(user.avatar);
+  const coverImage = cleanMediaValue(user.coverImage ?? user.cover_image);
 
   return {
     id: user.id,
@@ -80,8 +114,8 @@ const normalizeUser = (user) => {
     name,
     email: user.email ?? "N/A",
     phone: user.phone ?? "N/A",
-    avatar: user.avatar,
-    coverImage: user.coverImage,
+    avatar,
+    coverImage,
     dateOfBirthRaw: user.dateOfBirth,
     dateOfBirth: formatDate(user.dateOfBirth),
     gender: user.gender ?? "N/A",
@@ -101,15 +135,35 @@ const normalizeUser = (user) => {
   };
 };
 
+const normalizeUserWithMedia = async (user) => {
+  const normalizedUser = normalizeUser(user);
+  const [avatarUrl, coverImageUrl] = await Promise.all([
+    resolveMediaUrl(normalizedUser.avatar),
+    resolveMediaUrl(normalizedUser.coverImage),
+  ]);
+
+  return {
+    ...normalizedUser,
+    avatarUrl,
+    coverImageUrl,
+  };
+};
+
 const UserManagement = () => {
   const axiosPrivate = useAxiosPrivate();  
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+
+  const showNotification = useCallback((message, type = "success", duration) => {
+    if (type === "error") {
+      toast.error(message, { autoClose: duration ?? 5000 });
+      return;
+    }
+    void adminNotifySuccess(message, { title: "User management" });
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -117,12 +171,11 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
-        setError("");
 
         const response = await getAdminUsersApi();
 
         const normalizedUsers = Array.isArray(response)
-          ? response.map(normalizeUser)
+          ? await Promise.all(response.map(normalizeUserWithMedia))
           : [];
 
         if (isMounted) {
@@ -130,10 +183,11 @@ const UserManagement = () => {
         }
       } catch (fetchError) {
         if (isMounted) {
-          setError(
+          const message =
             fetchError?.response?.data?.message ||
-              "Không tải được danh sách users từ server."
-          );
+            "Failed to load users from server.";
+
+          showNotification(message, "error");
         }
       } finally {
         if (isMounted) {
@@ -147,7 +201,7 @@ const UserManagement = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [showNotification]);
 
   const filteredUsers = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -167,17 +221,22 @@ const UserManagement = () => {
     });
   }, [roleFilter, searchTerm, users]);
 
-  const handleUserUpdated = (updatedUser) => {
+  const handleUserUpdated = async (updatedUser) => {
+    const normalizedUpdatedUser = await normalizeUserWithMedia(updatedUser);
+
     setUsers((currentUsers) =>
       currentUsers.map((user) =>
-        user.id === updatedUser.id ? { ...user, ...updatedUser } : user
+        user.id === normalizedUpdatedUser.id
+          ? { ...user, ...normalizedUpdatedUser }
+          : user
       )
     );
   };
 
   const handleCreateUser = async (userData) => {
     const createdUser = await createAdminUserApi(userData, axiosPrivate);  // ← Pass axiosPrivate
-    setUsers((currentUsers) => [...currentUsers, normalizeUser(createdUser)]);
+    const normalizedCreatedUser = await normalizeUserWithMedia(createdUser);
+    setUsers((currentUsers) => [...currentUsers, normalizedCreatedUser]);
     setShowAddUserModal(false);
   };
 
@@ -192,18 +251,18 @@ const UserManagement = () => {
           onAddUser={() => setShowAddUserModal(true)}
         />
 
-        {error ? <p className="userManagementError">{error}</p> : null}
-
         <UsersList
           users={filteredUsers}
           isLoading={isLoading}
           onUserUpdated={handleUserUpdated}
+          onNotify={showNotification}
         />
 
         <AddUserModal
           isOpen={showAddUserModal}
           onClose={() => setShowAddUserModal(false)}
           onSubmit={handleCreateUser}
+          onNotify={showNotification}
         />
       </div>
     </section>

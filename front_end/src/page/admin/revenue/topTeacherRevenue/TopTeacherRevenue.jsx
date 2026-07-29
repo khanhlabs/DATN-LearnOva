@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAdminTopEarningInstructorsApi } from "../../../../api/admin/RevenueApi.js";
 import "./TopTeacherRevenue.css";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 5;
 
@@ -12,6 +13,7 @@ const formatMoney = (value) =>
 const formatPercent = (value) => `${Number(value || 0).toFixed(0)}%`;
 
 const TopTeacherRevenue = () => {
+  const { t } = useTranslation();
   const [teachers, setTeachers] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -62,13 +64,13 @@ const TopTeacherRevenue = () => {
       <div className="topRevenueBlockHeader">
         <div>
           <h2 className="topRevenueBlockTitle">
-            Top Earning Instructor Partners
+            {t("revenueDetails.topTeachers")}
           </h2>
           <p className="topRevenueBlockSubtitle">
-            Top 5 instructors with the highest platform payout earnings.
+            {t("revenueDetails.topTeachersDesc")}
           </p>
         </div>
-        <span className="topRevenueBlockBadge">Summary</span>
+        <span className="topRevenueBlockBadge">{t("revenueDetails.summary")}</span>
       </div>
 
       <div className="topRevenueBlockCard">
@@ -76,13 +78,7 @@ const TopTeacherRevenue = () => {
           <table className="topRevenueBlockTable topTeacherTable">
             <thead>
               <tr>
-                <th>RANK</th>
-                <th>INSTRUCTOR</th>
-                <th>COURSES</th>
-                <th>TOTAL STUDENTS</th>
-                <th>REVENUE EARNED</th>
-                <th>AVG / COURSE</th>
-                <th>SHARE</th>
+                <th>{t("revenueDetails.rank")}</th><th>{t("revenueDetails.instructor")}</th><th>{t("revenueDetails.courses")}</th><th>{t("revenueDetails.totalStudents")}</th><th>{t("revenueDetails.earned")}</th><th>{t("revenueDetails.avgCourse")}</th><th>{t("revenueDetails.share")}</th>
               </tr>
             </thead>
             <tbody>

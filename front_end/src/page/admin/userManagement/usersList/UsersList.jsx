@@ -7,69 +7,53 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import DeleteUserModal from "./DeleteUserModal";
 import EditUserModal from "./EditUserModal";
 import ViewUserModal from "./ViewUserModal";
 import "./UsersList.css";
 
-const tableColumns = [
-  { id: "user", label: "User" },
-  { id: "role", label: "Role" },
-  { id: "phone", label: "Phone" },
-  { id: "visibility", label: "Visibility" },
-  { id: "joinedAt", label: "Joined At" },
-  { id: "actions", label: "Actions" },
-];
+const tableColumns = ["user", "role", "phone", "visibility", "joinedAt", "actions"];
 
 const pageSize = 10;
 
-const getInitials = (name) =>
-  name
-    .split(" ")
-    .filter(Boolean)
-    .slice(-2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase() || "U";
+const getUserVisibility = (user) =>
+  user.isDeleted
+    ? { label: "hidden", tone: "deleted" }
+    : { label: "active", tone: "visible" };
 
 const UserAvatar = ({ user, className }) => {
-  if (user.avatar) {
-    return <img className={className} src={user.avatar} alt={user.name} />;
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
+  const avatarSrc = user.avatarUrl || user.avatar || "";
+  const shouldShowAvatar = avatarSrc && failedAvatarSrc !== avatarSrc;
+
+  if (shouldShowAvatar) {
+    return (
+      <img
+        className={className}
+        src={avatarSrc}
+        alt={user.name}
+        loading="lazy"
+        onError={() => setFailedAvatarSrc(avatarSrc)}
+      />
+    );
   }
 
   return (
-    <span className={`${className} userManagementUserAvatarFallback`}>
-      {getInitials(user.name)}
-    </span>
+    <span
+      className={`${className} userManagementUserAvatarEmpty`}
+      aria-hidden="true"
+    />
   );
-};
-
-const getUserVisibility = (user) => {
-  if (user.visibility && user.visibilityTone) {
-    return {
-      label: user.visibility,
-      tone: user.visibilityTone,
-    };
-  }
-
-  if (user.isDeleted) {
-    return {
-      label: "Hidden",
-      tone: "deleted",
-    };
-  }
-
-  return {
-    label: "Active",
-    tone: "visible",
-  };
 };
 
 const UsersList = ({
   users = [],
   isLoading = false,
   onUserUpdated = () => {},
+  onNotify = () => {},
 }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAction, setSelectedAction] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -106,7 +90,7 @@ const UsersList = ({
               key={column.id}
               className={`userManagementUsersColumn userManagementUsersColumn--${column.id}`}
             >
-              {column.label}
+              {t(`admin.${column}`)}
             </span>
           ))}
         </div>
@@ -135,7 +119,7 @@ const UsersList = ({
                   <span
                     className={`userManagementUserRole userManagementUserRole--${user.roleTone}`}
                   >
-                    <span>{user.role}</span>
+                    <span>{t(`admin.${user.roleFilter === "student" ? "student" : user.roleFilter === "teacher" ? "instructors" : "admin"}`)}</span>
                   </span>
                 </div>
 
@@ -149,7 +133,7 @@ const UsersList = ({
                   <span
                     className={`userManagementUserVisibility userManagementUserVisibility--${visibility.tone}`}
                   >
-                    <span>{visibility.label}</span>
+                    <span>{t(`admin.${visibility.label}`)}</span>
                   </span>
                 </div>
 
@@ -194,12 +178,8 @@ const UsersList = ({
 
           {!isLoading && users.length === 0 ? (
             <div className="userManagementUsersEmpty">
-              Không có user nào khớp với bộ lọc hiện tại.
+              {t("admin.noMatchingUsers")}
             </div>
-          ) : null}
-
-          {isLoading ? (
-            <div className="userManagementUsersEmpty">Đang tải users...</div>
           ) : null}
         </div>
 
@@ -207,14 +187,14 @@ const UsersList = ({
 
       <div className="userManagementUsersFooter">
         <p className="userManagementUsersPageInfo">
-          Displaying {users.length ? (visiblePage - 1) * pageSize + 1 : 0}-
+          {t("admin.displaying")} {users.length ? (visiblePage - 1) * pageSize + 1 : 0}-
           {Math.min(visiblePage * pageSize, users.length)} out of {users.length}{" "}
-          users
+          {t("admin.users").toLowerCase()}
         </p>
 
         <div
           className="userManagementUsersPagination"
-          aria-label="User Pagination"
+          aria-label={t("admin.user")}
         >
           <button
             type="button"
@@ -260,11 +240,12 @@ const UsersList = ({
         <EditUserModal
           user={selectedUser}
           onClose={closeActionPopup}
-          onSaved={(updatedUser) => {
-            onUserUpdated(updatedUser);
+          onSaved={async (updatedUser) => {
+            await onUserUpdated(updatedUser);
             setSelectedUser(updatedUser);
             closeActionPopup();
           }}
+          onNotify={onNotify}
         />
       ) : null}
 
@@ -272,11 +253,12 @@ const UsersList = ({
         <DeleteUserModal
           user={selectedUser}
           onClose={closeActionPopup}
-          onDeleted={(deletedUser) => {
-            onUserUpdated(deletedUser);
+          onDeleted={async (deletedUser) => {
+            await onUserUpdated(deletedUser);
             setSelectedUser(deletedUser);
             closeActionPopup();
           }}
+          onNotify={onNotify}
         />
       ) : null}
     </section>

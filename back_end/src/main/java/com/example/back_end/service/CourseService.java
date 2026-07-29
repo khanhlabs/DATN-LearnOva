@@ -2,6 +2,7 @@ package com.example.back_end.service;
 
 import com.example.back_end.dto.response.CourseDetailResponse;
 import com.example.back_end.dto.response.FeaturedCourseResponse;
+import com.example.back_end.dto.response.PlatformStatsResponse;
 import com.example.back_end.dto.response.PublicCourseResponse;
 import com.example.back_end.dto.response.TopCategoryResponse;
 import com.example.back_end.entity.Category;
@@ -14,6 +15,7 @@ import com.example.back_end.entity.enums.HlsStatus;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.CourseRepository;
 import com.example.back_end.repository.EnrollmentRepository;
+import com.example.back_end.repository.InstructorProfileRepository;
 import com.example.back_end.repository.LessonRepository;
 import com.example.back_end.repository.PromotionCourseRepository;
 import com.example.back_end.repository.ReviewRepository;
@@ -38,6 +40,8 @@ public class CourseService {
     private final PromotionCourseRepository promotionCourseRepository;
     private final ReviewRepository reviewRepository;
     private final LessonRepository lessonRepository;
+    private final InstructorProfileRepository instructorProfileRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public CourseDetailResponse getCourseDetail(Long courseId) {
@@ -89,11 +93,16 @@ public class CourseService {
 
         User instructor = course.getInstructor();
 
+        String instructorDescription = instructorProfileRepository.findById(instructor.getId())
+                .map(profile -> profile.getDescription())
+                .orElse(null);
+
         CourseDetailResponse.InstructorInfo instructorInfo =
                 new CourseDetailResponse.InstructorInfo(
                         instructor.getId(),
                         instructor.getFullName(),
-                        instructor.getAvatar()
+                        s3Service.resolveAvatarUrl(instructor.getAvatar()),
+                        instructorDescription
                 );
 
         return new CourseDetailResponse(
@@ -149,6 +158,15 @@ public class CourseService {
                         (a, b) -> a
                 ));
 
+        Map<Long, ReviewRepository.CourseRatingProjection> ratingByCourseId = top8Ids.isEmpty()
+                ? Map.of()
+                : reviewRepository.findAvgRatingByCourseIds(top8Ids)
+                .stream()
+                .collect(Collectors.toMap(
+                        ReviewRepository.CourseRatingProjection::getCourseId,
+                        r -> r
+                ));
+
         return top8.stream()
                 .map(course -> {
                     String categoryName = course.getCourseCategories().stream()
@@ -171,6 +189,11 @@ public class CourseService {
 
                     long studentCount = enrollmentCountByCourseId.getOrDefault(course.getId(), 0L);
 
+                    ReviewRepository.CourseRatingProjection rating = ratingByCourseId.get(course.getId());
+                    double avgRating = rating != null && rating.getAvgRating() != null
+                            ? rating.getAvgRating()
+                            : 0.0;
+
                     return new FeaturedCourseResponse(
                             course.getId(),
                             course.getTitle(),
@@ -183,10 +206,19 @@ public class CourseService {
                             totalDurationSeconds,
                             categoryName,
                             course.getLevel(),
-                            0.0
+                            avgRating
                     );
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PlatformStatsResponse getPlatformStats() {
+        long totalLearners = enrollmentRepository.countDistinctUsers();
+        long totalCourses = courseRepository.countByStatusAndIsDeletedFalse(CourseStatus.PUBLISHED);
+        double avgRating = reviewRepository.getPlatformAverageRating();
+
+        return new PlatformStatsResponse(totalLearners, totalCourses, avgRating);
     }
 
     @Transactional(readOnly = true)
@@ -206,8 +238,8 @@ public class CourseService {
         Map<Category, Long> soldCountByCategory = new LinkedHashMap<>();
         for (Course course : published) {
             long soldCount = enrollmentCountByCourseId.getOrDefault(course.getId(), 0L);
-            for (CourseCategory coursecategory : course.getCourseCategories()) {
-                Category category = coursecategory.getCategory();
+            for (CourseCategory courseCategory : course.getCourseCategories()) {
+                Category category = courseCategory.getCategory();
                 if (Boolean.TRUE.equals(category.getIsDeleted())) {
                     continue;
                 }

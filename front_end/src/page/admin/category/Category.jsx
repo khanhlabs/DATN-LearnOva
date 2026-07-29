@@ -1,6 +1,8 @@
 import { AlertTriangle, Edit3, FolderTree, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { adminNotifySuccess } from "../../../api/NotificationApi.js";
 import {
   createAdminCategoryApi,
   deleteAdminCategoryApi,
@@ -36,16 +38,16 @@ const normalizeCategory = (category) => ({
   updatedAt: formatDate(category.updatedAt),
 });
 
-const getCategoryStats = (categories) => {
+const getCategoryStats = (categories, t) => {
   const activeCategories = categories.filter((c) => !c.isDeleted).length;
   const hiddenCategories = categories.filter((c) => c.isDeleted).length;
   const rootCategories = categories.filter((c) => c.parentId == null).length;
 
   return [
-    { label: "Total Categories", value: categories.length, note: "from database" },
-    { label: "Active Topics", value: activeCategories, note: "visible to users" },
-    { label: "Hidden Topics", value: hiddenCategories, note: "not visible to users" },
-    { label: "Root Categories", value: rootCategories, note: "no parent" },
+    { label: t("categoryAdmin.total"), value: categories.length, note: t("categoryAdmin.database") },
+    { label: t("categoryAdmin.activeTopics"), value: activeCategories, note: t("categoryAdmin.visible") },
+    { label: t("categoryAdmin.hiddenTopics"), value: hiddenCategories, note: t("categoryAdmin.notVisible") },
+    { label: t("categoryAdmin.rootCategories"), value: rootCategories, note: t("categoryAdmin.noParent") },
   ];
 };
 
@@ -64,6 +66,7 @@ const ParentSelect = ({ value, onChange, categories, excludeId, className }) => 
 );
 
 const Category = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +96,7 @@ const Category = () => {
     return () => { isMounted = false; };
   }, [axiosPrivate]);
 
-  const categoryStats = useMemo(() => getCategoryStats(categories), [categories]);
+  const categoryStats = useMemo(() => getCategoryStats(categories, t), [categories, t]);
   const statusOptions = useMemo(() => ["All", "Active", "Hidden"], []);
 
   const filteredCategories = useMemo(() => {
@@ -195,7 +198,10 @@ const Category = () => {
         );
         setCategories((current) => [...current, normalizeCategory(newCategory)]);
       }
-      toast.success(editingCategory ? "Category updated successfully!" : "Category created successfully!");
+      await adminNotifySuccess(
+        editingCategory ? "Category updated successfully!" : "Category created successfully!",
+        { title: "Categories" },
+      );
       closeModal();
     } catch (err) {
       const msg = err?.response?.data?.message || `Failed to ${editingCategory ? "update" : "create"} category.`;
@@ -227,20 +233,20 @@ const Category = () => {
         <div className="adminCategoryFilters">
           <input
             type="search"
-            placeholder="Search category name or parent..."
+            placeholder={t("categoryAdmin.search")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <AdminHoverSelect
             className="adminCategoryFilterSelect"
-            options={statusOptions}
+            options={statusOptions.map((status) => ({ value: status, label: status === "All" ? t("categoryAdmin.all") : t(`categoryAdmin.${status.toLowerCase()}`) }))}
             value={selectedStatus}
             onChange={setSelectedStatus}
             ariaLabel="Filter by status"
           />
           <button type="button" className="adminCategoryCreateButton" onClick={openCreate}>
             <Plus size={18} />
-            New Category
+            + {t("categoryAdmin.new")}
           </button>
         </div>
 
@@ -250,12 +256,7 @@ const Category = () => {
           <table className="adminCategoryTable">
             <thead>
               <tr>
-                <th>Category ID</th>
-                <th>Category Name</th>
-                <th>Parent</th>
-                <th>Status</th>
-                <th>Updated</th>
-                <th>Actions</th>
+                <th>{t("categoryAdmin.categoryId")}</th><th>{t("categoryAdmin.categoryName")}</th><th>{t("categoryAdmin.parent")}</th><th>{t("categoryAdmin.status")}</th><th>{t("categoryAdmin.updated")}</th><th>{t("categoryAdmin.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -266,7 +267,7 @@ const Category = () => {
                   <td>{category.parentName ?? <span style={{ color: "#94a3b8" }}>—</span>}</td>
                   <td>
                     <span className={`adminCategoryStatus adminCategoryStatus--${category.status.toLowerCase()}`}>
-                      {category.status}
+                      {t(`categoryAdmin.${category.status.toLowerCase()}`)}
                     </span>
                   </td>
                   <td>{category.updatedAt}</td>
@@ -287,7 +288,7 @@ const Category = () => {
                 </tr>
               ))}
               {!isLoading && visibleCategories.length === 0 ? (
-                <tr><td colSpan={6} className="adminCategoryEmpty">No categories match the current filter.</td></tr>
+                <tr><td colSpan={6} className="adminCategoryEmpty">{t("categoryAdmin.empty")}</td></tr>
               ) : null}
               {isLoading ? (
                 <tr><td colSpan={6} className="adminCategoryEmpty">Loading categories...</td></tr>
@@ -303,7 +304,7 @@ const Category = () => {
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           >
-            Previous
+            {t("categoryAdmin.previous")}
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
@@ -321,7 +322,7 @@ const Category = () => {
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
           >
-            Next
+            {t("categoryAdmin.next")}
           </button>
         </div>
       </div>
@@ -339,7 +340,7 @@ const Category = () => {
             <div className="adminCategoryModalHeader">
               <div>
                 <h2 id="admin-category-modal-title">
-                  {editingCategory ? "Edit Category" : "Create New Category"}
+                  {editingCategory ? t("categoryAdmin.edit") : t("categoryAdmin.create")}
                 </h2>
                 <p>
                   {editingCategory
@@ -382,8 +383,8 @@ const Category = () => {
                     value={createForm.status}
                     onChange={(e) => setCreateForm((f) => ({ ...f, status: e.target.value }))}
                   >
-                    <option value="Active">Active</option>
-                    <option value="Hidden">Hidden</option>
+                    <option value="Active">{t("categoryAdmin.active")}</option>
+                    <option value="Hidden">{t("categoryAdmin.hidden")}</option>
                   </select>
                 </label>
               )}

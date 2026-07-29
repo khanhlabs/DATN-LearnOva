@@ -1,42 +1,44 @@
-import "../../courses/components/CourseCard.css";
 import { BiCart } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../hook/UseAuth.jsx";
-import { addStoredCartItem } from "../../../../utils/cartStorage.js";
+import { addCourseToCart } from "../../../../utils/cartStorage.js";
+import "../../courses/components/CourseCard.css";
 
 const CourseCard = ({ course }) => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, accessToken, loading: authLoading } = useAuth();
 
   if (!course) return null;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (authLoading) return;
 
-    if (!isAuthenticated) {
-      toast.error("Bạn cần đăng nhập để thêm khóa học vào giỏ hàng.");
-      return;
+    try {
+      const result = await addCourseToCart(
+        {
+          courseId: course.id,
+          title: course.title,
+          teacher: course.teacher,
+          price: course.price,
+          image: course.image,
+        },
+        { isAuthenticated, accessToken },
+      );
+
+      if (result.alreadyInCart) {
+        toast.info("Already in cart.");
+        return;
+      }
+
+      toast.success("Added to cart.");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to add to cart.");
     }
-
-    const { alreadyInCart } = addStoredCartItem({
-      id: course.id,
-      title: course.title,
-      teacher: course.teacher,
-      price: course.price,
-      image: course.image,
-    });
-
-    if (alreadyInCart) {
-      toast.info("Khóa học này đã có trong giỏ hàng.");
-      return;
-    }
-
-    toast.success("Đã thêm khóa học vào giỏ hàng.");
   };
 
   return (
     <article className="course-card">
-      <Link to={`/learnova/user/CoursesDetail/${course.id}`}>
+      <Link to={`/learnova/user/courses-detail/${course.id}`}>
         <img
           src={course.image}
           alt={course.title}
@@ -46,7 +48,7 @@ const CourseCard = ({ course }) => {
 
       <div className="course-card__body">
         <Link
-          to={`/learnova/user/CoursesDetail/${course.id}`}
+          to={`/learnova/user/courses-detail/${course.id}`}
           className="course-title"
         >
           <h3>{course.title}</h3>
@@ -62,10 +64,7 @@ const CourseCard = ({ course }) => {
 
         <div className="course-card__footer">
           <div>
-            <p className="course-card__price">
-              
-              {course.price}
-            </p>
+            <p className="course-card__price">{course.price}</p>
           </div>
 
           <button className="course-card__cart" type="button" onClick={handleAddToCart}>

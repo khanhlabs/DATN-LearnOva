@@ -11,18 +11,18 @@ import java.net.URI;
 @Configuration
 public class MediaConvertConfig {
 
-    @Value("${aws.region}")
-    private String region;
+     @Value("${aws.region}")
+     private String region;
 
-    @Value("${mediaconvert.endpoint}")
-    private String endpoint;
+     @Value("${mediaconvert.endpoint}")
+     private String endpoint;
 
-    @Bean
-    public MediaConvertClient mediaConvertClient() {
-        return MediaConvertClient.builder()
-                .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint))
-                .build();
-    }
+     @Bean
+     public MediaConvertClient mediaConvertClient() {
+         return MediaConvertClient.builder()
+                 .region(Region.of(region))
+                 .endpointOverride(URI.create(endpoint))
+                 .build();
+     }
 
 }

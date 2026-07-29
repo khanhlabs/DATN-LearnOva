@@ -47,3 +47,6 @@ infra/terraform/crash.*.log
 # secrets
 secrets/
 *.pem
+# Maven local repository
+.m2/
+.m2-repair/

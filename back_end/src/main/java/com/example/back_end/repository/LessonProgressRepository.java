@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,9 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
 
     @Query("SELECT COUNT(lp) FROM LessonProgress lp WHERE lp.user.id = :userId AND lp.lesson.section.course.id = :courseId AND lp.isCompleted = true")
     long countCompletedLessonsByUserAndCourse(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
     boolean existsByUserIdAndLessonId(Long userId, Long lessonId);
+
     boolean existsByUser_IdAndLesson_IdAndIsCompletedTrue(Long userId, Long lessonId);
 
     @Query(value = """
@@ -73,4 +76,16 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
             GROUP BY l.lesson_id, l.title, c.title
             """, nativeQuery = true)
     List<LessonAttentionProjection> findLessonAttentionByInstructor(@Param("instructorId") Long instructorId);
+
+    @Query("SELECT lp.lesson.section.course.id FROM LessonProgress lp " +
+            "WHERE lp.user.id = :userId " +
+            "GROUP BY lp.lesson.section.course.id " +
+            "ORDER BY MAX(lp.updatedAt) DESC")
+    List<Long> findCourseIdsOrderByLastActivity(@Param("userId") Long userId);
+
+    @Query("SELECT COALESCE(SUM(lp.watchedSeconds), 0) FROM LessonProgress lp WHERE lp.user.id = :userId")
+    long sumWatchedSecondsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT DISTINCT lp.updatedAt FROM LessonProgress lp WHERE lp.user.id = :userId")
+    List<Instant> findDistinctActivityInstantsByUserId(@Param("userId") Long userId);
 }

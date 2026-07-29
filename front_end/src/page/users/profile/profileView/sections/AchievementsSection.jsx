@@ -1,22 +1,25 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const AchievementsSection = ({ achievements = [], points = 0, onBack }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="profile-section achievements-section">
       <div className="section-header">
         <div>
-          <p className="section-label">Achievements</p>
-          <h2>Your Learning Journey</h2>
+          <p className="section-label">{t("profile.achievements.title")}</p>
+          <h2>{t("profile.achievements.subtitle")}</h2>
         </div>
         <button type="button" className="btn btn-secondary" onClick={onBack}>
-          Back
+          {t("profile.achievements.back")}
         </button>
       </div>
 
       <div className="achievement-summary-card">
         <div>
-          <p className="summary-label">Current Points</p>
-          <h3>{points.toLocaleString()}</h3>
+          <p className="summary-label">{t("profile.achievements.currentPoints")}</p>
+          <h3>{(points ?? 0).toLocaleString()}</h3>
         </div>
       </div>
 
@@ -34,7 +37,7 @@ const AchievementsSection = ({ achievements = [], points = 0, onBack }) => {
                 <span
                   className={`achievement-status ${achievement.threshold ? "active" : "locked"}`}
                 >
-                  {achievement.threshold ? "Achieved" : "Locked"}
+                  {achievement.threshold ? t("profile.achievements.achieved") : t("profile.achievements.locked")}
                 </span>
               </div>
             </div>

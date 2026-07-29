@@ -32,8 +32,10 @@ export const useNotifications = () => {
     const loadNotifications = useCallback(async () => {
         setIsLoading(true);
         try {
-            const pageData = await getMyNotificationsApi(0, 20, axiosClient);
-            setNotifications(pageData?.content ?? []);
+            const list = await getMyNotificationsApi(0, 20, axiosClient);
+            setNotifications(Array.isArray(list) ? list : []);
+        } catch {
+            setNotifications([]);
         } finally {
             setIsLoading(false);
         }

@@ -50,7 +50,7 @@ public record AdminDashboardResponse(
     }
 
     public record ActivityItem(
-            Long id,
+            String id,
             String label,
             String title,
             String time

@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
+import { adminNotifySuccess } from "../../../../api/NotificationApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import { useAuth } from "../../../../hook/UseAuth.jsx";
 import {
@@ -15,30 +17,33 @@ const toDateInputValue = (value) => {
   return date.toISOString().slice(0, 10);
 };
 
-const formatCurrency = (value) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Number(value || 0));
-
 const formatDateLabel = (value) => {
   if (!value) return "Not set";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not set";
-  return new Intl.DateTimeFormat("vi-VN").format(date);
+  return new Intl.DateTimeFormat("en-GB").format(date);
 };
 
 const getDiscountLabel = (discountType) =>
   discountType === "Percent" ? "Discount Percent" : "Discount Amount";
 
 const getDiscountUnit = (discountType) =>
-  discountType === "Percent" ? "%" : "VND";
+  discountType === "Percent" ? "%" : "$";
+
+const formatUsd = (value) => {
+  const amount = Number(value) || 0;
+  const body = Number.isInteger(amount)
+    ? String(amount)
+    : amount.toFixed(2).replace(/\.?0+$/, "");
+  return `$${body}`;
+};
 
 const formatDiscountPreview = (discountType, value) =>
   discountType === "Percent"
     ? `${Number(value || 0)}%`
-    : formatCurrency(value);
+    : formatUsd(value);
+
+const maxVoucherMoneyValue = 99999999.99;
 
 const getPayload = (form, currentUser, voucher) => ({
   code: form.code.trim(),
@@ -46,12 +51,24 @@ const getPayload = (form, currentUser, voucher) => ({
   discountType: form.discountType,
   discountValue: Number(form.discountValue || 0),
   minimumOrder: 0,
-  maximumDiscountAmount: form.discountType === "Percent" ? 999999999 : 0,
+  maximumDiscountAmount: form.discountType === "Percent" ? maxVoucherMoneyValue : 0,
   usageLimit: Number(form.usageLimit || 0),
   startDate: form.startDate ? `${form.startDate}T00:00:00Z` : "",
   endDate: form.endDate ? `${form.endDate}T23:59:59Z` : "",
   isActive: Boolean(form.isActive),
   createdById: currentUser?.id ?? voucher?.createdById ?? 0,
+});
+
+const getInitialForm = (voucher) => ({
+  code: voucher?.code || "",
+  description: voucher?.description || "",
+  discountType: voucher?.discountType || "Fixed",
+  discountValue:
+    voucher?.discountValue != null ? String(voucher.discountValue) : "",
+  usageLimit: voucher?.usageLimit != null ? String(voucher.usageLimit) : "",
+  startDate: toDateInputValue(voucher?.startDate),
+  endDate: toDateInputValue(voucher?.endDate),
+  isActive: voucher?.isActive !== false,
 });
 
 const VoucherCreate = ({
@@ -61,39 +78,15 @@ const VoucherCreate = ({
   onEdit,
   onSaved,
 }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const { currentUser } = useAuth();
-  const [form, setForm] = useState({
-    code: "",
-    description: "",
-    discountType: "Fixed",
-    discountValue: "",
-    usageLimit: "",
-    startDate: "",
-    endDate: "",
-    isActive: true,
-  });
+  const [form, setForm] = useState(() => getInitialForm(voucher));
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
   const isView = mode === "view";
   const isEdit = mode === "edit";
-
-  useEffect(() => {
-    if (!voucher) return;
-
-    setForm({
-      code: voucher.code || "",
-      description: voucher.description || "",
-      discountType: voucher.discountType || "Fixed",
-      discountValue:
-        voucher.discountValue != null ? String(voucher.discountValue) : "",
-      usageLimit: voucher.usageLimit != null ? String(voucher.usageLimit) : "",
-      startDate: toDateInputValue(voucher.startDate),
-      endDate: toDateInputValue(voucher.endDate),
-      isActive: voucher.isActive !== false,
-    });
-  }, [voucher]);
 
   const handleChange = (field) => (event) => {
     const value =
@@ -113,23 +106,38 @@ const VoucherCreate = ({
     event.preventDefault();
     if (isView) return;
 
-    if (!currentUser?.id) {
-      setError("Không xác định được người dùng. Vui lòng đăng nhập lại.");
+    if (!currentUser?.id && !voucher?.createdById) {
+      setError(t("opsAdmin.identifyUser"));
       return;
     }
 
     if (!form.code.trim() || !form.description.trim()) {
-      setError("Code và description không được để trống.");
+      setError(t("opsAdmin.codeDescriptionRequired"));
       return;
     }
 
     if (Number(form.discountValue || 0) <= 0) {
-      setError("Giá trị giảm phải lớn hơn 0.");
+      setError(t("opsAdmin.discountPositive"));
       return;
     }
 
     if (form.discountType === "Percent" && Number(form.discountValue) > 100) {
-      setError("Phần trăm giảm không được lớn hơn 100.");
+      setError(t("opsAdmin.discountPercentMax"));
+      return;
+    }
+
+    if (form.discountType === "Fixed" && Number(form.discountValue) > maxVoucherMoneyValue) {
+      setError(t("opsAdmin.discountAmountMax"));
+      return;
+    }
+
+    if (Number(form.usageLimit || 0) < 0) {
+      setError(t("opsAdmin.usageLimitNegative"));
+      return;
+    }
+
+    if (form.startDate && form.endDate && form.endDate < form.startDate) {
+      setError(t("opsAdmin.endDateInvalid"));
       return;
     }
 
@@ -141,15 +149,17 @@ const VoucherCreate = ({
 
       if (mode === "create") {
         await createAdminVoucherApi(payload, axiosPrivate);
+        await adminNotifySuccess("Voucher created successfully.", { title: "Vouchers" });
       } else {
         await updateAdminVoucherApi(voucher.id, payload, axiosPrivate);
+        await adminNotifySuccess("Voucher updated successfully.", { title: "Vouchers" });
       }
 
       onSaved?.();
     } catch (err) {
       console.error(err);
       setError(
-        err?.response?.data?.message || "Lưu voucher thất bại. Vui lòng thử lại."
+        err?.response?.data?.message || "Failed to save voucher. Please try again."
       );
     } finally {
       setIsSaving(false);
@@ -166,18 +176,18 @@ const VoucherCreate = ({
             <span className="voucherCreateIcon">🎟️</span>
             <h2 className="voucherCreateTitle" id="voucher-create-title">
               {isView
-                ? "Voucher Details"
+                ? t("opsAdmin.voucherDetails")
                 : isEdit
-                ? "Edit Voucher"
-                : "Create Voucher"}
+                ? t("opsAdmin.editVoucher")
+                : t("opsAdmin.createVoucherTitle")}
             </h2>
           </div>
           <p className="voucherCreateSubtitle">
             {isView
-              ? "Xem thông tin voucher. Nhấn Edit để sửa."
+              ? t("opsAdmin.viewVoucherSubtitle")
               : isEdit
-              ? "Sửa chi tiết voucher."
-              : "Nhập thông tin để tạo voucher mới."}
+              ? t("opsAdmin.editVoucherSubtitle")
+              : t("opsAdmin.createVoucherSubtitle")}
           </p>
         </div>
         {onClose && (
@@ -196,7 +206,7 @@ const VoucherCreate = ({
         <div className="voucherCreateFormCard">
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Discount Code
+              {t("opsAdmin.discountCode")}
               <input
                 type="text"
                 value={form.code}
@@ -206,7 +216,7 @@ const VoucherCreate = ({
               />
             </label>
             <label className="voucherCreateLabel">
-              Campaign Name
+              {t("opsAdmin.campaignName")}
               <input
                 type="text"
                 value={form.description}
@@ -219,15 +229,15 @@ const VoucherCreate = ({
 
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Discount Type
+              {t("opsAdmin.discountType")}
               <select
                 value={form.discountType}
                 onChange={handleDiscountTypeChange}
                 className="voucherCreateInput"
                 disabled={isView}
               >
-                <option value="Fixed">Fixed amount</option>
-                <option value="Percent">Percent</option>
+                <option value="Fixed">{t("opsAdmin.fixedAmount")}</option>
+                <option value="Percent">{t("opsAdmin.percent")}</option>
               </select>
             </label>
 
@@ -237,20 +247,27 @@ const VoucherCreate = ({
                 <input
                   type="number"
                   min="0"
+                  step="0.01"
                   max={form.discountType === "Percent" ? "100" : undefined}
                   value={form.discountValue}
                   onChange={handleChange("discountValue")}
                   className="voucherCreateInput voucherCreateAmountInput"
                   disabled={isView}
+                  inputMode="decimal"
                 />
-                <span>{getDiscountUnit(form.discountType)}</span>
+                <span className="voucherCreateAmountUnit">
+                  {getDiscountUnit(form.discountType)}
+                </span>
               </div>
+              {form.discountType === "Fixed" ? (
+                <small className="voucherCreateHint">{t("opsAdmin.usdHint")}</small>
+              ) : null}
             </label>
           </div>
 
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Usage Limit
+              {t("opsAdmin.usageLimit")}
               <input
                 type="number"
                 min="0"
@@ -261,7 +278,7 @@ const VoucherCreate = ({
               />
             </label>
             <label className="voucherCreateLabel">
-              Active
+              {t("opsAdmin.active")}
               <select
                 value={form.isActive ? "true" : "false"}
                 onChange={(event) =>
@@ -273,15 +290,15 @@ const VoucherCreate = ({
                 className="voucherCreateInput"
                 disabled={isView}
               >
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="true">{t("opsAdmin.active")}</option>
+                <option value="false">{t("opsAdmin.inactive")}</option>
               </select>
             </label>
           </div>
 
           <div className="voucherCreateFormRow">
             <label className="voucherCreateLabel">
-              Start Date
+              {t("opsAdmin.startDate")}
               <input
                 type="date"
                 value={form.startDate}
@@ -291,7 +308,7 @@ const VoucherCreate = ({
               />
             </label>
             <label className="voucherCreateLabel">
-              End Date
+              {t("opsAdmin.endDate")}
               <input
                 type="date"
                 value={form.endDate}
@@ -311,7 +328,7 @@ const VoucherCreate = ({
                 className="voucherCreateSubmitBtn"
                 onClick={onEdit}
               >
-                Edit
+                {t("opsAdmin.edit")}
               </button>
             ) : (
               <button
@@ -320,10 +337,10 @@ const VoucherCreate = ({
                 disabled={isSaving}
               >
                 {isSaving
-                  ? "Saving..."
+                  ? t("opsAdmin.saving")
                   : isEdit
-                  ? "Save Changes"
-                  : "Create Voucher"}
+                  ? t("opsAdmin.saveChanges")
+                  : t("opsAdmin.createVoucher")}
               </button>
             )}
             <button
@@ -331,46 +348,46 @@ const VoucherCreate = ({
               className="voucherCreateCancelBtn"
               onClick={onClose}
             >
-              {isView ? "Close" : "Cancel"}
+              {isView ? t("opsAdmin.close") : t("opsAdmin.cancel")}
             </button>
           </div>
         </div>
 
-        <aside className="voucherCreateSummaryCard" aria-label="Voucher preview">
+        <aside className="voucherCreateSummaryCard" aria-label={t("opsAdmin.preview")}>
           <div className="voucherCreateSummaryHeader">
             <div>
-              <p className="voucherCreateSummaryLabel">Live Preview</p>
+              <p className="voucherCreateSummaryLabel">{t("opsAdmin.livePreview")}</p>
               <h3 className="voucherCreateSummaryTitle">
-                {form.description.trim() || "New Campaign"}
+                {form.description.trim() || t("opsAdmin.newCampaign")}
               </h3>
             </div>
             <span className="voucherCreateSummaryCode">
-              {form.code.trim() || "CODE"}
+              {form.code.trim() || t("opsAdmin.code")}
             </span>
           </div>
 
           <div className="voucherCreatePreviewBox">
-            <span>Discount</span>
+            <span>{t("opsAdmin.discount")}</span>
             <strong>{formatDiscountPreview(form.discountType, form.discountValue)}</strong>
             <small>
-              {form.discountType === "Percent" ? "Percent" : "Fixed amount"}
+              {form.discountType === "Percent" ? t("opsAdmin.percent") : t("opsAdmin.fixedAmount")}
             </small>
           </div>
 
           <div className="voucherCreateSummaryItem">
-            <span>Usage limit</span>
-            <strong>{Number(form.usageLimit || 0).toLocaleString("vi-VN")}</strong>
+            <span>{t("opsAdmin.usageLimit")}</span>
+            <strong>{Number(form.usageLimit || 0).toLocaleString("en-US")}</strong>
           </div>
           <div className="voucherCreateSummaryItem">
-            <span>Status</span>
-            <strong>{form.isActive ? "Active" : "Inactive"}</strong>
+            <span>{t("revenueDetails.status")}</span>
+            <strong>{form.isActive ? t("opsAdmin.active") : t("opsAdmin.inactive")}</strong>
           </div>
           <div className="voucherCreateSummaryItem">
-            <span>Start date</span>
+            <span>{t("opsAdmin.startDate")}</span>
             <strong>{formatDateLabel(form.startDate)}</strong>
           </div>
           <div className="voucherCreateSummaryItem">
-            <span>End date</span>
+            <span>{t("opsAdmin.endDate")}</span>
             <strong>{formatDateLabel(form.endDate)}</strong>
           </div>
         </aside>

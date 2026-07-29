@@ -73,7 +73,6 @@ const mergeCategoryOptions = (apiCategories = [], courseData = []) => {
 const normalizeCourse = (course) => ({
   ...course,
   id: course.id,
-  displayId: `COURSE-${String(course.id ?? 0).padStart(3, "0")}`,
   thumbnailKey: course.thumbnailKey ?? "",
   title: course.title ?? "N/A",
   slug: course.slug ?? "",

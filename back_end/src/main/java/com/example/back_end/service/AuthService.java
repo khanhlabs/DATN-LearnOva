@@ -30,9 +30,6 @@ import java.time.Instant;
 import com.example.back_end.dto.response.UserResponse;
 import com.example.back_end.dto.request.UpdateProfileRequest;
 import com.example.back_end.dto.request.ChangePasswordRequest;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import java.util.Base64;
 
 
 @Service
@@ -47,6 +44,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final S3Service s3Service;
 
     @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
@@ -143,7 +141,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getDateOfBirth(),
                 user.getGender(),
@@ -232,7 +230,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getDateOfBirth(),
                 user.getGender(),
@@ -272,7 +270,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getDateOfBirth(),
                 user.getGender(),
@@ -284,15 +282,12 @@ public class AuthService {
         );
     }
     @Transactional
-    public UserResponse updateAvatar(String email, MultipartFile file) throws IOException {
+    public UserResponse updateAvatar(String email, String avatarKey) {
 
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String base64 = "data:image/png;base64," +
-                Base64.getEncoder().encodeToString(file.getBytes());
-
-        user.setAvatar(base64);
+        user.setAvatar(avatarKey);
         user.setUpdatedAt(Instant.now());
 
         userRepository.save(user);
@@ -310,7 +305,7 @@ public class AuthService {
                 ? "Active"
                 : "Inactive";
 
-        String avatar = user.getAvatar(); // base64 string
+        String avatar = s3Service.resolveAvatarUrl(user.getAvatar());
 
         return new UserResponse(
                 user.getId(),
@@ -328,6 +323,36 @@ public class AuthService {
                 user.getUpdatedAt()
         );
     }
+    // Reveals whether the email exists — an explicit product decision for this
+    // flow (unlike resendVerificationEmail, which stays silent to avoid enumeration).
+    @Transactional
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email.trim().toLowerCase())
+                .orElseThrow(() -> new BusinessException("This email does not exist."));
+
+        VerificationToken resetToken = verificationTokenService.createResetPasswordToken(user);
+        String resetLink = frontendBaseUrl + "/reset-password?token=" + resetToken.getToken();
+
+        emailService.sendResetPasswordEmail(user.getEmail(), user.getFullName(), resetLink);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateResetToken(String token) {
+        verificationTokenService.verifyResetPasswordToken(token);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        VerificationToken resetToken = verificationTokenService.verifyResetPasswordToken(token);
+        User user = resetToken.getUser();
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(Instant.now());
+        userRepository.save(user);
+
+        verificationTokenService.markAsUsed(resetToken);
+    }
+
     public void changePassword(String email, ChangePasswordRequest request) {
 
         User user = userRepository.findByEmail(email)

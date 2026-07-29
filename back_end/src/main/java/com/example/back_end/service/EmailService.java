@@ -130,6 +130,74 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, content);
     }
 
+    public void sendResetPasswordEmail(String toEmail, String fullName, String resetLink) {
+
+        String subject = "Reset Your LearnOva Password";
+
+        String content = """
+        <div style="font-family: Arial, sans-serif; background-color:#f4f4f4; padding:20px;">
+            <div style="
+                max-width:600px;
+                margin:auto;
+                background:white;
+                border-radius:10px;
+                padding:30px;
+                box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            ">
+
+                <h2 style="color:#2563eb;text-align:center;">
+                    Reset Your Password
+                </h2>
+
+                <p>Hello %s,</p>
+
+                <p>
+                    We received a request to reset your LearnOva account password.
+                    Click the button below to choose a new password.
+                </p>
+
+                <div style="text-align:center;margin:30px 0;">
+                    <a href="%s"
+                       style="
+                            background:#2563eb;
+                            color:white;
+                            text-decoration:none;
+                            padding:12px 24px;
+                            border-radius:8px;
+                            display:inline-block;
+                       ">
+                        Reset Password
+                    </a>
+                </div>
+
+                <p>
+                    This link will expire in 5 minutes for your security.
+                </p>
+
+                <p>
+                    If you did not request a password reset, please ignore this email —
+                    your password will remain unchanged.
+                </p>
+
+                <br>
+
+                <p>
+                    Best regards,<br>
+                    <b>LearnOva Team</b>
+                </p>
+
+            </div>
+        </div>
+       """.formatted(
+                       fullName == null || fullName.isBlank()
+                               ? "User"
+                               : fullName,
+                       resetLink
+               );
+
+        sendHtmlEmail(toEmail, subject, content);
+    }
+
     public void sendCourseApprovedEmail(String toEmail, String fullName, String courseTitle) {
         String subject = "Your course has been approved";
 

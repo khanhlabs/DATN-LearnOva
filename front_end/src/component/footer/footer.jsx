@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { LANGUAGE_STORAGE_KEY } from '../../i18n/i18n.js';
 import './footer.css';
 import Logo from '../../assets/Logo.png'
 import LogoText from '../../assets/LogoText.png'
@@ -8,6 +10,14 @@ import instagram from '../../assets/iconSvg/instagram-svgrepo-com.svg'
 
 
 export default function Footer() {
+    const { t, i18n } = useTranslation();
+
+    const handleLanguageChange = (e) => {
+        const nextLanguage = e.target.value;
+        i18n.changeLanguage(nextLanguage);
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+    };
+
     return (
         <footer className="footer" aria-label="Site footer">
 
@@ -23,8 +33,7 @@ export default function Footer() {
                     </div>
 
                     <p className="footer__tagline">
-                        Skills for the future. Explore thousands of expert-led courses, earn credentials,
-                        and grow your career — at your own pace.
+                        {t('footer.tagline')}
                     </p>
 
                     <div className="footer__socials">
@@ -46,25 +55,25 @@ export default function Footer() {
 
                 {/* Company column */}
                 <div className="footer__col">
-                    <span className="footer__col-heading">Company</span>
+                    <span className="footer__col-heading">{t('footer.company')}</span>
                     <nav className="footer__nav">
-                        <a href="#" className="footer__link">About Us</a>
-                        <a href="#" className="footer__link">Careers</a>
-                        <a href="#" className="footer__link">Blog</a>
-                        <a href="#" className="footer__link">Press</a>
-                        <a href="#" className="footer__link">Investors</a>
+                        <a href="#" className="footer__link">{t('footer.aboutUs')}</a>
+                        <a href="#" className="footer__link">{t('footer.careers')}</a>
+                        <a href="#" className="footer__link">{t('footer.blog')}</a>
+                        <a href="#" className="footer__link">{t('footer.press')}</a>
+                        <a href="#" className="footer__link">{t('footer.investors')}</a>
                     </nav>
                 </div>
 
                 {/* Support column */}
                 <div className="footer__col">
-                    <span className="footer__col-heading">Support</span>
+                    <span className="footer__col-heading">{t('footer.support')}</span>
                     <nav className="footer__nav">
-                        <a href="#" className="footer__link">Help Center</a>
-                        <a href="#" className="footer__link">Contact Us</a>
-                        <a href="#" className="footer__link">FAQs</a>
-                        <a href="#" className="footer__link">System Status</a>
-                        <a href="#" className="footer__link">Accessibility</a>
+                        <a href="#" className="footer__link">{t('footer.helpCenter')}</a>
+                        <a href="#" className="footer__link">{t('footer.contactUs')}</a>
+                        <a href="#" className="footer__link">{t('footer.faqs')}</a>
+                        <a href="#" className="footer__link">{t('footer.systemStatus')}</a>
+                        <a href="#" className="footer__link">{t('footer.accessibility')}</a>
                     </nav>
                 </div>
 
@@ -79,15 +88,9 @@ export default function Footer() {
                                 <path d="M2 12h20M12 2c-4 4-4 16 0 0s4-16 0 0" />
                             </svg>
                         </span>
-                        <select className="footer__lang-select" defaultValue="English">
-                            <option>English</option>
-                            <option>Español</option>
-                            <option>Français</option>
-                            <option>Deutsch</option>
-                            <option>日本語</option>
-                            <option>Português</option>
-                            <option>中文</option>
-                            <option>한국어</option>
+                        <select className="footer__lang-select" value={i18n.language} onChange={handleLanguageChange}>
+                            <option value="en">English</option>
+                            <option value="vi">Tiếng Việt</option>
                         </select>
                         <span className="footer__lang-chevron">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -103,8 +106,8 @@ export default function Footer() {
                             </svg>
                         </div>
                         <div>
-                            <p className="footer__trust-title">Trusted Learning</p>
-                            <p className="footer__trust-sub">2M+ learners · 50+ countries</p>
+                            <p className="footer__trust-title">{t('footer.trustedTitle')}</p>
+                            <p className="footer__trust-sub">{t('footer.trustedSub')}</p>
                         </div>
                     </div>
                 </div>
@@ -117,15 +120,15 @@ export default function Footer() {
 
             {/* Bottom bar */}
             <div className="footer__bottom">
-                <p className="footer__copy">© 2026 LearnOva, Inc. All rights reserved.</p>
+                <p className="footer__copy">{t('footer.copyright')}</p>
                 <nav className="footer__legal">
-                    <a href="#" className="footer__legal-link">Privacy Policy</a>
+                    <a href="#" className="footer__legal-link">{t('footer.privacyPolicy')}</a>
                     <span className="footer__legal-dot">·</span>
-                    <a href="#" className="footer__legal-link">Terms of Service</a>
+                    <a href="#" className="footer__legal-link">{t('footer.termsOfService')}</a>
                     <span className="footer__legal-dot">·</span>
-                    <a href="#" className="footer__legal-link">Cookie Policy</a>
+                    <a href="#" className="footer__legal-link">{t('footer.cookiePolicy')}</a>
                     <span className="footer__legal-dot">·</span>
-                    <a href="#" className="footer__legal-link">Sitemap</a>
+                    <a href="#" className="footer__legal-link">{t('footer.sitemap')}</a>
                 </nav>
             </div>
         </footer>

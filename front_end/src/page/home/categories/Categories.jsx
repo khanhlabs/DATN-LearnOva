@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTopCategories } from '../../../api/PublicCourseApi.js';
 import './Categories.css';
 
@@ -9,10 +10,8 @@ const PALETTE = [
 
 const colorForCategory = (id, index) => PALETTE[(id ?? index) % PALETTE.length];
 
-const formatSoldCount = (soldCount) =>
-    soldCount > 0 ? `${soldCount.toLocaleString('vi-VN')}+ khóa học đã bán` : 'Đang cập nhật';
-
 export default function Categories() {
+    const { t, i18n } = useTranslation();
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
@@ -25,13 +24,18 @@ export default function Categories() {
         return null;
     }
 
+    const formatSoldCount = (soldCount) =>
+        soldCount > 0
+            ? t('home.categories.soldCount', { count: soldCount.toLocaleString(i18n.language === 'vi' ? 'vi-VN' : 'en-US') })
+            : t('home.categories.updating');
+
     return (
         <section className="cats" aria-labelledby="cats-heading">
             <div className="cats__container">
                 <div className="cats__header">
-                    <span className="section-eyebrow">Browse by Topic</span>
+                    <span className="section-eyebrow">{t('home.categories.eyebrow')}</span>
                     <h2 id="cats-heading" className="cats__title">
-                        All the skills you need,<br />all in one place
+                        {t('home.categories.titleLine1')}<br />{t('home.categories.titleLine2')}
                     </h2>
                 </div>
 

@@ -1,7 +1,16 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Link} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 import {getFeaturedCourses, getFileUrl} from '../../../api/PublicCourseApi.js';
 import './Course.css';
+
+const formatUsd = (value) => {
+  const amount = Number(value) || 0;
+  const body = Number.isInteger(amount)
+    ? String(amount)
+    : amount.toFixed(2).replace(/\.?0+$/, "");
+  return `$${body}`;
+};
 
 const FALLBACK_THUMBS = [
     'linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)',
@@ -28,6 +37,7 @@ const formatHours = (seconds) => {
 };
 
 export default function Course() {
+    const { t } = useTranslation();
     const [courses, setCourses] = useState([]);
     const [filter, setFilter] = useState('ALL');
     const [isLoading, setIsLoading] = useState(true);
@@ -61,8 +71,8 @@ export default function Course() {
 
     const categoryFilters = useMemo(() => {
         const cats = [...new Set(courses.map((c) => c.categoryName).filter(Boolean))];
-        return [{label: 'All Courses', value: 'ALL'}, ...cats.map((c) => ({label: c, value: c}))];
-    }, [courses]);
+        return [{label: t('home.course.allCourses'), value: 'ALL'}, ...cats.map((c) => ({label: c, value: c}))];
+    }, [courses, t]);
 
     const visible = filter === 'ALL'
         ? courses
@@ -74,12 +84,12 @@ export default function Course() {
                 <div className="cs__container">
                     <div className="cs__header">
                         <div>
-                            <span className="section-eyebrow">Top Picks</span>
-                            <h2 id="cs-heading" className="cs__title">Featured courses</h2>
+                            <span className="section-eyebrow">{t('home.course.eyebrow')}</span>
+                            <h2 id="cs-heading" className="cs__title">{t('home.course.title')}</h2>
                         </div>
                     </div>
                     <div style={{textAlign: 'center', padding: '60px 0', color: '#94a3b8', fontSize: '15px'}}>
-                        Loading courses...
+                        {t('home.course.loading')}
                     </div>
                 </div>
             </section>
@@ -91,10 +101,10 @@ export default function Course() {
             <div className="cs__container">
                 <div className="cs__header">
                     <div>
-                        <span className="section-eyebrow">Top Picks</span>
-                        <h2 id="cs-heading" className="cs__title">Featured courses</h2>
+                        <span className="section-eyebrow">{t('home.course.eyebrow')}</span>
+                        <h2 id="cs-heading" className="cs__title">{t('home.course.title')}</h2>
                     </div>
-                    <a href="/courses" className="cs__link">Browse all courses →</a>
+                    <a href="/courses" className="cs__link">{t('home.course.browseAll')}</a>
                 </div>
 
                 {categoryFilters.length > 1 && (
@@ -133,7 +143,7 @@ export default function Course() {
                                     </div>
                                 )}
                                 {course.studentCount > 0 && (
-                                    <span className="cs__badge">Bestseller</span>
+                                    <span className="cs__badge">{t('home.course.bestseller')}</span>
                                 )}
                             </div>
                             <div className="cs__body">
@@ -154,17 +164,16 @@ export default function Course() {
                                         {course.discountPercent ? (
                                             <>
                                                 <span className="cs__price cs__price--sale">
-                                                    ${(course.basePrice * (1 - course.discountPercent / 100)).toFixed(2)}
+                                                    {formatUsd(course.basePrice * (1 - course.discountPercent / 100))}
                                                 </span>
-                                                <span
-                                                    className="cs__original">${Number(course.basePrice).toFixed(2)}</span>
+                                                <span className="cs__original">{formatUsd(course.basePrice)}</span>
                                                 <span className="cs__discount-badge">-{course.discountPercent}%</span>
                                             </>
                                         ) : (
-                                            <span className="cs__price">${Number(course.basePrice).toFixed(2)}</span>
+                                            <span className="cs__price">{formatUsd(course.basePrice)}</span>
                                         )}
                                     </div>
-                                    <span className="cs__students">{formatStudents(course.studentCount)} students</span>
+                                    <span className="cs__students">{t('home.course.studentsLabel', { count: formatStudents(course.studentCount) })}</span>
                                 </div>
                             </div>
                         </Link>

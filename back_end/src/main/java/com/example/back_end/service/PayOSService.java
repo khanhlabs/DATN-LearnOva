@@ -14,7 +14,9 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedHashMap;
@@ -30,6 +32,13 @@ public class PayOSService {
 
     private static final String CREATE_PAYMENT_LINK_ENDPOINT =
             "https://api-merchant.payos.vn/v2/payment-requests";
+
+    /**
+     * QR / payment-link validity (seconds) sent to PayOS as {@code expiredAt}.
+     * This is the LearnOva-controlled TTL for each generated transfer QR.
+     * Change here if product wants a different window (e.g. 10 or 30 minutes).
+     */
+    public static final int PAYOS_QR_TTL_SECONDS = 15 * 60; // 15 minutes
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -49,10 +58,12 @@ public class PayOSService {
     @Value("${payos.cancel-url}")
     private String cancelUrl;
 
-    public PayOSCreatePaymentResult createPaymentLink(Order order, List<Course> courses, long amount) {
+    public PayOSCreatePaymentResult createPaymentLink(
+            Order order, List<Course> courses, long amount, long orderCode) {
         try {
-            long orderCode = order.getId();
-            String description = "ORDER" + order.getId();
+            // Non-linked bank accounts: PayOS limits transfer description to 9 chars.
+            // Longer text still creates a link but VietQR often fails in banking apps.
+            String description = payOsDescription(order.getId());
 
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("orderCode", orderCode);
@@ -60,10 +71,15 @@ public class PayOSService {
             payload.put("description", description);
             payload.put("returnUrl", returnUrl);
             payload.put("cancelUrl", cancelUrl);
+            // === QR time limit (LearnOva) — see PAYOS_QR_TTL_SECONDS above ===
+            // PayOS `expiredAt` = Unix seconds. After this time the transfer QR/link is invalid.
+            long expiredAtUnix = Instant.now().getEpochSecond() + PAYOS_QR_TTL_SECONDS;
+            payload.put("expiredAt", expiredAtUnix);
+            // PayOS charge is one total amount. Course names are listed on LearnOva modal (courseTitles).
             String itemName = courses.size() == 1
-                    ? courses.getFirst().getTitle()
-                    : "LearnOva order " + order.getId();
-            payload.put("items", java.util.List.of(Map.of(
+                    ? truncateAscii(courses.getFirst().getTitle(), 40)
+                    : "LearnOva " + order.getId() + " (" + courses.size() + " courses)";
+            payload.put("items", List.of(Map.of(
                     "name", itemName,
                     "quantity", 1,
                     "price", amount
@@ -94,11 +110,16 @@ public class PayOSService {
             }
 
             JsonNode data = body.path("data");
+            String qrCode = data.path("qrCode").asText(null);
+            if (qrCode != null) {
+                qrCode = qrCode.trim();
+            }
             return new PayOSCreatePaymentResult(
                     data.path("checkoutUrl").asText(null),
-                    data.path("qrCode").asText(null),
+                    qrCode,
                     data.path("paymentLinkId").asText(null),
-                    parseExpiresAt(data)
+                    parseExpiresAt(data),
+                    orderCode
             );
         } catch (IOException e) {
             throw new IllegalStateException("Cannot call payOS create payment link", e);
@@ -109,9 +130,14 @@ public class PayOSService {
     }
 
     public PayOSPaymentInfo getPaymentInfo(long orderCode) {
+        return getPaymentInfo(String.valueOf(orderCode));
+    }
+
+    /** Accepts payOS orderCode or paymentLinkId. */
+    public PayOSPaymentInfo getPaymentInfo(String paymentLinkIdOrOrderCode) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(CREATE_PAYMENT_LINK_ENDPOINT + "/" + orderCode))
+                    .uri(URI.create(CREATE_PAYMENT_LINK_ENDPOINT + "/" + paymentLinkIdOrOrderCode))
                     .header("Content-Type", "application/json")
                     .header("x-client-id", clientId)
                     .header("x-api-key", apiKey)
@@ -130,7 +156,8 @@ public class PayOSService {
             JsonNode data = body.path("data");
             return new PayOSPaymentInfo(
                     data.path("status").asText(null),
-                    data.path("paymentLinkId").asText(null)
+                    data.path("paymentLinkId").asText(null),
+                    data.path("amount").canConvertToLong() ? data.path("amount").asLong() : null
             );
         } catch (IOException e) {
             throw new IllegalStateException("Cannot call payOS get payment info", e);
@@ -229,12 +256,39 @@ public class PayOSService {
         }
     }
 
+    /** PayOS transfer content: max 9 chars when bank is not linked via payOS. */
+    static String payOsDescription(long orderId) {
+        String id = Long.toString(orderId);
+        return id.length() <= 9 ? id : id.substring(id.length() - 9);
+    }
+
+    private static String truncateAscii(String value, int maxLen) {
+        if (value == null || value.isBlank()) {
+            return "Course";
+        }
+        String cleaned = value.replaceAll("[^\\p{Alnum}\\s\\-_.]", " ").trim().replaceAll("\\s+", " ");
+        if (cleaned.isEmpty()) {
+            cleaned = "Course";
+        }
+        return cleaned.length() <= maxLen ? cleaned : cleaned.substring(0, maxLen).trim();
+    }
+
     private OffsetDateTime parseExpiresAt(JsonNode data) {
-        String expiredAt = data.path("expiredAt").asText(null);
-        if (expiredAt == null || expiredAt.isBlank()) {
+        JsonNode expiredAtNode = data.get("expiredAt");
+        if (expiredAtNode == null || expiredAtNode.isNull()) {
             return null;
         }
         try {
+            if (expiredAtNode.isNumber()) {
+                return Instant.ofEpochSecond(expiredAtNode.asLong()).atOffset(ZoneOffset.UTC);
+            }
+            String expiredAt = expiredAtNode.asText(null);
+            if (expiredAt == null || expiredAt.isBlank()) {
+                return null;
+            }
+            if (expiredAt.chars().allMatch(Character::isDigit)) {
+                return Instant.ofEpochSecond(Long.parseLong(expiredAt)).atOffset(ZoneOffset.UTC);
+            }
             return OffsetDateTime.parse(expiredAt);
         } catch (RuntimeException ignored) {
             return null;
@@ -245,11 +299,13 @@ public class PayOSService {
             String checkoutUrl,
             String qrCode,
             String paymentLinkId,
-            OffsetDateTime expiresAt
+            OffsetDateTime expiresAt,
+            long orderCode
     ) {}
 
     public record PayOSPaymentInfo(
             String status,
-            String paymentLinkId
+            String paymentLinkId,
+            Long amount
     ) {}
 }

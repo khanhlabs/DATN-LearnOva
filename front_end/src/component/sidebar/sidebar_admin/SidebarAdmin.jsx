@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   BookOpen,
   CircleDollarSign,
@@ -108,9 +109,21 @@ const adminNavSections = [
   },
 ];
 
+const adminTranslationKey = (value) =>
+  value.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+
 const SidebarAdmin = ({
   navSections = adminNavSections,
 }) => {
+  const { t } = useTranslation();
+  const translatedSections = navSections.map((section) => ({
+    ...section,
+    title: t(`admin.${section.title.toLowerCase()}`),
+    items: section.items.map((item) => ({
+      ...item,
+      label: t(`admin.${adminTranslationKey(item.id)}`),
+    })),
+  }));
   const getNavLinkClassName = ({ isActive }) =>
     `teacher-nav__link ${isActive ? "teacher-nav__link--active" : ""}`;
 
@@ -123,7 +136,7 @@ const SidebarAdmin = ({
       </div>
 
       <nav className="teacher-nav" aria-label="Sidebar navigation">
-        {navSections.map((section) => (
+        {translatedSections.map((section) => (
           <div className="teacher-nav__section" key={section.title}>
             <p className="teacher-nav__subtitle">{section.title}</p>
             {section.items.map((item) => {

@@ -63,7 +63,7 @@ const ProfilePage = () => {
     setIsUploadingAvatar(true);
     try {
       const { uploadUrl, fileKey } = await generateUploadUrl({
-        type: "AVATAR",
+        type: "INSTRUCTOR_AVATAR",
         fileName: file.name,
         contentType: file.type,
       });

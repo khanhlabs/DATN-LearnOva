@@ -2,7 +2,7 @@ import axiosClient from "./AxiosClient.js";
 
 export const getCourseReviewsApi = async (courseId) => {
     const response = await axiosClient.get(
-        `/course/${courseId}`   //review/course/${courseId}
+        `/course/${courseId}`
     );
     return response.data;
 };
@@ -32,6 +32,13 @@ export const createReviewApi = async (data) => {
     const response = await axiosClient.post(
         "/review/post",
         data
+    );
+    return response.data;
+};
+// PLATFORM TESTIMONIALS (public, real top reviews for the Home page)
+export const getPlatformTestimonialsApi = async () => {
+    const response = await axiosClient.get(
+        "/review/testimonials"
     );
     return response.data;
 };

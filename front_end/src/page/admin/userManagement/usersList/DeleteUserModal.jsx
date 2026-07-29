@@ -3,7 +3,7 @@ import { useState } from "react";
 import { deleteAdminUserApi } from "../../../../api/admin/AdminUserApi.js";
 import "./ViewUserModal.css";
 
-const DeleteUserModal = ({ user, onClose, onDeleted }) => {
+const DeleteUserModal = ({ user, onClose, onDeleted, onNotify = () => {} }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,10 +17,11 @@ const DeleteUserModal = ({ user, onClose, onDeleted }) => {
 
     try {
       await deleteAdminUserApi(user.id);
+      onNotify("User deleted successfully", "success");
       onDeleted({
         ...user,
         isDeleted: true,
-        status: "Inactive",
+        status: "Locked",
         statusTone: "locked",
         statusFilter: "locked",
         visibility: "Hidden",
@@ -28,10 +29,12 @@ const DeleteUserModal = ({ user, onClose, onDeleted }) => {
         updatedAtRaw: new Date().toISOString(),
       });
     } catch (deleteError) {
-      setError(
+      const message =
         deleteError?.response?.data?.message ||
-          "Could not delete this user. Please try again.",
-      );
+        "Could not delete this user. Please try again.";
+
+      setError(message);
+      onNotify("Failed to delete user", "error");
     } finally {
       setIsDeleting(false);
     }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import "./CourseFilters.css";
 
 const publishSortOptions = [
@@ -28,8 +29,16 @@ const FilterDropdown = ({
   setActiveDropdown,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const isOpen = activeDropdown === id;
-  const selectedLabel = getSelectedLabel(options, value, label);
+  const translateOption = (option) => {
+    if (id === "publishSort") return t(`courseAdmin.${option.id}`);
+    if (id === "priceType") return t(`courseAdmin.${option.id === "all" ? "allTypes" : option.id}`);
+    if (id === "category" && option.id === "all") return t("courseAdmin.allCategories");
+    if (id === "instructor" && option.id === "all") return t("courseAdmin.allInstructors");
+    return option.label;
+  };
+  const selectedLabel = translateOption(options.find((item) => item.id === value) || { label });
   const buttonLabel = id === "instructor" || id === "publishSort" || id === "priceType"
     ? `${label}: ${selectedLabel}`
     : selectedLabel;
@@ -65,7 +74,7 @@ const FilterDropdown = ({
               closeDropdown();
             }}
           >
-            {option.label}
+            {translateOption(option)}
           </button>
         ))}
       </div>
@@ -79,18 +88,19 @@ const CourseFilters = ({
   categories = [],
   onFiltersChange,
 }) => {
+  const { t } = useTranslation();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const filtersContainerRef = useRef(null);
 
   const categoryOptions = [
-    { id: "all", label: "All Categories" },
+    { id: "all", label: t("courseAdmin.allCategories") },
     ...categories
       .filter((category) => !category.isDeleted)
       .map((category) => ({ id: String(category.id), label: category.name })),
   ];
 
   const instructorOptions = [
-    { id: "all", label: "All Instructors" },
+    { id: "all", label: t("courseAdmin.allInstructors") },
     ...instructors.map((instructor) => {
       const instructorId = getInstructorId(instructor);
       return {
@@ -126,17 +136,17 @@ const CourseFilters = ({
             <Search size={18} className="courseSearchIcon" />
             <input
               type="text"
-              placeholder="Search by course name or instructor..."
+              placeholder={t("courseAdmin.search")}
               className="courseSearchInput"
               value={filters.searchText}
               onChange={(event) => updateFilter("searchText", event.target.value)}
-              aria-label="Search Courses"
+            aria-label={t("courseAdmin.search")}
             />
           </div>
 
           <FilterDropdown
             id="category"
-            label="All Categories"
+            label={t("courseAdmin.allCategories")}
             ariaLabel="Filter by Category"
             options={categoryOptions}
             value={filters.categoryId}
@@ -147,7 +157,7 @@ const CourseFilters = ({
 
           <FilterDropdown
             id="instructor"
-            label="Instructor"
+            label={t("courseAdmin.instructor")}
             ariaLabel="Filter by Instructor"
             options={instructorOptions}
             value={filters.instructorId}
@@ -158,7 +168,7 @@ const CourseFilters = ({
 
           <FilterDropdown
             id="publishSort"
-            label="Published"
+            label={t("courseAdmin.publishedSort")}
             ariaLabel="Sort Courses"
             options={publishSortOptions}
             value={filters.publishSort}
@@ -169,7 +179,7 @@ const CourseFilters = ({
 
           <FilterDropdown
             id="priceType"
-            label="Price"
+            label={t("courseAdmin.price")}
             ariaLabel="Filter by Price Type"
             options={priceTypeOptions}
             value={filters.priceType}

@@ -36,6 +36,18 @@ public interface AdminCourseRepository extends JpaRepository<Course, Long> {
 
     @Query(value = """
             SELECT
+              c.course_id,
+              c.title,
+              c.created_at
+            FROM courses c
+            WHERE c.is_deleted = false
+            ORDER BY c.created_at DESC
+            LIMIT 4
+            """, nativeQuery = true)
+    List<Object[]> findRecentCourseActivityRows();
+
+    @Query(value = """
+            SELECT
               u.user_id,
               u.full_name,
               u.email,

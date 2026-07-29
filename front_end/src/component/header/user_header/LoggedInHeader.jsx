@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import logo from "../../../assets/LogoText.png";
 import AvatarDropdown from "./components/AvatarDropdown.jsx";
 import CartDropdown from "./components/CartDropdown.jsx";
 import HeaderSearch from "./components/HeaderSearch.jsx";
 import NotificationDropdown from "./components/NotificationDropdown.jsx";
+import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 import "./LoggedInHeader.css";
 
 const LoggedInHeader = () => {
+  const { t } = useTranslation();
+
   return (
     <header className="user-logged-header">
       <div className="user-logged-header-container">
@@ -17,12 +21,12 @@ const LoggedInHeader = () => {
         </div>
 
         <div className="user-logged-home-shell">
-          <Link to="/" className="user-logged-home-link">
-            Home
+          <Link to="/learnova/home" className="user-logged-home-link">
+            {t("header.home")}
           </Link>
 
           <Link to="/learnova/courses" className="user-logged-nav-button">
-            Courses
+            {t("header.courses")}
           </Link>
         </div>
 
@@ -32,17 +36,18 @@ const LoggedInHeader = () => {
 
         <nav className="user-logged-secondary-nav" aria-label="Secondary navigation">
           <Link to="/learnova/user/profile/courses" className="user-logged-nav-button">
-            My Learning
+            {t("header.myLearning")}
           </Link>
           <Link to="/learnova/intructors" className="user-logged-nav-button">
-            Instructors
+            {t("header.instructors")}
           </Link>
-          <Link to="/" className="user-logged-nav-button">
-            Subscribe
+          <Link to="/learnova/home" className="user-logged-nav-button">
+            {t("header.subscribe")}
           </Link>
         </nav>
 
         <div className="user-logged-actions">
+          <LanguageSwitcher />
           <CartDropdown />
           <NotificationDropdown  />
           <AvatarDropdown />

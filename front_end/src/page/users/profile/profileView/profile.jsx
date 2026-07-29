@@ -18,7 +18,12 @@ import { getMyEnrolledCoursesApi } from "../../../../api/EnrollmentApi.js";
 import { useAuth } from "../../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../../../api/UserApi.js";
+import { generateUploadUrl } from "../../../../api/UploadApi.js";
+import { uploadFileToS3 } from "../../../../services/UploadService.js";
+import { getUserStatsApi } from "../../../../api/UserStatsApi.js";
 import { toast } from "react-toastify";
+
+const EMPTY_STATS = { totalStudyHours: 0, streakDays: 0, enrolledCourseCount: 0, completedCourseCount: 0, points: 0 };
 
 const readStorage = (key, fallback) => {
   const saved = localStorage.getItem(key);
@@ -89,16 +94,37 @@ const ProfileView = ({
     setCurrentUser,
   } = useAuth();
 
+  const [stats, setStats] = useState(null);
+
   const achievements = useMemo(
-    () => buildAchievements(profileData, ownedCourses),
-    [profileData, ownedCourses],
+    () => buildAchievements(stats || EMPTY_STATS, profileData, ownedCourses),
+    [stats, profileData, ownedCourses],
   );
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    let mounted = true;
+    getUserStatsApi()
+      .then((data) => {
+        if (mounted) setStats(data);
+      })
+      .catch((error) => {
+        console.error("Failed to load user stats", error);
+        if (mounted) setStats(EMPTY_STATS);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading]);
+
   useEffect(() => {
     if (authLoading) return;
 
     const fetchProfile = async () => {
       try {
-        const data = await getUserProfileApi();
+        const data = await getUserProfileApi(accessToken);
 
         setProfileData({
           fullName: data.fullName || "",
@@ -112,11 +138,12 @@ const ProfileView = ({
         });
       } catch (error) {
         console.error("Failed to load profile", error);
+        toast.error(error?.response?.data?.message || "Không tải được thông tin hồ sơ. Vui lòng thử lại.");
       }
     };
 
     fetchProfile();
-  }, [authLoading]);
+  }, [authLoading, accessToken]);
 
   useEffect(() => {
     if (activeTab !== "courses" && activeTab !== "favorites") return undefined;
@@ -184,6 +211,7 @@ const ProfileView = ({
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      toast.error("Please fix the highlighted fields before saving.");
       return;
     }
 
@@ -196,7 +224,7 @@ const ProfileView = ({
         dateOfBirth: profileData.dateOfBirth,
         gender: profileData.gender,
         avatar: profileData.avatar,
-      });
+      }, accessToken);
 
       setProfileData((prev) => ({
         ...prev,
@@ -213,14 +241,18 @@ const ProfileView = ({
     const file = event.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await uploadAvatarApi(formData);
+      const { uploadUrl, fileKey } = await generateUploadUrl({
+        type: "AVATAR",
+        fileName: file.name,
+        contentType: file.type,
+      });
 
-      const avatar = res.avatar || res.url || res;
+      await uploadFileToS3(uploadUrl, file);
 
+      const res = await uploadAvatarApi(fileKey, accessToken);
+
+      const avatar = res.avatar;
 
       setProfileData((prev) => ({
         ...prev,
@@ -284,7 +316,10 @@ const ProfileView = ({
   };
 
   const handleOpenCourse = (course) => {
+    console.log("Clicked:", course);
+
     setSelectedCourse(course);
+
     scrollToPageTop();
   };
 
@@ -323,6 +358,7 @@ const ProfileView = ({
           <FavoriteCourseDetailSection
             course={selectedCourse}
             onBack={handleCloseCourseDetail}
+            onStartCourse={onStartCourse}
           />
         );
       }
@@ -343,7 +379,7 @@ const ProfileView = ({
       return (
         <AchievementsSection
           achievements={achievements}
-          points={profileData.points}
+          points={stats ? stats.points : 0}
           onBack={onBack}
         />
       );
@@ -400,27 +436,65 @@ export default ProfileView;
 const formatRemaining = (progress) =>
   progress > 0 ? "Continue learning" : "Not started yet";
 
+const formatDuration = (totalSeconds) => {
+  const seconds = Number(totalSeconds ?? 0);
+  if (!seconds) return "0h 0m";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  return `${hours}h ${minutes}m`;
+};
+
+const formatUpdatedAt = (isoDate) => {
+  if (!isoDate) return "";
+
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+};
+
 const mapEnrolledCourse = (course) => ({
   id: course.courseId,
   courseId: course.courseId,
   title: course.title,
   description: course.description,
+  summary: course.description || "",
+  category: course.categoryName || "",
+  tags: course.tags?.length ? course.tags : [],
+  about: course.description ? [course.description] : [],
+  outcomes: course.whatYouLearn || [],
 
   instructor: {
     name: course.instructorName || "LearnOva Instructor",
     avatar: course.instructorAvatar || "",
+    role: course.instructorHeadline || "Instructor",
+    description: course.instructorDescription || "",
+    stats: [
+      `${Number(course.instructorCourseCount ?? 0)} Courses`,
+      `${Number(course.instructorStudentCount ?? 0)} Students`,
+      `${Number(course.instructorRating ?? 0).toFixed(1)}/5 Rating`,
+    ],
   },
 
   level: course.level || "All levels",
 
   image: course.thumbnailKey || "",
 
-  progress: Number(course.progressPercent ?? 0),
+  duration: formatDuration(course.totalDurationSeconds),
+  updatedAt: formatUpdatedAt(course.updatedAt),
+
+  progress: Number(course.totalLessons) > 0
+    ? Math.round((Number(course.completedLessons ?? 0) / Number(course.totalLessons)) * 100)
+    : 0,
 
   lessonsDone: Number(course.completedLessons ?? 0),
   lessonsTotal: Number(course.totalLessons ?? 0),
 
-  remaining: formatRemaining(Number(course.progressPercent ?? 0)),
+  remaining: formatRemaining(Number(course.totalLessons) > 0
+    ? Math.round((Number(course.completedLessons ?? 0) / Number(course.totalLessons)) * 100)
+    : 0),
 
   rating: Number(course.averageRating ?? 0).toFixed(1),
 

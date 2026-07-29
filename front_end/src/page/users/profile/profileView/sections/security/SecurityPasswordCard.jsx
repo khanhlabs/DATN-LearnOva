@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+const FIELD_LABEL_KEYS = {
+  currentPassword: "profile.security.currentPassword",
+  newPassword: "profile.security.newPassword",
+  confirmPassword: "profile.security.confirmPassword",
+};
 
 const SecurityPasswordCard = ({
-  card,
   fields,
   values,
   status,
   onChange,
   onSubmit,
 }) => {
+  const { t } = useTranslation();
   const [visibleFields, setVisibleFields] = useState({});
 
   const togglePasswordVisibility = (fieldId) => {
@@ -25,18 +32,19 @@ const SecurityPasswordCard = ({
           <Lock size={22} />
         </span>
         <div>
-          <h3>{card.title}</h3>
-          <p>{card.description}</p>
+          <h3>{t("profile.security.passwordCardTitle")}</h3>
+          <p>{t("profile.security.passwordCardDescription")}</p>
         </div>
       </div>
 
       <form onSubmit={onSubmit} className="security-password-form">
         {fields.map((field) => {
           const isVisible = Boolean(visibleFields[field.id]);
+          const fieldLabel = t(FIELD_LABEL_KEYS[field.id]);
 
           return (
             <label key={field.id}>
-              <span>{field.label}</span>
+              <span>{fieldLabel}</span>
               <div className="security-input-wrap">
                 <input
                   type={isVisible ? "text" : "password"}
@@ -46,7 +54,7 @@ const SecurityPasswordCard = ({
                 />
                 <button
                   type="button"
-                  aria-label={`${isVisible ? "Hide" : "Show"} ${field.label}`}
+                  aria-label={`${isVisible ? t("profile.security.hide") : t("profile.security.show")} ${fieldLabel}`}
                   onClick={() => togglePasswordVisibility(field.id)}
                 >
                   {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -56,11 +64,11 @@ const SecurityPasswordCard = ({
               {field.strength && (
                 <div className="security-password-strength">
                   <span />
-                  <strong>{field.strength}</strong>
+                  <strong>{t("profile.security.passwordStrength")}</strong>
                 </div>
               )}
 
-              {field.hint && <small>{field.hint}</small>}
+              {field.hint && <small>{t("profile.security.passwordHint")}</small>}
             </label>
           );
         })}
@@ -72,7 +80,7 @@ const SecurityPasswordCard = ({
         )}
 
         <button className="security-primary-button" type="submit">
-          {card.submitLabel}
+          {t("profile.security.updatePassword")}
         </button>
       </form>
     </section>

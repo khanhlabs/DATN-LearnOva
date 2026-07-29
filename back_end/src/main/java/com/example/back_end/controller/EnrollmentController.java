@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.back_end.dto.response.ContinueLearningResponse;
 import com.example.back_end.dto.response.MyEnrolledCourseResponse;
 import com.example.back_end.repository.EnrollmentRepository;
 import com.example.back_end.service.EnrollmentService;
@@ -46,5 +47,12 @@ public class EnrollmentController {
     @GetMapping("/my-courses")
     public ResponseEntity<List<MyEnrolledCourseResponse>> getMyEnrolledCourses() {
         return ResponseEntity.ok(enrollmentService.getMyEnrolledCourses());
+    }
+
+    // Khóa học nên "học tiếp" trên trang chủ (dựa vào hoạt động xem bài học gần nhất)
+    @GetMapping("/continue-learning")
+    public ResponseEntity<ContinueLearningResponse> getContinueLearning() {
+        ContinueLearningResponse response = enrollmentService.getContinueLearning();
+        return response != null ? ResponseEntity.ok(response) : ResponseEntity.noContent().build();
     }
 }

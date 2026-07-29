@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useNotifications } from "../../../hook/useNotifications.js";
+import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import {
+  ADMIN_NOTIFICATIONS_CHANGED,
+  getMyNotificationsApi,
+  getUnreadCountApi,
+  markNotificationReadApi,
+} from "../../../api/NotificationApi.js";
 
 const timeAgo = (dateStr) => {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -13,9 +19,33 @@ const timeAgo = (dateStr) => {
 
 const NotificationBell = () => {
   const navigate = useNavigate();
-  const { notifications, unreadCount, loadNotifications, markRead } = useNotifications();
+  const axiosClient = useAxiosPrivate();
+  const [notifications, setNotifications] = useState([]);
+  const [badgeCount, setBadgeCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
+
+  const refreshBell = async () => {
+    try {
+      const [list, count] = await Promise.all([
+        getMyNotificationsApi(0, 20, axiosClient),
+        getUnreadCountApi(axiosClient),
+      ]);
+      setNotifications(Array.isArray(list) ? list : []);
+      setBadgeCount(Number(count) || 0);
+    } catch {
+      // keep previous state on transient failure
+    }
+  };
+
+  useEffect(() => {
+    void refreshBell();
+    const onChanged = () => {
+      void refreshBell();
+    };
+    window.addEventListener(ADMIN_NOTIFICATIONS_CHANGED, onChanged);
+    return () => window.removeEventListener(ADMIN_NOTIFICATIONS_CHANGED, onChanged);
+  }, [axiosClient]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -31,12 +61,22 @@ const NotificationBell = () => {
   }, [isOpen]);
 
   const toggleOpen = () => {
-    if (!isOpen) loadNotifications();
+    if (!isOpen) void refreshBell();
     setIsOpen((prev) => !prev);
   };
 
   const handleClick = async (notification) => {
-    if (!notification.isRead) await markRead(notification.id);
+    if (!notification.isRead) {
+      try {
+        await markNotificationReadApi(notification.id, axiosClient);
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)),
+        );
+        setBadgeCount((prev) => Math.max(0, prev - 1));
+      } catch {
+        // ignore mark-read failure
+      }
+    }
     setIsOpen(false);
     if (notification.link) navigate(notification.link);
   };
@@ -50,9 +90,9 @@ const NotificationBell = () => {
         onClick={toggleOpen}
       >
         <Bell size={20} />
-        {unreadCount > 0 && (
+        {badgeCount > 0 && (
           <span className="admin-topbar__badge admin-topbar__badge--red">
-            {unreadCount > 99 ? "99+" : unreadCount}
+            {badgeCount > 99 ? "99+" : badgeCount}
           </span>
         )}
       </button>
@@ -61,7 +101,7 @@ const NotificationBell = () => {
         <div className="admin-notification-dropdown">
           <div className="admin-notification-heading">
             <strong>Notifications</strong>
-            <span>{unreadCount} new</span>
+            <span>{badgeCount} new</span>
           </div>
 
           <ul className="admin-notification-list">

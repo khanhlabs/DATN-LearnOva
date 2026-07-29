@@ -1,78 +1,108 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CourseLoadCard from "./cards/courseLoad/CourseLoadCard";
 import StudentEnrollmentCard from "./cards/studentEnrollment/StudentEnrollmentCard";
 import RevenueSummaryCard from "./cards/revenueSummary/RevenueSummaryCard";
-import "./InstructorStatistics.css";
 import { getAdminInstructorsApi } from "../../../../api/admin/InstructorApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
+import "./InstructorStatistics.css";
 
-
-const formatMoney = (v) => {
-  if (v == null) return "0 VND";
-  return new Intl.NumberFormat("vi-VN").format(v) + " VND";
+const formatCurrency = (value) => {
+  const amount = Number(value);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number.isFinite(amount) ? amount : 0);
 };
 
-const InstructorStatistics = () => {
+const formatNumber = (value) =>
+  new Intl.NumberFormat("vi-VN").format(value == null ? 0 : Number(value) || 0);
+
+const getInstructorStats = (instructors) => ({
+  totalCourses: instructors.reduce((sum, instructor) => sum + (instructor.numberOfClasses ?? 0), 0),
+  totalStudents: instructors.reduce((sum, instructor) => sum + (instructor.totalStudents ?? 0), 0),
+  totalRevenue: instructors.reduce((sum, instructor) => sum + Number(instructor.totalRevenue ?? 0), 0),
+});
+
+/**
+ * - Có props `instructors` từ parent → dùng props (không gọi API lại).
+ * - Không truyền props → tự fetch bằng getAdminInstructorsApi.
+ */
+const InstructorStatistics = ({
+  instructors: instructorsProp,
+  isLoading: isLoadingProp,
+  error: errorProp,
+}) => {
+  const { t } = useTranslation();
+  const isControlled = instructorsProp !== undefined;
   const axiosPrivate = useAxiosPrivate();
-  const [stats, setStats] = useState({
-    totalCourses: 0,
-    totalStudents: 0,
-    totalRevenue: 0,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+
+  const [fetchedInstructors, setFetchedInstructors] = useState([]);
+  const [fetchedLoading, setFetchedLoading] = useState(false);
+  const [fetchedError, setFetchedError] = useState("");
 
   useEffect(() => {
+    if (isControlled) return undefined;
+
     let mounted = true;
     const load = async () => {
-      setIsLoading(true);
+      setFetchedLoading(true);
+      setFetchedError("");
       try {
         const data = await getAdminInstructorsApi(axiosPrivate);
-        if (!Array.isArray(data)) return;
-        const totalCourses = data.reduce((sum, i) => sum + (i.numberOfClasses ?? 0), 0);
-        const totalStudents = data.reduce((sum, i) => sum + (i.totalStudents ?? 0), 0);
-        const totalRevenue = data.reduce((sum, i) => sum + Number(i.totalRevenue ?? 0), 0);
-        if (mounted) setStats({ totalCourses, totalStudents, totalRevenue });
+        if (!mounted) return;
+        setFetchedInstructors(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching instructor statistics:", error);
-        if (mounted) {
+        if (!mounted) return;
         const errorMessage =
-          error.response?.status === 403 ? "You don't have permission to view this data" :
-          error.response?.status === 401 ? "Your session has expired. Please auth again" :
-          error.message || "Failed to load instructor statistics";
-        setError(errorMessage);
-        }
+          error.response?.status === 403
+            ? "You don't have permission to view this data"
+            : error.response?.status === 401
+              ? "Your session has expired. Please auth again"
+              : error.message || "Failed to load instructor statistics";
+        setFetchedError(errorMessage);
       } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) setFetchedLoading(false);
       }
     };
+
     load();
-    return () => { mounted = false; };
-  }, [axiosPrivate]);
+    return () => {
+      mounted = false;
+    };
+  }, [isControlled, axiosPrivate]);
+
+  const instructors = isControlled ? instructorsProp : fetchedInstructors;
+  const isLoading = isControlled ? Boolean(isLoadingProp) : fetchedLoading;
+  const error = isControlled ? errorProp || "" : fetchedError;
+  const stats = getInstructorStats(instructors ?? []);
 
   return (
     <section className="instructorStatistics" aria-label="Instructor statistics">
-      {error && (
-        <div style={{
-          padding: "12px",
-          marginBottom: "16px",
-          backgroundColor: "#fee",
-          color: "#c00",
-          borderRadius: "4px",
-          border: "1px solid #fcc"
-        }}>
-          {error}
-        </div>
-      )}
+      {error && <div className="instructorStatistics__error">{error}</div>}
       <div className="instructorStatisticsGrid">
         <div>
-          <CourseLoadCard title="Managed Courses" value={isLoading ? "—" : String(stats.totalCourses)} note="Number of courses currently managed by instructors." />
+          <CourseLoadCard
+            title={t("instructorAdmin.managedCourses")}
+            value={isLoading ? "—" : String(stats.totalCourses)}
+            note={t("instructorAdmin.managedCourses")}
+          />
         </div>
         <div>
-          <StudentEnrollmentCard title="Student Enrollment" value={isLoading ? "—" : new Intl.NumberFormat("vi-VN").format(stats.totalStudents)} note="Total number of student enrollments in existing classes." />
+          <StudentEnrollmentCard
+            title={t("instructorAdmin.studentEnrollment")}
+            value={isLoading ? "—" : formatNumber(stats.totalStudents)}
+            note={t("instructorAdmin.studentEnrollment")}
+          />
         </div>
         <div>
-          <RevenueSummaryCard title="System Revenue" value={isLoading ? "—" : formatMoney(stats.totalRevenue)} note="Estimated total revenue from active instructors." />
+          <RevenueSummaryCard
+            title={t("instructorAdmin.systemRevenue")}
+            value={isLoading ? "—" : formatCurrency(stats.totalRevenue)}
+            note={t("instructorAdmin.systemRevenue")}
+          />
         </div>
       </div>
     </section>

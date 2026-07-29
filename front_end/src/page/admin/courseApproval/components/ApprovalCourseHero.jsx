@@ -1,4 +1,49 @@
 import { BookOpen, CheckCircle, Clock, EyeOff, FileText, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import axiosClient from "../../../../api/AxiosClient.js";
+
+const thumbnailUrlCache = new Map();
+
+const formatCurrency = (value) => {
+  const amount = Number(value);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number.isFinite(amount) ? amount : 0);
+};
+
+const useCourseThumbnail = (thumbnailKeyFromDatabase) => {
+  const [signedThumbnailUrl, setSignedThumbnailUrl] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const thumbnailKey = thumbnailKeyFromDatabase?.trim();
+
+    const loadThumbnailFromS3 = async () => {
+      if (!thumbnailKey) return;
+
+      try {
+        let thumbnailUrl = thumbnailUrlCache.get(thumbnailKey);
+        if (!thumbnailUrl) {
+          const response = await axiosClient.get("/admin/courses-management/thumbnail-url", {
+            params: { thumbnailKey },
+          });
+          thumbnailUrl = response.data?.url || null;
+          if (thumbnailUrl) thumbnailUrlCache.set(thumbnailKey, thumbnailUrl);
+        }
+        if (isMounted) setSignedThumbnailUrl(thumbnailUrl);
+      } catch {
+        if (isMounted) setSignedThumbnailUrl(null);
+      }
+    };
+
+    loadThumbnailFromS3();
+    return () => { isMounted = false; };
+  }, [thumbnailKeyFromDatabase]);
+
+  return signedThumbnailUrl;
+};
 
 const formatDuration = (seconds) => {
   const totalSeconds = Number(seconds || 0);
@@ -13,12 +58,7 @@ const formatDuration = (seconds) => {
 const formatPrice = (value) => {
   const price = Number(value || 0);
   if (price === 0) return "Free";
-
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(price);
+  return formatCurrency(price);
 };
 
 const formatDate = (value) => {
@@ -36,8 +76,9 @@ const formatDate = (value) => {
   }).format(date);
 };
 
-const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onHide, onReject }) => {
+const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onReject }) => {
   const isPending = course.status === "PENDING_REVIEW";
+  const thumbnailUrl = useCourseThumbnail(course.thumbnailKey);
 
   const metaItems = [
     ["Instructor", course.instructorName],
@@ -51,17 +92,13 @@ const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onHide, onReject 
   return (
     <section className="approvalCourseCard">
       <div className="approvalCourseCardTop">
-        {course.thumbnailKey ? (
+        {thumbnailUrl ? (
           <img
             className="approvalCourseThumbnail"
-            src={course.thumbnailKey}
+            src={thumbnailUrl}
             alt={course.title}
           />
-        ) : (
-          <div className="approvalCourseThumbnailPlaceholder">
-            <BookOpen size={36} />
-          </div>
-        )}
+        ) : null}
 
         <div className="approvalCourseInfo">
           <div className="approvalCourseInfoTop">
@@ -88,15 +125,6 @@ const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onHide, onReject 
                 >
                   <XCircle size={16} />
                   Reject
-                </button>
-                <button
-                  type="button"
-                  className="approvalBtnHideMain"
-                  onClick={onHide}
-                  disabled={isSubmitting}
-                >
-                  <EyeOff size={16} />
-                  Hide
                 </button>
               </div>
             ) : (

@@ -1,22 +1,26 @@
-import "./CourseDetail.css";
-import { FaClipboardCheck, FaPlay, FaPlayCircle, FaClock, FaCheckCircle, FaStar } from "react-icons/fa";
+import "./css/CourseDetail.css";
+import { FaClipboardCheck, FaPlay, FaPlayCircle, FaClock, FaCheckCircle, FaStar, FaFlag } from "react-icons/fa";
 import { ChevronDown } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../../../component/footer/footer.jsx";
-import CourseVideoPlayer from "./VideoPlayer.jsx";
-import OverviewTab from "./OverviewTab.jsx";
-import SummaryTab from "./summayTab.jsx";
-import QATab from "./QATab.jsx";
-import ReviewsTab from "./Review.jsx";
+import CourseVideoPlayer from "./components/VideoPlayer.jsx";
+import OverviewTab from "./components/OverviewTab.jsx";
+import SummaryTab from "./components/summayTab.jsx";
+import QATab from "./components/QATab.jsx";
+import ReviewsTab from "./components/Review.jsx";
 import chatbot from "../../../home/chat-bot/chatBot.jsx";
-import QuizPage from "./QuizPage.jsx";
+import QuizPage from "./components/QuizPage.jsx";
 import Header from "../../../../component/header/user_header/Header.jsx";
-import ReviewModal from "./ReviewModal.jsx";
+import ReviewModal from "./components/ReviewModal.jsx";
+import ReportCourseModal from "./ReportCourseModal.jsx";
 import { getCourseReviewsApi, deleteReviewApi, getRatingSummaryApi, createReviewApi } from "../../../../api/ReviewApi.js";
+import axiosClient from "../../../../api/AxiosClient.js";
 import { getCourseDetail, getFileUrl } from "../../../../api/PublicCourseApi.js";
+import { getPublicInstructorByIdApi } from "../../../../api/InstructorApi.js";
 import { getCourseProgressApi, updateLessonProgressApi } from "../../../../api/ProgressApi.js";
 import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../../context/AuthContext";
 import { useParams } from "react-router-dom";
 
@@ -30,12 +34,14 @@ const formatDuration = (totalSeconds) => {
 };
 
 function CourseDetail() {
+    const { t } = useTranslation();
     const { courseId } = useParams();
     const reviewsPerPage = 3;
     const [reviewsLoaded, setReviewsLoaded] = useState(false);
 
     const [course, setCourse] = useState(null);
     const [instructorAvatarUrl, setInstructorAvatarUrl] = useState(null);
+    const [instructorProfile, setInstructorProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const [videoUrl, setVideoUrl] = useState(null);
@@ -55,6 +61,8 @@ function CourseDetail() {
     const [courseProgress, setCourseProgress] = useState(null);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [isSubmittingReport, setIsSubmittingReport] = useState(false);
     const hasAutoPromptedReview = useRef(false);
 
     const [reviewQuery, setReviewQuery] = useState("");
@@ -79,8 +87,12 @@ function CourseDetail() {
                 }
 
                 if (data.instructor?.avatarKey) {
-                    getFileUrl(data.instructor.avatarKey)
-                        .then(setInstructorAvatarUrl)
+                    setInstructorAvatarUrl(data.instructor.avatarKey);
+                }
+
+                if (data.instructor?.id) {
+                    getPublicInstructorByIdApi(data.instructor.id)
+                        .then(setInstructorProfile)
                         .catch(() => {});
                 }
 
@@ -132,6 +144,31 @@ function CourseDetail() {
         Math.round(courseProgress?.courseProgressPercent || 0) === 100
     );
 
+    const isCourseInstructor = !!(
+        currentUserId &&
+        course?.instructor?.id &&
+        String(course.instructor.id) === String(currentUserId)
+    );
+
+    const handleSubmitReport = async ({ reason, description }) => {
+        if (!courseId) return;
+        setIsSubmittingReport(true);
+        try {
+            await axiosClient.post("/reports", {
+                courseId: Number(courseId),
+                reason,
+                description: description?.trim() ? description.trim() : "",
+                lessonId: activeLesson?.lessonId || null,
+            });
+            toast.success("Report submitted. Admins will review it.");
+            setShowReportModal(false);
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to submit report.");
+        } finally {
+            setIsSubmittingReport(false);
+        }
+    };
+
     useEffect(() => {
         if (!courseId || !currentUserId || !reviewsLoaded) return;
 
@@ -179,14 +216,14 @@ function CourseDetail() {
         setIsSubmittingReview(true);
         try {
             await createReviewApi({ courseId: Number(courseId), rating, comment });
-            toast.success("Thank you for rating the course.!");
+            toast.success(t("courseDetail.reviewThankYou"));
             setShowReviewModal(false);
             const updatedReviews = await getCourseReviewsApi(courseId);
             setReviewsData(updatedReviews);
             const updatedSummary = await getRatingSummaryApi(courseId);
             setRatingSummary(updatedSummary);
         } catch (err) {
-            toast.error(err.response?.data?.message || err.message || "Đã xảy ra lỗi khi gửi đánh giá.");
+            toast.error(err.response?.data?.message || err.message || t("courseDetail.reviewSubmitError"));
         } finally {
             setIsSubmittingReview(false);
         }
@@ -234,7 +271,7 @@ function CourseDetail() {
             <div className="course-detail-container">
                 <Header />
                 <div style={{ textAlign: "center", padding: "80px", color: "#94a3b8", fontSize: "15px" }}>
-                    Loading course...
+                    {t("courseDetail.loading")}
                 </div>
             </div>
         );
@@ -245,7 +282,7 @@ function CourseDetail() {
             <div className="course-detail-container">
                 <Header />
                 <div style={{ textAlign: "center", padding: "80px", color: "#94a3b8", fontSize: "15px" }}>
-                    Course not found.
+                    {t("courseDetail.notFound")}
                 </div>
             </div>
         );
@@ -276,13 +313,23 @@ function CourseDetail() {
 
                     <div className="tabs-container">
                         <div className="tabs-wrapper">
-                            <button className={`tab-btn ${activeTab === "overview" ? "active" : ""}`} onClick={() => setActiveTab("overview")}>Overview</button>
-                            <button className={`tab-btn ${activeTab === "qa" ? "active" : ""}`} onClick={() => setActiveTab("qa")}>Q&A</button>
-                            <button className={`tab-btn ${activeTab === "reviews" ? "active" : ""}`} onClick={() => setActiveTab("reviews")}>Reviews</button>
-                            <button className={`tab-btn ${activeTab === "quiz" ? "active" : ""}`} onClick={() => setActiveTab("quiz")}>Quiz</button>
-                            <button className={`tab-btn ${activeTab === "summary" ? "active" : ""}`} onClick={() => setActiveTab("summary")}>Summary</button>
-
+                            <button className={`tab-btn ${activeTab === "overview" ? "active" : ""}`} onClick={() => setActiveTab("overview")}>{t("courseDetail.tabOverview")}</button>
+                            <button className={`tab-btn ${activeTab === "qa" ? "active" : ""}`} onClick={() => setActiveTab("qa")}>{t("courseDetail.tabQA")}</button>
+                            <button className={`tab-btn ${activeTab === "reviews" ? "active" : ""}`} onClick={() => setActiveTab("reviews")}>{t("courseDetail.tabReviews")}</button>
+                            <button className={`tab-btn ${activeTab === "quiz" ? "active" : ""}`} onClick={() => setActiveTab("quiz")}>{t("courseDetail.tabQuiz")}</button>
+                            <button className={`tab-btn ${activeTab === "summary" ? "active" : ""}`} onClick={() => setActiveTab("summary")}>{t("courseDetail.tabSummary")}</button>
                         </div>
+                        {!isCourseInstructor && (
+                            <button
+                                type="button"
+                                className="course-report-btn"
+                                onClick={() => setShowReportModal(true)}
+                                aria-label="Report this course"
+                            >
+                                <FaFlag size={13} />
+                                Report
+                            </button>
+                        )}
                     </div>
 
                     <div className="content-section">
@@ -291,6 +338,7 @@ function CourseDetail() {
                                 course={course}
                                 instructor={course.instructor}
                                 instructorAvatarUrl={instructorAvatarUrl}
+                                instructorProfile={instructorProfile}
                                 expandedDescription={expandedDescription}
                                 setExpandedDescription={setExpandedDescription}
                             />
@@ -351,9 +399,13 @@ function CourseDetail() {
                         {courseProgress && (
                             <div className="curriculum-progress-box">
                                 <div className="curriculum-progress-header">
-                                    <span className="curriculum-progress-title">Course progress</span>
+                                    <span className="curriculum-progress-title">{t("courseDetail.courseProgress")}</span>
                                     <span className="curriculum-progress-text">
-                                        {courseProgress.completedLessonsCount}/{courseProgress.totalLessonsCount} Lesson ({Math.round(courseProgress.courseProgressPercent)}%)
+                                        {t("courseDetail.lessonsProgress", {
+                                            completed: courseProgress.completedLessonsCount,
+                                            total: courseProgress.totalLessonsCount,
+                                            percent: Math.round(courseProgress.courseProgressPercent),
+                                        })}
                                     </span>
                                 </div>
                                 <div className="curriculum-progress-bar-track">
@@ -367,12 +419,12 @@ function CourseDetail() {
                                         className="btn-review-trigger"
                                         onClick={() => setShowReviewModal(true)}
                                     >
-                                        <FaStar /> Course Review
+                                        <FaStar /> {t("courseDetail.courseReviewBtn")}
                                     </button>
                                 )}
                                 {isCourseCompleted && hasReviewed && (
                                     <div className="reviewed-badge">
-                                        ✓ You have rated this course.
+                                        ✓ {t("courseDetail.alreadyRated")}
                                     </div>
                                 )}
                             </div>
@@ -390,7 +442,7 @@ function CourseDetail() {
                                         <div className="section-meta">
                                             <span>
                                                 <FaPlayCircle />
-                                                {section.lessons.length} Lessons
+                                                {t("courseDetail.lessonsCount", { count: section.lessons.length })}
                                             </span>
                                             <span>
                                                 <FaClock />
@@ -445,8 +497,8 @@ function CourseDetail() {
                                                 <FaClipboardCheck className="quiz-icon" />
                                             </div>
                                             <div className="quiz-content">
-                                                <span className="quiz-title">Quiz</span>
-                                                <span className="quiz-subtitle-co">10 Questions</span>
+                                                <span className="quiz-title">{t("courseDetail.quizTitle")}</span>
+                                                <span className="quiz-subtitle-co">{t("courseDetail.quizSubtitle")}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -462,6 +514,13 @@ function CourseDetail() {
                 onClose={() => setShowReviewModal(false)}
                 onSubmit={handleReviewSubmit}
                 isSubmitting={isSubmittingReview}
+            />
+
+            <ReportCourseModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                onSubmit={handleSubmitReport}
+                isSubmitting={isSubmittingReport}
             />
 
             <div className="chatbot-fixed">

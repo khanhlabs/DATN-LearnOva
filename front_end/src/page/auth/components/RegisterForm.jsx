@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react"; // Import thêm useRef để quản lý interval chuẩn xác
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { registerApi, resendVerifyEmailApi } from "../../../api/AuthApi.js";
 import { toast } from "react-toastify";
 import { MdMarkEmailRead } from "react-icons/md";
 
 const RegisterForm = ({ onSwitchToLogin }) => {
+    const { t } = useTranslation();
     const [form, setForm] = useState({
         fullName: '',
         email: '',
@@ -57,12 +59,12 @@ const RegisterForm = ({ onSwitchToLogin }) => {
         setError('');
 
         if (form.password !== form.confirmPassword) {
-            setError("Passwords do not match");
+            setError(t("auth.register.passwordMismatch"));
             return;
         }
 
         if (form.password.length < 6) {
-            setError("Password must be at least 6 characters");
+            setError(t("auth.register.passwordTooShort"));
             return;
         }
 
@@ -70,10 +72,10 @@ const RegisterForm = ({ onSwitchToLogin }) => {
             setLoading(true);
             const res = await registerApi(form);
 
-            toast.success(res.message || "Register success!");
+            toast.success(res.message || t("auth.register.registerSuccess"));
             setShowVerifyModal(true);
         } catch (err) {
-            setError(err.response?.data?.message || "Register failed");
+            setError(err.response?.data?.message || t("auth.register.registerFailed"));
         } finally {
             setLoading(false);
         }
@@ -85,10 +87,10 @@ const RegisterForm = ({ onSwitchToLogin }) => {
         try {
             setLoading(true);
             const res = await resendVerifyEmailApi(form.email);
-            toast.success(res?.message || "Verification email has been resent!");
+            toast.success(res?.message || t("auth.register.resendSuccess"));
             startCountdown();
         } catch (err) {
-            const errorMsg = err.response?.data?.message || "Resend verification email failed!";
+            const errorMsg = err.response?.data?.message || t("auth.register.resendFailed");
             toast.error(errorMsg);
         } finally {
             setLoading(false);
@@ -103,7 +105,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                     <div className="modal-box-register">
                         <div className="register-modal-header">
                             <h2 className="register-modal-title">
-                                Please Check Your Inbox
+                                {t("auth.register.checkInboxTitle")}
                             </h2>
 
                             <div className="register-modal-icon">
@@ -112,8 +114,8 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                         </div>
 
                         <p>
-                            We have sent a verification link to your email.<br />
-                            Please check your inbox and confirm your account.
+                            {t("auth.register.checkInboxMessage")}<br />
+                            {t("auth.register.checkInboxMessage2")}
                         </p>
 
                         <div className="modal-actions-register">
@@ -122,7 +124,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                                 className="btn-primary-register"
                                 onClick={() => window.open("https://mail.google.com", "_blank")}
                             >
-                                Open Gmail
+                                {t("auth.register.openGmail")}
                             </button>
 
                             <button
@@ -131,7 +133,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                                 disabled={!canResend || loading}
                                 onClick={handleResendEmail} // Gọi hàm đã được fix
                             >
-                                {loading ? "Resending..." : canResend ? "Resend Email" : `Resend in ${countdown}s`}
+                                {loading ? t("auth.register.resending") : canResend ? t("auth.register.resendEmail") : t("auth.register.resendIn", { seconds: countdown })}
                             </button>
                         </div>
 
@@ -143,7 +145,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                                 if (timerRef.current) clearInterval(timerRef.current); // Tắt bộ đếm ngầm khi đóng modal
                             }}
                         >
-                            Close
+                            {t("auth.register.close")}
                         </button>
                     </div>
                 </div>
@@ -153,18 +155,18 @@ const RegisterForm = ({ onSwitchToLogin }) => {
             <div className="auth-form-container">
                 <div className="auth-form-inner">
                     <div>
-                        <h2 className="auth-form-title">Create your account</h2>
-                        <p className="auth-form-subtitle">Start learning with LearnOva in just a few details</p>
+                        <h2 className="auth-form-title">{t("auth.register.title")}</h2>
+                        <p className="auth-form-subtitle">{t("auth.register.subtitle")}</p>
 
                         <form className="auth-form" onSubmit={handleSubmit}>
                             <div className="form-field">
-                                <label className="form-field-label">Full name</label>
+                                <label className="form-field-label">{t("auth.register.fullName")}</label>
                                 <div className="form-field-input">
                                     <User size={15} className="mail-icon"/>
                                     <input
                                         type="text"
                                         name="fullName"
-                                        placeholder="your full name"
+                                        placeholder={t("auth.register.fullNamePlaceholder")}
                                         value={form.fullName}
                                         autoComplete="name"
                                         onChange={handleChange}
@@ -174,13 +176,13 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                             </div>
 
                             <div className="form-field">
-                                <label className="form-field-label">Email</label>
+                                <label className="form-field-label">{t("auth.register.email")}</label>
                                 <div className="form-field-input">
                                     <Mail size={15} className="mail-icon"/>
                                     <input
                                         type="email"
                                         name="email"
-                                        placeholder="youremail@gmail.com"
+                                        placeholder={t("auth.register.emailPlaceholder")}
                                         value={form.email}
                                         autoComplete="email"
                                         onChange={handleChange}
@@ -190,13 +192,13 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                             </div>
 
                             <div className="form-field">
-                                <label className="form-field-label">Password</label>
+                                <label className="form-field-label">{t("auth.register.password")}</label>
                                 <div className="form-field-input">
                                     <Lock size={15} className="mail-icon"/>
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         name="password"
-                                        placeholder="your password"
+                                        placeholder={t("auth.register.passwordPlaceholder")}
                                         value={form.password}
                                         autoComplete="new-password"
                                         onChange={handleChange}
@@ -214,13 +216,13 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                             </div>
 
                             <div className="form-field" style={{marginBottom: '30px'}}>
-                                <label className="form-field-label">Confirm password</label>
+                                <label className="form-field-label">{t("auth.register.confirmPassword")}</label>
                                 <div className="form-field-input">
                                     <Lock size={15} className="mail-icon"/>
                                     <input
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         name="confirmPassword"
-                                        placeholder="confirm your password"
+                                        placeholder={t("auth.register.confirmPasswordPlaceholder")}
                                         value={form.confirmPassword}
                                         autoComplete="new-password"
                                         onChange={handleChange}
@@ -250,21 +252,21 @@ const RegisterForm = ({ onSwitchToLogin }) => {
                                 {loading && !showVerifyModal ? (
                                     <>
                                         <span className="spinner"></span>
-                                        <span style={{ marginLeft: "8px" }}>Sending email...</span>
+                                        <span style={{ marginLeft: "8px" }}>{t("auth.register.sendingEmail")}</span>
                                     </>
                                 ) : (
-                                    "Create account"
+                                    t("auth.register.submit")
                                 )}
                             </button>
 
                             <p className="auth-switch-text">
-                                Already have an account?{''}
+                                {t("auth.register.alreadyHaveAccount")}{''}
                                 <button
                                     type="button"
                                     className="auth-switch-link auth-switch-button"
                                     onClick={onSwitchToLogin}
                                 >
-                                    Sign in
+                                    {t("auth.register.signIn")}
                                 </button>
                             </p>
                         </form>
