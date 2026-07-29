@@ -17,4 +17,10 @@ public interface PayoutRequestRepository extends JpaRepository<PayoutRequest, Lo
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PayoutRequest p " +
             "WHERE p.teacher.id = :teacherId AND p.status IN ('PENDING', 'PAID')")
     BigDecimal sumOpenAndPaidByTeacher(@Param("teacherId") Long teacherId);
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PayoutRequest p WHERE p.status = 'PENDING'")
+    BigDecimal sumPendingAmount();
+
+    @Query("SELECT COUNT(p) FROM PayoutRequest p WHERE p.status = 'PENDING'")
+    long countPending();
 }

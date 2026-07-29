@@ -1,12 +1,46 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getAdminRevenueTransactionInsightsApi } from "../../../api/admin/RevenueApi.js";
+import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
 import RevenueCategory from "./revenueCategory/RevenueCategory.jsx";
 import RevenueRecords from "./revenueRecords/RevenueRecords.jsx";
 import TransactionLog from "./transactionLog/TransactionLog.jsx";
 import "./Revenue.css";
 import { useTranslation } from "react-i18next";
 
+const EMPTY_METRICS = [];
+
 const RevenueTransactions = () => {
+<<<<<<< HEAD
   const { t } = useTranslation();
+=======
+  const axiosPrivate = useAxiosPrivate();
+  const [insights, setInsights] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        const data = await getAdminRevenueTransactionInsightsApi(axiosPrivate);
+        if (!mounted) return;
+        setInsights(data);
+        setError("");
+      } catch {
+        if (!mounted) return;
+        setInsights(null);
+        setError("Unable to load transaction insights.");
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [axiosPrivate]);
+
+>>>>>>> origin/hieu
   return (
     <div className="revenuePage">
       <div className="revenuePageInner">
@@ -19,13 +53,18 @@ const RevenueTransactions = () => {
           </Link>
         </div>
 
+        {error ? <p className="revenuePageError">{error}</p> : null}
+
         <div className="revenueDetailGrid">
           <div className="revenueDetailMain">
             <TransactionLog />
           </div>
           <div className="revenueDetailSide">
-            <RevenueCategory />
-            <RevenueRecords />
+            <RevenueCategory categories={insights?.categoryMetrics ?? EMPTY_METRICS} />
+            <RevenueRecords
+              peakDay={insights?.peakDay || null}
+              peakMonth={insights?.peakMonth || null}
+            />
           </div>
         </div>
       </div>
