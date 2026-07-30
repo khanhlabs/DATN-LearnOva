@@ -14,6 +14,7 @@ import FavoriteCourseDetailSection from "./sections/favoriteCourseDetail/Favorit
 import FavoritesSection from "./sections/FavoritesSection";
 import SecuritySection from "./sections/SecuritySection";
 import ProfileFormSection from "./sections/ProfileFormSection";
+import PaymentHistorySection from "./sections/PaymentHistorySection.jsx";
 import { getMyEnrolledCoursesApi } from "../../../../api/EnrollmentApi.js";
 import { useAuth } from "../../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
@@ -21,7 +22,9 @@ import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../..
 import { generateUploadUrl } from "../../../../api/UploadApi.js";
 import { uploadFileToS3 } from "../../../../services/UploadService.js";
 import { getUserStatsApi } from "../../../../api/UserStatsApi.js";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+
+const PROFILE_TOAST_ID = "profile-toast";
 
 const EMPTY_STATS = { totalStudyHours: 0, streakDays: 0, enrolledCourseCount: 0, completedCourseCount: 0, points: 0 };
 
@@ -203,6 +206,7 @@ const ProfileView = ({
 
   const handleInputChange = (field, value) => {
     setProfileData((current) => ({ ...current, [field]: value }));
+    setSaveSuccess(false);
   };
   const handleSaveProfile = async (event) => {
     event.preventDefault();
@@ -211,7 +215,9 @@ const ProfileView = ({
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      toast.error("Please fix the highlighted fields before saving.");
+      toast.error("Please fix the highlighted fields before saving.", {
+        containerId: PROFILE_TOAST_ID,
+      });
       return;
     }
 
@@ -219,21 +225,41 @@ const ProfileView = ({
 
     try {
       const response = await updateUserProfileApi({
-        fullName: profileData.fullName,
-        phone: profileData.phone,
+        fullName: profileData.fullName.trim(),
+        phone: profileData.phone.trim(),
         dateOfBirth: profileData.dateOfBirth,
         gender: profileData.gender,
-        avatar: profileData.avatar,
       }, accessToken);
 
       setProfileData((prev) => ({
         ...prev,
         ...response,
       }));
+      localStorage.setItem(
+        "learnova_user_profile",
+        JSON.stringify({ ...profileData, ...response }),
+      );
 
-      toast.success("Profile updated successfully!");
+      // The header reads from AuthContext, not from ProfileView's local state.
+      // Keep both sources in sync immediately after a successful update.
+      setCurrentUser((currentUser) => ({
+        ...currentUser,
+        fullName: response.fullName ?? profileData.fullName.trim(),
+        phone: response.phone ?? profileData.phone.trim(),
+        dateOfBirth: response.dateOfBirth ?? profileData.dateOfBirth,
+        gender: response.gender ?? profileData.gender,
+        ...(response.avatar ? { avatar: response.avatar } : {}),
+      }));
+
+      setSaveSuccess(true);
+      toast.success("Profile updated successfully!", {
+        containerId: PROFILE_TOAST_ID,
+      });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Update failed!");
+      setSaveSuccess(false);
+      toast.error(error?.response?.data?.message || "Update failed!", {
+        containerId: PROFILE_TOAST_ID,
+      });
     }
   };
 
@@ -264,9 +290,9 @@ const ProfileView = ({
         avatar,
       }));
 
-      toast.success("Avatar updated!");
+      toast.success("Avatar updated!", { containerId: PROFILE_TOAST_ID });
     } catch (err) {
-      toast.error("Upload failed!");
+      toast.error("Upload failed!", { containerId: PROFILE_TOAST_ID });
     }
   };
 
@@ -375,6 +401,10 @@ const ProfileView = ({
       return <SecuritySection profileData={profileData} />;
     }
 
+    if (activeTab === "payments") {
+      return <PaymentHistorySection />;
+    }
+
     if (activeTab === "achievements") {
       return (
         <AchievementsSection
@@ -411,6 +441,13 @@ const ProfileView = ({
 
   return (
     <div className="profile-view">
+      <ToastContainer
+        containerId={PROFILE_TOAST_ID}
+        position="top-right"
+        autoClose={2500}
+        closeOnClick
+        pauseOnHover
+      />
       {showAvatarModal && (
         <AvatarModal
           profileData={profileData}

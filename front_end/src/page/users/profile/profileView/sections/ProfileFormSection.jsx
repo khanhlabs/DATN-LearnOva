@@ -159,7 +159,7 @@ function ProfileFormSection({
               type="submit"
               className="save-button"
           >
-            {t("profile.form.saveChanges")}
+            {saveSuccess ? "Saved" : t("profile.form.saveChanges")}
           </button>
         </div>
 
