@@ -14,6 +14,7 @@ import FavoriteCourseDetailSection from "./sections/favoriteCourseDetail/Favorit
 import FavoritesSection from "./sections/FavoritesSection";
 import SecuritySection from "./sections/SecuritySection";
 import ProfileFormSection from "./sections/ProfileFormSection";
+import PaymentHistorySection from "./sections/PaymentHistorySection.jsx";
 import { getMyEnrolledCoursesApi } from "../../../../api/EnrollmentApi.js";
 import { useAuth } from "../../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
@@ -398,6 +399,10 @@ const ProfileView = ({
 
     if (activeTab === "security") {
       return <SecuritySection profileData={profileData} />;
+    }
+
+    if (activeTab === "payments") {
+      return <PaymentHistorySection />;
     }
 
     if (activeTab === "achievements") {
