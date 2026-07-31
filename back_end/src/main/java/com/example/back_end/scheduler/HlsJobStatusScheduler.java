@@ -24,8 +24,6 @@ public class HlsJobStatusScheduler {
     @Scheduled(fixedDelay = 30_000)
     @Transactional
     public void pollPendingJobs() {
-        // TODO: chưa có MediaConvert key, comment tạm để app chạy được. Bỏ comment khi có key.
-        /*
         List<Lesson> pending = lessonRepository.findByHlsStatusIn(
                 List.of(HlsStatus.PENDING, HlsStatus.PROCESSING)
         );
@@ -64,7 +62,6 @@ public class HlsJobStatusScheduler {
                 default -> { }
             }
         }
-        */
     }
 
 }

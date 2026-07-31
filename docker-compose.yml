@@ -1,63 +1,50 @@
+name: learnova-local
+
+# Local dependencies only. Run Spring Boot and Vite from the host machine.
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: learnova-postgres
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-
+      POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:?DB_NAME is required}
     ports:
-      - "5432:5432"
-
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
-
+      - local_pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
       interval: 10s
       timeout: 5s
       retries: 10
-
     restart: unless-stopped
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.8
-    container_name: learnova-elasticsearch
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: -Xms512m -Xmx512m
-
     ports:
-      - "9200:9200"
-
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
     volumes:
-      - es_data:/usr/share/elasticsearch/data
-
+      - local_es_data:/usr/share/elasticsearch/data
     mem_limit: 1024m
-
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
-
     restart: unless-stopped
 
   ai-service:
     build: ./ai_services
-
-    container_name: learnova-ai-service
-
     env_file:
-      - ai_services/.env
-
+      - ./ai_services/.env
     ports:
-      - "8000:8000"
-
+      - "${AI_SERVICE_PORT:-8000}:8000"
     restart: unless-stopped
 
 volumes:
-  pg_data:
-  es_data:
+  local_pg_data:
+  local_es_data:

@@ -11,9 +11,7 @@ import { useTranslation } from "react-i18next";
 const EMPTY_METRICS = [];
 
 const RevenueTransactions = () => {
-<<<<<<< HEAD
   const { t } = useTranslation();
-=======
   const axiosPrivate = useAxiosPrivate();
   const [insights, setInsights] = useState(null);
   const [error, setError] = useState("");
@@ -40,7 +38,6 @@ const RevenueTransactions = () => {
     };
   }, [axiosPrivate]);
 
->>>>>>> origin/hieu
   return (
     <div className="revenuePage">
       <div className="revenuePageInner">

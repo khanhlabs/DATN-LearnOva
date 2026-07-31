@@ -15,6 +15,7 @@ import com.example.back_end.repository.LessonRepository;
 import com.example.back_end.repository.SectionRepository;
 import com.example.back_end.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.time.Instant;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class LessonService {
 
     private final LessonRepository lessonRepository;
@@ -108,9 +110,18 @@ public class LessonService {
         lesson.setUpdatedAt(Instant.now());
 
         if (request.videoKey() != null) {
-            String jobId = mediaConvertService.createHlsJob(request.videoKey(), lessonId);
-            lesson.setMediaConvertJobId(jobId);
             lesson.setHlsStatus(HlsStatus.PENDING);
+            lesson.setMediaConvertJobId(null);
+            lesson.setHlsPlaylistKey(null);
+
+            try {
+                String jobId = mediaConvertService.createHlsJob(request.videoKey(), lessonId);
+                lesson.setMediaConvertJobId(jobId);
+                lesson.setHlsStatus(HlsStatus.PROCESSING);
+            } catch (Exception e) {
+                lesson.setHlsStatus(HlsStatus.FAILED);
+                log.warn("Failed to create MediaConvert job for lesson {}", lessonId, e);
+            }
         }
 
         lessonRepository.save(lesson);

@@ -49,11 +49,8 @@ const formatGateway = (method) => {
 };
 
 const TransactionLog = () => {
-<<<<<<< HEAD
   const { t } = useTranslation();
-=======
   const axiosPrivate = useAxiosPrivate();
->>>>>>> origin/hieu
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -179,15 +176,11 @@ const TransactionLog = () => {
         <div className="transactionLogControls">
           <label className="transactionSearch">
             <Search size={16} />
-<<<<<<< HEAD
-            <input placeholder={t("revenueDetails.search")} />
-=======
             <input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by transaction ID, student name, course"
+              placeholder={t("revenueDetails.search")}
             />
->>>>>>> origin/hieu
           </label>
           <div className="transactionFilters">
             <AdminHoverSelect
