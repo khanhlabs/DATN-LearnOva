@@ -4,22 +4,27 @@ import com.example.back_end.dto.response.UploadUrlResponse;
 import com.example.back_end.entity.enums.UploadType;
 import com.example.back_end.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
+import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -29,12 +34,19 @@ public class S3Service {
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
     private final CloudFrontUtilities cloudFrontUtilities;
+    private final ObjectProvider<PrivateKey> cloudFrontPrivateKeyProvider;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
     @Value("${aws.region}")
     private String region;
+
+    @Value("${cloudfront.domain:}")
+    private String cloudFrontDomain;
+
+    @Value("${cloudfront.key-pair-id:}")
+    private String cloudFrontKeyPairId;
 
     public UploadUrlResponse generateUploadUrl(
             UploadType type,
@@ -120,11 +132,46 @@ public class S3Service {
     }
 
     public String generateCloudFrontSignedUrl(String fileKey) {
-        return fileKey;
+        return generateCloudFrontSignedUrl(fileKey, Duration.ofHours(1));
     }
 
     public String generateCloudFrontSignedUrl(String fileKey, Duration validFor) {
-        return fileKey;
+        if (fileKey == null || fileKey.isBlank()) {
+            return fileKey;
+        }
+
+        PrivateKey cloudFrontPrivateKey = cloudFrontPrivateKeyProvider.getIfAvailable();
+        if (isCloudFrontSigningConfigured(cloudFrontPrivateKey)) {
+            String resourceUrl = "https://" + cloudFrontDomain + "/" + fileKey;
+            CannedSignerRequest signerRequest = CannedSignerRequest.builder()
+                    .resourceUrl(resourceUrl)
+                    .privateKey(cloudFrontPrivateKey)
+                    .keyPairId(cloudFrontKeyPairId)
+                    .expirationDate(Instant.now().plus(validFor))
+                    .build();
+
+            return cloudFrontUtilities.getSignedUrlWithCannedPolicy(signerRequest).url();
+        }
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(validFor)
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        return s3Presigner.presignGetObject(presignRequest).url().toString();
+    }
+
+    private boolean isCloudFrontSigningConfigured(PrivateKey cloudFrontPrivateKey) {
+        return cloudFrontPrivateKey != null
+                && cloudFrontDomain != null
+                && !cloudFrontDomain.isBlank()
+                && cloudFrontKeyPairId != null
+                && !cloudFrontKeyPairId.isBlank();
     }
 
     public void putObject(byte[] content, String key, String contentType) {

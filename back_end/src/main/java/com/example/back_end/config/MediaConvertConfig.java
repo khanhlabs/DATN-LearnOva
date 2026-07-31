@@ -19,10 +19,14 @@ public class MediaConvertConfig {
 
      @Bean
      public MediaConvertClient mediaConvertClient() {
-         return MediaConvertClient.builder()
-                 .region(Region.of(region))
-                 .endpointOverride(URI.create(endpoint))
-                 .build();
+         var builder = MediaConvertClient.builder()
+                 .region(Region.of(region));
+
+         if (endpoint != null && !endpoint.isBlank()) {
+             builder.endpointOverride(URI.create(endpoint));
+         }
+
+         return builder.build();
      }
 
 }
