@@ -3,31 +3,32 @@ package com.example.back_end.service;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import com.example.back_end.document.CourseDocument;
 import com.example.back_end.dto.response.CourseSearchResponse;
+import java.util.List;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.HighlightQuery;
 import org.springframework.data.elasticsearch.core.query.highlight.Highlight;
 import org.springframework.data.elasticsearch.core.query.highlight.HighlightField;
 import org.springframework.data.elasticsearch.core.query.highlight.HighlightParameters;
-import org.springframework.data.elasticsearch.core.query.HighlightQuery;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class SearchService {
 
     private static final int MAX_RESULTS = 10;
 
-    private final ElasticsearchOperations elasticsearchOperations;
+    private final ObjectProvider<ElasticsearchOperations> elasticsearchOperations;
 
-    public SearchService(ElasticsearchOperations elasticsearchOperations) {
+    public SearchService(ObjectProvider<ElasticsearchOperations> elasticsearchOperations) {
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
     public List<CourseSearchResponse> searchCourses(String query) {
-        if (query == null || query.isBlank()) {
+        ElasticsearchOperations ops = elasticsearchOperations.getIfAvailable();
+        if (ops == null || query == null || query.isBlank()) {
             return List.of();
         }
 
@@ -42,17 +43,12 @@ public class SearchService {
 
         NativeQuery searchQuery = NativeQuery.builder()
                 .withQuery(q -> q.bool(b -> b
-                        // Nhánh 1: search_as_you_type + bool_prefix — gõ tới đâu ra tới đó
-                        // (fuzziness ở đây chỉ áp dụng cho các từ TRỪ từ cuối, vì từ cuối
-                        // được dùng để match-prefix cho autocomplete).
                         .should(s -> s.multiMatch(m -> m
                                 .type(TextQueryType.BoolPrefix)
                                 .fuzziness("AUTO")
                                 .fields("title", "title._2gram", "title._3gram", "title._index_prefix",
                                         "instructorName", "categoryName", "tags", "description")
                                 .query(query)))
-                        // Nhánh 2: fallback fuzzy thuần cho từ cuối cùng/từ đơn — bù lại
-                        // giới hạn của bool_prefix để gõ sai chính tả 1 từ vẫn ra kết quả.
                         .should(s -> s.multiMatch(m -> m
                                 .type(TextQueryType.BestFields)
                                 .fuzziness("AUTO")
@@ -63,7 +59,7 @@ public class SearchService {
                 .withMaxResults(MAX_RESULTS)
                 .build();
 
-        SearchHits<CourseDocument> hits = elasticsearchOperations.search(searchQuery, CourseDocument.class);
+        SearchHits<CourseDocument> hits = ops.search(searchQuery, CourseDocument.class);
 
         return hits.getSearchHits().stream()
                 .map(this::toResponse)

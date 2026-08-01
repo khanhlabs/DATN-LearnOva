@@ -1,6 +1,8 @@
 import {BrowserRouter, Routes, Route, Outlet} from "react-router-dom";
 import RequireRole from "./RequireRole.jsx";
 import AuthPage from "../page/auth/AuthPage.jsx";
+import ForgotPassword from "../page/auth/ForgotPassword.jsx";
+import ResetPassword from "../page/auth/ResetPassword.jsx";
 import Home from "../page/home/Home.jsx";
 import HomeLayout from "../layout/home/HomeLayout.jsx";
 import DashboardLayout from "../layout/admin/DashboardLayout.jsx";
@@ -45,6 +47,8 @@ import PaymentCancel from "../page/home/payment/PaymentCancel.jsx";
 import ApplyTeacherPage from "../page/teacherApplication/ApplyTeacherPage.jsx";
 import TeacherApplicationPage from "../page/admin/teacherApplication/TeacherApplicationPage.jsx";
 import AdminPayoutRequestsPage from "../page/admin/payoutRequests/AdminPayoutRequestsPage.jsx";
+import AdminProfilePage from "../page/admin/profile/AdminProfilePage.jsx";
+import Settings from "../page/admin/settings/Settings.jsx";
 import VerifyCertificatePage from "../page/certificate/VerifyCertificatePage.jsx";
 
 
@@ -54,6 +58,8 @@ const App = () => {
             <Routes>
 
                 <Route path="/learnova/auth/login" element={<AuthPage/>}/>
+                <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                <Route path="/reset-password" element={<ResetPassword/>}/>
                 <Route path="/learnova/user/courses-detail" element={<CourseDetail/>}/>
                 <Route path="/learnova/user/courses-detail/:courseId" element={<CourseDetail/>}/>
                 <Route path="/oauth2-success" element={<OAuth2Success />}/>
@@ -87,6 +93,8 @@ const App = () => {
                     <Route path="teacher-applications/:applicationId" element={<TeacherApplicationPage/>}/>
                     <Route path="payout-requests" element={<AdminPayoutRequestsPage/>}/>
                     <Route path="payout-requests/:requestId" element={<AdminPayoutRequestsPage/>}/>
+                    <Route path="profile" element={<AdminProfilePage/>}/>
+                    <Route path="settings" element={<Settings/>}/>
                 </Route>
 
                 {/* Teacher */}
@@ -112,6 +120,7 @@ const App = () => {
                     <Route path="/learnova/courses/detail/:id" element={<CourseDetaill/>}/>
                     <Route path="/learnova/intructors" element={<InstructorsPage/>}/>
                     <Route path="/learnova/intructorDetail/:instructorId" element={<InstructorDetail/>}/>
+                    <Route path="/learnova/intructorDetail/:id" element={<InstructorDetail/>}/>
                     <Route path="/learnova/about" element={<AboutView/>}/>
 
                     <Route element={<RequireRole><Outlet/></RequireRole>}>

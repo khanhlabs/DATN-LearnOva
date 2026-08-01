@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Embeddable
 public class LessonProgressId implements Serializable {
     private static final long serialVersionUID = -4059391704179396442L;
+
     @NotNull
     @Column(name = "user_id", nullable = false)
     private Long userId;
@@ -22,6 +23,4 @@ public class LessonProgressId implements Serializable {
     @NotNull
     @Column(name = "lesson_id", nullable = false)
     private Long lessonId;
-
-
 }

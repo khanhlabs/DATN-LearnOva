@@ -28,6 +28,7 @@ import com.example.back_end.repository.OrderItemRepository;
 import com.example.back_end.repository.ReviewRepository;
 import com.example.back_end.repository.admin.AdminCourseRepository;
 import com.example.back_end.repository.admin.AdminUserRepository;
+import com.example.back_end.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +42,7 @@ public class AdminInstructorService {
     private final OrderItemRepository orderItemRepository;
     private final ReviewRepository reviewRepository;
     private final CourseCategoryRepository courseCategoryRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public List<AdminInstructorResponse> getAllInstructors() {
@@ -300,7 +302,7 @@ public class AdminInstructorService {
                 instructorCode,
                 user.getFullName(),
                 user.getEmail(),
-                user.getAvatar(),
+                s3Service.resolveAvatarUrl(user.getAvatar()),
                 user.getCoverImage(),
                 user.getPhone(),
                 user.getDateOfBirth(),

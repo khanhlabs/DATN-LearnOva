@@ -93,6 +93,10 @@
     color: white;
 }
 
+.testi__avatar--img {
+    object-fit: cover;
+}
+
 .testi__name {
     margin: 0 0 2px;
     font-family: 'Bricolage Grotesque', sans-serif;

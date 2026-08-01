@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {FaPlay, FaPlayCircle, FaClock, FaGraduationCap, FaCheckCircle, FaUserGraduate, FaGlobe, FaChevronDown, FaChevronUp, FaShoppingCart,} from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import {FaPlay, FaPlayCircle, FaClock, FaGraduationCap, FaCheckCircle, FaUserGraduate, FaGlobe, FaChevronDown, FaChevronUp, FaShoppingCart, FaHeart, FaRegHeart,} from "react-icons/fa";
 import { ChevronDown } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getCourseDetail, getFileUrl } from "../../../api/PublicCourseApi.js";
 import { checkEnrollment } from "../../../api/EnrollmentApi.js";
+import { addWishlistApi, removeWishlistApi, getWishlistApi } from "../../../api/WishlistApi.js";
 import { useAuth } from "../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
-import { addStoredCartItem } from "../../../utils/cartStorage.js";
+import { addCourseToCart } from "../../../utils/cartStorage.js";
 import { createPaymentApi } from "../../../api/PaymentApi.js";
 import { applyVoucherApi } from "../../../api/VoucherApi.js";
 import PaymentModal from "../../../component/payment/PaymentModal.jsx";
 import LearnovaAI from "../chat-bot/chatBot.jsx";
 
 import "./CourseDetail.css";
+
+const formatUsd = (value) => {
+  const amount = Number(value) || 0;
+  const body = Number.isInteger(amount)
+    ? String(amount)
+    : amount.toFixed(2).replace(/\.?0+$/, "");
+  return `$${body}`;
+};
 
 const formatDuration = (seconds) => {
     if (!seconds) return "0:00";
@@ -43,14 +53,8 @@ const formatHours = (seconds) => {
     return `${m}m`;
 };
 
-const formatUsd = (value) => {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-    }).format(value || 0);
-};
-
 export default function CourseDetail() {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -69,6 +73,8 @@ export default function CourseDetail() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [enrolled, setEnrolled] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
 
     const [expandedSections, setExpandedSections] = useState([]);
     const [descExpanded, setDescExpanded] = useState(false);
@@ -103,13 +109,7 @@ export default function CourseDetail() {
                     setThumbnailUrl(null);
                 }
 
-                if (data.instructor?.avatarKey) {
-                    getFileUrl(data.instructor.avatarKey)
-                        .then(setInstructorAvatarUrl)
-                        .catch(() => setInstructorAvatarUrl(null));
-                } else {
-                    setInstructorAvatarUrl(null);
-                }
+                setInstructorAvatarUrl(data.instructor?.avatarKey || null);
             } catch (err) {
                 console.error("Failed to load course:", err);
                 setCourse(null);
@@ -142,6 +142,50 @@ export default function CourseDetail() {
             .catch(() => setEnrolled(false));
     }, [id, isAuthenticated, currentUser]);
 
+    useEffect(() => {
+        if (!id || !isAuthenticated) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setIsWishlisted(false);
+            return;
+        }
+
+        getWishlistApi()
+            .then((response) => {
+                const items = response?.data || [];
+                setIsWishlisted(items.some((item) => String(item.courseId) === String(id)));
+            })
+            .catch(() => setIsWishlisted(false));
+    }, [id, isAuthenticated, currentUser]);
+
+    const handleToggleWishlist = async () => {
+        if (authLoading || !course) return;
+
+        if (!isAuthenticated) {
+            toast.error(t("publicCourseDetail.loginToWishlist"));
+            return;
+        }
+
+        const courseId = course.courseId || course.id || id;
+
+        setIsTogglingWishlist(true);
+        try {
+            if (isWishlisted) {
+                await removeWishlistApi(courseId);
+                setIsWishlisted(false);
+                toast.success(t("publicCourseDetail.removedFromWishlist"));
+            } else {
+                await addWishlistApi(courseId);
+                setIsWishlisted(true);
+                toast.success(t("publicCourseDetail.addedToWishlist"));
+            }
+        } catch (err) {
+            console.error("Failed to toggle wishlist", err);
+            toast.error(t("publicCourseDetail.wishlistUpdateError"));
+        } finally {
+            setIsTogglingWishlist(false);
+        }
+    };
+
     const toggleSection = (sectionId) => {
         setExpandedSections((prev) =>
             prev.includes(sectionId)
@@ -161,17 +205,20 @@ export default function CourseDetail() {
         const subtotal = Number(course?.basePrice || 0);
 
         if (!code) {
-            setVoucherMessage("Vui lòng nhập mã voucher.");
+            setVoucherMessage(t("publicCourseDetail.enterVoucherCode"));
+            toast.error(t("publicCourseDetail.enterVoucherCode"));
             return;
         }
 
         if (!course || subtotal <= 0) {
-            setVoucherMessage("Khóa học chưa có giá hợp lệ.");
+            setVoucherMessage(t("publicCourseDetail.invalidCoursePrice"));
+            toast.error(t("publicCourseDetail.invalidCoursePrice"));
             return;
         }
 
         if (appliedVoucher?.code?.toLowerCase() === code.toLowerCase()) {
-            setVoucherMessage("Voucher này đã được áp dụng.");
+            setVoucherMessage(t("publicCourseDetail.voucherAlreadyApplied"));
+            toast.info(t("publicCourseDetail.voucherAlreadyApplied"));
             return;
         }
 
@@ -185,12 +232,12 @@ export default function CourseDetail() {
             });
 
             setAppliedVoucher(result);
-            setVoucherMessage(`Đã áp dụng ${result.code}.`);
-            toast.success("Áp dụng voucher thành công.");
+            setVoucherMessage(t("publicCourseDetail.voucherApplied", { code: result.code }));
+            toast.success(t("publicCourseDetail.voucherAppliedSuccess"));
         } catch (err) {
             const message =
                 err?.response?.data?.message ||
-                "Voucher không hợp lệ hoặc không còn sử dụng được.";
+                t("publicCourseDetail.voucherInvalid");
 
             setAppliedVoucher(null);
             setVoucherMessage(message);
@@ -200,46 +247,52 @@ export default function CourseDetail() {
         }
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (authLoading || !course) return;
 
         if (!isAuthenticated) {
-            toast.error("Bạn cần đăng nhập để thêm khóa học vào giỏ hàng.");
+            toast.error(t("publicCourseDetail.loginToCart"));
             return;
         }
 
         if (enrolled) {
-            toast.info("Bạn đã sở hữu khóa học này.");
+            toast.info(t("publicCourseDetail.alreadyOwned"));
             return;
         }
 
-        const { alreadyInCart } = addStoredCartItem({
-            id: course.courseId || course.id || id,
-            courseId: course.courseId || course.id || id,
-            title: course.title,
-            teacher: course.instructor?.fullName || "LearnOva Instructor",
-            price: formatUsd(course.basePrice),
-            image: thumbnailUrl,
-        });
+        try {
+            const result = await addCourseToCart(
+                {
+                    courseId: course.courseId || course.id || id,
+                    title: course.title,
+                    teacher: course.instructor?.fullName || "LearnOva Instructor",
+                    price: Number(course.basePrice || 0),
+                    image: thumbnailUrl,
+                },
+                { isAuthenticated, accessToken },
+            );
 
-        if (alreadyInCart) {
-            toast.info("Khóa học này đã có trong giỏ hàng.");
-            return;
+            if (result.alreadyInCart) {
+                toast.info(t("publicCourseDetail.alreadyInCart"));
+                return;
+            }
+
+            toast.success(t("publicCourseDetail.addedToCart"));
+        } catch (err) {
+            toast.error(err?.response?.data?.message || "Failed to add to cart.");
         }
-
-        toast.success("Đã thêm khóa học vào giỏ hàng.");
     };
 
     const handleBuyNow = async () => {
         if (authLoading || !course) return;
 
         if (!isAuthenticated) {
-            toast.error("Bạn cần đăng nhập để thanh toán.");
+            toast.error(t("publicCourseDetail.loginToCheckout"));
             return;
         }
 
         if (enrolled) {
-            toast.info("Bạn đã sở hữu khóa học này.");
+            toast.info(t("publicCourseDetail.alreadyOwned"));
             navigate("/learnova/user/profile/courses");
             return;
         }
@@ -256,19 +309,31 @@ export default function CourseDetail() {
                 accessToken,
             );
 
+            // Free / $0 after voucher — already enrolled on server
+            if (
+                payment?.orderStatus === "PAID" ||
+                payment?.paymentStatus === "SUCCESS" ||
+                payment?.paymentMethod === "FREE"
+            ) {
+                setEnrolled(true);
+                toast.success("Enrolled successfully. Opening your course…");
+                navigate(`/learnova/user/courses-detail/${id}`);
+                return;
+            }
+
             setActivePayment(payment);
         } catch (err) {
             const message =
                 err?.response?.data?.message ||
                 err?.response?.data?.error ||
-                "Không thể tạo thanh toán payOS.";
+                t("publicCourseDetail.paymentCreateError");
 
             if (
                 err?.response?.status === 409 &&
                 message.toLowerCase().includes("already enrolled")
             ) {
                 setEnrolled(true);
-                toast.info("Bạn đã sở hữu khóa học này.");
+                toast.info(t("publicCourseDetail.alreadyOwned"));
                 navigate("/learnova/user/profile/courses");
                 return;
             }
@@ -280,11 +345,11 @@ export default function CourseDetail() {
     };
 
     if (isLoading) {
-        return <div className="cdp__loading">Loading course...</div>;
+        return <div className="cdp__loading">{t("publicCourseDetail.loading")}</div>;
     }
 
     if (!course) {
-        return <div className="cdp__loading">Course not found.</div>;
+        return <div className="cdp__loading">{t("publicCourseDetail.notFound")}</div>;
     }
 
     const descParagraphs = (course.description || "")
@@ -318,7 +383,7 @@ export default function CourseDetail() {
                         </span>
 
                         <span className="cdp__hero-stat">
-                            <FaPlayCircle /> {course.lessonCount || 0} lessons
+                            <FaPlayCircle /> {t("publicCourseDetail.lessons", { count: course.lessonCount || 0 })}
                         </span>
 
                         <span className="cdp__hero-stat">
@@ -342,7 +407,7 @@ export default function CourseDetail() {
                 <div className="cdp__left">
                     {course.whatYouLearn?.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">What you'll learn</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.whatYouLearn")}</h2>
 
                             <ul className="cdp__learn-list">
                                 {course.whatYouLearn.map((item, index) => (
@@ -357,7 +422,7 @@ export default function CourseDetail() {
 
                     {descParagraphs.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">Course Description</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.description")}</h2>
 
                             <div className="cdp__desc">
                                 {visibleParas.map((item, index) => (
@@ -373,11 +438,11 @@ export default function CourseDetail() {
                                 >
                                     {descExpanded ? (
                                         <>
-                                            <FaChevronUp /> Show less
+                                            <FaChevronUp /> {t("publicCourseDetail.showLess")}
                                         </>
                                     ) : (
                                         <>
-                                            <FaChevronDown /> Show more
+                                            <FaChevronDown /> {t("publicCourseDetail.showMore")}
                                         </>
                                     )}
                                 </button>
@@ -387,11 +452,14 @@ export default function CourseDetail() {
 
                     {course.sections?.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">Course Content</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.courseContent")}</h2>
 
                             <p className="cdp__curriculum-meta">
-                                {course.sections.length} sections · {course.lessonCount || 0} lessons ·{" "}
-                                {formatHours(course.totalDurationSeconds)} total
+                                {t("publicCourseDetail.curriculumMeta", {
+                                    sections: course.sections.length,
+                                    lessons: course.lessonCount || 0,
+                                    duration: formatHours(course.totalDurationSeconds),
+                                })}
                             </p>
 
                             <div className="cdp__curriculum">
@@ -425,7 +493,7 @@ export default function CourseDetail() {
                                                 </span>
 
                                                 <span className="cdp__section-info">
-                                                    {(section.lessons || []).length} lessons ·{" "}
+                                                    {t("publicCourseDetail.lessonsCount", { count: (section.lessons || []).length })} ·{" "}
                                                     {formatHours(sectionDuration)}
                                                 </span>
                                             </button>
@@ -445,7 +513,7 @@ export default function CourseDetail() {
 
                                                             {lesson.isPreview && (
                                                                 <span className="cdp__preview-badge">
-                                                                    Preview
+                                                                    {t("publicCourseDetail.preview")}
                                                                 </span>
                                                             )}
 
@@ -465,7 +533,7 @@ export default function CourseDetail() {
 
                     {course.requirements?.length > 0 && (
                         <section className="cdp__section">
-                            <h2 className="cdp__section-title">Requirements</h2>
+                            <h2 className="cdp__section-title">{t("publicCourseDetail.requirements")}</h2>
 
                             <ul className="cdp__req-list">
                                 {course.requirements.map((item, index) => (
@@ -476,7 +544,7 @@ export default function CourseDetail() {
                     )}
 
                     <section className="cdp__section">
-                        <h2 className="cdp__section-title">Instructor</h2>
+                        <h2 className="cdp__section-title">{t("publicCourseDetail.instructor")}</h2>
 
                         <div className="cdp__instructor">
                             <div className="cdp__instructor-avatar">
@@ -494,6 +562,11 @@ export default function CourseDetail() {
 
                             <div className="cdp__instructor-info">
                                 <h3>{course.instructor?.fullName}</h3>
+                                {course.instructor?.description && (
+                                    <p className="cdp__instructor-bio">
+                                        {course.instructor.description}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -513,18 +586,18 @@ export default function CourseDetail() {
 
                         <div className="cdp__card-body">
                             <div className="cdp__card-price">
-                                {formatUsd(total)}
+                                {total <= 0 ? "Free" : formatUsd(total)}
                             </div>
 
                             {discount > 0 && (
                                 <div className="course-detail-order-lines">
                                     <div>
-                                        <span>Subtotal</span>
+                                        <span>{t("publicCourseDetail.subtotal")}</span>
                                         <strong>{formatUsd(subtotal)}</strong>
                                     </div>
 
                                     <div>
-                                        <span>Discount</span>
+                                        <span>{t("publicCourseDetail.discount")}</span>
                                         <strong>-{formatUsd(discount)}</strong>
                                     </div>
                                 </div>
@@ -533,7 +606,7 @@ export default function CourseDetail() {
                             {!enrolled && (
                                 <div className="course-detail-voucher">
                                     <label htmlFor="course-detail-voucher">
-                                        Voucher code
+                                        {t("publicCourseDetail.voucherLabel")}
                                     </label>
 
                                     <div className="course-detail-voucher-input">
@@ -542,7 +615,7 @@ export default function CourseDetail() {
                                             type="text"
                                             value={promo}
                                             onChange={handleVoucherChange}
-                                            placeholder="Enter voucher"
+                                            placeholder={t("publicCourseDetail.voucherPlaceholder")}
                                         />
 
                                         <button
@@ -550,7 +623,7 @@ export default function CourseDetail() {
                                             onClick={handleApplyVoucher}
                                             disabled={isApplyingVoucher}
                                         >
-                                            {isApplyingVoucher ? "..." : "Apply"}
+                                            {isApplyingVoucher ? t("publicCourseDetail.applying") : t("publicCourseDetail.apply")}
                                         </button>
                                     </div>
 
@@ -568,17 +641,17 @@ export default function CourseDetail() {
 
                             {isOwnCourse ? (
                                 <p className="cdp__own-course-note">
-                                    Đây là khóa học của bạn — không thể mua khóa học do chính bạn giảng dạy.
+                                    This is your own course — you cannot purchase a course you teach.
                                 </p>
                             ) : enrolled ? (
                                 <button
                                     className="cdp__btn cdp__btn--primary"
                                     type="button"
                                     onClick={() =>
-                                        navigate(`/learnova/user/CoursesDetail/${id}`)
+                                        navigate(`/learnova/user/courses-detail/${id}`)
                                     }
                                 >
-                                    <FaPlay /> Start Learning
+                                    <FaPlay /> {t("publicCourseDetail.startLearning")}
                                 </button>
                             ) : (
                                 <>
@@ -589,10 +662,16 @@ export default function CourseDetail() {
                                         disabled={isCreatingPayment}
                                     >
                                         {isCreatingPayment ? (
-                                            "Creating payment..."
+                                            total <= 0
+                                                ? "Enrolling..."
+                                                : t("publicCourseDetail.creatingPayment")
+                                        ) : total <= 0 ? (
+                                            <>
+                                                <FaGraduationCap /> Enroll for free
+                                            </>
                                         ) : (
                                             <>
-                                                <FaShoppingCart /> Buy Now
+                                                <FaShoppingCart /> {t("publicCourseDetail.buyNow")}
                                             </>
                                         )}
                                     </button>
@@ -602,18 +681,35 @@ export default function CourseDetail() {
                                         type="button"
                                         onClick={handleAddToCart}
                                     >
-                                        <FaShoppingCart /> Add to Cart
+                                        <FaShoppingCart /> {t("publicCourseDetail.addToCart")}
                                     </button>
                                 </>
                             )}
 
+                            <button
+                                className="cdp__btn cdp__btn--outline"
+                                type="button"
+                                onClick={handleToggleWishlist}
+                                disabled={isTogglingWishlist}
+                            >
+                                {isWishlisted ? (
+                                    <>
+                                        <FaHeart color="#e11d48" /> {t("publicCourseDetail.wishlisted")}
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaRegHeart /> {t("publicCourseDetail.addToWishlist")}
+                                    </>
+                                )}
+                            </button>
+
                             <ul className="cdp__card-features">
                                 <li>
-                                    <FaPlayCircle /> {course.lessonCount || 0} lessons on-demand
+                                    <FaPlayCircle /> {t("publicCourseDetail.lessonsOnDemand", { count: course.lessonCount || 0 })}
                                 </li>
 
                                 <li>
-                                    <FaClock /> {formatHours(course.totalDurationSeconds)} total
+                                    <FaClock /> {t("publicCourseDetail.totalDuration", { duration: formatHours(course.totalDurationSeconds) })}
                                 </li>
 
                                 <li>
@@ -626,8 +722,8 @@ export default function CourseDetail() {
                                     </li>
                                 )}
 
-                                <li>✓ Full lifetime access</li>
-                                <li>✓ Certificate of completion</li>
+                                <li>✓ {t("publicCourseDetail.fullLifetimeAccess")}</li>
+                                <li>✓ {t("publicCourseDetail.certificate")}</li>
                             </ul>
                         </div>
                     </div>

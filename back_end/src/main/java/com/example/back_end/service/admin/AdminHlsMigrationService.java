@@ -25,6 +25,7 @@ public class AdminHlsMigrationService {
 
         int triggered = 0;
         for (Lesson lesson : legacyLessons) {
+
             try {
                 String jobId = mediaConvertService.createHlsJob(lesson.getVideoKey(), lesson.getId());
                 lesson.setMediaConvertJobId(jobId);
@@ -39,5 +40,6 @@ public class AdminHlsMigrationService {
         log.info("Triggered HLS migration for {} legacy lessons", triggered);
         return triggered;
     }
+
 
 }

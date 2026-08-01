@@ -11,24 +11,30 @@ import {
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import defaultCover from "../../../../assets/instructors/header-intructor.png";
 import "./ViewInstructorModal.css";
 
+const formatCurrency = (value) => {
+  const amount = Number(value);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number.isFinite(amount) ? amount : 0);
+};
+
 const formatDate = (value) => {
   if (!value) return "--";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-
   return new Intl.DateTimeFormat("en-GB").format(date);
 };
 
 const formatDateTime = (value) => {
   if (!value) return "--";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -38,13 +44,11 @@ const formatDateTime = (value) => {
   }).format(date);
 };
 
-const formatMoney = (value, currency = "VND") => {
-  if (value == null || value === "") return `0 ${currency}`;
-  const number = Number(value) || 0;
-  return `${new Intl.NumberFormat("vi-VN").format(number)} ${currency}`;
-};
+const formatNumber = (value) =>
+  new Intl.NumberFormat("vi-VN").format(value == null ? 0 : Number(value) || 0);
 
-const formatCount = (value) => new Intl.NumberFormat("vi-VN").format(Number(value) || 0);
+const valueOrDash = (value) =>
+  value === null || value === undefined || value === "" ? "--" : value;
 
 const getInitials = (name) =>
   String(name || "Instructor")
@@ -54,11 +58,6 @@ const getInitials = (name) =>
     .map((word) => word[0])
     .join("")
     .toUpperCase() || "I";
-
-const valueOrDash = (value) => {
-  if (value === null || value === undefined || value === "") return "--";
-  return value;
-};
 
 const getVisibility = (isDeleted) => (isDeleted ? "Hidden" : "Available");
 
@@ -98,6 +97,7 @@ const PanelCard = ({ icon: Icon, title, children, className = "" }) => (
 );
 
 const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClose }) => {
+  const { t } = useTranslation();
   const [avatarError, setAvatarError] = useState(false);
   const [coverError, setCoverError] = useState(false);
 
@@ -120,11 +120,11 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
         className="instructor-view-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="View Instructor"
+        aria-label={t("instructorAdmin.viewInstructor")}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="view-header">
-          <h2>View Instructor</h2>
+          <h2>{t("instructorAdmin.viewInstructor")}</h2>
           <button type="button" className="close-btn" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
@@ -172,11 +172,11 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
 
             <div className="profile-extra">
               <div className="info-card">
-                <label>Instructor ID</label>
+                <label>{t("instructorAdmin.instructorId")}</label>
                 <span>{valueOrDash(instructor.instructorCode || instructor.id)}</span>
               </div>
               <div className="info-card">
-                <label>Created At</label>
+                <label>{t("instructorAdmin.createdAt")}</label>
                 <span>{formatDate(instructor.createdAt)}</span>
               </div>
             </div>
@@ -184,34 +184,34 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
         </div>
 
         <div className="content-section">
-          <PanelCard icon={UserRound} title="Basic Information" className="modal-panel-card--info">
-            <InfoRow label="Full Name">{fullName}</InfoRow>
-            <InfoRow label="Email">{valueOrDash(instructor.email)}</InfoRow>
-            <InfoRow label="Phone">{valueOrDash(instructor.phone)}</InfoRow>
-            <InfoRow label="Specialization">{valueOrDash(instructor.specialization || instructor.category)}</InfoRow>
-            <InfoRow label="Gender">{valueOrDash(instructor.gender)}</InfoRow>
-            <InfoRow label="Visibility">{getVisibility(instructor.isDeleted)}</InfoRow>
-            <InfoRow label="Date Of Birth">{formatDate(instructor.dateOfBirth)}</InfoRow>
-            <InfoRow label="Created At">{formatDateTime(instructor.createdAt)}</InfoRow>
-            <InfoRow label="Updated At">{formatDateTime(instructor.updatedAt)}</InfoRow>
+          <PanelCard icon={UserRound} title={t("instructorAdmin.basicInformation")} className="modal-panel-card--info">
+            <InfoRow label={t("instructorAdmin.fullName")}>{fullName}</InfoRow>
+            <InfoRow label={t("instructorAdmin.email")}>{valueOrDash(instructor.email)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.phone")}>{valueOrDash(instructor.phone)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.specialization")}>{valueOrDash(instructor.specialization || instructor.category)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.gender")}>{valueOrDash(instructor.gender)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.visibility")}>{t(`instructorAdmin.${getVisibility(instructor.isDeleted).toLowerCase()}`)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.dateOfBirth")}>{formatDate(instructor.dateOfBirth)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.createdAt")}>{formatDateTime(instructor.createdAt)}</InfoRow>
+            <InfoRow label={t("instructorAdmin.updatedAt")}>{formatDateTime(instructor.updatedAt)}</InfoRow>
           </PanelCard>
 
-          <PanelCard icon={BarChart3} title="Teaching Statistics" className="modal-panel-card--stats">
+          <PanelCard icon={BarChart3} title={t("instructorAdmin.teachingStatistics")} className="modal-panel-card--stats">
             <div className="stat-grid">
               <div className="stat-box">
                 <span className="stat-icon stat-icon-blue"><BookOpen size={26} /></span>
-                <p>Managed Courses</p>
-                <h2>{formatCount(instructor.numberOfClasses ?? instructor.classes)}</h2>
+                <p>{t("instructorAdmin.managedCourses")}</p>
+                <h2>{formatNumber(instructor.numberOfClasses ?? instructor.displayClasses)}</h2>
               </div>
               <div className="stat-box">
                 <span className="stat-icon stat-icon-green"><Users size={26} /></span>
-                <p>Total Students</p>
-                <h2>{formatCount(instructor.totalStudents ?? instructor.students)}</h2>
+                <p>{t("instructorAdmin.totalStudents")}</p>
+                <h2>{formatNumber(instructor.totalStudents)}</h2>
               </div>
               <div className="stat-box">
                 <span className="stat-icon stat-icon-purple"><CircleDollarSign size={26} /></span>
-                <p>Total Revenue</p>
-                <h2>{formatMoney(instructor.totalRevenue)}</h2>
+                <p>{t("instructorAdmin.totalRevenue")}</p>
+                <h2>{formatCurrency(instructor.totalRevenue)}</h2>
               </div>
             </div>
           </PanelCard>
@@ -220,20 +220,14 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
         <div className="course-section">
           <h4>
             <span><BookOpen size={17} /></span>
-            Courses Of This Instructor ({courseItems.length})
+            {t("instructorAdmin.courses")} ({courseItems.length})
           </h4>
 
           <div className="course-table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Course</th>
-                  <th>Category</th>
-                  <th>Students</th>
-                  <th>Rating</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Published At</th>
+                  <th>{t("instructorAdmin.course")}</th><th>{t("instructorAdmin.category")}</th><th>{t("instructorAdmin.students")}</th><th>{t("instructorAdmin.rating")}</th><th>{t("instructorAdmin.price")}</th><th>{t("instructorAdmin.status")}</th><th>{t("instructorAdmin.publishedAt")}</th>
                 </tr>
               </thead>
 
@@ -255,14 +249,14 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
                           </div>
                         </td>
                         <td>{valueOrDash(course.category || course.categoryName)}</td>
-                        <td>{formatCount(course.students || course.totalStudents)}</td>
+                        <td>{formatNumber(course.students ?? course.totalStudents)}</td>
                         <td>
                           <span className="rating-cell">
                             <Star size={14} fill="currentColor" />
                             {Number(course.rating || 0).toFixed(1)}
                           </span>
                         </td>
-                        <td>{formatMoney(course.price || course.basePrice)}</td>
+                        <td>{formatCurrency(course.price || course.basePrice)}</td>
                         <td>
                           <span className={`course-status ${getCourseStatusClass(course.status)}`}>
                             {status}
@@ -275,7 +269,7 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
                 ) : (
                   <tr>
                     <td colSpan="7" className="empty-course-row">
-                      {isLoading ? "Loading details..." : "No course data returned from the backend yet."}
+                      {isLoading ? t("instructorAdmin.loadingDetails") : t("instructorAdmin.noCourseData")}
                     </td>
                   </tr>
                 )}
@@ -285,7 +279,7 @@ const ViewInstructorModal = ({ instructor, courses = [], isLoading, error, onClo
         </div>
 
         <div className="view-footer">
-          <button type="button" onClick={onClose}>Close</button>
+          <button type="button" onClick={onClose}>{t("instructorAdmin.close")}</button>
         </div>
       </div>
     </div>

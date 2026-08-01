@@ -141,14 +141,9 @@
   box-shadow: none;
 }
 
-.userManagementUserAvatarFallback {
+.userManagementUserAvatarEmpty {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 13px;
-  font-weight: 800;
+  background: #eef4ff;
 }
 
 .userManagementUserMeta {

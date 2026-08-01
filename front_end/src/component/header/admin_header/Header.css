@@ -36,6 +36,21 @@
   gap: 16px;
 }
 
+.admin-language-switch {
+  min-width: 44px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #2563eb;
+  border-radius: 18px;
+  background: #fff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-language-switch:hover { background: #2563eb; color: #fff; }
+
 .admin-topbar__btn {
   position: relative;
   width: 44px;
@@ -188,12 +203,19 @@
   background: transparent;
 }
 
+.admin-profile-wrap {
+  position: relative;
+}
+
 .admin-profile {
   display: flex;
   align-items: center;
   gap: 10px;
+  border: 0;
+  background: transparent;
   cursor: pointer;
   user-select: none;
+  padding: 0;
 }
 
 .admin-profile img {
@@ -209,6 +231,92 @@
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: none;
+}
+
+.admin-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 260px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
+  z-index: 1300;
+}
+
+.admin-profile-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-profile-card img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-profile-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.admin-profile-card span {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-profile-menu {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-profile-menu__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-profile-menu__item:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.admin-profile-menu__item--danger {
+  color: #dc2626;
+}
+
+.admin-profile-menu__item--danger:hover {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 @media (max-width: 760px) {
@@ -229,7 +337,8 @@
     padding-left: 12px;
   }
 
-  .admin-profile div {
+  .admin-profile span,
+  .admin-profile svg {
     display: none;
   }
 }

@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,7 @@ import com.example.back_end.repository.admin.AdminCourseRepository;
 import com.example.back_end.service.CourseIndexService;
 import com.example.back_end.service.EmailService;
 import com.example.back_end.service.NotificationService;
+import com.example.back_end.service.S3Service;
 
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -36,20 +36,35 @@ public class AdminCourseService {
     private final AdminCourseRepository courseRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final S3Service s3Service;
     private final CourseIndexService courseIndexService;
 
-    public AdminCourseService(AdminCourseRepository courseRepository, NotificationService notificationService,
-                               EmailService emailService, CourseIndexService courseIndexService) {
+    public AdminCourseService(
+            AdminCourseRepository courseRepository,
+            NotificationService notificationService,
+            EmailService emailService,
+            S3Service s3Service,
+            CourseIndexService courseIndexService
+    ) {
         this.courseRepository = courseRepository;
         this.notificationService = notificationService;
         this.emailService = emailService;
+        this.s3Service = s3Service;
         this.courseIndexService = courseIndexService;
     }
 
     public List<AdminCourseResponse> getAllCourses() {
         return courseRepository.findAllWithInstructor().stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    public String getThumbnailUrl(String thumbnailKey) {
+        if (thumbnailKey == null || thumbnailKey.trim().isEmpty()) {
+            throw new BusinessException("Thumbnail key is required.");
+        }
+
+        return s3Service.generateCloudFrontSignedUrl(thumbnailKey.trim());
     }
 
     public AdminCourseDetailResponse getCourseDetail(Long id) {
@@ -63,7 +78,7 @@ public class AdminCourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found id=" + id));
 
         if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
-            throw new BusinessException("Chỉ có thể duyệt khóa học đang ở trạng thái PENDING_REVIEW.");
+            throw new BusinessException("Only courses pending review can be approved.");
         }
 
         course.setStatus(CourseStatus.PUBLISHED);
@@ -91,7 +106,7 @@ public class AdminCourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found id=" + id));
 
         if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
-            throw new BusinessException("Chỉ có thể từ chối khóa học đang ở trạng thái PENDING_REVIEW.");
+            throw new BusinessException("Only courses pending review can be rejected.");
         }
 
         course.setStatus(CourseStatus.REJECTED);
@@ -117,7 +132,7 @@ public class AdminCourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found id=" + id));
 
         if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
-            throw new BusinessException("Chỉ có thể ẩn khóa học đang ở trạng thái PENDING_REVIEW.");
+            throw new BusinessException("Only courses pending review can be hidden.");
         }
 
         course.setStatus(CourseStatus.ARCHIVED);
@@ -183,7 +198,7 @@ public class AdminCourseService {
         User instructor = course.getInstructor();
         String instructorName = instructor == null ? null
                 : (instructor.getFullName() != null ? instructor.getFullName() : instructor.getEmail());
-        String instructorAvatar = instructor == null ? null : instructor.getAvatar();
+        String instructorAvatar = instructor == null ? null : s3Service.resolveAvatarUrl(instructor.getAvatar());
 
         String status = Boolean.TRUE.equals(course.getIsDeleted()) ? "DELETED"
                 : (course.getStatus() == null ? null : course.getStatus().name());

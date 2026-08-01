@@ -34,5 +34,7 @@ build/
 
 ### ENV ###
 .env
-
+# Maven local repository
+.m2/
+.m2-repair/
 

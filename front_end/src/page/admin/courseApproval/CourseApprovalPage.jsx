@@ -1,7 +1,9 @@
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { adminNotifySuccess } from "../../../api/NotificationApi.js";
 import {
   approveAdminCourseApi,
   getAdminCourseDetailApi,
@@ -168,7 +170,7 @@ const useCourseApproval = () => {
 
       setDetail(mappedDetail);
       updateCourseStatusInList(selectedId, mappedDetail.status);
-      toast.success(successMessage);
+      await adminNotifySuccess(successMessage, { title: "Course approval" });
       setActiveAction(null);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Course action failed. Please try again.");
@@ -194,6 +196,7 @@ const useCourseApproval = () => {
 };
 
 const CourseApprovalPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     draftCourses,
@@ -218,18 +221,18 @@ const CourseApprovalPage = () => {
           onClick={() => navigate("/learnova/admin/courses")}
         >
           <ArrowLeft size={16} />
-          Back to Courses
+          {t("courseApproval.back")}
         </button>
 
         <div className="approvalPageHeaderTitle">
-          <h1>Course Approval</h1>
-          <p>Review pending course content before publishing.</p>
+          <h1>{t("courseApproval.title")}</h1>
+          <p>{t("courseApproval.subtitle")}</p>
         </div>
       </header>
 
       <div className="approvalLayout">
         {loadingList ? (
-          <aside className="approvalSidebar approvalSidebarLoading">Loading courses...</aside>
+          <aside className="approvalSidebar approvalSidebarLoading">{t("courseApproval.loading")}</aside>
         ) : (
           <ApprovalSidebar
             courses={draftCourses}
@@ -242,20 +245,19 @@ const CourseApprovalPage = () => {
           {!selectedId ? (
             <div className="approvalEmptyState">
               <BookOpen size={48} />
-              <p>Select a course from the list to start reviewing.</p>
+              <p>{t("courseApproval.select")}</p>
             </div>
           ) : loadingDetail ? (
-            <div className="approvalEmptyState">Loading course detail...</div>
+            <div className="approvalEmptyState">{t("courseApproval.loadingDetail")}</div>
           ) : !detail ? (
             <div className="approvalEmptyState approvalEmptyState--error">
-              Course detail could not be loaded.
+              {t("courseApproval.error")}
             </div>
           ) : (
             <ApprovalCourseDetail
               course={detail}
               isSubmitting={isSubmitting}
               onApprove={() => openAction("approve")}
-              onHide={() => openAction("hide")}
               onReject={() => openAction("reject")}
             />
           )}

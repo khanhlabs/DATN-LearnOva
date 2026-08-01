@@ -53,7 +53,7 @@ jobs:
                 "mkdir -p /home/ec2-user/secrets",
                 "aws ssm get-parameter --region ap-southeast-1 --name /learnova/cloudfront/private-key --with-decryption --query Parameter.Value --output text > /home/ec2-user/secrets/cloudfront-private-key.pem",
                 "chmod 400 /home/ec2-user/secrets/cloudfront-private-key.pem",
-                "docker compose up --build -d"
+                "docker compose -f docker-compose.prod.yml up --build -d"
               ]
             }' \
             --query "Command.CommandId" --output text)

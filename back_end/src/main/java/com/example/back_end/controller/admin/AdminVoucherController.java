@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.back_end.dto.response.admin.AdminVoucherResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageFrequencyResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageHistoryResponse;
+import com.example.back_end.dto.response.admin.AdminVoucherCampaignStatsResponse;
 import com.example.back_end.dto.request.admin.AdminVoucherRequest;
 import com.example.back_end.service.admin.AdminVoucherService;
 
@@ -41,6 +42,11 @@ public class AdminVoucherController {
     @GetMapping("/usage-frequency")
     public List<AdminVoucherUsageFrequencyResponse> getVoucherUsageFrequency() {
         return voucherService.getVoucherUsageFrequency();
+    }
+
+    @GetMapping("/campaign-stats")
+    public List<AdminVoucherCampaignStatsResponse> getVoucherCampaignStats() {
+        return voucherService.getVoucherCampaignStats();
     }
 
     @GetMapping("/{voucherId}")

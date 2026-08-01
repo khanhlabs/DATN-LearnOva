@@ -7,11 +7,23 @@
 }
 
 .adminSidebar .teacher-nav {
+  flex: 1;
+  min-height: 0;
   display: grid;
+  align-content: start;
   gap: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.adminSidebar .teacher-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .adminSidebar .teacher-brand {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   min-height: 58px;

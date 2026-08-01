@@ -17,9 +17,6 @@ export const DEFAULT_PROFILE = {
   bio: "I am a young graphic designer passionate about learning UI/UX and chat-bot.",
   goal: "Fullstack Developer & UI/UX Designer",
   avatar: PRESET_AVATARS[0],
-  streakDays: 15,
-  studyHours: 42,
-  points: 1250,
 };
 
 export const DEFAULT_ACTIVITIES = [
@@ -115,8 +112,8 @@ export const DEFAULT_ENROLLED_COURSES = [
 
 export const FAVORITE_COURSE_TABS = [
   { id: "all", label: "All" },
-  { id: "purchased", label: "Purchased" },
-  { id: "unpurchased", label: "Not Purchased" },
+  { id: "purchased", label: "Not Purchased" },
+  { id: "unpurchased", label: "Purchased" },
 ];
 
 export const FAVORITE_COURSE_STATUS = {
@@ -181,22 +178,22 @@ export const buildFavoriteCourses = (favoriteCourses = []) => {
   ];
 };
 
-export const buildAchievements = (profileData, purchasedCourses) => [
+export const buildAchievements = (stats, profileData, purchasedCourses) => [
   {
     id: "stellar",
     title: "Outstanding Learner",
     description: "Accumulate more than 30 hours of inspiring learning time.",
     icon: Award,
-    threshold: profileData.studyHours >= 30,
-    detail: `${profileData.studyHours}/30 Hours`,
+    threshold: stats.totalStudyHours >= 30,
+    detail: `${stats.totalStudyHours.toFixed(1)}/30 Hours`,
   },
   {
     id: "streak",
     title: "Discipline Warrior",
     description: "Maintain a learning streak of more than 10 days.",
     icon: Flame,
-    threshold: profileData.streakDays >= 10,
-    detail: `${profileData.streakDays}/10 Days`,
+    threshold: stats.streakDays >= 10,
+    detail: `${stats.streakDays}/10 Days`,
   },
   {
     id: "investor",

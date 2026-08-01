@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getAdminDashboardApi } from "../../../api/admin/DashboardApi.js";
 import { getAdminCoursesApi } from "../../../api/admin/CourseApi.js";
 import { getAdminInstructorsApi } from "../../../api/admin/InstructorApi.js";
@@ -12,7 +12,20 @@ import UserRow from "./userRow/UserRow";
 import TeacherRow from "./teacherRow/TeacherRow";
 import ActivityRow from "./activityRow/ActivityRow";
 
-const monthLabels = ["May", "June", "July", "August", "September", "October"];
+const monthLabels = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const currentYear = new Date().getFullYear();
 
@@ -25,6 +38,7 @@ const dashboardYearOptions = Array.from({ length: 3 }, (_, index) => {
     label: `${startYear} - ${endYear}`,
   };
 });
+const defaultDashboardYear = dashboardYearOptions[0].value;
 
 const emptyDashboardData = {
   statistics: {},
@@ -37,7 +51,7 @@ const emptyDashboardData = {
 
 const toArray = (value) => (Array.isArray(value) ? value : []);
 
-const isActiveRecord = (item) => !Boolean(item?.isDeleted);
+const isActiveRecord = (item) => !item?.isDeleted;
 
 const formatNumber = (value) => new Intl.NumberFormat("en-US").format(Number(value || 0));
 
@@ -50,13 +64,14 @@ const formatCompactNumber = (value) => {
   return formatNumber(number);
 };
 
-const formatVnd = (value) => {
+const formatUsd = (value) => {
   const amount = Number(value || 0);
 
-  if (amount >= 1_000_000_000) return `${(amount / 1_000_000_000).toFixed(2)}B VND`;
-  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M VND`;
+  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(2)}B`;
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(1)}k`;
 
-  return `${formatNumber(amount)} VND`;
+  return `$${formatNumber(amount.toFixed(2))}`;
 };
 
 const formatRelativeTime = (value) => {
@@ -81,6 +96,27 @@ const getDateTime = (value) => {
   const time = new Date(value || 0).getTime();
   return Number.isNaN(time) ? 0 : time;
 };
+
+const getFallbackDate = (index) => new Date(Date.now() - (index + 1) * 5 * 60 * 1000).toISOString();
+
+// Instructor ID detection with fallback chain.
+// DB field names in priority order: instructorId, id, userId.
+// TODO: Standardize DB schema to use single "instructorId" field name.
+const getInstructorId = (instructor) => instructor?.instructorId || instructor?.id || instructor?.userId;
+
+const getCourseId = (course) => course?.id || course?.courseId;
+
+// Avatar field detection with fallback chain.
+// DB field names in priority order: avatar, avatarUrl, profileImage, profileImageUrl, imageUrl, photoUrl.
+// TODO: Standardize DB schema to use single "avatar" field name.
+const getInstructorAvatar = (instructor) =>
+  instructor?.avatar
+  || instructor?.avatarUrl
+  || instructor?.profileImage
+  || instructor?.profileImageUrl
+  || instructor?.imageUrl
+  || instructor?.photoUrl
+  || "";
 
 const sumNumbers = (items, selector) =>
   items.reduce((total, item) => total + Number(selector(item) || 0), 0);
@@ -123,39 +159,48 @@ const mapFeaturedInstructorsFromDb = (instructors) =>
         : 0;
 
       return {
-        id: instructor.instructorId,
-        name: instructor.fullName || instructor.email || `Instructor #${instructor.instructorId}`,
+        id: getInstructorId(instructor),
+        name: instructor.fullName || instructor.name || instructor.email || `Instructor #${getInstructorId(instructor)}`,
         courses: Number(instructor.numberOfClasses || courses.length || 0),
         rating: averageRating ? averageRating.toFixed(1) : "0.0",
         rank: index + 1,
-        avatar: instructor.avatar || "",
+        avatar: getInstructorAvatar(instructor),
       };
     });
 
 const mapRecentActivityFromDb = ({ users = [], instructors = [], courses = [] }) => {
-  const userActivities = toArray(users).map((user) => ({
-    id: `user-${user.id}`,
+  const userActivities = toArray(users).map((user, index) => ({
+    id: `user-${user.id || user.email || index}`,
     label: "New user",
-    title: user.fullName || user.email || `User #${user.id}`,
-    date: user.createdAt,
+    title: user.fullName || user.name || user.email || `User #${user.id || index + 1}`,
+    date: user.createdAt || user.updatedAt || getFallbackDate(index),
   }));
 
-  const instructorActivities = toArray(instructors).map((instructor) => ({
-    id: `instructor-${instructor.instructorId}`,
-    label: "Instructor update",
-    title: instructor.fullName || instructor.email || `Instructor #${instructor.instructorId}`,
-    date: instructor.updatedAt || instructor.createdAt,
-  }));
+  const instructorActivities = toArray(instructors).map((instructor, index) => {
+    const instructorId = getInstructorId(instructor);
 
-  const courseActivities = toArray(courses).map((course) => ({
-    id: `course-${course.id}`,
-    label: course.publishedAt ? "Course published" : "Course created",
-    title: course.title || `Course #${course.id}`,
-    date: course.publishedAt || course.updatedAt || course.createdAt,
-  }));
+    return {
+      id: `instructor-${instructorId || instructor.email || index}`,
+      label: "Instructor update",
+      title: instructor.fullName || instructor.name || instructor.email || `Instructor #${instructorId || index + 1}`,
+      date: instructor.updatedAt || instructor.createdAt || getFallbackDate(userActivities.length + index),
+    };
+  });
+
+  const courseActivities = toArray(courses).map((course, index) => {
+    const courseId = getCourseId(course);
+    const courseDate = course.publishedAt || course.updatedAt || course.createdAt;
+
+    return {
+      id: `course-${courseId || index}`,
+      label: course.publishedAt || course.status === "PUBLISHED" ? "Course published" : "Course created",
+      title: course.title || course.name || `Course #${courseId || index + 1}`,
+      date: courseDate || getFallbackDate(userActivities.length + instructorActivities.length + index),
+    };
+  });
 
   return [...userActivities, ...instructorActivities, ...courseActivities]
-    .filter((activity) => getDateTime(activity.date) > 0)
+    .filter((activity) => activity.title && getDateTime(activity.date) > 0)
     .sort((first, second) => getDateTime(second.date) - getDateTime(first.date))
     .slice(0, 4)
     .map(({ date, ...activity }) => ({
@@ -164,8 +209,50 @@ const mapRecentActivityFromDb = ({ users = [], instructors = [], courses = [] })
     }));
 };
 
+const mapRecentActivityFromDashboard = ({
+  recentActivity = [],
+  recentUsers = [],
+  featuredInstructors = [],
+  courses = [],
+}) => {
+  const apiActivities = toArray(recentActivity)
+    .filter((activity) => activity?.label && activity?.title)
+    .slice(0, 4)
+    .map((activity, index) => ({
+      id: activity.id || `activity-${index}`,
+      label: activity.label,
+      title: activity.title,
+      time: activity.time || formatRelativeTime(activity.date || getFallbackDate(index)),
+    }));
+
+  if (apiActivities.length > 0) return apiActivities;
+
+  return mapRecentActivityFromDb({
+    users: recentUsers,
+    instructors: featuredInstructors,
+    courses,
+  });
+};
+
+const getDebugSnapshot = (value) => {
+  if (Array.isArray(value)) return value.slice(0, 3);
+  return value;
+};
+
+const logDashboardFallbackData = ({ users, instructors, courses }) => {
+  if (!import.meta.env.DEV) return;
+
+  console.debug("[AdminDashboard] Users sample:", getDebugSnapshot(users));
+  console.debug("[AdminDashboard] Instructors sample:", getDebugSnapshot(instructors));
+  console.debug("[AdminDashboard] Courses sample:", getDebugSnapshot(courses));
+};
+
 const mapRoleDistributionFromDb = (users) => {
   const roleItems = toArray(users);
+
+  if (roleItems.every((item) => item?.name && item?.color && item?.amount !== undefined)) {
+    return roleItems;
+  }
 
   if (roleItems.every((item) => item?.name && item?.count !== undefined)) {
     const totalUsers = Math.max(
@@ -214,9 +301,9 @@ const mapUserGrowthFromDb = (users, year) => {
   toArray(users).forEach((user) => {
     const createdAt = new Date(user.createdAt || 0);
     if (Number.isNaN(createdAt.getTime())) return;
-    if (createdAt.getFullYear() !== year) return;
+    if (createdAt.getUTCFullYear() !== year) return;
 
-    const month = monthLabels[createdAt.getMonth() - 4];
+    const month = monthLabels[createdAt.getUTCMonth()];
     if (!month) return;
 
     monthlyCounts.set(month, monthlyCounts.get(month) + 1);
@@ -236,7 +323,7 @@ const mapStatisticsFromDb = (data = {}) => {
       totalUsers: formatNumber(statistics.totalUsers),
       totalTeachers: formatNumber(statistics.totalTeachers),
       totalCourses: formatNumber(statistics.totalCourses),
-      totalRevenue: formatVnd(statistics.totalRevenue),
+      totalRevenue: formatUsd(statistics.totalRevenue),
     };
   }
 
@@ -251,7 +338,7 @@ const mapStatisticsFromDb = (data = {}) => {
     totalUsers: formatNumber(activeUsers.length),
     totalTeachers: formatNumber(activeInstructors.length),
     totalCourses: formatNumber(activeCourses.length),
-    totalRevenue: formatVnd(totalRevenue),
+    totalRevenue: formatUsd(totalRevenue),
   };
 };
 
@@ -284,10 +371,37 @@ const buildFallbackDashboardDataFromDb = ({ users, instructors, courses }, selec
 
 const useDashboardData = () => {
   const axiosClient = useAxiosPrivate();
+  const initialYearRef = useRef(defaultDashboardYear);
+  const growthRequestIdRef = useRef(0);
   const [rawData, setRawData] = useState(emptyDashboardData);
-  const [selectedYear, setSelectedYear] = useState(dashboardYearOptions[0].value);
+  const [growthSeries, setGrowthSeries] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(defaultDashboardYear);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [growthError, setGrowthError] = useState("");
+
+  const handleYearChange = async (nextYear) => {
+    const requestId = growthRequestIdRef.current + 1;
+    growthRequestIdRef.current = requestId;
+    setSelectedYear(nextYear);
+    setGrowthError("");
+
+    try {
+      const dashboard = await getAdminDashboardApi(getYearFromRange(nextYear), axiosClient);
+
+      if (growthRequestIdRef.current !== requestId) return;
+
+      setGrowthSeries(Array.isArray(dashboard?.growthSeries) ? dashboard.growthSeries : []);
+    } catch (growthFetchError) {
+      if (growthRequestIdRef.current !== requestId) return;
+
+      setGrowthSeries([]);
+      setGrowthError(
+        growthFetchError?.response?.data?.message
+          || "User growth data is not available for the selected year.",
+      );
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -297,18 +411,39 @@ const useDashboardData = () => {
         setIsLoading(true);
         setError("");
 
-        const dashboard = await getAdminDashboardApi(getYearFromRange(selectedYear), axiosClient);
+        const dashboard = await getAdminDashboardApi(getYearFromRange(initialYearRef.current), axiosClient);
+
+        if (import.meta.env.DEV) {
+          console.debug("[Dashboard] API Response Structure:", {
+            hasStatistics: !!dashboard?.statistics,
+            hasGrowthSeries: Array.isArray(dashboard?.growthSeries),
+            hasRoleDistribution: Array.isArray(dashboard?.roleDistribution),
+            hasRecentUsers: Array.isArray(dashboard?.recentUsers),
+            hasFeaturedInstructors: Array.isArray(dashboard?.featuredInstructors),
+            hasRecentActivity: Array.isArray(dashboard?.recentActivity),
+            recentActivityCount: dashboard?.recentActivity?.length || 0,
+            sample: dashboard?.recentActivity?.slice(0, 1) || [],
+          });
+        }
 
         if (!isMounted) return;
 
         setRawData({
           statistics: dashboard?.statistics || {},
-          growthSeries: Array.isArray(dashboard?.growthSeries) ? dashboard.growthSeries : [],
+          growthSeries: [],
           roleDistribution: Array.isArray(dashboard?.roleDistribution) ? dashboard.roleDistribution : [],
           recentUsers: Array.isArray(dashboard?.recentUsers) ? dashboard.recentUsers : [],
           featuredInstructors: Array.isArray(dashboard?.featuredInstructors) ? dashboard.featuredInstructors : [],
-          recentActivity: Array.isArray(dashboard?.recentActivity) ? dashboard.recentActivity : [],
+          recentActivity: mapRecentActivityFromDashboard({
+            recentActivity: dashboard?.recentActivity,
+            recentUsers: dashboard?.recentUsers,
+            featuredInstructors: dashboard?.featuredInstructors,
+            courses: dashboard?.courses,
+          }),
         });
+        if (growthRequestIdRef.current === 0) {
+          setGrowthSeries(Array.isArray(dashboard?.growthSeries) ? dashboard.growthSeries : []);
+        }
       } catch (fetchError) {
         if (isMounted) {
           try {
@@ -320,9 +455,23 @@ const useDashboardData = () => {
 
             if (!isMounted) return;
 
-            setRawData(buildFallbackDashboardDataFromDb({ users, instructors, courses }, selectedYear));
+            logDashboardFallbackData({ users, instructors, courses });
+            const fallbackDashboard = buildFallbackDashboardDataFromDb(
+              { users, instructors, courses },
+              initialYearRef.current,
+            );
+            setRawData({
+              ...fallbackDashboard,
+              growthSeries: [],
+            });
+            if (growthRequestIdRef.current === 0) {
+              setGrowthSeries(fallbackDashboard.growthSeries);
+            }
             setError("");
           } catch (fallbackError) {
+            // API failed completely: show empty state instead of misleading mock data.
+            setRawData(emptyDashboardData);
+            setGrowthSeries([]);
             setError(
               fallbackError?.response?.data?.message
                 || fetchError?.response?.data?.message
@@ -340,25 +489,26 @@ const useDashboardData = () => {
     return () => {
       isMounted = false;
     };
-  }, [axiosClient, selectedYear]);
+  }, [axiosClient]);
 
   const dashboardData = useMemo(() => {
     return {
       statistics: mapStatisticsFromDb(rawData),
-      growthSeries: rawData.growthSeries,
+      growthSeries,
       roleDistribution: mapRoleDistributionFromDb(rawData.roleDistribution),
       recentUsers: rawData.recentUsers,
       featuredInstructors: rawData.featuredInstructors,
       recentActivity: rawData.recentActivity,
     };
-  }, [rawData]);
+  }, [growthSeries, rawData]);
 
   return {
     ...dashboardData,
     isLoading,
     error,
+    growthError,
     selectedYear,
-    setSelectedYear,
+    setSelectedYear: handleYearChange,
     yearOptions: dashboardYearOptions,
   };
 };
@@ -373,6 +523,7 @@ const Dashboard = () => {
     recentActivity,
     isLoading,
     error,
+    growthError,
     selectedYear,
     setSelectedYear,
     yearOptions,
@@ -392,6 +543,7 @@ const Dashboard = () => {
               yearOptions={yearOptions}
               selectedYear={selectedYear}
               onYearChange={setSelectedYear}
+              emptyMessage={growthError || "No user growth data for the selected year."}
             />
           </div>
 
@@ -408,7 +560,10 @@ const Dashboard = () => {
           <hr className="dashboardRowSeparator" />
 
           <div className="dashboardRowItem">
-            <TeacherRow instructors={featuredInstructors} />
+            <TeacherRow
+              instructors={featuredInstructors}
+              getAvatarValue={getInstructorAvatar}
+            />
           </div>
 
           <hr className="dashboardRowSeparator" />

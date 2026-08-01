@@ -1,5 +1,8 @@
 import "./UserRow.css";
+import { useTranslation } from "react-i18next";
 
+// User fields guaranteed from Dashboard.mapRecentUsersFromDb():
+// id, name, email, and normalized role all include safe fallbacks.
 const UserRowItem = ({ user }) => {
   return (
     <div className="userRowItem">
@@ -19,22 +22,23 @@ const UserRowItem = ({ user }) => {
 };
 
 const UserRow = ({ users = [] }) => {
+  const { t } = useTranslation();
   return (
     <section className="userRowSection">
       <div className="userRowCard userRowRecentUsersCard">
         <div className="userRowCardHeader">
           <div>
-            <h3 className="userRowCardTitle">Recent Users</h3>
+            <h3 className="userRowCardTitle">{t("admin.recentUsers")}</h3>
           </div>
         </div>
 
         <div className="userRowTableHeader" aria-hidden="true">
-          <span className="userRowTableHeaderName">User</span>
-          <span className="userRowTableHeaderRole">Role</span>
+          <span className="userRowTableHeaderName">{t("admin.user")}</span>
+          <span className="userRowTableHeaderRole">{t("admin.role")}</span>
         </div>
 
         <div className="userRowList">
-          {users.length === 0 && <p className="userRowEmpty">No recent users yet.</p>}
+          {users.length === 0 && <p className="userRowEmpty">{t("admin.noRecentUsers")}</p>}
           {users.map((user) => (
             <UserRowItem key={user.id} user={user} />
           ))}

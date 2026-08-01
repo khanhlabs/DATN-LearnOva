@@ -1,32 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Eye } from "lucide-react";
-import {
-  getAdminInstructorByIdApi,
-  getAdminInstructorsApi,
-} from "../../../../api/admin/InstructorApi.js";
+import { getAdminInstructorByIdApi } from "../../../../api/admin/InstructorApi.js";
 import { getFileUrl } from "../../../../api/PublicCourseApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import ViewInstructorModal from "../viewInstructorModal/ViewInstructorModal.jsx";
 import "./InstructorTable.css";
 
-const fmtNumber = (v) => (v == null ? "0" : new Intl.NumberFormat("vi-VN").format(v));
-
 const API_URL = import.meta.env.VITE_API_URL || "";
 const API_ORIGIN = API_URL.replace(/\/api\/learnova\/?$/, "");
+
+const formatNumber = (value) =>
+  new Intl.NumberFormat("vi-VN").format(value == null ? 0 : Number(value) || 0);
 
 const isAbsoluteUrl = (value) => /^https?:\/\//i.test(String(value || ""));
 
 const fallbackMediaUrl = (value) => {
-  if (!value) return value;
-  if (isAbsoluteUrl(value)) return value;
-  if (!API_ORIGIN) return value;
+  if (!value || isAbsoluteUrl(value) || !API_ORIGIN) return value;
   return `${API_ORIGIN}/${String(value).replace(/^\/+/, "")}`;
 };
 
 const resolveMediaUrl = async (value) => {
-  if (!value) return value;
-  if (isAbsoluteUrl(value)) return value;
-
+  if (!value || isAbsoluteUrl(value)) return value;
   try {
     return await getFileUrl(value);
   } catch {
@@ -34,50 +29,33 @@ const resolveMediaUrl = async (value) => {
   }
 };
 
-const mapInstructor = (item) => ({
-  ...item,
-  instructorId: item.instructorId,
-  id: item.instructorCode ?? `GV${String(item.instructorId ?? 0).padStart(3, "0")}`,
-  name: item.fullName ?? "Unknown",
-  email: item.email ?? "",
-  specialization: item.specialization ?? item.category ?? "",
-  classes: item.numberOfClasses ?? 0,
-  students: fmtNumber(item.totalStudents ?? 0),
-  revenue: `${fmtNumber(item.totalRevenue ?? 0)} VND`,
-  isDeleted: item.isDeleted ?? false,
+const mapInstructorForDisplay = (instructor) => ({
+  ...instructor,
+  displayId: instructor.instructorCode || "N/A",
+  displayName: instructor.fullName || "Unknown",
+  displaySpecialization: instructor.specialization || "N/A",
+  displayStudents: formatNumber(instructor.totalStudents ?? 0),
+  displayClasses: instructor.numberOfClasses ?? 0,
 });
 
-const InstructorTable = ({ searchTerm = "" }) => {
+const InstructorTable = ({
+  instructors = [],
+  searchTerm = "",
+  isLoading = false,
+  error = "",
+}) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
-  const [instructorsData, setInstructorsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [isViewLoading, setIsViewLoading] = useState(false);
   const [viewError, setViewError] = useState("");
-  const [error, setError] = useState("");
   const pageSize = 10;
 
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      setIsLoading(true);
-      try {
-        const data = await getAdminInstructorsApi(axiosPrivate);
-        if (!mounted) return;
-        setInstructorsData(Array.isArray(data) ? data.map(mapInstructor) : []);
-      } catch (e) {
-        console.error(e);
-        setError("Could not load instructors.");
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-    load();
-    return () => {
-      mounted = false;
-    };
-  }, [axiosPrivate]);
+  const instructorsData = useMemo(
+    () => instructors.map(mapInstructorForDisplay),
+    [instructors],
+  );
 
   useEffect(() => {
     setCurrentPage(1);
@@ -90,10 +68,8 @@ const InstructorTable = ({ searchTerm = "" }) => {
       const matchesSearch =
         !keyword ||
         [
-          instructor.name,
           instructor.fullName,
           instructor.email,
-          instructor.id,
           instructor.instructorCode,
         ]
           .join(" ")
@@ -114,7 +90,7 @@ const InstructorTable = ({ searchTerm = "" }) => {
 
     try {
       const detail = await getAdminInstructorByIdApi(instructor.instructorId, axiosPrivate);
-      const mappedDetail = mapInstructor(detail);
+      const mappedDetail = mapInstructorForDisplay(detail);
 
       const [avatarUrl, coverImageUrl, resolvedCourses] = await Promise.all([
         resolveMediaUrl(mappedDetail.avatar),
@@ -135,7 +111,7 @@ const InstructorTable = ({ searchTerm = "" }) => {
       });
     } catch (e) {
       console.error(e);
-      setViewError("Could not load instructor details. Showing table data instead.");
+      setViewError(t("instructorAdmin.noResults"));
     } finally {
       setIsViewLoading(false);
     }
@@ -157,36 +133,36 @@ const InstructorTable = ({ searchTerm = "" }) => {
 
           <thead>
             <tr>
-              <th>Instructor ID</th>
-              <th>Instructor / Specialization</th>
-              <th>Number of Classes</th>
-              <th>Students</th>
-              <th>Management Actions</th>
+              <th>{t("instructorAdmin.instructorId")}</th>
+              <th>{t("instructorAdmin.instructorSpecialization")}</th>
+              <th>{t("instructorAdmin.numberOfClasses")}</th>
+              <th>{t("instructorAdmin.students")}</th>
+              <th>{t("instructorAdmin.managementActions")}</th>
             </tr>
           </thead>
 
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="5">Loading instructors...</td></tr>
+              <tr><td colSpan="5">{t("instructorAdmin.loading")}</td></tr>
             ) : currentItems.length === 0 ? (
-              <tr><td colSpan="5">No instructors found.</td></tr>
+              <tr><td colSpan="5">{t("instructorAdmin.noResults")}</td></tr>
             ) : currentItems.map((instructor) => (
               <tr key={instructor.instructorId}>
-                <td><span className="instructorTableBadge">{instructor.id}</span></td>
+                <td><span className="instructorTableBadge">{instructor.displayId}</span></td>
                 <td>
                   <div className="instructorTableProfile">
                     <div className="instructorTableProfileText">
-                      <p className="instructorTableName">{instructor.name}</p>
+                      <p className="instructorTableName">{instructor.displayName}</p>
                       <p className="instructorTableEmail">{instructor.email}</p>
-                      <span className="instructorTableTag">{instructor.specialization || "N/A"}</span>
+                      <span className="instructorTableTag">{instructor.displaySpecialization}</span>
                     </div>
                   </div>
                 </td>
-                <td><div className="instructorTableStat"><strong>{instructor.classes}</strong></div></td>
-                <td><div className="instructorTableStat"><strong>{instructor.students}</strong></div></td>
+                <td><div className="instructorTableStat"><strong>{instructor.displayClasses}</strong></div></td>
+                <td><div className="instructorTableStat"><strong>{instructor.displayStudents}</strong></div></td>
                 <td>
                   <div className="instructorTableActions">
-                    <button type="button" className="instructorActionButton" aria-label="View" onClick={() => handleView(instructor)}><Eye size={16} /></button>
+                    <button type="button" className="instructorActionButton" aria-label={t("instructorAdmin.view")} onClick={() => handleView(instructor)}><Eye size={16} /></button>
                   </div>
                 </td>
               </tr>
@@ -195,11 +171,11 @@ const InstructorTable = ({ searchTerm = "" }) => {
         </table>
 
         <div className="instructorTablePagination" style={{ padding: 12 }}>
-          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>Previous</button>
+          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>{t("instructorAdmin.previous")}</button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <button key={p} type="button" className={`instructorPaginationButton ${currentPage === p ? "instructorPaginationButton--active" : ""}`} onClick={() => setCurrentPage(p)}>{p}</button>
           ))}
-          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Next</button>
+          <button type="button" className="instructorPaginationButton" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>{t("instructorAdmin.next")}</button>
         </div>
       </div>
 

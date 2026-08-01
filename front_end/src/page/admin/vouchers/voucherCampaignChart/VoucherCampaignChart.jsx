@@ -1,40 +1,75 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
+import { getAdminVoucherCampaignStatsApi } from "../../../../api/admin/VoucherApi.js";
+import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
 import "./VoucherCampaignChart.css";
 
-const campaignData = [
-  {
-    code: "WELCOME2026",
-    used: 812,
-    revenue: 97440,
-    label: "WELCOME2026",
-  },
-  {
-    code: "LEARNOVA50",
-    used: 234,
-    revenue: 42120,
-    label: "LEARNOVA50",
-  },
-  {
-    code: "WEBDEV30",
-    used: 142,
-    revenue: 18460,
-    label: "WEBDEV30",
-  },
-  {
-    code: "FIX500FF",
-    used: 89,
-    revenue: 17800,
-    label: "FIX500FF",
-  },
-];
+const formatCurrency = (value) =>
+  new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
 
-const VoucherCampaignChart = () => {
+const mapCampaignFromStats = (item) => ({
+  code: item.code || "Unknown",
+  used: Number(item.usedCount || 0),
+  revenue: Number(item.revenue || 0),
+  label: item.code || "Unknown",
+});
+
+const VoucherCampaignChart = ({ refreshKey }) => {
+  const { t } = useTranslation();
+  const axiosPrivate = useAxiosPrivate();
   const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  const [campaignData, setCampaignData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!canvasRef.current) {
+    let mounted = true;
+
+    const fetchCampaignData = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const stats = await getAdminVoucherCampaignStatsApi(axiosPrivate);
+
+        if (mounted) {
+          const mapped = (Array.isArray(stats) ? stats : [])
+            .map(mapCampaignFromStats)
+            .sort((a, b) => b.used - a.used || b.revenue - a.revenue)
+            .slice(0, 4);
+          setCampaignData(mapped);
+        }
+      } catch (err) {
+        if (mounted) {
+          setCampaignData([]);
+          setError(
+            err?.response?.data?.message || "Failed to load campaign data."
+          );
+        }
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    fetchCampaignData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [axiosPrivate, refreshKey]);
+
+  useEffect(() => {
+    if (!canvasRef.current || campaignData.length === 0) {
       return undefined;
+    }
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
     }
 
     const labels = campaignData.map((item) => item.label);
@@ -87,8 +122,8 @@ const VoucherCampaignChart = () => {
               label(context) {
                 const item = campaignData[context.dataIndex];
                 return [
-                  `Used: ${item.used} times`,
-                  `Revenue: $${item.revenue.toLocaleString("vi-VN")}`,
+                  `${t("opsAdmin.applied")}: ${item.used}`,
+                  `${t("opsAdmin.discounted")}: ${formatCurrency(item.revenue)}`,
                 ];
               },
             },
@@ -121,37 +156,56 @@ const VoucherCampaignChart = () => {
       },
     });
 
+    chartRef.current = chart;
+
     return () => {
-      chart.destroy();
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
     };
-  }, []);
+  }, [campaignData, t]);
 
   const totalRevenue = campaignData.reduce(
     (sum, item) => sum + item.revenue,
-    0,
+    0
   );
 
   return (
     <section
       className="voucherCampaignChartSection"
-      aria-label="Top voucher campaigns"
+      aria-label={t("opsAdmin.campaigns")}
     >
       <div className="voucherCampaignChartHeader">
         <div>
-          <h2 className="voucherCampaignChartTitle">Top Voucher Campaigns</h2>
+          <h2 className="voucherCampaignChartTitle">{t("opsAdmin.campaigns")}</h2>
           <p className="voucherCampaignChartSubtitle">
-            Compare discount impact and total revenue generated.
+            {t("opsAdmin.compare")}
           </p>
         </div>
       </div>
 
       <div className="voucherCampaignChartCanvasWrapper">
-        <canvas ref={canvasRef} aria-label="Voucher campaign chart" />
+        <canvas ref={canvasRef} aria-label={t("opsAdmin.campaigns")} />
+        {isLoading && (
+          <div className="voucherCampaignChartStatus">
+            {t("common.loading")}
+          </div>
+        )}
+        {!isLoading && error && (
+          <div className="voucherCampaignChartStatus voucherCampaignChartStatusError">
+            {error}
+          </div>
+        )}
+        {!isLoading && !error && campaignData.length === 0 && (
+          <div className="voucherCampaignChartStatus">
+            {t("opsAdmin.noCampaigns")}
+          </div>
+        )}
       </div>
 
       <div className="voucherCampaignChartSummary">
-        <span>Accumulated discount:</span>
-        <strong>${totalRevenue.toLocaleString("vi-VN")} USD</strong>
+        <span>{t("opsAdmin.accumulatedDiscount")}:</span>
+        <strong>{formatCurrency(totalRevenue)}</strong>
       </div>
     </section>
   );

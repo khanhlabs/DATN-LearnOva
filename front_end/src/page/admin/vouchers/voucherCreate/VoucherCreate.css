@@ -155,13 +155,22 @@
   padding-right: 56px;
 }
 
-.voucherCreateAmountInputWrap span {
+.voucherCreateAmountInputWrap span,
+.voucherCreateAmountUnit {
   position: absolute;
   right: 16px;
   color: #475569;
   font-size: 14px;
   font-weight: 800;
   pointer-events: none;
+}
+
+.voucherCreateHint {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .voucherCreateActions {

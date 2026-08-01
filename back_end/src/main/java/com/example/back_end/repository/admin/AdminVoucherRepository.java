@@ -65,4 +65,25 @@ public interface AdminVoucherRepository extends JpaRepository<Voucher, Long> {
 
         Long getActivations();
     }
+
+    @Query(value = "select "
+            + "v.code as \"code\", "
+            + "count(distinct o.order_id) as \"usedCount\", "
+            + "coalesce(sum(o.discount_amount), 0) as \"revenue\" "
+            + "from orders o "
+            + "join vouchers v on o.voucher_id = v.voucher_id "
+            + "where o.status = 'PAID' "
+            + "and o.voucher_id is not null "
+            + "group by v.code "
+            + "order by count(distinct o.order_id) desc",
+            nativeQuery = true)
+    List<VoucherCampaignStatsProjection> findVoucherCampaignStats();
+
+    interface VoucherCampaignStatsProjection {
+        String getCode();
+
+        Long getUsedCount();
+
+        BigDecimal getRevenue();
+    }
 }

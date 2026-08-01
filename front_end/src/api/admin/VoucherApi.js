@@ -15,6 +15,11 @@ export const getAdminVoucherUsageFrequencyApi = async (client = axiosClient) => 
   return response.data;
 };
 
+export const getAdminVoucherCampaignStatsApi = async (client = axiosClient) => {
+  const response = await client.get("/admin/vouchers/campaign-stats");
+  return response.data;
+};
+
 export const createAdminVoucherApi = async (payload, client = axiosClient) => {
   const response = await client.post("/admin/vouchers/create", payload);
   return response.data;

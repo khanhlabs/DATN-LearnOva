@@ -11,13 +11,13 @@ public class CookieService {
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
     private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
 
-    @Value("${jwt.refresh-token-expiration}")
+    @Value("${jwt.refresh-token-expiration:86400000}")
     private Long refreshTokenExpiration;
 
-    @Value("${jwt.refresh-token-remember-expiration}")
+    @Value("${jwt.refresh-token-remember-expiration:2592000000}")
     private Long refreshTokenRememberExpiration;
 
-    @Value("${jwt.access-token-expiration}")
+    @Value("${jwt.access-token-expiration:900000}")
     private Long accessTokenExpiration;
 
     // false in local dev, true in production (set COOKIE_SECURE=true in prod env)

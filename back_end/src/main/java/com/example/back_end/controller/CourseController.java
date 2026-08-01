@@ -48,6 +48,11 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getFeaturedCourses());
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<com.example.back_end.dto.response.PlatformStatsResponse> getPlatformStats() {
+        return ResponseEntity.ok(courseService.getPlatformStats());
+    }
+
     @GetMapping("/top-categories")
     public ResponseEntity<List<TopCategoryResponse>> getTopCategories() {
         return ResponseEntity.ok(courseService.getTopCategories());

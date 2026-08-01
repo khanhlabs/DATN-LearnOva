@@ -4,8 +4,10 @@ import PendingReviewCard from "./cards/pendingReview/PendingReviewCard";
 import SuspendedCoursesCard from "./cards/suspendedCourses/SuspendedCoursesCard";
 import ReportedCoursesCard from "./cards/reportedCourses/ReportedCoursesCard";
 import "./CourseStatistics.css";
+import { useTranslation } from "react-i18next";
 
 const CourseStatistics = ({ courses = [], loading = false }) => {
+  const { t } = useTranslation();
   const valueOrLoading = (value) => (loading ? "..." : String(value));
   const publishedCount = courses.filter((course) => course.status === "PUBLISHED").length;
   const pendingReviewCount = courses.filter((course) => course.status === "PENDING_REVIEW").length;
@@ -16,41 +18,41 @@ const CourseStatistics = ({ courses = [], loading = false }) => {
     {
       id: "total",
       component: TotalCoursesCard,
-      label: "Total Courses",
+      label: t("courseAdmin.total"),
       value: valueOrLoading(courses.length),
-      trend: "from database",
+      trend: t("courseAdmin.database"),
       trendPercent: "",
     },
     {
       id: "published",
       component: PublishedCoursesCard,
-      label: "Published",
+      label: t("courseAdmin.published"),
       value: valueOrLoading(publishedCount),
-      trend: "status",
+      trend: t("courseAdmin.status"),
       trendPercent: "PUBLISHED",
     },
     {
       id: "pending",
       component: PendingReviewCard,
-      label: "Pending Review",
+      label: t("courseAdmin.pending"),
       value: valueOrLoading(pendingReviewCount),
-      trend: "status",
+      trend: t("courseAdmin.status"),
       trendPercent: "PENDING_REVIEW",
     },
     {
       id: "suspended",
       component: SuspendedCoursesCard,
-      label: "Archived",
+      label: t("courseAdmin.archived"),
       value: valueOrLoading(archivedCount),
-      trend: "status",
+      trend: t("courseAdmin.status"),
       trendPercent: "ARCHIVED",
     },
     {
       id: "reported",
       component: ReportedCoursesCard,
-      label: "Deleted",
+      label: t("courseAdmin.deleted"),
       value: valueOrLoading(deletedCount),
-      trend: "status",
+      trend: t("courseAdmin.status"),
       trendPercent: "DELETED",
     },
   ];

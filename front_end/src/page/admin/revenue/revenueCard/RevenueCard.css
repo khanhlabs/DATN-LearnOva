@@ -44,6 +44,10 @@
   color: #16a34a;
 }
 
+.revenueDelta.positive {
+  color: #16a34a;
+}
+
 .revenueDelta.negative {
   color: #dc2626;
 }

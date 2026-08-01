@@ -77,13 +77,18 @@
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.1);
 }
 
+.view-user-avatar-empty {
+  display: inline-flex;
+  background: #eef4ff;
+}
+
 .view-user-avatar-fallback {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #eff6ff;
+  background: #dbeafe;
   color: #1d4ed8;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
 }
 

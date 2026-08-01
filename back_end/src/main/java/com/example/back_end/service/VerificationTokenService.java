@@ -107,4 +107,32 @@ public class VerificationTokenService {
         token.setIsUsed(true);
         verificationTokenRepository.save(token);
     }
+
+    // Creating a new reset-password token deletes any previous one for this user,
+    // so at most one reset link is ever valid at a time.
+    @Transactional
+    public VerificationToken createResetPasswordToken(User user) {
+        verificationTokenRepository.deleteByUserAndTokenType(user, VerificationType.RESET_PASSWORD);
+
+        VerificationToken token = new VerificationToken();
+        token.setUser(user);
+        token.setToken(UUID.randomUUID().toString());
+        token.setTokenType(VerificationType.RESET_PASSWORD);
+        token.setCreatedAt(Instant.now());
+        token.setExpiredAt(OffsetDateTime.now().plusMinutes(5));
+        token.setIsUsed(false);
+        return verificationTokenRepository.save(token);
+    }
+
+    public VerificationToken verifyResetPasswordToken(String token) {
+        VerificationToken resetToken = verificationTokenRepository
+                .findByTokenAndTokenTypeAndIsUsedFalse(token, VerificationType.RESET_PASSWORD)
+                .orElseThrow(() -> new BusinessException("Reset link is invalid."));
+
+        if (resetToken.getExpiredAt().isBefore(OffsetDateTime.now())) {
+            throw new BusinessException("Reset link has expired. Please request another password reset.");
+        }
+
+        return resetToken;
+    }
 }

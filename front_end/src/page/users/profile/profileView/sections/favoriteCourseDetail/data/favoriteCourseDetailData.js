@@ -3,7 +3,7 @@ export const FAVORITE_DETAIL_TABS = [
   { id: "curriculum", label: "Course Content" },
   { id: "instructor", label: "Instructor" },
   { id: "reviews", label: "Reviews" },
-  { id: "qa", label: "Chat" },
+  // { id: "qa", label: "Chat" },
 ];
 
 export const DEFAULT_FAVORITE_DETAIL = {
@@ -140,9 +140,6 @@ export const buildFavoriteCourseDetail = (course = {}) => ({
   remaining: formatRemainingText(course.remaining),
   instructor: {
     ...DEFAULT_FAVORITE_DETAIL.instructor,
-    name:
-      INSTRUCTOR_NAME_TRANSLATIONS[course.instructor] ||
-      course.instructor ||
-      DEFAULT_FAVORITE_DETAIL.instructor.name,
+    ...course.instructor,
   },
 });

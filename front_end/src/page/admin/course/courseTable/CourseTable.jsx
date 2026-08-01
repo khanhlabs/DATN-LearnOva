@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BookOpen,
   Clock,
@@ -20,9 +21,56 @@ import {
   DollarSign,
   X,
 } from "lucide-react";
+import axiosClient from "../../../../api/AxiosClient.js";
+import { getFileUrl } from "../../../../api/PublicCourseApi.js";
+import CourseVideoPlayer from "../../../users/course/CourseDetail/components/VideoPlayer.jsx";
 import "./CourseTable.css";
 
 const pageSize = 10;
+const thumbnailUrlCache = new Map();
+
+const formatCurrency = (value) => {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "$0";
+  const body = Number.isInteger(amount)
+    ? String(amount)
+    : amount.toFixed(2).replace(/\.?0+$/, "");
+  return `$${body}`;
+};
+
+const useCourseThumbnail = (thumbnailKeyFromDatabase) => {
+  const [signedThumbnailUrl, setSignedThumbnailUrl] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const thumbnailKey = thumbnailKeyFromDatabase?.trim();
+
+    const loadThumbnailFromS3 = async () => {
+      if (!thumbnailKey) return;
+
+      try {
+        let thumbnailUrl = thumbnailUrlCache.get(thumbnailKey);
+
+        if (!thumbnailUrl) {
+          const response = await axiosClient.get("/admin/courses-management/thumbnail-url", {
+            params: { thumbnailKey },
+          });
+          thumbnailUrl = response.data?.url || null;
+          if (thumbnailUrl) thumbnailUrlCache.set(thumbnailKey, thumbnailUrl);
+        }
+
+        if (isMounted) setSignedThumbnailUrl(thumbnailUrl);
+      } catch {
+        if (isMounted) setSignedThumbnailUrl(null);
+      }
+    };
+
+    loadThumbnailFromS3();
+    return () => { isMounted = false; };
+  }, [thumbnailKeyFromDatabase]);
+
+  return signedThumbnailUrl;
+};
 
 const valueOrDash = (value) => {
   if (value === null || value === undefined || value === "") return "--";
@@ -33,10 +81,7 @@ const formatPrice = (value) => {
   if (value === null || value === undefined || value === "") return "--";
   const price = Number(value || 0);
   if (price === 0) return "Free";
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(price);
+  return formatCurrency(price);
 };
 
 const formatCount = (value) => new Intl.NumberFormat("vi-VN").format(Number(value) || 0);
@@ -71,15 +116,68 @@ const detailTabs = [
   { id: "curriculum", label: "Curriculum", Icon: List },
 ];
 
-const CourseViewModal = ({ course, onClose }) => {
-  const [activeTab, setActiveTab] = useState("overview");
+const CourseViewModal = ({
+  course,
+  onClose,
+  focusLessonId = null,
+  enableVideoPreview = false,
+  extraTabs = [],
+  initialTab = null,
+}) => {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState(initialTab || "overview");
   const [expandedSections, setExpandedSections] = useState({});
+  const [previewLesson, setPreviewLesson] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  const thumbnailUrl = useCourseThumbnail(course?.thumbnailKey);
+  const allTabs = [...detailTabs, ...(Array.isArray(extraTabs) ? extraTabs : [])];
 
   useEffect(() => {
-    const firstSectionId = course?.sections?.[0]?.sectionId;
-    setActiveTab("overview");
-    setExpandedSections(firstSectionId ? { [firstSectionId]: true } : {});
-  }, [course?.id]);
+    const sections = Array.isArray(course?.sections) ? course.sections : [];
+    let focusSectionId = sections[0]?.sectionId;
+    let focusedLesson = null;
+    if (focusLessonId != null) {
+      for (const section of sections) {
+        const hit = (section.lessons || []).find(
+          (lesson) => String(lesson.lessonId) === String(focusLessonId),
+        );
+        if (hit) {
+          focusSectionId = section.sectionId;
+          focusedLesson = hit;
+          break;
+        }
+      }
+    }
+    const preferredTab =
+      initialTab || (focusLessonId != null ? "curriculum" : "overview");
+    setActiveTab(preferredTab);
+    setExpandedSections(focusSectionId ? { [focusSectionId]: true } : {});
+    setPreviewLesson(null);
+    setPreviewUrl("");
+    setPreviewError("");
+
+    if (!enableVideoPreview || !focusedLesson?.videoKey) return undefined;
+
+    let alive = true;
+    setPreviewLesson(focusedLesson);
+    setPreviewLoading(true);
+    getFileUrl(focusedLesson.videoKey)
+      .then((url) => {
+        if (alive) setPreviewUrl(url);
+      })
+      .catch(() => {
+        if (alive) setPreviewError("Could not load video preview.");
+      })
+      .finally(() => {
+        if (alive) setPreviewLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [course?.id, focusLessonId, enableVideoPreview, initialTab]);
 
   if (!course) return null;
 
@@ -96,18 +194,29 @@ const CourseViewModal = ({ course, onClose }) => {
     setExpandedSections((current) => ({ ...current, [sectionId]: !current[sectionId] }));
   };
 
+  const openLessonPreview = async (lesson) => {
+    if (!enableVideoPreview || !lesson?.videoKey) return;
+    setPreviewLesson(lesson);
+    setPreviewUrl("");
+    setPreviewError("");
+    setPreviewLoading(true);
+    try {
+      const url = await getFileUrl(lesson.videoKey);
+      setPreviewUrl(url);
+    } catch {
+      setPreviewError("Could not load video preview.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   return (
     <div className="cdm-overlay adminCourseDetailOverlay" role="presentation" onClick={onClose}>
       <div className="cdm adminCourseDetailModal" role="dialog" aria-modal="true" aria-label="View Course" onClick={(event) => event.stopPropagation()}>
         <div className="cdm__thumbnail-wrap">
-          {course.thumbnailKey ? (
-            <img src={course.thumbnailKey} alt={title} className="cdm__thumbnail-img" />
-          ) : (
-            <div className="cdm__thumbnail-placeholder">
-              <BookOpen size={40} />
-              <span>No thumbnail</span>
-            </div>
-          )}
+          {thumbnailUrl ? (
+            <img src={thumbnailUrl} alt={title} className="cdm__thumbnail-img" />
+          ) : null}
           <button type="button" className="cdm__close" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
@@ -143,17 +252,20 @@ const CourseViewModal = ({ course, onClose }) => {
         </div>
 
         <div className="cdm__tabs">
-          {detailTabs.map(({ id, label, Icon }) => (
-            <button
-              key={id}
-              type="button"
-              className={`cdm__tab${activeTab === id ? " cdm__tab--active" : ""}`}
-              onClick={() => setActiveTab(id)}
-            >
-              <Icon size={14} />
-              {label}
-            </button>
-          ))}
+          {allTabs.map(({ id, label, Icon }) => {
+            const DetailIcon = Icon;
+            return (
+              <button
+                key={id}
+                type="button"
+                className={`cdm__tab${activeTab === id ? " cdm__tab--active" : ""}`}
+                onClick={() => setActiveTab(id)}
+              >
+                <DetailIcon size={14} />
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="cdm__body">
@@ -168,17 +280,20 @@ const CourseViewModal = ({ course, onClose }) => {
                       { Icon: Star, color: "gold", label: "Rating", value: valueOrDash(course.rating) },
                       { Icon: DollarSign, color: "teal", label: "Price", value: formatPrice(course.basePrice) },
                       { Icon: MessageSquare, color: "orange", label: "Reviews", value: valueOrDash(course.reviewCount) },
-                    ].map(({ Icon, color, label, value }) => (
-                      <div key={label} className="cdm__stat-card">
-                        <div className={`cdm__stat-icon cdm__stat-icon--${color}`}>
-                          <Icon size={18} />
+                    ].map(({ Icon, color, label, value }) => {
+                      const StatIcon = Icon;
+                      return (
+                        <div key={label} className="cdm__stat-card">
+                          <div className={`cdm__stat-icon cdm__stat-icon--${color}`}>
+                            <StatIcon size={18} />
+                          </div>
+                          <div>
+                            <span>{label}</span>
+                            <strong>{value}</strong>
+                          </div>
                         </div>
-                        <div>
-                          <span>{label}</span>
-                          <strong>{value}</strong>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="cdm__info-table">
@@ -240,6 +355,34 @@ const CourseViewModal = ({ course, onClose }) => {
 
               {activeTab === "curriculum" ? (
                 <div className="cdm__tab-content">
+                  {enableVideoPreview ? (
+                    <div className="cdm__video-preview">
+                      {previewLoading ? (
+                        <p className="cdm__empty">Loading reported video…</p>
+                      ) : previewError ? (
+                        <p className="cdm__empty">{previewError}</p>
+                      ) : previewUrl ? (
+                        <>
+                          <p className="cdm__curriculum-summary">
+                            Playing: {previewLesson?.title || "Lesson"}
+                            {focusLessonId &&
+                            String(previewLesson?.lessonId) === String(focusLessonId)
+                              ? " (reported)"
+                              : ""}
+                          </p>
+                          <div className="cdm__video-player-wrap">
+                            <CourseVideoPlayer src={previewUrl} loading={false} />
+                          </div>
+                        </>
+                      ) : (
+                        <p className="cdm__empty">
+                          {focusLessonId
+                            ? "Select the highlighted lesson below to preview the reported video."
+                            : "Select a lesson with video to preview."}
+                        </p>
+                      )}
+                    </div>
+                  ) : null}
                   {sections.length > 0 ? (
                     <>
                       <p className="cdm__curriculum-summary">
@@ -266,23 +409,36 @@ const CourseViewModal = ({ course, onClose }) => {
 
                             {expandedSections[section.sectionId || section.title] ? (
                               <div className="cdm__lessons">
-                                {(section.lessons || []).map((lesson) => (
-                                  <div key={lesson.lessonId || lesson.title} className="cdm__lesson">
-                                    <span className="cdm__lesson-icon">
-                                      {lesson.videoKey ? <PlayCircle size={14} /> : <FileText size={14} />}
-                                    </span>
-                                    <span className="cdm__lesson-title">
-                                      {valueOrDash(lesson.lessonOrder)}. {valueOrDash(lesson.title)}
-                                    </span>
-                                    {lesson.durationSeconds ? (
-                                      <span className="cdm__lesson-duration">
-                                        <Clock size={11} />
-                                        {formatDuration(lesson.durationSeconds)}
+                                {(section.lessons || []).map((lesson) => {
+                                  const isFocused =
+                                    focusLessonId != null &&
+                                    String(lesson.lessonId) === String(focusLessonId);
+                                  const canPlay = enableVideoPreview && Boolean(lesson.videoKey);
+                                  return (
+                                    <button
+                                      key={lesson.lessonId || lesson.title}
+                                      type="button"
+                                      className={`cdm__lesson${isFocused ? " cdm__lesson--reported" : ""}${canPlay ? " cdm__lesson--playable" : ""}`}
+                                      onClick={() => openLessonPreview(lesson)}
+                                      disabled={!canPlay}
+                                    >
+                                      <span className="cdm__lesson-icon">
+                                        {lesson.videoKey ? <PlayCircle size={14} /> : <FileText size={14} />}
                                       </span>
-                                    ) : null}
-                                    {lesson.isPreview ? <span className="cdm__lesson-preview">Preview</span> : null}
-                                  </div>
-                                ))}
+                                      <span className="cdm__lesson-title">
+                                        {valueOrDash(lesson.lessonOrder)}. {valueOrDash(lesson.title)}
+                                        {isFocused ? " · Reported" : ""}
+                                      </span>
+                                      {lesson.durationSeconds ? (
+                                        <span className="cdm__lesson-duration">
+                                          <Clock size={11} />
+                                          {formatDuration(lesson.durationSeconds)}
+                                        </span>
+                                      ) : null}
+                                      {lesson.isPreview ? <span className="cdm__lesson-preview">Preview</span> : null}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             ) : null}
                           </div>
@@ -294,6 +450,14 @@ const CourseViewModal = ({ course, onClose }) => {
                   )}
                 </div>
               ) : null}
+
+              {(Array.isArray(extraTabs) ? extraTabs : []).map((tab) =>
+                activeTab === tab.id ? (
+                  <div key={tab.id} className="cdm__tab-content">
+                    {tab.content}
+                  </div>
+                ) : null,
+              )}
 
             </>
         </div>
@@ -314,6 +478,7 @@ const CourseTable = ({
   error,
   onViewCourse,
 }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loadingDetailId, setLoadingDetailId] = useState(null);
@@ -359,37 +524,29 @@ const CourseTable = ({
         <table className="courseTable" aria-label="Course List">
           <thead>
             <tr>
-              <th>Course</th>
-              <th>Instructor</th>
-              <th>Category</th>
-              <th>Level</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t("courseAdmin.course")}</th><th>{t("courseAdmin.instructor")}</th><th>{t("courseAdmin.category")}</th><th>{t("courseAdmin.level")}</th><th>{t("courseAdmin.priceColumn")}</th><th>{t("courseAdmin.status")}</th><th>{t("courseAdmin.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td className="courseTableEmpty" colSpan="7">Loading...</td></tr>
+              <tr><td className="courseTableEmpty" colSpan="7">{t("instructorAdmin.loadingDetails")}</td></tr>
             ) : error ? (
               <tr><td className="courseTableEmpty" colSpan="7">{error}</td></tr>
             ) : currentPageItems.length === 0 ? (
-              <tr><td className="courseTableEmpty" colSpan="7">No courses found.</td></tr>
+              <tr><td className="courseTableEmpty" colSpan="7">{t("courseAdmin.noResults", { defaultValue: "No courses found." })}</td></tr>
             ) : (
               currentPageItems.map((course) => (
                 <tr key={course.id}>
                   <td>
                     <div className="courseTableCourseCell">
-                      {course.thumbnailKey ? <img src={course.thumbnailKey} alt={course.title} /> : null}
+                      <CourseThumbnail course={course} />
                       <div>
                         <strong>{course.title}</strong>
                         <span>{course.slug}</span>
                       </div>
                     </div>
                   </td>
-                  <td>{course.instructorName || "N/A"}</td>
-                  <td>{course.categoryName || "N/A"}</td>
-                  <td>{course.level || "N/A"}</td>
+                  <td>{course.instructorName || "N/A"}</td><td>{course.categoryName || "N/A"}</td><td>{course.level || "N/A"}</td>
                   <td>{formatPrice(course.basePrice)}</td>
                   <td>
                     <span className={`courseStatusBadge courseStatusBadge--${getCourseDisplayStatus(course).toLowerCase()}`}>
@@ -401,8 +558,8 @@ const CourseTable = ({
                       <button
                         type="button"
                         className="actionButton actionButton--view"
-                        aria-label="View Course Details"
-                        title="View Details"
+                        aria-label={t("courseAdmin.viewDetails")}
+                        title={t("courseAdmin.viewDetails")}
                         disabled={loadingDetailId === course.id}
                         onClick={() => openCourseDetails(course)}
                       >
@@ -419,7 +576,7 @@ const CourseTable = ({
 
       <div className="courseTablePagination">
         <button className="paginationButton" type="button" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}>
-          Previous
+          {t("courseAdmin.previous")}
         </button>
         {Array.from({ length: totalPages }, (_, i) => (
           <button
@@ -432,7 +589,7 @@ const CourseTable = ({
           </button>
         ))}
         <button className="paginationButton" type="button" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}>
-          Next
+          {t("courseAdmin.next")}
         </button>
       </div>
 
@@ -446,4 +603,13 @@ const CourseTable = ({
   );
 };
 
+const CourseThumbnail = ({ course }) => {
+  const thumbnailUrl = useCourseThumbnail(course.thumbnailKey);
+
+  return thumbnailUrl ? (
+    <img src={thumbnailUrl} alt={course.title} />
+  ) : null;
+};
+
+export { CourseViewModal };
 export default CourseTable;

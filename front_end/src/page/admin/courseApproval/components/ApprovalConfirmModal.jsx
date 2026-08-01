@@ -27,7 +27,7 @@ const actionCopy = {
     confirmLabel: "Reject",
     loadingLabel: "Rejecting...",
     iconClassName: "approvalConfirmIcon approvalConfirmIcon--hide",
-    buttonClassName: "approvalBtnHide",
+    buttonClassName: "approvalBtnReject",
   },
 };
 

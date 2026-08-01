@@ -29,10 +29,14 @@ const roleOptions = [
 ];
 
 const genderOptions = ["Male", "Female", "Other"];
+const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+const phonePattern = /^0[0-9]{9}$/;
+const phoneMaxLength = 10;
+const passwordMinLength = 6;
 
 const getTodayValue = () => new Date().toISOString().slice(0, 10);
 
-const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
+const AddUserModal = ({ isOpen, onClose, onSubmit, onNotify = () => {} }) => {
   const [formData, setFormData] = useState(initialForm);
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
@@ -51,13 +55,11 @@ const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const handlePhoneChange = (event) => {
-    updateField("phone", event.target.value.replace(/\D/g, "").slice(0, 10));
+    updateField("phone", event.target.value.replace(/\D/g, "").slice(0, phoneMaxLength));
   };
 
   const validateForm = () => {
     const errors = {};
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    const phoneRegex = /^0[0-9]{9}$/;
     const today = getTodayValue();
 
     if (!formData.fullName.trim()) {
@@ -66,19 +68,19 @@ const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
 
     if (!formData.email.trim()) {
       errors.email = "Email is required.";
-    } else if (!emailRegex.test(formData.email.trim())) {
+    } else if (!emailPattern.test(formData.email.trim())) {
       errors.email = "Email must be a valid Gmail address.";
     }
 
     if (!formData.password) {
       errors.password = "Password is required.";
-    } else if (formData.password.length < 6) {
+    } else if (formData.password.length < passwordMinLength) {
       errors.password = "Password must contain at least 6 characters.";
     }
 
     if (!formData.phone.trim()) {
       errors.phone = "Phone number is required.";
-    } else if (!phoneRegex.test(formData.phone)) {
+    } else if (!phonePattern.test(formData.phone)) {
       errors.phone = "Phone number must start with 0 and contain exactly 10 digits.";
     }
 
@@ -124,6 +126,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
 
     try {
       await onSubmit(payload);
+      onNotify("User created successfully", "success");
       setFormData(initialForm);
       setFieldErrors({});
     } catch (error) {
@@ -132,6 +135,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit }) => {
         error?.response?.data ||
         "Could not create this user. Please try again.";
       setSubmitError(message);
+      onNotify("Failed to create user", "error");
     } finally {
       setIsSubmitting(false);
     }

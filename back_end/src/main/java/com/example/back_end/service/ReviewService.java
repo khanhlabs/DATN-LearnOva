@@ -20,6 +20,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import com.example.back_end.dto.response.CourseReviewResponse;
+import com.example.back_end.dto.response.TestimonialResponse;
+import org.springframework.data.domain.PageRequest;
 
 
 @Service
@@ -32,6 +34,7 @@ public class ReviewService {
     private final AdminCourseRepository adminCourseRepository;
     private final LessonProgressService lessonProgressService;
     private final NotificationService notificationService;
+    private final S3Service s3Service;
 
     @Transactional
     public ReviewResponse createReview(
@@ -60,8 +63,9 @@ public class ReviewService {
         review.setCourse(course);
         review.setRating(request.getRating());
         review.setComment(request.getComment());
-        review.setCreatedAt(Instant.now());
-        review.setUpdatedAt(Instant.now());
+        Instant now = Instant.now();
+        review.setCreatedAt(now);
+        review.setUpdatedAt(now);
         reviewRepository.save(review);
 
         notificationService.create(
@@ -94,6 +98,10 @@ public class ReviewService {
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())
+                .updatedAt(review.getUpdatedAt())
+                .edited(review.getCreatedAt() != null
+                        && review.getUpdatedAt() != null
+                        && review.getUpdatedAt().isAfter(review.getCreatedAt()))
                 .instructorReply(review.getInstructorReply())
                 .repliedAt(review.getRepliedAt())
                 .build();
@@ -155,5 +163,18 @@ public class ReviewService {
                 .reviewCount(reviewRepository.countByCourseId(courseId))
                 .reviews(reviews)
                 .build();
+    }
+
+    public List<TestimonialResponse> getPlatformTestimonials(int limit) {
+        return reviewRepository.findTopTestimonials(PageRequest.of(0, limit))
+                .stream()
+                .map(review -> new TestimonialResponse(
+                        review.getId(),
+                        review.getUser().getFullName(),
+                        s3Service.resolveAvatarUrl(review.getUser().getAvatar()),
+                        review.getRating(),
+                        review.getComment(),
+                        review.getCourse().getTitle()))
+                .toList();
     }
 }

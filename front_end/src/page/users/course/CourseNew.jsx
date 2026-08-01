@@ -1,16 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import "./Course.css";
-import { BiHeart, BiCart } from "react-icons/bi";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import "./css/Course.css";
+import { BiHeart, BiSolidHeart, BiCart } from "react-icons/bi";
 import { FaStar } from "react-icons/fa";
 import { X } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LearnovaAI from "../../home/chat-bot/chatBot.jsx";
 import { useAuth } from "../../../hook/UseAuth.jsx";
-import { addStoredCartItem } from "../../../utils/cartStorage.js";
+import { addCourseToCart } from "../../../utils/cartStorage.js";
 import { getPublicCoursesApi } from "../../../api/CourseApi.js";
 import { getFileUrl } from "../../../api/PublicCourseApi.js";
+import {
+  addWishlistApi,
+  removeWishlistApi,
+  getWishlistApi,
+  syncWishlistApi,
+} from "../../../api/WishlistApi";
+
+const formatUsd = (value) => {
+  const amount = Number(value) || 0;
+  const body = Number.isInteger(amount)
+    ? String(amount)
+    : amount.toFixed(2).replace(/\.?0+$/, "");
+  return `$${body}`;
+};
 
 const FALLBACK_THUMBS = [
   "linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)",
@@ -58,8 +73,6 @@ function getAvatarColor(name) {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-const formatVnd = (value) => `${Number(value || 0).toLocaleString("vi-VN")}đ`;
-
 const formatDuration = (seconds) => {
   if (!seconds) return "0h";
   const hours = seconds / 3600;
@@ -74,7 +87,7 @@ const mapPublicCourse = (course) => ({
   category: course.categoryName || "Uncategorized",
   rating: Number(course.avgRating || 0),
   reviews: course.ratingCount || 0,
-  price: formatVnd(course.basePrice),
+  price: Number(course.basePrice || 0),
   duration: formatDuration(course.totalDurationSeconds),
   studentCount: course.studentCount || 0,
   thumbnailKey: course.thumbnailKey,
@@ -93,18 +106,27 @@ function FilterChip({ label, onRemove }) {
 }
 
 function CoursesPage() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { t } = useTranslation();
+  const { isAuthenticated, accessToken, loading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [dbCourses, setDbCourses] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("popular");
-  const [selectedCategories, setSelectedCategories] = useState(["tech"]);
-  const [selectedLevels, setSelectedLevels] = useState(["intermediate"]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedLevels, setSelectedLevels] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "");
+    setCurrentPage(1);
+  }, [searchParams]);
+
+  useEffect(() => {
     let mounted = true;
+    const loadingToastId = toast.loading(t("coursesPage.loading"));
 
     getPublicCoursesApi()
       .then(async (data) => {
@@ -122,10 +144,28 @@ function CoursesPage() {
             return { ...course, image };
           }),
         );
-        if (mounted) setDbCourses(withThumbs);
+        if (!mounted) return;
+        setDbCourses(withThumbs);
+        if (withThumbs.length === 0) {
+          toast.update(loadingToastId, {
+            render: t("coursesPage.noCourses"),
+            type: "info",
+            isLoading: false,
+            autoClose: 2000,
+          });
+        } else {
+          toast.dismiss(loadingToastId);
+        }
       })
       .catch(() => {
-        if (mounted) setDbCourses([]);
+        if (!mounted) return;
+        setDbCourses([]);
+        toast.update(loadingToastId, {
+          render: t("coursesPage.genericError"),
+          type: "error",
+          isLoading: false,
+          autoClose: 2000,
+        });
       })
       .finally(() => {
         if (mounted) setIsLoading(false);
@@ -133,10 +173,45 @@ function CoursesPage() {
 
     return () => {
       mounted = false;
+      toast.dismiss(loadingToastId);
     };
-  }, []);
+  }, [t]);
 
-  const displayCourses = dbCourses;
+  const displayCourses = useMemo(() => {
+    let result = dbCourses;
+
+    const trimmedSearch = searchTerm.trim().toLowerCase();
+    if (trimmedSearch) {
+      result = result.filter(
+        (course) =>
+          course.title?.toLowerCase().includes(trimmedSearch) ||
+          course.instructor?.toLowerCase().includes(trimmedSearch) ||
+          course.category?.toLowerCase().includes(trimmedSearch),
+      );
+    }
+
+    if (selectedCategories.length > 0 && !selectedCategories.includes("all")) {
+      const selectedCategoryNames = selectedCategories
+        .map((id) => categories.find((cat) => cat.id === id)?.name?.toLowerCase())
+        .filter(Boolean);
+
+      result = result.filter((course) =>
+        selectedCategoryNames.includes((course.category || "").toLowerCase()),
+      );
+    }
+
+    if (selectedLevels.length > 0) {
+      const selectedLevelNames = selectedLevels
+        .map((id) => levels.find((lvl) => lvl.id === id)?.name?.toLowerCase())
+        .filter(Boolean);
+
+      result = result.filter((course) =>
+        selectedLevelNames.includes((course.level || "").toLowerCase()),
+      );
+    }
+
+    return result;
+  }, [dbCourses, selectedCategories, selectedLevels, searchTerm]);
 
   const coursesPerPage = 8;
   const totalPages = Math.ceil(displayCourses.length / coursesPerPage);
@@ -152,6 +227,8 @@ function CoursesPage() {
   ];
 
   const toggleCategory = (id) => {
+    setCurrentPage(1);
+
     if (id === "all") {
       setSelectedCategories(["all"]);
       return;
@@ -165,6 +242,7 @@ function CoursesPage() {
   };
 
   const toggleLevel = (id) => {
+    setCurrentPage(1);
     setSelectedLevels((prev) =>
       prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id],
     );
@@ -186,44 +264,128 @@ function CoursesPage() {
   };
 
   const resetFilters = () => {
-    setSelectedCategories(["tech"]);
-    setSelectedLevels(["intermediate"]);
+    setSelectedCategories([]);
+    setSelectedLevels([]);
   };
 
-  const toggleWishlist = (courseId) => {
-    setWishlist((prev) =>
-      prev.includes(courseId) ? prev.filter((id) => id !== courseId) : [...prev, courseId],
-    );
-  };
+  useEffect(() => {
+    const loadWishlist = async () => {
+      try {
+        if (isAuthenticated) {
+          const response = await getWishlistApi();
+          setWishlist(response.data.map((item) => item.courseId));
+        } else {
+          const favorites =
+            JSON.parse(localStorage.getItem("favoriteCourses")) || [];
+          setWishlist(favorites);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
 
-  const handleAddToCart = (course) => {
+    loadWishlist();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const syncWishlist = async () => {
+      try {
+        const localFavorites =
+          JSON.parse(localStorage.getItem("favoriteCourses")) || [];
+
+        if (localFavorites.length > 0) {
+          await syncWishlistApi(localFavorites);
+          localStorage.removeItem("favoriteCourses");
+        }
+
+        const response = await getWishlistApi();
+        setWishlist(response.data.map((item) => item.courseId));
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    syncWishlist();
+  }, [isAuthenticated]);
+
+  const toggleWishlist = async (courseId) => {
     if (authLoading) return;
 
     if (!isAuthenticated) {
-      toast.error("Bạn cần đăng nhập để thêm khóa học vào giỏ hàng.");
+      const favorites =
+        JSON.parse(localStorage.getItem("favoriteCourses")) || [];
+
+      let newFavorites;
+
+      if (favorites.includes(courseId)) {
+        newFavorites = favorites.filter((id) => id !== courseId);
+        toast.info(t("coursesPage.removedFromWishlist"));
+      } else {
+        newFavorites = [...favorites, courseId];
+        toast.success(t("coursesPage.addedToWishlist"));
+      }
+
+      localStorage.setItem("favoriteCourses", JSON.stringify(newFavorites));
+      setWishlist(newFavorites);
       return;
     }
+
+    try {
+      if (wishlist.includes(courseId)) {
+        await removeWishlistApi(courseId);
+        setWishlist((prev) => prev.filter((id) => id !== courseId));
+        toast.info(t("coursesPage.removedFromWishlist"));
+      } else {
+        await addWishlistApi(courseId);
+        setWishlist((prev) => [...prev, courseId]);
+        toast.success(t("coursesPage.addedToWishlist"));
+      }
+    } catch (e) {
+      if (
+        e.response?.data?.message === "Course already exists in wishlist"
+      ) {
+        const response = await getWishlistApi();
+        setWishlist(response.data.map((item) => item.courseId));
+        toast.info(t("coursesPage.alreadyInWishlist"));
+        return;
+      }
+
+      console.error(e);
+      toast.error(t("coursesPage.genericError"));
+    }
+  };
+
+  const handleAddToCart = async (course) => {
+    if (authLoading) return;
 
     if (!course.courseId) {
-      toast.error("Khóa học này chưa có dữ liệu thật trong hệ thống.");
+      toast.error(t("coursesPage.courseNotAvailable"));
       return;
     }
 
-    const { alreadyInCart } = addStoredCartItem({
-      id: course.courseId || course.id,
-      courseId: course.courseId || course.id,
-      title: course.title,
-      teacher: course.instructor,
-      price: course.price,
-      image: course.image,
-    });
+    try {
+      const result = await addCourseToCart(
+        {
+          courseId: course.courseId,
+          title: course.title,
+          teacher: course.instructor,
+          price: course.price,
+          image: course.image,
+        },
+        { isAuthenticated, accessToken },
+      );
 
-    if (alreadyInCart) {
-      toast.info("Khóa học này đã có trong giỏ hàng.");
-      return;
+      if (result.alreadyInCart) {
+        toast.info(t("coursesPage.alreadyInCart"));
+        return;
+      }
+
+      toast.success(t("coursesPage.addedToCart"));
+    } catch (err) {
+      toast.error(err?.response?.data?.message || t("coursesPage.genericError"));
     }
-
-    toast.success("Đã thêm khóa học vào giỏ hàng.");
   };
 
   return (
@@ -235,7 +397,7 @@ function CoursesPage() {
             <div className="filter-scroll-course">
               <div className="filter-group-course">
                 <div className="filter-title-course">
-                  <span>Categories</span>
+                  <span>{t("coursesPage.categories")}</span>
                 </div>
                 {categories.map((cat) => (
                   <label key={cat.id} className="filter-item-course">
@@ -253,7 +415,7 @@ function CoursesPage() {
 
               <div className="filter-group-course">
                 <div className="filter-title-course">
-                  <span>Level</span>
+                  <span>{t("coursesPage.level")}</span>
                 </div>
                 {levels.map((lvl) => (
                   <label key={lvl.id} className="filter-item-course">
@@ -276,88 +438,99 @@ function CoursesPage() {
           <div className="courses-toolbar">
 
             <div className="toolbar-right">
-
+              <input
+                type="text"
+                className="courses-search-input"
+                placeholder={t("coursesPage.searchPlaceholder")}
+                value={searchTerm}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setCurrentPage(1);
+                }}
+              />
             </div>
           </div>
 
           {isLoading ? (
-            <div className="courses-empty-state">Đang tải khóa học...</div>
+            <div className="courses-empty-state">{t("coursesPage.loading")}</div>
           ) : visibleCourses.length === 0 ? (
-            <div className="courses-empty-state">Chưa có khóa học nào.</div>
+            <div className="courses-empty-state">
+              {t("coursesPage.noCourses")}
+            </div>
           ) : (
-          <div className={`courses-grid ${viewMode === "list" ? "courses-grid--list" : ""}`}>
-            {visibleCourses.map((course) => (
-              <div key={course.id} className="course-card-course">
-                <Link to={`/learnova/courses/detail/${course.courseId}`} className="course-card-img">
-                  <img src={course.image} alt={course.title} />
-                  <button
-                    type="button"
-                    className={`course-wishlist ${wishlist.includes(course.id) ? "active" : ""}`}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      toggleWishlist(course.id);
-                    }}
-                    aria-label="Add to wishlist"
-                  >
-                    <BiHeart />
-                  </button>
-                  {course.studentCount > 0 && (
-                    <span className="course-tag-badge course-tag-badge--bestseller">
-                      BESTSELLER
-                    </span>
-                  )}
-                  {course.duration && (
-                    <span className="course-duration-badge">{course.duration}</span>
-                  )}
-                </Link>
-
-                <div className="course-card-body">
-                  <Link to={`/learnova/courses/detail/${course.courseId}`} className="course-title">
-                    <h3>{course.title}</h3>
-                  </Link>
-
-                  <div className="course-instructor-row">
-                    <div
-                      className="course-instructor-avatar-initials"
-                      style={{ background: getAvatarColor(course.instructor) }}
-                      aria-hidden="true"
-                    >
-                      {getInitials(course.instructor)}
-                    </div>
-                    <span className="course-author">{course.instructor}</span>
-                  </div>
-
-                  <div className="course-rating">
-                    <span className="course-rating-value">{course.rating.toFixed(1)}</span>
-                    <div className="course-rating-stars">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <FaStar
-                          key={i}
-                          className={`rating-star-icon${i > Math.round(course.rating) ? " rating-star-empty" : ""}`}
-                        />
-                      ))}
-                    </div>
-                    <span className="course-reviews">({formatCount(course.reviews)})</span>
-                  </div>
-
-                  <div className="course-card-bottom">
-                    <div className="course-price-block">
-                      <span className="course-price">{course.price}</span>
-                    </div>
+            <div className={`courses-grid ${viewMode === "list" ? "courses-grid--list" : ""}`}>
+              {visibleCourses.map((course) => (
+                <div key={course.id} className="course-card-course">
+                  <Link to={`/learnova/courses/detail/${course.courseId}`} className="course-card-img">
+                    <img src={course.image} alt={course.title} />
                     <button
                       type="button"
-                      className="enroll-btn enroll-btn--cart"
-                      aria-label="Add to cart"
-                      onClick={() => handleAddToCart(course)}
+                      className={`course-wishlist ${wishlist.includes(course.id) ? "active" : ""}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleWishlist(course.id);
+                      }}
+                      aria-label={t("coursesPage.wishlistAria")}
                     >
-                      <BiCart />
+                      {wishlist.includes(course.id) ? <BiSolidHeart /> : <BiHeart />}
                     </button>
+                    {course.studentCount > 0 && (
+                      <span className="course-tag-badge course-tag-badge--bestseller">
+                        {t("coursesPage.bestseller")}
+                      </span>
+                    )}
+                    {course.duration && (
+                      <span className="course-duration-badge">{course.duration}</span>
+                    )}
+                  </Link>
+
+                  <div className="course-card-body">
+                    <Link to={`/learnova/courses/detail/${course.courseId}`} className="course-title">
+                      <h3>{course.title}</h3>
+                    </Link>
+
+                    <div className="course-instructor-row">
+                      <div
+                        className="course-instructor-avatar-initials"
+                        style={{ background: getAvatarColor(course.instructor) }}
+                        aria-hidden="true"
+                      >
+                        {getInitials(course.instructor)}
+                      </div>
+                      <span className="course-author">{course.instructor}</span>
+                    </div>
+
+                    <div className="course-rating">
+                      <span className="course-rating-value">{course.rating.toFixed(1)}</span>
+                      <div className="course-rating-stars">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <FaStar
+                            key={i}
+                            className={`rating-star-icon${i > Math.round(course.rating) ? " rating-star-empty" : ""}`}
+                          />
+                        ))}
+                      </div>
+                      <span className="course-reviews">({formatCount(course.reviews)})</span>
+                    </div>
+
+                    <div className="course-card-bottom">
+                      <div className="course-price-block">
+                        <span className="course-price">{formatUsd(course.price)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="enroll-btn enroll-btn--cart"
+                        aria-label={t("coursesPage.addToCartAria")}
+                        onClick={() => handleAddToCart(course)}
+                      >
+                        <BiCart />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           )}
 
           <div className="pagination-section" aria-label="Courses pagination">

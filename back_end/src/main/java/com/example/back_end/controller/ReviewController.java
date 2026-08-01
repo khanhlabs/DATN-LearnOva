@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.back_end.security.CustomUserDetails;
 import com.example.back_end.dto.request.UpdateReviewRequest;
 import com.example.back_end.dto.response.RatingSummaryResponse;
+import com.example.back_end.dto.response.TestimonialResponse;
 
 import java.util.List;
 
@@ -74,5 +75,10 @@ public class ReviewController {
     @GetMapping("/review/summary/{courseId}")
     public RatingSummaryResponse getRatingSummary(@PathVariable Long courseId) {
         return reviewService.getRatingSummary(courseId);
+    }
+
+    @GetMapping("/review/testimonials")
+    public List<TestimonialResponse> getPlatformTestimonials() {
+        return reviewService.getPlatformTestimonials(6);
     }
 }

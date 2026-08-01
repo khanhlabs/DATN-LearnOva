@@ -216,6 +216,7 @@
 .adminDataStatus--visible,
 .adminDataStatus--paid,
 .adminDataStatus--resolved,
+.adminDataStatus--dismissed,
 .adminDataStatus--approved,
 .adminDataStatus--read {
   background: #ecfdf5;

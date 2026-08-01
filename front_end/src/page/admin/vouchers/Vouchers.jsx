@@ -44,7 +44,7 @@ const Vouchers = () => {
           <VoucherChart refreshKey={refreshKey} />
         </div>
         <div className="voucherChartColumn">
-          <VoucherCampaignChart />
+          <VoucherCampaignChart refreshKey={refreshKey} />
         </div>
       </div>
 
@@ -52,6 +52,7 @@ const Vouchers = () => {
         onCreateVoucher={openCreate}
         onViewVoucher={openView}
         onEditVoucher={openEdit}
+        onVoucherDeleted={() => setRefreshKey((prev) => prev + 1)}
         refreshKey={refreshKey}
       />
 

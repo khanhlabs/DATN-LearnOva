@@ -31,21 +31,19 @@ import software.amazon.awssdk.services.mediaconvert.model.VideoCodec;
 import software.amazon.awssdk.services.mediaconvert.model.VideoCodecSettings;
 import software.amazon.awssdk.services.mediaconvert.model.VideoDescription;
 import software.amazon.awssdk.services.mediaconvert.model.VideoSelector;
-
-import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class MediaConvertService {
 
-    private final MediaConvertClient mediaConvertClient;
-
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${mediaconvert.role-arn}")
-    private String roleArn;
+     @Value("${mediaconvert.role-arn}")
+     private String roleArn;
+
+    private final MediaConvertClient mediaConvertClient;
 
     public static final String HLS_OUTPUT_PREFIX = "course-video-hls/";
     public static final String HLS_BASE_FILENAME = "index";
@@ -143,5 +141,4 @@ public class MediaConvertService {
                         .build())
                 .build();
     }
-
 }

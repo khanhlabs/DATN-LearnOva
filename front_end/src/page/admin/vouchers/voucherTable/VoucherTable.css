@@ -188,6 +188,16 @@
   color: var(--blue-strong);
 }
 
+.voucherBadge.expiring {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.voucherBadge.deleted {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 /* ===== ACTIONS (ICONS) ===== */
 .voucherActions {
   display: flex;
@@ -214,10 +224,25 @@
     transform 0.2s ease;
 }
 
-.voucherActionBtn:hover {
+.voucherActionBtn:hover:not(:disabled) {
   background: rgba(37, 99, 235, 0.12);
   border-color: rgba(37, 99, 235, 0.22);
   transform: translateY(-1px);
+}
+
+.voucherActionBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.voucherActionsUnavailable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  color: #94a3b8;
+  font-weight: 700;
 }
 
 .paginationButton {
@@ -281,6 +306,103 @@
 
 .voucherPaginationBtn:disabled {
   opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.voucherDeleteModalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.voucherDeleteModal {
+  width: min(420px, 100%);
+  padding: 24px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+  text-align: center;
+}
+
+.voucherDeleteModalIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.voucherDeleteModal h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.voucherDeleteModal p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.voucherDeleteModal p strong {
+  color: #0f172a;
+}
+
+.voucherDeleteModalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.voucherDeleteCancelBtn,
+.voucherDeleteConfirmBtn {
+  flex: 1;
+  height: 42px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.voucherDeleteCancelBtn {
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff;
+  color: #334155;
+}
+
+.voucherDeleteCancelBtn:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.voucherDeleteConfirmBtn {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.voucherDeleteConfirmBtn:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.voucherDeleteCancelBtn:disabled,
+.voucherDeleteConfirmBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 

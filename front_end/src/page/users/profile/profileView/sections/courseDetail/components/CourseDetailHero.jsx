@@ -5,11 +5,11 @@ import {
   Star,
   Users,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
 
 const CourseDetailHero = ({ course, onBack }) => {
-
-  console.log("Course:", course);
+  const { t } = useTranslation();
 
   return (
       <header className="learning-detail-hero">
@@ -20,7 +20,7 @@ const CourseDetailHero = ({ course, onBack }) => {
               onClick={onBack}
           >
             <ArrowLeft size={16} />
-            Back
+            {t("profile.learningDetail.back")}
           </button>
         </div>
 
@@ -30,7 +30,7 @@ const CourseDetailHero = ({ course, onBack }) => {
 
             <span>{course.category}</span>
 
-            <button type="button" aria-label="Watch Lesson">
+            <button type="button" aria-label={t("profile.learningDetail.watchLesson")}>
               <Play size={32} fill="currentColor" />
             </button>
           </div>
@@ -44,22 +44,22 @@ const CourseDetailHero = ({ course, onBack }) => {
               <strong>{course.rating}</strong>
             </span>
 
-              <span>({course.reviews} reviews)</span>
+              <span>{t("profile.learningDetail.reviewsCount", { count: course.reviews })}</span>
 
               <span className="learning-dot" />
 
               <span>
               <Users size={17} />
-                {course.students} students
+                {t("profile.learningDetail.studentsCount", { count: course.students })}
             </span>
             </div>
 
             <div className="learning-instructor-line">
               <img
                   src={course.instructor?.avatar || defaultAvatar}
-                  alt={course.instructor?.name || "Instructor"}
+                  alt={course.instructor?.name || t("profile.learningDetail.instructorFallback")}
               />
-              <span>Instructor: </span>
+              <span>{t("profile.learningDetail.instructorLabel")}</span>
               <strong>{course.instructor.name}</strong>
               <CheckCircle size={17} fill="currentColor" />
             </div>

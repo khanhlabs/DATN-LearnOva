@@ -13,9 +13,9 @@ public class AdminHlsController {
 
     private final AdminHlsMigrationService adminHlsMigrationService;
 
-    @PostMapping
-    public int migrateLegacyVideosToHls() {
-        return adminHlsMigrationService.migrateAllPendingLessons();
-    }
+     @PostMapping
+     public int migrateLegacyVideosToHls() {
+         return adminHlsMigrationService.migrateAllPendingLessons();
+     }
 
 }

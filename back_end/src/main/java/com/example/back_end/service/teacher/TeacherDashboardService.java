@@ -11,6 +11,7 @@ import com.example.back_end.repository.LessonQARepository;
 import com.example.back_end.repository.OrderRepository;
 import com.example.back_end.repository.ReviewRepository;
 import com.example.back_end.repository.UserRepository;
+import com.example.back_end.service.S3Service;
 import com.example.back_end.util.PercentDeltaCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +43,7 @@ public class TeacherDashboardService {
     private final OrderRepository orderRepository;
     private final LessonQARepository lessonQARepository;
     private final TeacherCourseService teacherCourseService;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public TeacherDashboardResponse getDashboard(String email) {
@@ -219,7 +221,7 @@ public class TeacherDashboardService {
         return new TeacherDashboardResponse.RecentEnrollment(
                 enrollment.getUser().getId(),
                 enrollment.getUser().getFullName(),
-                enrollment.getUser().getAvatar(),
+                s3Service.resolveAvatarUrl(enrollment.getUser().getAvatar()),
                 enrollment.getCourse().getId(),
                 enrollment.getCourse().getTitle(),
                 enrollment.getEnrolledAt()

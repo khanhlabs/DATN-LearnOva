@@ -13,10 +13,8 @@ import {
   User,
   X,
 } from "lucide-react";
+import { useState } from "react";
 import "./ViewUserModal.css";
-
-const defaultCoverImage =
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop";
 
 const formatDate = (value, fallback) => {
   if (!value) return fallback || "N/A";
@@ -42,18 +40,6 @@ const formatDateTime = (value, fallback) => {
   }).format(date);
 };
 
-const getInitials = (name) =>
-  String(name || "User")
-    .split(" ")
-    .filter(Boolean)
-    .slice(-2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase() || "U";
-
-const getAvatarFallback = (name) =>
-  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=2563eb&color=fff`;
-
 const LinkValue = ({ value }) => {
   if (!value || value === "N/A") {
     return <span className="view-user-empty">N/A</span>;
@@ -73,33 +59,22 @@ const LinkValue = ({ value }) => {
   );
 };
 
-const getUserVisibility = (user) => {
-  if (user.visibility && user.visibilityTone) {
-    return {
-      label: user.visibility,
-      tone: user.visibilityTone,
-    };
-  }
-
-  if (user.isDeleted) {
-    return {
-      label: "Hidden",
-      tone: "deleted",
-    };
-  }
-
-  return {
-    label: "Active",
-    tone: "visible",
-  };
-};
+const getUserVisibility = (user) =>
+  user.isDeleted
+    ? { label: "Hidden", tone: "deleted" }
+    : { label: "Active", tone: "visible" };
 
 const ViewUserModal = ({ user, onClose }) => {
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
+  const [failedCoverSrc, setFailedCoverSrc] = useState("");
+
   if (!user) return null;
 
   const fullName = user.fullName || user.name || "Unknown user";
-  const coverImage = user.coverImage || defaultCoverImage;
-  const avatar = user.avatar || getAvatarFallback(fullName);
+  const coverImage = user.coverImageUrl || user.coverImage || "";
+  const avatar = user.avatarUrl || user.avatar || "";
+  const shouldShowAvatar = avatar && failedAvatarSrc !== avatar;
+  const shouldShowCover = coverImage && failedCoverSrc !== coverImage;
   const visibility = getUserVisibility(user);
   const rows = [
     { icon: Mail, label: "Email", value: user.email },
@@ -123,7 +98,7 @@ const ViewUserModal = ({ user, onClose }) => {
     },
     {
       icon: Calendar,
-      label: "Create",
+      label: "Created At",
       value: formatDateTime(user.joinedAtRaw, user.joinedAt),
     },
     {
@@ -140,7 +115,7 @@ const ViewUserModal = ({ user, onClose }) => {
     { icon: Mars, label: "Gender", value: user.gender },
     {
       icon: Clock,
-      label: "Update",
+      label: "Updated At",
       value: formatDateTime(user.updatedAtRaw, user.updatedAt),
     },
     {
@@ -169,21 +144,29 @@ const ViewUserModal = ({ user, onClose }) => {
         </button>
 
         <div className="view-user-cover">
-          <img src={coverImage} alt="" />
+          {shouldShowCover ? (
+            <img
+              src={coverImage}
+              alt=""
+              onError={() => setFailedCoverSrc(coverImage)}
+            />
+          ) : null}
           <div className="view-user-title">
             <div>VIEW USER</div>
           </div>
         </div>
 
         <div className="view-user-top view-user-top--profile">
-          <img
-            className="view-user-avatar"
-            src={avatar}
-            alt={fullName}
-            onError={(event) => {
-              event.currentTarget.src = getAvatarFallback(getInitials(fullName));
-            }}
-          />
+          {shouldShowAvatar ? (
+            <img
+              className="view-user-avatar"
+              src={avatar}
+              alt={fullName}
+              onError={() => setFailedAvatarSrc(avatar)}
+            />
+          ) : (
+            <span className="view-user-avatar view-user-avatar-empty" aria-hidden="true" />
+          )}
           <h2>{fullName}</h2>
           <span className="view-user-profile-role">{user.role || "User"}</span>
         </div>

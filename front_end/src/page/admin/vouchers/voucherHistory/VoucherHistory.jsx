@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiClipboard } from "react-icons/fi";
 import { getAdminVoucherUsageHistoriesApi } from "../../../../api/admin/VoucherApi.js";
 import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
@@ -29,10 +30,11 @@ const formatDateTime = (value) => {
 };
 
 const VoucherHistory = ({ refreshKey }) => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [histories, setHistories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, searchTerm: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,7 +53,7 @@ const VoucherHistory = ({ refreshKey }) => {
         if (mounted) {
           setError(
             err?.response?.data?.message ||
-              "Không tải được lịch sử sử dụng voucher."
+              "Failed to load voucher usage history."
           );
         }
       } finally {
@@ -92,9 +94,20 @@ const VoucherHistory = ({ refreshKey }) => {
     );
   }, [normalizedHistories, searchTerm]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+  const currentPage = pagination.searchTerm === searchTerm ? pagination.page : 1;
+  const setCurrentPage = (getNextPage) => {
+    setPagination((currentPagination) => {
+      const currentSearchPage =
+        currentPagination.searchTerm === searchTerm ? currentPagination.page : 1;
+      const nextPage =
+        typeof getNextPage === "function" ? getNextPage(currentSearchPage) : getNextPage;
+
+      return {
+        page: nextPage,
+        searchTerm,
+      };
+    });
+  };
 
   const totalPages = Math.max(1, Math.ceil(filteredHistories.length / pageSize));
   const currentPageItems = filteredHistories.slice(
@@ -112,14 +125,14 @@ const VoucherHistory = ({ refreshKey }) => {
         <div>
           <div className="voucherHistoryTitleIcon">
             <FiClipboard className="voucherHistoryIcon" aria-hidden="true" />
-            <h2 className="voucherHistoryTitle">Voucher Usage History</h2>
+            <h2 className="voucherHistoryTitle">{t("opsAdmin.history")}</h2>
           </div>
           <p className="voucherHistorySubtitle">
-            View course registration transactions using discount codes.
+            {t("opsAdmin.historySubtitle")}
           </p>
         </div>
         <span className="voucherHistoryCount">
-          Showing {startItem}-{endItem} of {filteredHistories.length}
+          {t("opsAdmin.showingItems", { start: startItem, end: endItem, count: filteredHistories.length })}
         </span>
       </div>
 
@@ -127,7 +140,7 @@ const VoucherHistory = ({ refreshKey }) => {
         <div className="voucherHistoryControls">
           <input
             type="text"
-            placeholder="Search student name, code..."
+            placeholder={t("opsAdmin.searchHistory")}
             className="voucherHistorySearchInput"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
@@ -138,20 +151,20 @@ const VoucherHistory = ({ refreshKey }) => {
           <table className="voucherHistoryTable">
             <thead>
               <tr>
-                <th>STUDENT</th>
-                <th>REGISTERED COURSE</th>
-                <th>APPLIED CODE</th>
-                <th>ORIGINAL PRICE</th>
-                <th>DISCOUNT</th>
-                <th>PAID</th>
-                <th>USED AT</th>
+                <th>{t("opsAdmin.student")}</th>
+                <th>{t("opsAdmin.registeredCourse")}</th>
+                <th>{t("opsAdmin.appliedCode")}</th>
+                <th>{t("opsAdmin.originalPrice")}</th>
+                <th>{t("opsAdmin.discount")}</th>
+                <th>{t("opsAdmin.paid")}</th>
+                <th>{t("opsAdmin.usedAt")}</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="7" className="voucherHistoryLoading">
-                    Đang tải dữ liệu...
+                    {t("opsAdmin.loadingHistory")}
                   </td>
                 </tr>
               ) : error ? (
@@ -163,7 +176,7 @@ const VoucherHistory = ({ refreshKey }) => {
               ) : currentPageItems.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="voucherHistoryEmpty">
-                    Không có lịch sử sử dụng voucher phù hợp.
+                    {t("opsAdmin.noHistory")}
                   </td>
                 </tr>
               ) : (
@@ -194,7 +207,7 @@ const VoucherHistory = ({ refreshKey }) => {
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
           >
-            Prev
+            {t("opsAdmin.previous")}
           </button>
 
           {Array.from({ length: totalPages }, (_, index) => index + 1).map(
@@ -222,7 +235,7 @@ const VoucherHistory = ({ refreshKey }) => {
               setCurrentPage((page) => Math.min(page + 1, totalPages))
             }
           >
-            Next
+            {t("opsAdmin.next")}
           </button>
         </div>
       </div>

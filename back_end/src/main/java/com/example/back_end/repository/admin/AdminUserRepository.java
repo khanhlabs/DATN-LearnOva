@@ -11,8 +11,6 @@ import org.springframework.stereotype.Repository;
 import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.RoleName;
 
-import java.time.Instant;
-
 @Repository
 public interface AdminUserRepository extends JpaRepository<User, Long> {
 
@@ -64,16 +62,38 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     List<Object[]> findRecentActiveUserRows();
 
     @Query(value = """
-            SELECT CAST(EXTRACT(MONTH FROM created_at) AS int) AS month_number, COUNT(*) AS total
-            FROM users
-            WHERE is_deleted = false
-              AND created_at >= :startAt
-              AND created_at < :endAt
-            GROUP BY month_number
-            ORDER BY month_number
+            SELECT
+              u.user_id,
+              u.full_name,
+              u.email,
+              u.created_at,
+              COALESCE(MIN(CAST(r.role_name AS text)), 'ROLE_USER') AS role_name
+            FROM users u
+            LEFT JOIN user_role ur ON ur.user_id = u.user_id
+            LEFT JOIN roles r ON r.role_id = ur.role_id
+            WHERE u.is_deleted = false
+            GROUP BY u.user_id, u.full_name, u.email, u.created_at
+            ORDER BY u.created_at DESC
+            LIMIT 4
+            """, nativeQuery = true)
+    List<Object[]> findRecentUserActivityRows();
+
+    @Query(value = """
+            WITH month_range AS (
+              SELECT generate_series(1, 12) AS month_number
+            )
+            SELECT
+              mr.month_number,
+              COALESCE(COUNT(DISTINCT u.user_id), 0) AS total
+            FROM month_range mr
+            LEFT JOIN users u
+              ON u.is_deleted = false
+              AND u.created_at >= make_date(:yearParam, mr.month_number, 1)
+              AND u.created_at < make_date(:yearParam, mr.month_number, 1) + INTERVAL '1 month'
+            GROUP BY mr.month_number
+            ORDER BY mr.month_number
             """, nativeQuery = true)
     List<Object[]> countActiveUsersByMonth(
-            @Param("startAt") Instant startAt,
-            @Param("endAt") Instant endAt
+            @Param("yearParam") Integer year
     );
 }

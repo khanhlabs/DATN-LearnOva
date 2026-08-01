@@ -1,8 +1,12 @@
 import React from 'react';
 import './About.css';
 import { Award, Target, Globe, Users, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import LearnovaAI from '../../home/chat-bot/chatBot.jsx';
 
 function AboutView() {
+    const { t } = useTranslation();
+
     return (
         <div className="about-main-container">
             {/* NHÚNG GOOGLE FONT TRỰC TIẾP ĐỂ TRÁNH LỖI PHÔNG CHỮ TIẾNG VIỆT */}
@@ -17,18 +21,18 @@ function AboutView() {
                 <div className="about-grid-layout">
                     <div className="about-content-side">
                         <h2 className="about-font-serif-premium about-section-title">
-                            Journey of <br /> <span className="about-text-orange">knowledge</span> and <span className="about-text-italic-gold">aspiration</span>
+                            {t('about.titleLine1')} <br /> <span className="about-text-orange">{t('about.titleKnowledge')}</span> {t('about.titleAnd')} <span className="about-text-italic-gold">{t('about.titleAspiration')}</span>
                         </h2>
 
                         <div className="about-text-body-light about-content-space">
                             <p>
-                                Founded in 2020, LearnOva was born from a simple question: How can we bring elite education closer to everyone? We understand that in the digital age, knowledge is not lacking—the real gap is the absence of a structured learning path and dedicated mentors.
+                                {t('about.paragraph1')}
                             </p>
                             <p>
-                                With the philosophy of "Learning to Empower", LearnOva focuses on building training programs that not only provide skills but also cultivate thinking. We believe that when someone understands the “why”, they will always find the “how”.
+                                {t('about.paragraph2')}
                             </p>
                             <p>
-                                Over the past 4 years, we have accompanied more than 50,000 learners, helping them transform their careers and expand their worldview through carefully designed courses created by a team of leading experts.
+                                {t('about.paragraph3')}
                             </p>
                         </div>
                     </div>
@@ -41,7 +45,7 @@ function AboutView() {
                         />
                         <div className="about-floating-badge">
                             <div className="about-font-serif-premium about-badge-num">50k+</div>
-                            <div className="about-badge-text">Trusted by learners</div>
+                            <div className="about-badge-text">{t('about.trustedByLearners')}</div>
                         </div>
                     </div>
                 </div>
@@ -52,9 +56,9 @@ function AboutView() {
                 <div style={{ position: 'absolute', bottom: '-10rem', right: '-10rem', width: '24rem', height: '24rem', backgroundColor: 'rgba(255,161,7,0.05)', borderRadius: '50%', filter: 'blur(64px)', pointerEvents: 'none' }}></div>
 
                 <div className="about-section-header-center">
-                    <span className="about-section-subtitle-tag">Core Values</span>
+                    <span className="about-section-subtitle-tag">{t('about.coreValuesTag')}</span>
                     <h2 className="about-font-serif-premium about-section-title" style={{ margin: 0 }}>
-                        Our Guiding Principles
+                        {t('about.coreValuesTitle')}
                     </h2>
                 </div>
 
@@ -62,18 +66,18 @@ function AboutView() {
                     {[
                         {
                             icon: <Award style={{ color: 'var(--about-orange)', transition: 'colors 0.5s' }} size={32} />,
-                            title: "Excellence in Quality",
-                            desc: "Every course is carefully reviewed by industry experts and outstanding instructors before reaching our learners."
+                            title: t('about.value1Title'),
+                            desc: t('about.value1Desc')
                         },
                         {
                             icon: <Target style={{ color: 'var(--about-orange)', transition: 'colors 0.5s' }} size={32} />,
-                            title: "Practical & Applicable",
-                            desc: "We eliminate unnecessary theory and focus on knowledge that can be immediately applied to work and everyday life."
+                            title: t('about.value2Title'),
+                            desc: t('about.value2Desc')
                         },
                         {
                             icon: <Users style={{ color: 'var(--about-orange)', transition: 'colors 0.5s' }} size={32} />,
-                            title: "Connected Community",
-                            desc: "Learning is never a lonely journey at LearnOva. We foster an ecosystem where learners can connect, collaborate, and support one another."
+                            title: t('about.value3Title'),
+                            desc: t('about.value3Desc')
                         }
                     ].map((val, i) => (
                         <div key={i} className="about-value-card">
@@ -99,7 +103,7 @@ function AboutView() {
                             className="about-font-serif-premium about-section-title"
                             style={{ color: '#ffa107' }}
                         >
-                            Our mission is to transform <span className="about-text-italic-gold">the way the world learns</span>
+                            {t('about.missionTitleLine1')} <span className="about-text-italic-gold">{t('about.missionTitleHighlight')}</span>
                         </h2>
 
                         <div
@@ -107,11 +111,11 @@ function AboutView() {
                             style={{ color: '#ffa107' }}
                         >
                             <p>
-                                At LearnOva, we do more than offer courses. We are building a foundation for the sustainable growth and development of every individual.
+                                {t('about.missionParagraph1')}
                             </p>
 
                             <p>
-                                Our mission is to bridge the gap between academic education and real-world industry needs while creating a lifelong learning environment for everyone.
+                                {t('about.missionParagraph2')}
                             </p>
 
                             <div className="about-stats-row">
@@ -130,7 +134,7 @@ function AboutView() {
                                         className="about-badge-text"
                                         style={{ color: '#ffa107' }}
                                     >
-                                        Advanced Courses
+                                        {t('about.statCourses')}
                                     </div>
                                 </div>
 
@@ -149,7 +153,7 @@ function AboutView() {
                                         className="about-badge-text"
                                         style={{ color: '#ffa107' }}
                                     >
-                                        Expert Instructors
+                                        {t('about.statInstructors')}
                                     </div>
                                 </div>
                             </div>
@@ -176,27 +180,27 @@ function AboutView() {
 
                     <div style={{ position: 'relative', zIndex: 10 }}>
                         <h2 className="about-font-serif-premium about-section-title">
-                            Are you ready to <br /> <span style={{ color: '#ffaa16' }}>write the next chapter</span> of your story?
+                            {t('about.ctaTitleLine1')} <br /> <span style={{ color: '#ffaa16' }}>{t('about.ctaTitleHighlight')}</span> {t('about.ctaTitleEnd')}
                         </h2>
 
                         <p className="about-text-body-light about-cta-desc">
-                            Start your learning journey with LearnOva today and join us in shaping your future.
+                            {t('about.ctaDescription')}
                         </p>
 
                         <div className="about-btn-container">
                             <button className="about-btn-primary">
-                                Explore Courses
+                                {t('about.ctaExplore')}
                                 <ChevronRight size={16} />
                             </button>
 
                             <button className="about-btn-secondary">
-                                Contact an Advisor
+                                {t('about.ctaContact')}
                             </button>
                         </div>
                     </div>
                 </div>
                 <div className="chatbot-fixed">
-                    <chatBot />
+                    <LearnovaAI />
                 </div>
             </section>
         </div>

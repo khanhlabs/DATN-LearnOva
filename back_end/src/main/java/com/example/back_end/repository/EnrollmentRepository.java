@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.back_end.entity.Enrollment;
 import com.example.back_end.entity.EnrollmentId;
+import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, EnrollmentId> {
 
@@ -31,6 +32,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Enrollme
     );
 
     boolean existsByIdCourseIdAndIdUserId(Long courseId, Long userId);
+    boolean existsByUser_IdAndCourse_Id(Long userId, Long courseId);
 
     @Query("SELECT e FROM Enrollment e " +
            "JOIN FETCH e.user u " +
@@ -47,6 +49,9 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Enrollme
 
     @Query("SELECT DISTINCT e.user.id FROM Enrollment e")
     List<Long> findDistinctUserIds();
+
+    @Query("SELECT COUNT(DISTINCT e.user.id) FROM Enrollment e")
+    long countDistinctUsers();
 
     @Query("SELECT COUNT(DISTINCT e.user.id) FROM Enrollment e WHERE e.course.instructor.id = :instructorId")
     long countDistinctStudentsByInstructorId(@Param("instructorId") Long instructorId);
@@ -128,4 +133,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Enrollme
             @Param("instructorId") Long instructorId,
             @Param("since") Instant since
     );
+    
+    Optional<Enrollment> findByUser_IdAndCourse_Id(Long userId, Long courseId);
 }

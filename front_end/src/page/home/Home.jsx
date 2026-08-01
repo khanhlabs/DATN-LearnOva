@@ -1,6 +1,7 @@
 import Header from '../../component/header/user_header/Header.jsx';
 import HeroSplit from './hero/HeroSplit.jsx';
 import TrustBar from './hero/TrustBar.jsx';
+import ContinueLearning from './dashboard/components/ContinueLearning.jsx';
 import Course from './courses/Course.jsx';
 import Categories from './categories/Categories.jsx';
 import HowItWorks from './how-it-works/HowItWorks.jsx';
@@ -19,6 +20,7 @@ const Home = () => {
 
             <Header />
             <HeroSplit />
+            <ContinueLearning />
             <TrustBar />
 
             <main id="main-content">

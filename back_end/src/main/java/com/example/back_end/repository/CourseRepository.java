@@ -11,6 +11,10 @@ import java.util.Optional;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
+    long countByInstructorIdAndIsDeletedFalse(Long instructorId);
+
+    long countByStatusAndIsDeletedFalse(CourseStatus status);
+
     @Query("""
             SELECT DISTINCT c FROM Course c
             LEFT JOIN FETCH c.sections s
@@ -44,6 +48,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Optional<Course> findCourseDetailById(@Param("id") Long id);
 
     List<Course> findByStatusAndIsDeletedFalseAndIsHiddenFalseOrderByCreatedAtDesc(CourseStatus status);
+    List<Course> findByStatusAndIsDeletedFalseOrderByCreatedAtDesc(CourseStatus status);
+
+    List<Course> findByInstructorIdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(
+            Long instructorId, CourseStatus status);
     @Query("""
     SELECT DISTINCT c
     FROM Course c

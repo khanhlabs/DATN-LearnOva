@@ -1,24 +1,54 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ShoppingCart } from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
+import {
+  CART_UPDATED_EVENT,
+  getStoredCartItems,
+} from "../../../../utils/cartStorage.js";
 
 const HeaderAction = () => {
+  const { t } = useTranslation();
+  const [totalItems, setTotalItems] = useState(0);
+
+  useEffect(() => {
+    const loadCount = () => {
+      setTotalItems(getStoredCartItems().length);
+    };
+
+    loadCount();
+    window.addEventListener(CART_UPDATED_EVENT, loadCount);
+    window.addEventListener("storage", loadCount);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, loadCount);
+      window.removeEventListener("storage", loadCount);
+    };
+  }, []);
+
   return (
     <div className="header-section">
-      <Link to="/learnova/cart" className="header-action-cart">
+      <Link
+        to="/learnova/cart"
+        className="header-action-cart"
+        style={{ position: "relative", display: "inline-flex" }}
+      >
         <ShoppingCart size={22} />
+        {totalItems > 0 && (
+          <span className="user-logged-badge">{totalItems}</span>
+        )}
       </Link>
 
       <Link to="/learnova/auth/login" className="header-action-login">
-        Log in
+        {t("header.login")}
       </Link>
 
       <Link to="/learnova/auth/login?mode=register" className="header-action-signup">
-        Sign up
+        {t("header.signup")}
       </Link>
 
-      <button className="header-action-language">
-        <Globe size={22} />
-      </button>
+      <LanguageSwitcher />
     </div>
   );
 };

@@ -9,3 +9,8 @@ export const getPublicCourseByIdApi = async (courseId) => {
   const response = await axiosClient.get(`/courses/public/${courseId}`);
   return response.data;
 };
+
+export const getCourseDetailApi = async (courseId) => {
+  const response = await axiosClient.get(`/courses/${courseId}`);
+  return response.data;
+};

@@ -1,53 +1,113 @@
-import './Instructors.css';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import "./Instructors.css";
+import { getPublicInstructorsApi } from "../../../api/InstructorApi.js";
 
-const instructors = [
-    { name: 'Sarah Chen',      title: 'Senior Web Engineer',    students: '142K', courses: 8, rating: '4.9', color: '#2563eb', initial: 'SC' },
-    { name: 'Dr. Alex Kumar',  title: 'Data Science PhD',       students: '98K',  courses: 5, rating: '4.9', color: '#4361ee', initial: 'AK' },
-    { name: 'Maria Gonzalez',  title: 'Lead Product Designer',  students: '67K',  courses: 6, rating: '4.8', color: '#f72585', initial: 'MG' },
-];
+const AVATAR_COLORS = ["#2563eb", "#4361ee", "#f72585", "#059669", "#d97706"];
+
+function getInitials(name) {
+    if (!name) return "?";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function getAvatarColor(name) {
+    let hash = 0;
+    for (let i = 0; i < (name || "").length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
 
 export default function Instructors() {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const [instructors, setInstructors] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        let mounted = true;
+
+        getPublicInstructorsApi()
+            .then((data) => {
+                if (!mounted) return;
+                const sorted = (Array.isArray(data) ? data : [])
+                    .slice()
+                    .sort((a, b) => (b.rating * b.reviewCount) - (a.rating * a.reviewCount))
+                    .slice(0, 3);
+                setInstructors(sorted);
+            })
+            .catch(() => {
+                if (mounted) setInstructors([]);
+            })
+            .finally(() => {
+                if (mounted) setIsLoading(false);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    if (!isLoading && instructors.length === 0) {
+        return null;
+    }
+
     return (
         <section className="inst" aria-labelledby="inst-heading">
             <div className="inst__container">
                 <div className="inst__header">
-                    <span className="section-eyebrow">Instructor Spotlight</span>
-                    <h2 id="inst-heading" className="inst__title">Learn from the best</h2>
+                    <span className="section-eyebrow">{t('home.instructors.eyebrow')}</span>
+                    <h2 id="inst-heading" className="inst__title">{t('home.instructors.title')}</h2>
                 </div>
 
                 <div className="inst__grid">
-                    {instructors.map((inst) => (
-                        <article key={inst.name} className="inst__card">
-                            <div
-                                className="inst__avatar"
-                                style={{
-                                    background: `linear-gradient(135deg, ${inst.color}, ${inst.color}88)`
-                                }}
-                                aria-hidden="true"
-                            >
-                                {inst.initial}
-                            </div>
-                            <h3 className="inst__name">{inst.name}</h3>
-                            <p className="inst__role">{inst.title}</p>
+                    {isLoading ? (
+                        <p className="inst__loading">{t('home.instructors.loading')}</p>
+                    ) : (
+                        instructors.map((inst) => (
+                            <article key={inst.instructorId} className="inst__card">
+                                {inst.avatar?.trim() ? (
+                                    <img src={inst.avatar} alt={inst.fullName} className="inst__avatar-img" />
+                                ) : (
+                                    <div
+                                        className="inst__avatar"
+                                        style={{
+                                            background: `linear-gradient(135deg, ${getAvatarColor(inst.fullName)}, ${getAvatarColor(inst.fullName)}88)`,
+                                        }}
+                                        aria-hidden="true"
+                                    >
+                                        {getInitials(inst.fullName)}
+                                    </div>
+                                )}
+                                <h3 className="inst__name">{inst.fullName}</h3>
+                                <p className="inst__role">{inst.headline || t('home.instructors.instructorFallback')}</p>
 
-                            <div className="inst__stats">
-                                <div className="inst__stat">
-                                    <strong>{inst.students}</strong>
-                                    <span>Students</span>
+                                <div className="inst__stats">
+                                    <div className="inst__stat">
+                                        <strong>{inst.studentCount}</strong>
+                                        <span>{t('home.instructors.statStudents')}</span>
+                                    </div>
+                                    <div className="inst__stat">
+                                        <strong>{inst.courseCount}</strong>
+                                        <span>{t('home.instructors.statCourses')}</span>
+                                    </div>
+                                    <div className="inst__stat">
+                                        <strong>{inst.rating.toFixed(1)}</strong>
+                                        <span>{t('home.instructors.statRating')}</span>
+                                    </div>
                                 </div>
-                                <div className="inst__stat">
-                                    <strong>{inst.courses}</strong>
-                                    <span>Courses</span>
-                                </div>
-                                <div className="inst__stat">
-                                    <strong>{inst.rating}</strong>
-                                    <span>Rating</span>
-                                </div>
-                            </div>
 
-                            <button className="inst__cta">View Courses</button>
-                        </article>
-                    ))}
+                                <button
+                                    type="button"
+                                    className="inst__cta"
+                                    onClick={() => navigate(`/learnova/intructorDetail/${inst.instructorId}`)}
+                                >
+                                    {t('home.instructors.viewCourses')}
+                                </button>
+                            </article>
+                        ))
+                    )}
                 </div>
             </div>
         </section>

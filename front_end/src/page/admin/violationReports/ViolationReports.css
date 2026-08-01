@@ -34,3 +34,247 @@
   flex-wrap: nowrap;
   gap: 8px;
 }
+
+.violation-report-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1290;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.35);
+  color: #fff;
+  font-weight: 600;
+}
+
+.violation-report-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.violation-report-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.violation-report-panel__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 220px;
+  flex: 1 1 280px;
+}
+
+.violation-report-panel__info strong {
+  font-size: 0.95rem;
+}
+
+.violation-report-panel__info span {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.violation-report-panel__description {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.violation-report-panel__hint {
+  margin-top: 0.15rem;
+  font-size: 0.8rem !important;
+  color: #fbbf24 !important;
+}
+
+.violation-report-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.violation-report-steps {
+  margin: 0;
+  padding: 0.85rem 1rem 0.85rem 1.75rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.violation-report-steps li {
+  margin: 0.35rem 0;
+}
+
+.violation-report-steps li.done {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.violation-report-steps li.current {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.violation-report-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.violation-report-btn.danger {
+  background: #dc2626;
+}
+
+.violation-report-btn.ghost {
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.violation-report-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.violation-report-target {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.violation-report-target small {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.violation-report-severity {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+.adminDataPage .adminCourseDetailOverlay,
+.adminDataPage .cdm-overlay {
+  z-index: 1350;
+}
+
+.violation-action-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.violation-action-modal {
+  position: relative;
+  width: min(480px, 100%);
+  padding: 1.5rem 1.35rem 1.25rem;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28);
+}
+
+.violation-action-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.violation-action-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.violation-action-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.violation-action-icon.warn {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.violation-action-icon.hide {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.violation-action-modal h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.violation-action-desc {
+  margin: 0 0 1rem;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.violation-action-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
+}
+
+.violation-action-field span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.violation-action-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 96px;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font: inherit;
+  color: #0f172a;
+}
+
+.violation-action-field textarea:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.25);
+  border-color: #2563eb;
+}
+
+.violation-action-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
