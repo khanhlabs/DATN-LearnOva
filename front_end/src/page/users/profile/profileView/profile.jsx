@@ -215,9 +215,7 @@ const ProfileView = ({
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      toast.error("Please fix the highlighted fields before saving.", {
-        containerId: PROFILE_TOAST_ID,
-      });
+      toast.error("Please fix the highlighted fields before saving.");
       return;
     }
 
@@ -229,6 +227,7 @@ const ProfileView = ({
         phone: profileData.phone.trim(),
         dateOfBirth: profileData.dateOfBirth,
         gender: profileData.gender,
+        avatar: profileData.avatar,
       }, accessToken);
 
       setProfileData((prev) => ({

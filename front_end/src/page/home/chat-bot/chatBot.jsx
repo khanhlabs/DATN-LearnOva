@@ -349,17 +349,6 @@ function LearnovaAI() {
 
                             <div ref={messagesEndRef}></div>
                         </div>
-
-                        {/*<div className="suggestions">*/}
-                        {/*    {suggestions.map((item, index) => (*/}
-                        {/*        <button*/}
-                        {/*            key={index}*/}
-                        {/*            className="suggestion-btn"*/}
-                        {/*        >*/}
-                        {/*            {item}*/}
-                        {/*        </button>*/}
-                        {/*    ))}*/}
-                        {/*</div>*/}
                     </div>
 
                     {/* Footer */}

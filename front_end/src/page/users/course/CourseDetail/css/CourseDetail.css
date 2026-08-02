@@ -733,6 +733,56 @@ hr {
     }
 }
 
+.instructor-headline {
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 0.75rem;
+}
+
+.instructor-stats-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.instructor-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.instructor-stat strong {
+    color: #1f2937;
+}
+
+.instructor-stat-icon {
+    color: #f59e0b;
+}
+
+.instructor-view-profile-link {
+    display: inline-block;
+    margin-top: 1rem;
+    margin-left: 145px;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.instructor-view-profile-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .instructor-bio-text,
+    .instructor-view-profile-link {
+        margin-left: 0;
+    }
+}
+
 @media (max-width: 768px) {
     .instructor-header-box {
         flex-direction: column;

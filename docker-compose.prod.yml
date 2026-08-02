@@ -35,15 +35,17 @@ services:
 
   ai-service:
     build: ./ai_services
-    env_file:
-      - ./ai_services/.env
+    
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?GEMINI_API_KEY is required}
     mem_limit: 256m
     restart: unless-stopped
 
   backend:
     build: ./back_end
     env_file:
-      - ./back_end/.env
+      - ./back_end/.env-prod
+
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
