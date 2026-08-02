@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { TrendingUp, Wallet } from "lucide-react";
 import { formatCurrency } from "../revenuePageData.js";
-import { getPayoutBalance, getMyPayoutHistory, requestPayout } from "../../../../api/teacher/PayoutApi.js";
+import { getPayoutBalance, getMyPayoutHistory } from "../../../../api/teacher/PayoutApi.js";
 
 const statusLabel = {
   PENDING: "Pending",
@@ -13,23 +12,6 @@ const statusLabel = {
 const PayoutPanel = ({ lifetimeRevenue, revenueTotal }) => {
   const [balance, setBalance] = useState(null);
   const [history, setHistory] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [notes, setNotes] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const refreshPayoutData = async () => {
-    try {
-      const [balanceData, historyData] = await Promise.all([
-        getPayoutBalance(),
-        getMyPayoutHistory(),
-      ]);
-      setBalance(balanceData);
-      setHistory(Array.isArray(historyData) ? historyData : []);
-    } catch {
-      // fail silently - panel still shows lifetime/30-day figures
-    }
-  };
 
   useEffect(() => {
     getPayoutBalance().then(setBalance).catch(() => {});
@@ -37,38 +19,6 @@ const PayoutPanel = ({ lifetimeRevenue, revenueTotal }) => {
       .then((data) => setHistory(Array.isArray(data) ? data : []))
       .catch(() => {});
   }, []);
-
-  const openModal = () => {
-    setAmount("");
-    setNotes("");
-    setShowModal(true);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const numericAmount = Number(amount);
-
-    if (!numericAmount || numericAmount <= 0) {
-      toast.error("Please enter a valid amount.");
-      return;
-    }
-    if (balance && numericAmount > balance.availableBalance) {
-      toast.error("Requested amount exceeds your available balance.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await requestPayout({ amount: numericAmount, notes: notes.trim() || null });
-      toast.success("Payout request submitted.");
-      setShowModal(false);
-      await refreshPayoutData();
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to submit payout request.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <section className="teacher-revenue-panel-wrap">
@@ -91,10 +41,6 @@ const PayoutPanel = ({ lifetimeRevenue, revenueTotal }) => {
             <strong>{formatCurrency(balance.availableBalance)}</strong>
           </div>
         )}
-
-        <button type="button" className="teacher-payout-request-btn" onClick={openModal}>
-          Request Payout
-        </button>
 
         <div className="teacher-revenue-payout-visual" aria-hidden="true">
           <Wallet size={58} />
@@ -119,54 +65,6 @@ const PayoutPanel = ({ lifetimeRevenue, revenueTotal }) => {
               )}
             </div>
           ))}
-        </div>
-      )}
-
-      {showModal && (
-        <div className="teacher-payout-modal-overlay" onClick={() => !isSubmitting && setShowModal(false)}>
-          <form
-            className="teacher-payout-modal"
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={handleSubmit}
-          >
-            <h3>Request Payout</h3>
-            {balance && (
-              <p className="teacher-payout-modal-balance">
-                Available balance: <strong>{formatCurrency(balance.availableBalance)}</strong>
-              </p>
-            )}
-
-            <label>
-              Amount
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-              />
-            </label>
-
-            <label>
-              Notes (optional)
-              <textarea
-                rows={3}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Bank transfer details or preferred payment method"
-              />
-            </label>
-
-            <div className="teacher-payout-modal-actions">
-              <button type="button" onClick={() => setShowModal(false)} disabled={isSubmitting}>
-                Cancel
-              </button>
-              <button type="submit" className="teacher-payout-submit-btn" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit request"}
-              </button>
-            </div>
-          </form>
         </div>
       )}
     </section>
