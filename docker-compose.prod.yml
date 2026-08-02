@@ -44,6 +44,7 @@ services:
     build: ./back_end
     env_file:
       - ./back_end/.env-prod
+
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
