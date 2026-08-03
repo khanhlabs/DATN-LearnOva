@@ -1,5 +1,6 @@
 package com.example.back_end.repository;
 
+import com.example.back_end.entity.Notification;
 import com.example.back_end.entity.enums.NotificationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

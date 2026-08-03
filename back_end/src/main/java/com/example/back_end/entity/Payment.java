@@ -1,5 +1,7 @@
 package com.example.back_end.entity;
 
+import com.example.back_end.entity.enums.PaymentMethod;
+import com.example.back_end.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -39,15 +42,19 @@ public class Payment {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", columnDefinition = "payment_method not null")
-    private Object paymentMethod;
+    @org.hibernate.annotations.JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private PaymentMethod paymentMethod;
 
     @Column(name = "transaction_id", length = Integer.MAX_VALUE)
     private String transactionId;
 
+    @Enumerated(EnumType.STRING)
     @ColumnDefault("'PENDING'")
     @Column(name = "status", columnDefinition = "payment_status not null")
-    private Object status;
+    @org.hibernate.annotations.JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private PaymentStatus status;
 
     @Column(name = "paid_at")
     private OffsetDateTime paidAt;

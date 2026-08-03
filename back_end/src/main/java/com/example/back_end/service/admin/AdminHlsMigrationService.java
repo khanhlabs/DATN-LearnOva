@@ -1,5 +1,6 @@
 package com.example.back_end.service.admin;
 
+import com.example.back_end.entity.Lesson;
 import com.example.back_end.entity.enums.HlsStatus;
 import com.example.back_end.repository.LessonRepository;
 import com.example.back_end.service.MediaConvertService;

@@ -1,6 +1,8 @@
 package com.example.back_end.service;
 
 import com.example.back_end.document.CourseDocument;
+import com.example.back_end.entity.Course;
+import com.example.back_end.entity.Tag;
 import com.example.back_end.entity.enums.CourseStatus;
 import com.example.back_end.repository.CourseRepository;
 import com.example.back_end.repository.CourseSearchRepository;

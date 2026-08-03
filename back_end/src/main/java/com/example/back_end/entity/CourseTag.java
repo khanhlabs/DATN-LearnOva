@@ -18,7 +18,7 @@ public class CourseTag {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Courses course;
+    private Course course;
 
     @MapsId("tagId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

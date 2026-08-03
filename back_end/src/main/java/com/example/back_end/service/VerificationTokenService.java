@@ -1,5 +1,7 @@
 package com.example.back_end.service;
 
+import com.example.back_end.entity.User;
+import com.example.back_end.entity.VerificationToken;
 import com.example.back_end.entity.enums.VerificationType;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;

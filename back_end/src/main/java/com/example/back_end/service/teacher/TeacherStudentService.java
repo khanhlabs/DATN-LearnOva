@@ -2,6 +2,8 @@ package com.example.back_end.service.teacher;
 
 import com.example.back_end.dto.response.teacher.TeacherStudentCourseResponse;
 import com.example.back_end.dto.response.teacher.TeacherStudentResponse;
+import com.example.back_end.entity.Enrollment;
+import com.example.back_end.entity.User;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.EnrollmentRepository;
 import com.example.back_end.repository.UserRepository;

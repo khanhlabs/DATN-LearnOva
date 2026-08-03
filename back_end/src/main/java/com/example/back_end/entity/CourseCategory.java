@@ -17,10 +17,10 @@ public class CourseCategory {
     private CourseCategoryId id;
 
     @MapsId("courseId")
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Courses course;
+    private Course course;
 
     @MapsId("categoryId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -1,5 +1,6 @@
 package com.example.back_end.entity;
 
+import com.example.back_end.entity.enums.NotificationType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -38,6 +39,18 @@ public class Notification {
     private String content;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 50)
+    private NotificationType type;
+
+    @Column(name = "link", length = Integer.MAX_VALUE)
+    private String link;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata")
+    private Map<String, Object> metadata;
+
+    @NotNull
     @ColumnDefault("false")
     @Column(name = "is_read", nullable = false)
     private Boolean isRead;
@@ -46,17 +59,6 @@ public class Notification {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
-    @NotNull
-    @Column(name = "type", nullable = false, length = Integer.MAX_VALUE)
-    private String type;
-
-    @Column(name = "link", length = Integer.MAX_VALUE)
-    private String link;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata")
-    private Map<String, Object> metadata;
 
 
 }

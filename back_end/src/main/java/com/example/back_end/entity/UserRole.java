@@ -24,7 +24,7 @@ public class UserRole {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "role_id", nullable = false)
-    private Roles roles;
+    private Role role;
 
 
 }

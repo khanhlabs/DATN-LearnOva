@@ -1,5 +1,6 @@
 package com.example.back_end.repository;
 
+import com.example.back_end.entity.Course;
 import com.example.back_end.entity.enums.CourseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

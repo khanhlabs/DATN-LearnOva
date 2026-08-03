@@ -1,20 +1,21 @@
 package com.example.back_end.entity;
 
+import com.example.back_end.entity.enums.PayoutRequestStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "payout_requests")
 public class PayoutRequest {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -29,25 +30,23 @@ public class PayoutRequest {
     @Column(name = "amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    @Size(max = 20)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @ColumnDefault("'PENDING'")
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    private PayoutRequestStatus status;
 
-    @Column(name = "notes", length = Integer.MAX_VALUE)
+    @Column(name = "notes", columnDefinition = "text")
     private String notes;
 
-    @Column(name = "rejection_reason", length = Integer.MAX_VALUE)
+    @Column(name = "rejection_reason", columnDefinition = "text")
     private String rejectionReason;
 
     @NotNull
-    @ColumnDefault("now()")
+    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "processed_at")
-    private OffsetDateTime processedAt;
-
-
+    private Instant processedAt;
 }

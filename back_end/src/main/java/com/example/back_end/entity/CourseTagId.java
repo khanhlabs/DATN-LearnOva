@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
@@ -15,8 +14,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Embeddable
 public class CourseTagId implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 3326419118015573680L;
+    private static final long serialVersionUID = 8086114430363650503L;
     @NotNull
     @Column(name = "course_id", nullable = false)
     private Long courseId;

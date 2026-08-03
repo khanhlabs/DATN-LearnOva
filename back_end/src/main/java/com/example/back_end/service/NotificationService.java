@@ -1,6 +1,8 @@
 package com.example.back_end.service;
 
 import com.example.back_end.dto.response.NotificationResponse;
+import com.example.back_end.entity.Notification;
+import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.NotificationType;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;

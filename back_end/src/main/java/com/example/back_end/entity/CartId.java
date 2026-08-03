@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
@@ -15,7 +14,6 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Embeddable
 public class CartId implements Serializable {
-    @Serial
     private static final long serialVersionUID = -7627535224013463881L;
     @NotNull
     @Column(name = "user_id", nullable = false)

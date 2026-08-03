@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.back_end.dto.response.CategoryOptionResponse;
 import com.example.back_end.dto.response.admin.AdminCategoryResponse;
 import com.example.back_end.dto.request.admin.AdminCategoryRequest;
+import com.example.back_end.entity.Category;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.admin.AdminCategoryRepository;

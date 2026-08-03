@@ -1,5 +1,7 @@
 package com.example.back_end.repository;
 
+import com.example.back_end.entity.User;
+import com.example.back_end.entity.VerificationToken;
 import com.example.back_end.entity.enums.VerificationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

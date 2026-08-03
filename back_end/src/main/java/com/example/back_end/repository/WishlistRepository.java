@@ -1,5 +1,7 @@
 package com.example.back_end.repository;
 
+import com.example.back_end.entity.Wishlist;
+import com.example.back_end.entity.WishlistId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

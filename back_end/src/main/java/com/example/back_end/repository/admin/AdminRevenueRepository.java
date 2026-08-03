@@ -1,5 +1,6 @@
 package com.example.back_end.repository.admin;
 
+import com.example.back_end.entity.OrderItem;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;

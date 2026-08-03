@@ -15,6 +15,8 @@ import com.example.back_end.dto.response.admin.AdminVoucherCampaignStatsResponse
 import com.example.back_end.dto.response.admin.AdminVoucherResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageFrequencyResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageHistoryResponse;
+import com.example.back_end.entity.User;
+import com.example.back_end.entity.Voucher;
 import com.example.back_end.entity.enums.DiscountType;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;

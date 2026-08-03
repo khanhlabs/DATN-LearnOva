@@ -1,6 +1,9 @@
 package com.example.back_end.service.teacher;
 
 import com.example.back_end.dto.response.teacher.TeacherReviewResponse;
+import com.example.back_end.entity.Course;
+import com.example.back_end.entity.Review;
+import com.example.back_end.entity.User;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.CourseRepository;

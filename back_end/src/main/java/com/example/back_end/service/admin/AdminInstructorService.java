@@ -10,6 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.back_end.dto.response.admin.AdminInstructorResponse;
 import com.example.back_end.dto.response.admin.AdminInstructorResponse.CourseSummary;
+import com.example.back_end.entity.Category;
+import com.example.back_end.entity.Course;
+import com.example.back_end.entity.CourseCategory;
+import com.example.back_end.entity.Enrollment;
+import com.example.back_end.entity.Order;
+import com.example.back_end.entity.OrderItem;
+import com.example.back_end.entity.Review;
+import com.example.back_end.entity.Role;
+import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.RoleName;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;

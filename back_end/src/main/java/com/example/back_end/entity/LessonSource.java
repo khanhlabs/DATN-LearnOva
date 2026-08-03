@@ -1,13 +1,14 @@
 package com.example.back_end.entity;
 
+import com.example.back_end.entity.enums.LessonSourceType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -30,26 +31,27 @@ public class LessonSource {
     @Column(name = "file_key", length = Integer.MAX_VALUE)
     private String fileKey;
 
-    @Column(name = "resource_type", columnDefinition = "lesson_source_type")
-    private Object resourceType;
-
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
     @Column(name = "original_file_name", length = Integer.MAX_VALUE)
     private String originalFileName;
 
-    @Size(max = 100)
+    @Column(name = "file_name", length = Integer.MAX_VALUE)
+    private String fileName;
+
     @Column(name = "content_type", length = 100)
     private String contentType;
 
     @Column(name = "file_size_bytes")
     private Long fileSizeBytes;
 
-    @Column(name = "file_name", length = Integer.MAX_VALUE)
-    private String fileName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "resource_type", columnDefinition = "lesson_source_type")
+    @org.hibernate.annotations.JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private LessonSourceType resourceType;
+
+    @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
 
 }

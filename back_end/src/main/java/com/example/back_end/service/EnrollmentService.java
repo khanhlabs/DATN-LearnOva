@@ -2,6 +2,9 @@ package com.example.back_end.service;
 
 import com.example.back_end.dto.response.ContinueLearningResponse;
 import com.example.back_end.dto.response.MyEnrolledCourseResponse;
+import com.example.back_end.entity.Course;
+import com.example.back_end.entity.Enrollment;
+import com.example.back_end.entity.InstructorProfile;
 import com.example.back_end.repository.CourseRepository;
 import com.example.back_end.repository.EnrollmentRepository;
 import com.example.back_end.repository.InstructorProfileRepository;

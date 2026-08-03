@@ -1,5 +1,7 @@
 package com.example.back_end.repository;
 
+import com.example.back_end.entity.CourseCategory;
+import com.example.back_end.entity.CourseCategoryId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

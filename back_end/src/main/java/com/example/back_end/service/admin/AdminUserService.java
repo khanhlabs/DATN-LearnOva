@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.back_end.dto.request.admin.AdminUserRequest;
 import com.example.back_end.dto.response.admin.AdminUserResponse;
+import com.example.back_end.entity.Role;
+import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.RoleName;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;

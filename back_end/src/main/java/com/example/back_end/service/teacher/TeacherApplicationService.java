@@ -6,6 +6,8 @@ import com.example.back_end.service.S3Service;
 import com.example.back_end.dto.request.teacher.CreateTeacherApplicationRequest;
 import com.example.back_end.dto.response.CvUrlResponse;
 import com.example.back_end.dto.response.teacher.TeacherApplicationResponse;
+import com.example.back_end.entity.TeacherApplication;
+import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.NotificationType;
 import com.example.back_end.entity.enums.RoleName;
 import com.example.back_end.entity.enums.TeacherApplicationStatus;

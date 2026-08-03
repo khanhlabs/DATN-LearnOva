@@ -10,9 +10,9 @@ import org.hibernate.annotations.OnDeleteAction;
 @Setter
 @Entity
 @Table(name = "promotion_courses")
-public class PromotionCourses {
+public class PromotionCourse {
     @EmbeddedId
-    private PromotionCoursId id;
+    private PromotionCourseId id;
 
     @MapsId("promotionId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -24,7 +24,7 @@ public class PromotionCourses {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Courses course;
+    private Course course;
 
 
 }

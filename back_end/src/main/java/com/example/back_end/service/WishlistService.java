@@ -3,6 +3,10 @@ package com.example.back_end.service;
 import com.example.back_end.dto.request.WishlistRequest;
 import com.example.back_end.dto.request.WishlistSyncRequest;
 import com.example.back_end.dto.response.WishlistResponse;
+import com.example.back_end.entity.Course;
+import com.example.back_end.entity.User;
+import com.example.back_end.entity.Wishlist;
+import com.example.back_end.entity.WishlistId;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.CourseRepository;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.back_end.repository.EnrollmentRepository;
 import com.example.back_end.repository.ReviewRepository;
+import com.example.back_end.entity.Enrollment;
 
 import java.time.Instant;
 import java.util.List;
