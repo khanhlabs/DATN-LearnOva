@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 @Setter
 @Entity
 @Table(name = "verification_tokens")
-public class VerificationToken {
+public class VerificationTokens {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "token_id", nullable = false)
