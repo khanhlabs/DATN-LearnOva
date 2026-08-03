@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.example.back_end.entity.Order;
 import com.example.back_end.entity.enums.OrderStatus;
 import jakarta.persistence.LockModeType;
 

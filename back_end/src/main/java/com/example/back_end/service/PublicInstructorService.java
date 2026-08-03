@@ -6,10 +6,6 @@ import com.example.back_end.dto.response.PublicInstructorDetailResponse.ReviewSu
 import com.example.back_end.dto.response.PublicInstructorProfileResponse;
 import com.example.back_end.dto.response.PublicInstructorResponse;
 import com.example.back_end.dto.response.PublicInstructorSummaryResponse;
-import com.example.back_end.entity.Course;
-import com.example.back_end.entity.InstructorProfile;
-import com.example.back_end.entity.Review;
-import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.CourseStatus;
 import com.example.back_end.entity.enums.RoleName;
 import com.example.back_end.exception.ResourceNotFoundException;

@@ -1,18 +1,14 @@
 package com.example.back_end.entity;
 
-import com.example.back_end.entity.enums.DiscountType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -32,10 +28,8 @@ public class Voucher {
     @Column(name = "description", nullable = false, length = Integer.MAX_VALUE)
     private String description;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "discount_type", columnDefinition = "discount_type not null")
-    @org.hibernate.annotations.JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    private DiscountType discountType;
+    private Object discountType;
 
     @NotNull
     @Column(name = "discount_value", nullable = false, precision = 10, scale = 2)
@@ -86,9 +80,6 @@ public class Voucher {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-    @OneToMany(mappedBy = "voucher")
-    private Set<Order> orders = new LinkedHashSet<>();
 
 
 }

@@ -1,6 +1,5 @@
 package com.example.back_end.entity;
 
-import com.example.back_end.entity.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -8,13 +7,9 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -50,30 +45,19 @@ public class Order {
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Enumerated(EnumType.STRING)
     @ColumnDefault("'PENDING'")
     @Column(name = "status", columnDefinition = "order_status not null")
-    @org.hibernate.annotations.JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    private OrderStatus status;
+    private Object status;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private OffsetDateTime createdAt;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @OneToMany(mappedBy = "order")
-    private Set<Enrollment> enrollments = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "order")
-    private Set<OrderItem> orderItems = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "order")
-    private Set<Payment> payments = new LinkedHashSet<>();
+    private OffsetDateTime updatedAt;
 
 
 }

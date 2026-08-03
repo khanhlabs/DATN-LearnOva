@@ -2,93 +2,89 @@ package com.example.back_end.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "lesson_qa")
-public class LessonQA {
-
+public class LessonQa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qa_id", nullable = false)
     private Long id;
 
-    // ================== LESSON ==================
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
-    // ================== USER ==================
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // ================== PARENT (reply) ==================
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "parent_id")
-    private LessonQA parent;
+    private LessonQa parent;
 
-    // ================== CONTENT ==================
     @NotNull
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, length = Integer.MAX_VALUE)
     private String content;
 
-    // ================== TYPE ==================
-    @Column(name = "type", length = 10)
+    @Size(max = 10)
     @ColumnDefault("'QUESTION'")
+    @Column(name = "type", length = 10)
     private String type;
 
-    // ================== FLAGS ==================
-    @Column(name = "is_solved")
     @ColumnDefault("false")
+    @Column(name = "is_solved")
     private Boolean isSolved;
 
-    @Column(name = "is_pinned")
     @ColumnDefault("false")
+    @Column(name = "is_pinned")
     private Boolean isPinned;
 
-    // ================== LIKE ==================
-    @Column(name = "like_count")
     @ColumnDefault("0")
+    @Column(name = "like_count")
     private Integer likeCount;
 
-    // ================== TIMESTAMP ==================
     @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant createdAt;
+    private OffsetDateTime createdAt;
 
     @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant updatedAt;
+    private OffsetDateTime updatedAt;
 
-    // ================== SOFT DELETE ==================
     @NotNull
-    @Column(name = "is_deleted", nullable = false)
     @ColumnDefault("false")
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "reply_to_user_id")
     private User replyToUser;
 
     @Column(name = "root_id")
     private Long rootId;
 
+    @ColumnDefault("0")
     @Column(name = "level")
     private Integer level;
+
+
 }

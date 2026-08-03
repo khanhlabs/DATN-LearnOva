@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.back_end.dto.response.admin.AdminCourseDetailResponse;
 import com.example.back_end.dto.response.admin.AdminCourseResponse;
-import com.example.back_end.entity.Course;
-import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.CourseStatus;
 import com.example.back_end.entity.enums.NotificationType;
 import com.example.back_end.exception.BusinessException;

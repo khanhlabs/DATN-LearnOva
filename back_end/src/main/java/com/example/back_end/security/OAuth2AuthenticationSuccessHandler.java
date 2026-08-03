@@ -1,7 +1,5 @@
 package com.example.back_end.security;
 
-import com.example.back_end.entity.Role;
-import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.RoleName;
 import com.example.back_end.repository.RoleRepository;
 import com.example.back_end.repository.UserRepository;

@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.back_end.entity.LessonQA;
-
 public interface LessonQARepository extends JpaRepository<LessonQA, Long> {
 
     List<LessonQA> findByLesson_IdAndParentIsNull(Long lessonId);

@@ -7,9 +7,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.back_end.entity.CourseTag;
-import com.example.back_end.entity.CourseTagId;
-
 public interface CourseTagRepository extends JpaRepository<CourseTag, CourseTagId> {
 
     @Query("SELECT ct FROM CourseTag ct JOIN FETCH ct.course")

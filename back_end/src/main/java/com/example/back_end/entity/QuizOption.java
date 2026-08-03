@@ -36,4 +36,6 @@ public class QuizOption {
     @NotNull
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
+
+
 }

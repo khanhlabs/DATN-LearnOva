@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.back_end.entity.Enrollment;
-import com.example.back_end.entity.EnrollmentId;
 import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, EnrollmentId> {

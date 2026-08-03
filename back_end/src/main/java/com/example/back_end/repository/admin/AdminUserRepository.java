@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.RoleName;
 
 @Repository

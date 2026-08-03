@@ -8,7 +8,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 
 @Getter
@@ -23,7 +22,7 @@ public class Enrollment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    private Cours course;
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -40,7 +39,7 @@ public class Enrollment {
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "enrolled_at", nullable = false)
-    private Instant enrolledAt;
+    private OffsetDateTime enrolledAt;
 
     @NotNull
     @ColumnDefault("0")

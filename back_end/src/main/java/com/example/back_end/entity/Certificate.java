@@ -8,7 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -30,10 +30,10 @@ public class Certificate {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    private Cours course;
 
     @NotNull
-    @Column(name = "certificate_code", nullable = false, unique = true)
+    @Column(name = "certificate_code", nullable = false, length = Integer.MAX_VALUE)
     private String certificateCode;
 
     @NotNull
@@ -43,5 +43,7 @@ public class Certificate {
     @NotNull
     @ColumnDefault("now()")
     @Column(name = "issued_at", nullable = false)
-    private Instant issuedAt;
+    private OffsetDateTime issuedAt;
+
+
 }

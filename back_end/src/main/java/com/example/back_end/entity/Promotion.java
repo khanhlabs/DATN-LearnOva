@@ -10,8 +10,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -30,17 +28,17 @@ public class Promotion {
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "start_date", nullable = false)
-    private Instant startDate;
+    private OffsetDateTime startDate;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "end_date", nullable = false)
-    private Instant endDate;
+    private OffsetDateTime endDate;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private OffsetDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -51,9 +49,6 @@ public class Promotion {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-    @ManyToMany(mappedBy = "promotions")
-    private Set<Course> courses = new LinkedHashSet<>();
 
 
 }

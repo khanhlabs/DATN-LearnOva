@@ -5,9 +5,6 @@ import com.example.back_end.service.NotificationService;
 
 import com.example.back_end.dto.request.teacher.CreateAnnouncementRequest;
 import com.example.back_end.dto.response.teacher.AnnouncementResponse;
-import com.example.back_end.entity.Course;
-import com.example.back_end.entity.CourseAnnouncement;
-import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.NotificationType;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;

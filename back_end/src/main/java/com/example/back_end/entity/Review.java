@@ -14,9 +14,7 @@ import java.time.OffsetDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "reviews",  uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "course_id"})
-})
+@Table(name = "reviews")
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +25,7 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    private Cours course;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -42,12 +40,6 @@ public class Review {
     @Column(name = "comment", length = Integer.MAX_VALUE)
     private String comment;
 
-    @Column(name = "instructor_reply", length = Integer.MAX_VALUE)
-    private String instructorReply;
-
-    @Column(name = "replied_at")
-    private OffsetDateTime repliedAt;
-
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
@@ -57,6 +49,12 @@ public class Review {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Column(name = "instructor_reply", length = Integer.MAX_VALUE)
+    private String instructorReply;
+
+    @Column(name = "replied_at")
+    private OffsetDateTime repliedAt;
 
 
 }

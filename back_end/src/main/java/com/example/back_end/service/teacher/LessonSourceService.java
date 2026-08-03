@@ -2,9 +2,6 @@ package com.example.back_end.service.teacher;
 
 import com.example.back_end.dto.request.teacher.CreateLessonSourceRequest;
 import com.example.back_end.dto.response.teacher.LessonSourceResponse;
-import com.example.back_end.entity.Lesson;
-import com.example.back_end.entity.LessonSource;
-import com.example.back_end.entity.User;
 import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.LessonRepository;

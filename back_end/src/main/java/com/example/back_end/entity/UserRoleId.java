@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
@@ -14,7 +15,8 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Embeddable
 public class UserRoleId implements Serializable {
-    private static final long serialVersionUID = -8808832730458966809L;
+    @Serial
+    private static final long serialVersionUID = -8448655400150308569L;
     @NotNull
     @Column(name = "user_id", nullable = false)
     private Long userId;

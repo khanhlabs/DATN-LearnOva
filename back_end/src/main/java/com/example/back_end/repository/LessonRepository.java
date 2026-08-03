@@ -1,6 +1,5 @@
 package com.example.back_end.repository;
 
-import com.example.back_end.entity.Lesson;
 import com.example.back_end.entity.enums.HlsStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

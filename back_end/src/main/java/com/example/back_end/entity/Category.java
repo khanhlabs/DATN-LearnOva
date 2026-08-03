@@ -1,26 +1,15 @@
 package com.example.back_end.entity;
 
-import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -48,7 +37,7 @@ public class Category {
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private OffsetDateTime createdAt;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -60,10 +49,5 @@ public class Category {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "parent")
-    private Set<Category> categories = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "category")
-    private Set<CourseCategory> courseCategories = new LinkedHashSet<>();
 
 }
