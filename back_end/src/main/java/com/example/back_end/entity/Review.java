@@ -25,7 +25,7 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Cours course;
+    private Courses course;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -22,7 +22,7 @@ public class Enrollment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)
-    private Cours course;
+    private Courses course;
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

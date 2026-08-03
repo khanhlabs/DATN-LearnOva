@@ -28,7 +28,7 @@ public class OrderItem {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "course_id", nullable = false)
-    private Cours course;
+    private Courses course;
 
     @NotNull
     @Column(name = "original_price", nullable = false, precision = 10, scale = 2)
