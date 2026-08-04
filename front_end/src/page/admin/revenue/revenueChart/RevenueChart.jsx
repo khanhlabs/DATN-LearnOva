@@ -1,21 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
+import { getAdminRevenueComparisonApi } from "../../../../api/admin/RevenueApi.js";
+import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
+
 import "./RevenueChart.css";
-
-const revenueChartLabels = [
-  "28/05",
-  "29/05",
-  "30/05",
-  "31/05",
-  "01/06",
-  "02/06",
-  "03/06",
-];
-
-const totalRevenueValues = [120, 145, 160, 150, 180, 170, 245];
-const netRevenueValues = [105, 135, 150, 142, 170, 156, 235];
-const reserveFundValues = [20, 14, 28, 12, 18, 22, 10];
 
 const timeRangeFilters = [
   { value: "day", label: "Day" },
@@ -57,21 +46,67 @@ const verticalHoverLinePlugin = {
 const RevenueChart = () => {
   const { t } = useTranslation();
   const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  const axiosPrivate = useAxiosPrivate();
+  const [range, setRange] = useState("month");
+  const [points, setPoints] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await getAdminRevenueComparisonApi(
+          { range },
+          axiosPrivate
+        );
+        if (!mounted) return;
+        setPoints(Array.isArray(data?.points) ? data.points : []);
+        setError("");
+      } catch {
+        if (!mounted) return;
+        setPoints([]);
+        setError("Unable to load revenue comparison chart.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [axiosPrivate, range]);
 
   useEffect(() => {
     if (!canvasRef.current) {
       return undefined;
     }
 
-    const chart = new Chart(canvasRef.current, {
+    const labels = points.map((point) => point.label);
+    const cashFlowValues = points.map((point) => Number(point.totalCashFlow || 0));
+    const payoutValues = points.map((point) =>
+      Number(point.instructorPayouts || 0)
+    );
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
+      chartRef.current = null;
+    }
+
+    chartRef.current = new Chart(canvasRef.current, {
       type: "line",
       data: {
-        labels: revenueChartLabels,
+        labels,
         datasets: [
           {
-            label: `${t("revenueAdmin.gross")} (Recorded Transactions)`,
-            tooltipShortLabel: t("revenueAdmin.gross"),
-            data: totalRevenueValues,
+
+            label: "Total Cash Flow",
+            tooltipShortLabel: "Total Cash Flow",
+            data: cashFlowValues,
             borderColor: "#2563eb",
             pointBackgroundColor: "#2563eb",
             pointBorderColor: "#2563eb",
@@ -82,22 +117,10 @@ const RevenueChart = () => {
             borderWidth: 3,
           },
           {
-            label: `${t("revenueAdmin.net")} (After Refund Deductions)`,
-            tooltipShortLabel: t("revenueAdmin.net"),
-            data: netRevenueValues,
-            borderColor: "#60a5fa",
-            pointBackgroundColor: "#60a5fa",
-            pointBorderColor: "#60a5fa",
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            tension: 0.35,
-            fill: false,
-            borderWidth: 3,
-          },
-          {
-            label: "Reserve Liquidity Fund for Tuition Refund Requests",
-            tooltipShortLabel: "Refunds",
-            data: reserveFundValues,
+
+            label: "Instructor Payouts",
+            tooltipShortLabel: "Instructor Payouts",
+            data: payoutValues,
             borderColor: "#ef4444",
             pointBackgroundColor: "#ef4444",
             pointBorderColor: "#ef4444",
@@ -159,7 +182,7 @@ const RevenueChart = () => {
                 const value = context.parsed.y;
                 const label =
                   context.dataset.tooltipShortLabel || context.dataset.label;
-                return `${label}: $ ${value.toLocaleString("vi-VN")}`;
+                return `${label}: $ ${Number(value).toLocaleString("vi-VN")}`;
               },
             },
           },
@@ -187,7 +210,7 @@ const RevenueChart = () => {
                 weight: 600,
               },
               callback(value) {
-                return `$ ${value.toLocaleString("vi-VN")}`;
+                return `$ ${Number(value).toLocaleString("vi-VN")}`;
               },
             },
             grid: {
@@ -202,9 +225,12 @@ const RevenueChart = () => {
     });
 
     return () => {
-      chart.destroy();
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
     };
-  }, []);
+  }, [points]);
 
   return (
     <section className="revenueChartCard" aria-label={t("revenueAdmin.metrics")}>
@@ -214,7 +240,10 @@ const RevenueChart = () => {
             {t("revenueAdmin.metrics")}
           </h2>
           <p className="revenueChartSubtitle">
-            {t("revenueAdmin.metricsSubtitle")}
+
+            Compare total cash flow from successful payments with instructor
+            payouts over time.
+
           </p>
         </div>
 
@@ -223,15 +252,16 @@ const RevenueChart = () => {
           role="group"
           aria-label="Select time range"
         >
-          {timeRangeFilters.map((filter, index) => (
+          {timeRangeFilters.map((filter) => (
             <button
               key={filter.value}
               type="button"
               className={
-                index === 0
+                range === filter.value
                   ? "revenueChartFilterButton active"
                   : "revenueChartFilterButton"
               }
+              onClick={() => setRange(filter.value)}
             >
               {t(`revenueAdmin.${filter.value}`)}
             </button>
@@ -240,22 +270,24 @@ const RevenueChart = () => {
       </div>
 
       <div className="revenueChartBody">
+        {error ? <p className="revenueChartError">{error}</p> : null}
+        {loading && !points.length ? (
+          <p className="revenueChartEmpty">Loading chart…</p>
+        ) : null}
         <div className="revenueChartCanvas">
-          <canvas ref={canvasRef} aria-label="Biểu đồ doanh thu theo ngày" />
+          <canvas ref={canvasRef} aria-label="Revenue comparison chart" />
         </div>
 
         <div className="revenueChartLegend">
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot gold" />
-            <span>{t("revenueAdmin.gross")}</span>
-          </div>
-          <div className="revenueChartLegendItem">
-            <span className="revenueChartLegendDot purple" />
-            <span>{t("revenueAdmin.net")}</span>
+
+            <span>Total Cash Flow</span>
+
           </div>
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot red" />
-            <span>Liquidity Reserve Fund</span>
+            <span>Instructor Payouts</span>
           </div>
         </div>
       </div>

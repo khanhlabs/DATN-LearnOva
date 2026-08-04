@@ -462,6 +462,38 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, content);
     }
 
+    public void sendLearningReminderEmail(
+            String toEmail,
+            String fullName,
+            String courseTitle,
+            String courseUrl
+    ) {
+        String subject = "Continue learning on LearnOva: " + courseTitle;
+        String content = """
+                <div style="font-family:Arial,sans-serif;background:#f4f7fb;padding:24px;">
+                    <div style="max-width:600px;margin:auto;background:white;border-radius:12px;padding:32px;">
+                        <h2 style="color:#1d4ed8;">Keep learning with LearnOva</h2>
+                        <p>Hello %s,</p>
+                        <p>You have not continued your course for two days:</p>
+                        <p style="font-size:18px;font-weight:bold;color:#0f172a;">%s</p>
+                        <div style="text-align:center;margin:28px 0;">
+                            <a href="%s" style="background:#2563eb;color:white;text-decoration:none;padding:13px 24px;border-radius:8px;display:inline-block;">
+                                Continue learning
+                            </a>
+                        </div>
+                        <p>Just a few minutes of learning today can help you keep your progress going.</p>
+                        <p>Best regards,<br><b>LearnOva Team</b></p>
+                    </div>
+                </div>
+                """.formatted(
+                fullName == null || fullName.isBlank() ? "there" : fullName,
+                courseTitle,
+                courseUrl
+        );
+
+        sendHtmlEmail(toEmail, subject, content);
+    }
+
     public record AnnouncementRecipient(String email, String fullName) {
     }
 

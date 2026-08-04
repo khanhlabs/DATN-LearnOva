@@ -6,12 +6,14 @@ const SocialLogin = () => {
     const { t } = useTranslation();
 
     const handleGoogleLogin = () => {
-        window.location.href =
-            "http://localhost:8080/oauth2/authorization/google";
+        const apiUrl = import.meta.env.VITE_API_URL || "/api/learnova";
+        const apiOrigin = apiUrl.replace(/\/api\/learnova\/?$/, "");
+        window.location.href = `${apiOrigin}/oauth2/authorization/google`;
     };
     const handleFacebookLogin = () => {
-        window.location.href =
-            "http://localhost:8080/oauth2/authorization/facebook";
+        const apiUrl = import.meta.env.VITE_API_URL || "/api/learnova";
+        const apiOrigin = apiUrl.replace(/\/api\/learnova\/?$/, "");
+        window.location.href = `${apiOrigin}/oauth2/authorization/facebook`;
     };
 
     return (

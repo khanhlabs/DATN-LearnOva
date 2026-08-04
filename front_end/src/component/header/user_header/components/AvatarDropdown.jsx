@@ -78,12 +78,14 @@ const AvatarDropdown = () => {
             >
               <Shield size={16} />
               {t("profile.sidebar.security")}
+
             </Link>
           </li>
           <li>
             <Link to="/learnova/user/profile/payments" className="user-logged-menu-link">
               <Receipt size={16} />
               {t("profile.sidebar.payments")}
+
             </Link>
           </li>
           {!isAdmin && canSwitchToTeacher && (

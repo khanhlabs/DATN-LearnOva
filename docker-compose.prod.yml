@@ -1,0 +1,85 @@
+name: learnova-prod
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:?DB_NAME is required}
+    volumes:
+      - prod_pg_data:/var/lib/postgresql/data
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.8
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - prod_es_data:/usr/share/elasticsearch/data
+    mem_limit: 1024m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  ai-service:
+    build: ./ai_services
+    
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?GEMINI_API_KEY is required}
+    mem_limit: 256m
+    restart: unless-stopped
+
+  backend:
+    build: ./back_end
+    env_file:
+      - ./back_end/.env-prod
+
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      ES_URIS: http://elasticsearch:9200
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://datn.khanh.engineer}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-https://datn.khanh.engineer}
+      COOKIE_SECURE: "true"
+      AI_SERVICE_URL: http://ai-service:8000
+      CLOUDFRONT_PRIVATE_KEY_PATH: /app/secrets/cloudfront-private-key.pem
+      JAVA_TOOL_OPTIONS: -Xmx768m
+    volumes:
+      - /home/ec2-user/secrets/cloudfront-private-key.pem:/app/secrets/cloudfront-private-key.pem:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    mem_limit: 1024m
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front_end
+      args:
+        VITE_API_URL: /api/learnova
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    mem_limit: 64m
+    restart: unless-stopped
+
+volumes:
+  prod_pg_data:
+  prod_es_data:

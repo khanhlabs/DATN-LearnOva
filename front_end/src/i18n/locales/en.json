@@ -235,7 +235,9 @@
       "profile": "Profile",
       "courses": "My Learning",
       "favorites": "My Favourite",
+
       "payments": "Payment History",
+
       "achievements": "Achievements",
       "security": "Security",
       "logout": "Logout"
@@ -259,6 +261,7 @@
       "cancel": "Cancel",
       "saveChanges": "Save Changes"
     },
+
     "paymentHistory": {
       "eyebrow": "Account billing",
       "title": "Payment history",
@@ -280,6 +283,7 @@
       "loadError": "Could not load payment history.",
       "detailError": "Could not load payment details.",
       "downloadError": "Could not download the payment receipt.",
+      "downloadSuccess": "Payment receipt downloaded successfully.",
       "downloading": "Downloading...",
       "unknownCourse": "Unknown course",
       "previous": "Previous",
@@ -290,6 +294,7 @@
       "table": {"order": "Order", "course": "Course", "date": "Date", "amount": "Amount (VND)", "status": "Status"},
       "detail": {"ariaLabel": "Payment details", "close": "Close", "orderDate": "Order date", "paidDate": "Paid date", "paymentMethod": "Payment method", "transactionId": "Transaction ID", "purchasedCourses": "Purchased courses", "totalVnd": "Total paid (VND)"}
     },
+
     "myLearning": {
       "title": "Enrolled Courses",
       "tabInProgress": "In Progress",

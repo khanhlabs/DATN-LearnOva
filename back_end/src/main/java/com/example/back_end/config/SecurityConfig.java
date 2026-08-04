@@ -55,10 +55,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/learnova/instructors/public/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/learnova/chatbot/message").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/learnova/chatbot/message/stream").permitAll()
-                        // NOTE: matches course detail (GET /courses/{id}) but also shares this
-                        // single-segment shape with teacher-only GET /courses/my-courses|my-students|my-reviews.
-                        // Those three are gated by @PreAuthorize("hasRole('TEACHER')") on the controller
-                        // method itself, which is enforced independently of this permitAll.
                         .requestMatchers(HttpMethod.GET, "/api/learnova/courses/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/enrollments/check").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/course/*").permitAll()
@@ -76,10 +72,6 @@ public class SecurityConfig {
 
                         // ── Admin only ────────────────────────────────────────
                         .requestMatchers("/api/learnova/admin/**").hasRole("ADMIN")
-
-                        // ── Everything else requires a logged-in user; role-specific
-                        //    (teacher/student) checks are enforced via @PreAuthorize on
-                        //    the individual controllers/methods. ─────────────────────
                         .anyRequest().authenticated()
                 )
 

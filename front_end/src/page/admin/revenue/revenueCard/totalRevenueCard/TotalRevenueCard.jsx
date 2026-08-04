@@ -1,6 +1,11 @@
 import "./TotalRevenueCard.css";
 
 const TotalRevenueCard = ({ title, value, delta, subtitle, icon: Icon }) => {
+  const deltaTone =
+    typeof delta === "string" && delta.trim().startsWith("-")
+      ? "negative"
+      : "positive";
+
   return (
     <article className="totalRevenueCard">
       <header className="totalRevenueCardHeader">
@@ -11,7 +16,7 @@ const TotalRevenueCard = ({ title, value, delta, subtitle, icon: Icon }) => {
       <div className="totalRevenueCardBody">
         <p className="totalRevenueCardValue">{value}</p>
         <div className="totalRevenueCardMeta">
-          <span className="revenueDelta positive">{delta}</span>
+          <span className={`revenueDelta ${deltaTone}`}>{delta}</span>
           <span className="totalRevenueCardSubtitle">{subtitle}</span>
         </div>
       </div>

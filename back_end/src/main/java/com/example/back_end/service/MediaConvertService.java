@@ -31,13 +31,12 @@ import software.amazon.awssdk.services.mediaconvert.model.VideoCodec;
 import software.amazon.awssdk.services.mediaconvert.model.VideoCodecSettings;
 import software.amazon.awssdk.services.mediaconvert.model.VideoDescription;
 import software.amazon.awssdk.services.mediaconvert.model.VideoSelector;
-
-import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class MediaConvertService {
+
 
     // TODO: chưa có MediaConvert key, comment tạm để app chạy được. Bỏ comment khi có key.
     // private final MediaConvertClient mediaConvertClient;
@@ -47,6 +46,7 @@ public class MediaConvertService {
 
     // @Value("${mediaconvert.role-arn}")
     // private String roleArn;
+
 
     public static final String HLS_OUTPUT_PREFIX = "course-video-hls/";
     public static final String HLS_BASE_FILENAME = "index";
@@ -146,11 +146,13 @@ public class MediaConvertService {
                         .build())
                 .build();
     }
+
     */
 
     // Stub while MediaConvert is disabled — real implementation is commented above.
     public String createHlsJob(String videoKey, Long lessonId) {
         return "disabled-" + videoUuidFromKey(videoKey);
     }
+
 
 }

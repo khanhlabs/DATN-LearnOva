@@ -135,4 +135,9 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Enrollme
     );
     
     Optional<Enrollment> findByUser_IdAndCourse_Id(Long userId, Long courseId);
+
+    @Query("SELECT e FROM Enrollment e JOIN FETCH e.user u JOIN FETCH e.course c " +
+            "WHERE e.progressPercent < 100 AND e.enrolledAt <= :cutoff " +
+            "AND c.isDeleted = false")
+    List<Enrollment> findIncompleteEnrollmentsBefore(@Param("cutoff") Instant cutoff);
 }

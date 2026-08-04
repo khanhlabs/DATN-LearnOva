@@ -15,11 +15,13 @@ import com.example.back_end.repository.PaymentRepository;
 import com.example.back_end.repository.UserRepository;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -227,39 +230,150 @@ public class PaymentHistoryService {
         PdfWriter.getInstance(document, output);
         document.open();
 
-        Font title = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, Color.DARK_GRAY);
-        Font heading = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, Color.DARK_GRAY);
-        Font body = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.DARK_GRAY);
-        Font small = FontFactory.getFont(FontFactory.HELVETICA, 9, Color.GRAY);
+        Color navy = new Color(15, 23, 42);
+        Color blue = new Color(37, 99, 235);
+        Color paleBlue = new Color(239, 246, 255);
+        Color border = new Color(219, 234, 254);
+        Color muted = new Color(100, 116, 139);
+        Color success = new Color(22, 101, 52);
+        Color paleGreen = new Color(220, 252, 231);
 
-        document.add(new Paragraph("LearnOva", heading));
-        document.add(new Paragraph("Payment Receipt", title));
-        document.add(new Paragraph("Order #" + detail.orderId(), body));
-        document.add(new Paragraph("Order date: " + detail.createdAt(), small));
-        document.add(new Paragraph("Paid date: " + (detail.paidAt() == null ? "-" : detail.paidAt()), small));
-        document.add(new Paragraph(" "));
+        Font brand = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, blue);
+        Font title = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 24, navy);
+        Font heading = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, navy);
+        Font body = FontFactory.getFont(FontFactory.HELVETICA, 10, navy);
+        Font small = FontFactory.getFont(FontFactory.HELVETICA, 9, muted);
+        Font totalFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15, blue);
+
+        PdfPTable header = new PdfPTable(new float[]{5f, 2f});
+        header.setWidthPercentage(100);
+        header.setSpacingAfter(18f);
+
+        PdfPCell brandCell = new PdfPCell(new Phrase("LearnOva", brand));
+        brandCell.setBorder(PdfPCell.NO_BORDER);
+        brandCell.setPadding(0);
+        header.addCell(brandCell);
+
+        PdfPCell statusCell = new PdfPCell(new Phrase("PAID", FontFactory.getFont(
+                FontFactory.HELVETICA_BOLD, 10, success)));
+        statusCell.setBackgroundColor(paleGreen);
+        statusCell.setBorderColor(paleGreen);
+        statusCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        statusCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        statusCell.setPadding(8f);
+        header.addCell(statusCell);
+        document.add(header);
+
+        Paragraph titleParagraph = new Paragraph("Payment Receipt", title);
+        titleParagraph.setSpacingAfter(4f);
+        document.add(titleParagraph);
+
+        Paragraph orderParagraph = new Paragraph("Order #" + detail.orderId(), body);
+        orderParagraph.setSpacingAfter(14f);
+        document.add(orderParagraph);
+
+        PdfPTable metadata = new PdfPTable(new float[]{1f, 1f});
+        metadata.setWidthPercentage(100);
+        metadata.setSpacingAfter(18f);
+        addInfoCell(metadata, "ORDER DATE", formatInstant(detail.createdAt()), small, heading, paleBlue, border);
+        addInfoCell(metadata, "PAID DATE", formatInstant(detail.paidAt()), small, heading, paleBlue, border);
+        addInfoCell(metadata, "PAYMENT METHOD", nullSafe(detail.paymentMethod()), small, heading, paleBlue, border);
+        addInfoCell(metadata, "TRANSACTION ID", nullSafe(detail.transactionId()), small, heading, paleBlue, border);
+        document.add(metadata);
 
         document.add(new Paragraph("Customer", heading));
-        document.add(new Paragraph(nullSafe(detail.fullName()) + " | " + nullSafe(detail.email()), body));
+        document.add(new Paragraph(nullSafe(detail.fullName()) + "  |  " + nullSafe(detail.email()), body));
         document.add(new Paragraph("Phone: " + nullSafe(detail.phone()), small));
         document.add(new Paragraph(" "));
 
-        PdfPTable itemsTable = new PdfPTable(new float[]{7f});
+        PdfPTable itemsTable = new PdfPTable(new float[]{6f, 2f});
         itemsTable.setWidthPercentage(100);
-        itemsTable.addCell(new Phrase("Course", heading));
+        itemsTable.setSpacingBefore(8f);
+        itemsTable.setSpacingAfter(16f);
+        addHeaderCell(itemsTable, "COURSE", heading, blue);
+        addHeaderCell(itemsTable, "PRICE", heading, blue);
         for (PaymentHistoryItemResponse item : detail.items()) {
-            itemsTable.addCell(new Phrase(item.courseTitle(), body));
+            addBodyCell(itemsTable, nullSafe(item.courseTitle()), body, false);
+            addBodyCell(itemsTable, formatVnd(item.price(), "VND"), body, true);
         }
         document.add(itemsTable);
-        document.add(new Paragraph(" "));
-        document.add(new Paragraph("Total paid (VND): " + formatVnd(detail.amountVnd(), "VND"), heading));
-        document.add(new Paragraph("Payment method: " + nullSafe(detail.paymentMethod()), body));
-        document.add(new Paragraph("Transaction ID: " + nullSafe(detail.transactionId()), small));
-        document.add(new Paragraph("Status: " + nullSafe(detail.paymentStatus()), small));
-        document.add(new Paragraph(" "));
-        document.add(new Paragraph("This is an electronic payment receipt for LearnOva courses.", small));
+
+        PdfPTable summary = new PdfPTable(new float[]{1f, 1f});
+        summary.setWidthPercentage(100);
+        summary.setSpacingBefore(4f);
+        summary.setSpacingAfter(18f);
+        addSummaryCell(summary, "Subtotal", formatVnd(detail.subtotal(), "VND"), body, false);
+        addSummaryCell(summary, "Discount", formatVnd(detail.discountAmount(), "VND"), body, false);
+        addSummaryCell(summary, "TOTAL PAID", formatVnd(detail.amountVnd(), "VND"), totalFont, true);
+        document.add(summary);
+
+        Paragraph footer = new Paragraph(
+                "Thank you for learning with LearnOva. This is an electronic payment receipt.",
+                small
+        );
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
         document.close();
         return output.toByteArray();
+    }
+
+    private void addInfoCell(
+            PdfPTable table,
+            String label,
+            String value,
+            Font valueFont,
+            Font labelFont,
+            Color background,
+            Color border
+    ) {
+        PdfPCell cell = new PdfPCell();
+        cell.setBackgroundColor(background);
+        cell.setBorderColor(border);
+        cell.setPadding(10f);
+        cell.addElement(new Paragraph(label, labelFont));
+        cell.addElement(new Paragraph(value, valueFont));
+        table.addCell(cell);
+    }
+
+    private void addHeaderCell(PdfPTable table, String value, Font font, Color background) {
+        PdfPCell cell = new PdfPCell(new Phrase(value, font));
+        cell.setBackgroundColor(background);
+        cell.setBorderColor(background);
+        cell.setPadding(9f);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        table.addCell(cell);
+    }
+
+    private void addBodyCell(PdfPTable table, String value, Font font, boolean rightAligned) {
+        PdfPCell cell = new PdfPCell(new Phrase(value, font));
+        cell.setBorderColor(new Color(226, 232, 240));
+        cell.setPadding(9f);
+        cell.setHorizontalAlignment(rightAligned ? Element.ALIGN_RIGHT : Element.ALIGN_LEFT);
+        table.addCell(cell);
+    }
+
+    private void addSummaryCell(PdfPTable table, String label, String value, Font font, boolean highlighted) {
+        PdfPCell labelCell = new PdfPCell(new Phrase(label, font));
+        PdfPCell valueCell = new PdfPCell(new Phrase(value, font));
+        labelCell.setPadding(8f);
+        valueCell.setPadding(8f);
+        labelCell.setBorderColor(new Color(226, 232, 240));
+        valueCell.setBorderColor(new Color(226, 232, 240));
+        valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        if (highlighted) {
+            labelCell.setBackgroundColor(new Color(239, 246, 255));
+            valueCell.setBackgroundColor(new Color(239, 246, 255));
+        }
+        table.addCell(labelCell);
+        table.addCell(valueCell);
+    }
+
+    private String formatInstant(Instant value) {
+        return value == null ? "-" : value.toString();
+    }
+
+    private String formatInstant(OffsetDateTime value) {
+        return value == null ? "-" : value.toString();
     }
 
     private String formatVnd(java.math.BigDecimal value, String currency) {

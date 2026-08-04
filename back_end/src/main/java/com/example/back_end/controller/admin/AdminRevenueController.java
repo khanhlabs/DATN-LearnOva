@@ -1,7 +1,11 @@
 package com.example.back_end.controller.admin;
 
+import com.example.back_end.dto.response.admin.AdminRevenueComparisonResponse;
 import com.example.back_end.dto.response.admin.AdminRevenueCourseRankingResponse;
 import com.example.back_end.dto.response.admin.AdminRevenueInstructorRankingResponse;
+import com.example.back_end.dto.response.admin.AdminRevenueOverviewResponse;
+import com.example.back_end.dto.response.admin.AdminRevenueTransactionInsightsResponse;
+import com.example.back_end.dto.response.admin.AdminRevenueTransactionResponse;
 import com.example.back_end.service.admin.AdminRevenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +25,18 @@ public class AdminRevenueController {
 
     private final AdminRevenueService adminRevenueService;
 
+    @GetMapping("/overview")
+    public ResponseEntity<AdminRevenueOverviewResponse> getOverview() {
+        return ResponseEntity.ok(adminRevenueService.getOverview());
+    }
+
+    @GetMapping("/comparison")
+    public ResponseEntity<AdminRevenueComparisonResponse> getComparison(
+            @RequestParam(defaultValue = "month") String range
+    ) {
+        return ResponseEntity.ok(adminRevenueService.getComparison(range));
+    }
+
     @GetMapping("/top-courses")
     public ResponseEntity<Page<AdminRevenueCourseRankingResponse>> getTopRevenueCourses(
             @RequestParam(defaultValue = "0") int page,
@@ -35,6 +51,29 @@ public class AdminRevenueController {
             @RequestParam(defaultValue = "5") int size
     ) {
         return ResponseEntity.ok(adminRevenueService.getTopEarningInstructors(toPageable(page, size)));
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<Page<AdminRevenueTransactionResponse>> getTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "7") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String paymentMethod,
+            @RequestParam(required = false) String status
+    ) {
+        return ResponseEntity.ok(adminRevenueService.getTransactions(
+                search,
+                categoryId,
+                paymentMethod,
+                status,
+                toPageable(page, size)
+        ));
+    }
+
+    @GetMapping("/transaction-insights")
+    public ResponseEntity<AdminRevenueTransactionInsightsResponse> getTransactionInsights() {
+        return ResponseEntity.ok(adminRevenueService.getTransactionInsights());
     }
 
     private Pageable toPageable(int page, int size) {

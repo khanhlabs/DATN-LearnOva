@@ -280,6 +280,7 @@
       "loadError": "Không thể tải lịch sử thanh toán.",
       "detailError": "Không thể tải chi tiết thanh toán.",
       "downloadError": "Không thể tải biên lai thanh toán.",
+      "downloadSuccess": "Tải hóa đơn thanh toán thành công.",
       "downloading": "Đang tải...",
       "unknownCourse": "Khóa học không xác định",
       "previous": "Trang trước",

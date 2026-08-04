@@ -285,6 +285,29 @@ body {
 }
 
 /* ==================== TABS ==================== */
+.current-lesson-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1.35rem 2rem 0.85rem;
+    background: #fff;
+}
+
+.current-lesson-label {
+    color: #2563eb;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.current-lesson-heading h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
 .tabs-container {
     border-bottom: 1px solid #e5e7eb;
     background: #fff;
@@ -681,6 +704,56 @@ hr {
 
     margin-left: 145px;
     margin-top: 60px;
+}
+
+.instructor-headline {
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 0.75rem;
+}
+
+.instructor-stats-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.instructor-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.instructor-stat strong {
+    color: #1f2937;
+}
+
+.instructor-stat-icon {
+    color: #f59e0b;
+}
+
+.instructor-view-profile-link {
+    display: inline-block;
+    margin-top: 1rem;
+    margin-left: 145px;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.instructor-view-profile-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .instructor-bio-text,
+    .instructor-view-profile-link {
+        margin-left: 0;
+    }
 }
 
 .instructor-headline {

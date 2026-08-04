@@ -16,8 +16,8 @@ const VerifyAccount = () => {
             return;
         }
 
-        // Gọi API sang Backend cổng 8080 để update isActive = true
-        axios.get(`http://localhost:8080/api/learnova/auth/verify?token=${token}`)
+        const apiUrl = (import.meta.env.VITE_API_URL || "/api/learnova").replace(/\/+$/, "");
+        axios.get(`${apiUrl}/auth/verify?token=${encodeURIComponent(token)}`)
             .then((res) => {
                 toast.success(res.data?.message || "Kích hoạt tài khoản thành công!");
 

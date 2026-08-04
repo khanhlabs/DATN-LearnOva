@@ -76,6 +76,18 @@
   gap: 22px;
 }
 
+.revenueChartError,
+.revenueChartEmpty {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.revenueChartError {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
 .revenueChartCanvas {
   width: 100%;
   height: 340px;

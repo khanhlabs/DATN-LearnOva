@@ -27,6 +27,7 @@ public class AdminHlsMigrationService {
 
         int triggered = 0;
         for (Lesson lesson : legacyLessons) {
+
             try {
                 String jobId = mediaConvertService.createHlsJob(lesson.getVideoKey(), lesson.getId());
                 lesson.setMediaConvertJobId(jobId);
@@ -42,5 +43,6 @@ public class AdminHlsMigrationService {
         return triggered;
     }
     */
+
 
 }

@@ -20,6 +20,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findByTypeOrderByCreatedAtDesc(NotificationType type);
 
+    boolean existsByUser_IdAndTypeAndLink(Long userId, NotificationType type, String link);
+
     @Modifying
     @Query("DELETE FROM Notification n WHERE n.isRead = true AND n.createdAt < :cutoff")
     int deleteByIsReadTrueAndCreatedAtBefore(@Param("cutoff") Instant cutoff);

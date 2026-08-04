@@ -1,7 +1,21 @@
-import "./RevenueRecords.css";
 import { Calendar, TrendingUp } from "lucide-react";
+import "./RevenueRecords.css";
 
-const RevenueRecords = () => {
+const formatMoney = (value) =>
+  `$ ${Number(value || 0).toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  })}`;
+
+const formatGrowth = (value) => {
+  if (value == null || Number.isNaN(Number(value))) {
+    return "No prior month baseline";
+  }
+  const numeric = Number(value);
+  const sign = numeric > 0 ? "+" : "";
+  return `${sign}${numeric.toFixed(1)}% growth`;
+};
+
+const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
   return (
     <section className="revenueRecordsSection" aria-label="System revenue records">
       <h4 className="recordsTitle">System Revenue Records</h4>
@@ -16,13 +30,15 @@ const RevenueRecords = () => {
             </div>
             <div className="recordContent">
               <div className="recordLabel">PEAK DATE RANGE</div>
-              <div className="recordMain">Last Saturday</div>
+              <div className="recordMain">{peakDay?.label || "—"}</div>
               <div className="recordMeta">
                 Rate:{" "}
-                <span className="metaHighlight">Highest of the quarter</span>
+                <span className="metaHighlight">Highest paid revenue day</span>
               </div>
             </div>
-            <div className="recordValue">$42,150</div>
+            <div className="recordValue">
+              {peakDay ? formatMoney(peakDay.amount) : "—"}
+            </div>
           </div>
 
           <div className="recordItem">
@@ -31,12 +47,17 @@ const RevenueRecords = () => {
             </div>
             <div className="recordContent">
               <div className="recordLabel">HIGHEST MONTHLY PERFORMANCE</div>
-              <div className="recordMain">May 2026</div>
+              <div className="recordMain">{peakMonth?.label || "—"}</div>
               <div className="recordMeta">
-                Momentum: <span className="metaBoost">+12.4% growth</span>
+                Momentum:{" "}
+                <span className="metaBoost">
+                  {formatGrowth(peakMonth?.growthPercent)}
+                </span>
               </div>
             </div>
-            <div className="recordValue">$185,000</div>
+            <div className="recordValue">
+              {peakMonth ? formatMoney(peakMonth.amount) : "—"}
+            </div>
           </div>
         </div>
       </div>
@@ -45,3 +66,4 @@ const RevenueRecords = () => {
 };
 
 export default RevenueRecords;
+
