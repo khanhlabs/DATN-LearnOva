@@ -415,6 +415,8 @@
       "loading": "Loading...",
       "emptyTitle": "No favorite courses yet",
       "emptySubtitle": "Save the courses you're interested in by clicking the heart icon. They'll appear here for easy access.",
+      "noSearchResults": "No courses found",
+      "noSearchResultsSubtitle": "Try searching with another keyword.",
       "browseCourses": "Browse Courses",
       "removedFromWishlist": "Removed from wishlist.",
       "genericError": "Something went wrong."
@@ -684,6 +686,7 @@
   },
   "coursesPage": {
     "categories": "Categories",
+    "allCategories": "All Categories",
     "level": "Level",
     "searchPlaceholder": "Search courses, instructors, categories...",
     "loading": "Loading courses...",

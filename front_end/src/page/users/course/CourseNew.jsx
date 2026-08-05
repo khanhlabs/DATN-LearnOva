@@ -11,6 +11,7 @@ import LearnovaAI from "../../home/chat-bot/chatBot.jsx";
 import { useAuth } from "../../../hook/UseAuth.jsx";
 import { addCourseToCart } from "../../../utils/cartStorage.js";
 import { getPublicCoursesApi } from "../../../api/CourseApi.js";
+import { getActiveCategories } from "../../../api/teacher/CourseApi.js";
 import { getFileUrl } from "../../../api/PublicCourseApi.js";
 import {
   addWishlistApi,
@@ -36,16 +37,6 @@ const FALLBACK_THUMBS = [
   "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
   "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
   "linear-gradient(135deg, #10b981 0%, #047857 100%)",
-];
-
-const categories = [
-  { id: "all", name: "All Categories", count: 120 },
-  { id: "tech", name: "Technology", count: 136 },
-  { id: "business", name: "Business", count: 96 },
-  { id: "design", name: "Design", count: 72 },
-  { id: "marketing", name: "Marketing", count: 86 },
-  { id: "language", name: "Languages", count: 64 },
-  { id: "skills", name: "Soft Skills", count: 58 },
 ];
 
 const levels = [
@@ -110,6 +101,7 @@ function CoursesPage() {
   const { isAuthenticated, accessToken, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const [dbCourses, setDbCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("popular");
@@ -118,6 +110,33 @@ function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    getActiveCategories()
+      .then((data) => {
+        if (mounted) setCategories(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (mounted) setCategories([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const categoryOptions = useMemo(
+    () => [
+      { id: "all", name: t("coursesPage.allCategories") },
+      ...categories.map((category) => ({
+        id: String(category.id),
+        name: category.name,
+      })),
+    ],
+    [categories, t],
+  );
 
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
@@ -192,7 +211,7 @@ function CoursesPage() {
 
     if (selectedCategories.length > 0 && !selectedCategories.includes("all")) {
       const selectedCategoryNames = selectedCategories
-        .map((id) => categories.find((cat) => cat.id === id)?.name?.toLowerCase())
+        .map((id) => categoryOptions.find((cat) => cat.id === id)?.name?.toLowerCase())
         .filter(Boolean);
 
       result = result.filter((course) =>
@@ -211,7 +230,7 @@ function CoursesPage() {
     }
 
     return result;
-  }, [dbCourses, selectedCategories, selectedLevels, searchTerm]);
+  }, [dbCourses, selectedCategories, selectedLevels, searchTerm, categoryOptions]);
 
   const coursesPerPage = 8;
   const totalPages = Math.ceil(displayCourses.length / coursesPerPage);
@@ -221,7 +240,7 @@ function CoursesPage() {
   const activeFilters = [
     ...selectedCategories
       .filter((id) => id !== "all")
-      .map((id) => categories.find((c) => c.id === id)?.name)
+      .map((id) => categoryOptions.find((c) => c.id === id)?.name)
       .filter(Boolean),
     ...selectedLevels.map((id) => levels.find((l) => l.id === id)?.name).filter(Boolean),
   ];
@@ -249,7 +268,7 @@ function CoursesPage() {
   };
 
   const removeFilter = (name) => {
-    const cat = categories.find((c) => c.name === name);
+    const cat = categoryOptions.find((c) => c.name === name);
     if (cat) {
       setSelectedCategories((prev) => prev.filter((id) => id !== cat.id));
       return;
@@ -399,7 +418,7 @@ function CoursesPage() {
                 <div className="filter-title-course">
                   <span>{t("coursesPage.categories")}</span>
                 </div>
-                {categories.map((cat) => (
+                {categoryOptions.map((cat) => (
                   <label key={cat.id} className="filter-item-course">
                     <div className="left-course">
                       <input

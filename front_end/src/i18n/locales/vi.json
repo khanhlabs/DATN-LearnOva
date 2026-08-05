@@ -411,6 +411,8 @@
       "loading": "Đang tải...",
       "emptyTitle": "Chưa có khóa học yêu thích nào",
       "emptySubtitle": "Lưu các khóa học bạn quan tâm bằng cách bấm vào biểu tượng trái tim. Chúng sẽ xuất hiện ở đây để dễ truy cập.",
+      "noSearchResults": "Không tìm thấy khóa học",
+      "noSearchResultsSubtitle": "Hãy thử tìm bằng từ khóa khác.",
       "browseCourses": "Khám phá khóa học",
       "removedFromWishlist": "Đã bỏ khỏi danh sách yêu thích.",
       "genericError": "Đã có lỗi xảy ra."
@@ -677,6 +679,7 @@
   },
   "coursesPage": {
     "categories": "Danh mục",
+    "allCategories": "Tất cả danh mục",
     "level": "Trình độ",
     "searchPlaceholder": "Tìm khóa học, giảng viên, danh mục...",
     "loading": "Đang tải khóa học...",
