@@ -212,11 +212,8 @@ function CourseDetail() {
                 setShowReviewModal(true);
             }
         } catch (err) {
-            console.error("Failed to update lesson progress:", err.response?.data || err);
-            toast.error(
-                err.response?.data?.message ||
-                "Không thể lưu tiến độ video. Vui lòng đăng nhập và kiểm tra bạn đã đăng ký khóa học."
-            );
+            // Progress failures are handled by the existing progress implementation.
+            // Do not show a toast for background progress requests.
         }
     }, [activeLesson, currentUserId, hasReviewed]);
 

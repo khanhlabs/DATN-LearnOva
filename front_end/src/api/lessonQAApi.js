@@ -39,3 +39,8 @@ export const setQuestionPinnedApi = async (id, value) => {
     const res = await axiosClient.patch(`/qna/question/${id}/pinned?value=${value}`);
     return res.data;
 };
+
+export const toggleQALikeApi = async (qaId) => {
+    const res = await axiosClient.patch(`/qna/${qaId}/like`);
+    return res.data;
+};

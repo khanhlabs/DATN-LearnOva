@@ -3,6 +3,7 @@ package com.example.back_end.controller.coursesDetailController;
 import com.example.back_end.dto.request.CreateAnswerRequest;
 import com.example.back_end.dto.request.CreateQuestionRequest;
 import com.example.back_end.dto.response.LessonQAResponse;
+import com.example.back_end.dto.response.LikeResponse;
 import com.example.back_end.dto.response.teacher.TeacherQuestionResponse;
 import com.example.back_end.security.CustomUserDetails;
 import com.example.back_end.service.LessonQAService;
@@ -23,13 +24,31 @@ public class LessonQAController {
     private final LessonQAService qaService;
 
     @GetMapping("/course/{courseId}")
-    public LessonQAResponse getCourseQnA(@PathVariable Long courseId) {
-        return qaService.getCourseQnA(courseId);
+    public LessonQAResponse getCourseQnA(
+            @PathVariable Long courseId,
+            Authentication auth
+    ) {
+        return qaService.getCourseQnA(courseId, currentUserId(auth));
     }
 
     @GetMapping("/lesson/{lessonId}")
-    public LessonQAResponse getLessonQnA(@PathVariable Long lessonId) {
-        return qaService.getLessonQnA(lessonId);
+    public LessonQAResponse getLessonQnA(
+            @PathVariable Long lessonId,
+            Authentication auth
+    ) {
+        return qaService.getLessonQnA(lessonId, currentUserId(auth));
+    }
+
+    @PatchMapping("/{qaId}/like")
+    public LikeResponse toggleLike(Authentication auth, @PathVariable Long qaId) {
+        CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
+        return qaService.toggleLike(user.getId(), qaId);
+    }
+
+    private Long currentUserId(Authentication auth) {
+        return auth != null && auth.getPrincipal() instanceof CustomUserDetails user
+                ? user.getId()
+                : null;
     }
 
     @PostMapping("/question")

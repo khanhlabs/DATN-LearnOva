@@ -1599,6 +1599,12 @@ hr {
 .btn-like:hover {
     background: #dbeafe;
 }
+
+.btn-like.liked {
+    color: #1d4ed8;
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
 .btn-like svg {
     font-size: 16px;
    
@@ -2621,6 +2627,17 @@ hr {
 .qa-actions .btn-like:hover {
     background: rgba(239, 68, 68, 0.08);
     color: #446cef;
+}
+
+.qa-actions .btn-like.liked {
+    background: #dbeafe;
+    border-color: #2563eb;
+    color: #1d4ed8;
+}
+
+.qa-actions .btn-like.liked:hover {
+    background: #bfdbfe;
+    color: #1e40af;
 }
 
 .qa-actions .btn-like span,
