@@ -134,6 +134,10 @@
   background-color: #ef4444;
 }
 
+.revenueChartLegendDot.green {
+  background-color: #16a34a;
+}
+
 @media (max-width: 900px) {
   .revenueChartHeader {
     flex-direction: column;

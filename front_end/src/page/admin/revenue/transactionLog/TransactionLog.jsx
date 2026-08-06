@@ -33,9 +33,12 @@ const STATUS_OPTIONS = [
 const PAGE_SIZE = 7;
 
 const formatMoney = (value) =>
-  `$ ${Number(value || 0).toLocaleString("en-US", {
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })}`;
+  }).format(Number(value || 0));
 
 const formatGateway = (method) => {
   if (!method) return "—";

@@ -2,9 +2,12 @@ import { Calendar, TrendingUp } from "lucide-react";
 import "./RevenueRecords.css";
 
 const formatMoney = (value) =>
-  `$ ${Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 0,
-  })}`;
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value || 0));
 
 const formatGrowth = (value) => {
   if (value == null || Number.isNaN(Number(value))) {
@@ -66,4 +69,3 @@ const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
 };
 
 export default RevenueRecords;
-

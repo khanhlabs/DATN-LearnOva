@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.back_end.dto.response.admin.AdminVoucherOverviewResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageFrequencyResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageHistoryResponse;
@@ -32,6 +33,11 @@ public class AdminVoucherController {
     @GetMapping
     public List<AdminVoucherResponse> getAllVouchers() {
         return voucherService.getAllVouchers();
+    }
+
+    @GetMapping("/overview")
+    public AdminVoucherOverviewResponse getVoucherOverview() {
+        return voucherService.getOverview();
     }
 
     @GetMapping("/usage-history")

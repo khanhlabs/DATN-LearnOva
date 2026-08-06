@@ -16,9 +16,12 @@ import "./RevenueCard.css";
 import { useTranslation } from "react-i18next";
 
 const formatMoney = (value) =>
-  `$ ${Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 0,
-  })}`;
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value || 0));
 
 const formatDelta = (value) => {
   if (value == null || Number.isNaN(Number(value))) {
@@ -110,7 +113,7 @@ const RevenueCard = ({ kpis = null }) => {
         <div className="revenueGrid">
           {revenueBlocks.map((block) => {
             const { id, component: BlockComponent, ...cardProps } = block;
-            return <BlockComponent key={id} {...cardProps} title={labels[id]} subtitle={id === "totalRevenue" ? t("revenueAdmin.quarter") : id === "monthlyRevenue" ? t("revenueAdmin.monthStart") : id === "transactions" ? t("revenueAdmin.previous") : cardProps.subtitle} note={id === "pendingPayment" ? `0 ${t("revenueAdmin.settlement")}` : cardProps.note} label={id === "refundRequest" ? t("revenueAdmin.lowRate") : cardProps.label} detail={id === "growthRate" ? t("revenueAdmin.target") : cardProps.detail} />;
+            return <BlockComponent key={id} {...cardProps} title={labels[id]} subtitle={id === "totalRevenue" ? t("revenueAdmin.quarter") : id === "monthlyRevenue" ? t("revenueAdmin.monthStart") : id === "transactions" ? t("revenueAdmin.previous") : cardProps.subtitle} note={id === "pendingPayment" ? `${formatCount(kpis?.pendingPayoutCount)} ${t("revenueAdmin.settlement")}` : cardProps.note} label={id === "refundRequest" ? t("revenueAdmin.lowRate") : cardProps.label} detail={id === "growthRate" ? t("revenueAdmin.target") : cardProps.detail} />;
           })}
         </div>
       </div>

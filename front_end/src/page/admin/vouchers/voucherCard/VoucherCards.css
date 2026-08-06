@@ -1,12 +1,17 @@
 .voucherCardsRow {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   align-items: stretch;
 }
 
+.voucherCardsError {
+  margin: 0 0 12px;
+  color: #b42318;
+  font-size: 0.9rem;
+}
+
 .voucherCardItem {
-  grid-column: span 12;
   background: #ffffff;
   border-radius: 6px;
   border: 1px solid rgba(229, 186, 112, 0.25);
@@ -16,6 +21,7 @@
   gap: 12px;
   min-height: 148px;
   box-shadow: 0 12px 28px rgba(37, 99, 235, 0.08);
+  min-width: 0;
 }
 
 .voucherCardHeader {
@@ -80,36 +86,25 @@
   color: #1d4ed8;
 }
 
-.accentPurple .voucherCardIcon {
-  background: rgba(167, 139, 250, 0.22);
-  color: #6d28d9;
-}
-
 .accentOrange .voucherCardIcon {
   background: rgba(255, 176, 45, 0.22);
   color: var(--blue-strong);
 }
 
-@media (min-width: 1200px) {
-  .voucherCardItem {
-    grid-column: span 2;
-  }
-}
-
-@media (min-width: 900px) and (max-width: 1199px) {
-  .voucherCardItem {
-    grid-column: span 4;
+@media (max-width: 1199px) {
+  .voucherCardsRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 899px) {
-  .voucherCardItem {
-    grid-column: span 6;
+  .voucherCardsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 620px) {
-  .voucherCardItem {
-    grid-column: span 12;
+  .voucherCardsRow {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

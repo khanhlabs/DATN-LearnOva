@@ -13,6 +13,14 @@ const timeRangeFilters = [
   { value: "year", label: "Year" },
 ];
 
+const formatMoney = (value) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value || 0));
+
 const verticalHoverLinePlugin = {
   id: "verticalHoverLine",
   afterDraw(chart) {
@@ -87,10 +95,11 @@ const RevenueChart = () => {
     }
 
     const labels = points.map((point) => point.label);
-    const cashFlowValues = points.map((point) => Number(point.totalCashFlow || 0));
-    const payoutValues = points.map((point) =>
+    const studentValues = points.map((point) => Number(point.totalCashFlow || 0));
+    const instructorValues = points.map((point) =>
       Number(point.instructorPayouts || 0)
     );
+    const adminValues = points.map((point) => Number(point.adminNet || 0));
 
     if (chartRef.current) {
       chartRef.current.destroy();
@@ -103,9 +112,9 @@ const RevenueChart = () => {
         labels,
         datasets: [
           {
-            label: "Total Cash Flow",
-            tooltipShortLabel: "Total Cash Flow",
-            data: cashFlowValues,
+            label: t("revenueAdmin.studentPayments"),
+            tooltipShortLabel: t("revenueAdmin.studentPayments"),
+            data: studentValues,
             borderColor: "#2563eb",
             pointBackgroundColor: "#2563eb",
             pointBorderColor: "#2563eb",
@@ -116,9 +125,9 @@ const RevenueChart = () => {
             borderWidth: 3,
           },
           {
-            label: "Instructor Payouts",
-            tooltipShortLabel: "Instructor Payouts",
-            data: payoutValues,
+            label: t("revenueAdmin.instructorShare"),
+            tooltipShortLabel: t("revenueAdmin.instructorShare"),
+            data: instructorValues,
             borderColor: "#ef4444",
             pointBackgroundColor: "#ef4444",
             pointBorderColor: "#ef4444",
@@ -128,6 +137,20 @@ const RevenueChart = () => {
             fill: false,
             borderWidth: 3,
             borderDash: [6, 4],
+          },
+          {
+            label: t("revenueAdmin.adminNet"),
+            tooltipShortLabel: t("revenueAdmin.adminNet"),
+            data: adminValues,
+            borderColor: "#16a34a",
+            pointBackgroundColor: "#16a34a",
+            pointBorderColor: "#16a34a",
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            tension: 0.35,
+            fill: false,
+            borderWidth: 3,
+            borderDash: [2, 3],
           },
         ],
       },
@@ -180,7 +203,7 @@ const RevenueChart = () => {
                 const value = context.parsed.y;
                 const label =
                   context.dataset.tooltipShortLabel || context.dataset.label;
-                return `${label}: $ ${Number(value).toLocaleString("vi-VN")}`;
+                return `${label}: ${formatMoney(value)}`;
               },
             },
           },
@@ -208,7 +231,7 @@ const RevenueChart = () => {
                 weight: 600,
               },
               callback(value) {
-                return `$ ${Number(value).toLocaleString("vi-VN")}`;
+                return formatMoney(value);
               },
             },
             grid: {
@@ -228,7 +251,7 @@ const RevenueChart = () => {
         chartRef.current = null;
       }
     };
-  }, [points]);
+  }, [points, t]);
 
   return (
     <section className="revenueChartCard" aria-label={t("revenueAdmin.metrics")}>
@@ -238,8 +261,7 @@ const RevenueChart = () => {
             {t("revenueAdmin.metrics")}
           </h2>
           <p className="revenueChartSubtitle">
-            Compare total cash flow from successful payments with instructor
-            payouts over time.
+            {t("revenueAdmin.metricsSubtitle")}
           </p>
         </div>
 
@@ -277,11 +299,15 @@ const RevenueChart = () => {
         <div className="revenueChartLegend">
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot gold" />
-            <span>Total Cash Flow</span>
+            <span>{t("revenueAdmin.studentPayments")}</span>
           </div>
           <div className="revenueChartLegendItem">
             <span className="revenueChartLegendDot red" />
-            <span>Instructor Payouts</span>
+            <span>{t("revenueAdmin.instructorShare")}</span>
+          </div>
+          <div className="revenueChartLegendItem">
+            <span className="revenueChartLegendDot green" />
+            <span>{t("revenueAdmin.adminNet")}</span>
           </div>
         </div>
       </div>

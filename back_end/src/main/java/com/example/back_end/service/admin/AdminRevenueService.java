@@ -8,6 +8,8 @@ import com.example.back_end.dto.response.admin.AdminRevenueTransactionInsightsRe
 import com.example.back_end.dto.response.admin.AdminRevenueTransactionResponse;
 import com.example.back_end.repository.PayoutRequestRepository;
 import com.example.back_end.repository.admin.AdminRevenueRepository;
+import com.example.back_end.service.ExchangeRateService;
+import com.example.back_end.service.RevenueShareCalculator;
 import com.example.back_end.util.PercentDeltaCalculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -44,8 +46,11 @@ public class AdminRevenueService {
 
     private final AdminRevenueRepository adminRevenueRepository;
     private final PayoutRequestRepository payoutRequestRepository;
+    private final RevenueShareCalculator revenueShareCalculator;
+    private final ExchangeRateService exchangeRateService;
 
     public Page<AdminRevenueCourseRankingResponse> getTopRevenueCourses(Pageable pageable) {
+        BigDecimal usdToVnd = exchangeRateService.getUsdToVnd();
         return adminRevenueRepository.findTopRevenueCourses(pageable)
                 .map(row -> new AdminRevenueCourseRankingResponse(
                         row.getCourseId(),
@@ -55,38 +60,40 @@ public class AdminRevenueService {
                         row.getCategoryId(),
                         row.getCategory(),
                         row.getStudents(),
-                        row.getRevenue(),
+                        toUsd(row.getRevenue(), usdToVnd),
                         row.getShare()
                 ));
     }
 
     public Page<AdminRevenueInstructorRankingResponse> getTopEarningInstructors(Pageable pageable) {
+        BigDecimal usdToVnd = exchangeRateService.getUsdToVnd();
         return adminRevenueRepository.findTopEarningInstructors(pageable)
                 .map(row -> new AdminRevenueInstructorRankingResponse(
                         row.getInstructorId(),
                         row.getInstructor(),
                         row.getTotalCourses(),
                         row.getTotalStudents(),
-                        row.getRevenue(),
-                        row.getAvgPerCourse(),
+                        toUsd(row.getRevenue(), usdToVnd),
+                        toUsd(row.getAvgPerCourse(), usdToVnd),
                         row.getShare()
                 ));
     }
 
     public AdminRevenueOverviewResponse getOverview() {
+        BigDecimal usdToVnd = exchangeRateService.getUsdToVnd();
         Instant now = Instant.now();
         Instant monthStart = YearMonth.now(ZONE).atDay(1).atStartOfDay(ZONE).toInstant();
         Instant prevMonthStart = YearMonth.now(ZONE).minusMonths(1).atDay(1).atStartOfDay(ZONE).toInstant();
         Instant quarterStart = currentQuarterStart().atStartOfDay(ZONE).toInstant();
         Instant prevQuarterStart = currentQuarterStart().minusMonths(3).atStartOfDay(ZONE).toInstant();
 
-        BigDecimal totalRevenue = nullToZero(adminRevenueRepository.sumPaidItemRevenueAllTime());
-        BigDecimal prevQuarterRevenue = nullToZero(adminRevenueRepository.sumPaidItemRevenueBetween(prevQuarterStart, quarterStart));
-        BigDecimal thisQuarterRevenue = nullToZero(adminRevenueRepository.sumPaidItemRevenueBetween(quarterStart, now));
+        BigDecimal totalRevenue = toUsd(adminRevenueRepository.sumSuccessfulPaymentAmountAllTime(), usdToVnd);
+        BigDecimal prevQuarterRevenue = toUsd(adminRevenueRepository.sumSuccessfulPaymentAmountBetween(prevQuarterStart, quarterStart), usdToVnd);
+        BigDecimal thisQuarterRevenue = toUsd(adminRevenueRepository.sumSuccessfulPaymentAmountBetween(quarterStart, now), usdToVnd);
         Double totalRevenueDelta = PercentDeltaCalculator.percentDelta(prevQuarterRevenue, thisQuarterRevenue);
 
-        BigDecimal monthlyRevenue = nullToZero(adminRevenueRepository.sumPaidItemRevenueBetween(monthStart, now));
-        BigDecimal prevMonthlyRevenue = nullToZero(adminRevenueRepository.sumPaidItemRevenueBetween(prevMonthStart, monthStart));
+        BigDecimal monthlyRevenue = toUsd(adminRevenueRepository.sumSuccessfulPaymentAmountBetween(monthStart, now), usdToVnd);
+        BigDecimal prevMonthlyRevenue = toUsd(adminRevenueRepository.sumSuccessfulPaymentAmountBetween(prevMonthStart, monthStart), usdToVnd);
         Double monthlyDelta = PercentDeltaCalculator.percentDelta(prevMonthlyRevenue, monthlyRevenue);
 
         long totalTransactions = adminRevenueRepository.countSuccessfulPaymentsAllTime();
@@ -97,7 +104,7 @@ public class AdminRevenueService {
                 BigDecimal.valueOf(thisQuarterTx)
         );
 
-        BigDecimal pendingPayoutAmount = nullToZero(payoutRequestRepository.sumPendingAmount());
+        BigDecimal pendingPayoutAmount = toUsd(payoutRequestRepository.sumPendingAmount(), usdToVnd);
         long pendingPayoutCount = payoutRequestRepository.countPending();
 
         long refundCount = adminRevenueRepository.countRefundedPaymentsAllTime();
@@ -124,30 +131,31 @@ public class AdminRevenueService {
                         refundDelta,
                         growthRate
                 ),
-                buildCategoryBreakdown()
+                buildCategoryBreakdown(usdToVnd)
         );
     }
 
     public AdminRevenueComparisonResponse getComparison(String range) {
+        BigDecimal usdToVnd = exchangeRateService.getUsdToVnd();
         String normalized = range == null ? "month" : range.trim().toLowerCase(Locale.ROOT);
         if (!VALID_RANGES.contains(normalized)) {
             normalized = "month";
         }
 
         ChartWindow window = resolveChartWindow(normalized);
-        Map<LocalDate, BigDecimal> cashFlow = toPeriodMap(
-                adminRevenueRepository.findCashFlowByBucket(window.bucket(), window.from(), window.to())
-        );
-        Map<LocalDate, BigDecimal> payouts = toPeriodMap(
-                adminRevenueRepository.findPaidPayoutsByBucket(window.bucket(), window.from(), window.to())
+        Map<LocalDate, BigDecimal> studentPayments = toPeriodMap(
+                adminRevenueRepository.findStudentPaymentsByBucket(window.bucket(), window.from(), window.to())
         );
 
         List<AdminRevenueComparisonResponse.ComparisonPoint> points = new ArrayList<>();
         for (LocalDate periodStart : window.periods()) {
+            BigDecimal studentPaid = toUsd(studentPayments.getOrDefault(periodStart, BigDecimal.ZERO), usdToVnd);
+            RevenueShareCalculator.RevenueShare share = revenueShareCalculator.calculate(studentPaid);
             points.add(new AdminRevenueComparisonResponse.ComparisonPoint(
                     formatPeriodLabel(periodStart, normalized),
-                    cashFlow.getOrDefault(periodStart, BigDecimal.ZERO),
-                    payouts.getOrDefault(periodStart, BigDecimal.ZERO)
+                    studentPaid,
+                    share.instructorAmount(),
+                    share.adminAmount()
             ));
         }
 
@@ -165,6 +173,7 @@ public class AdminRevenueService {
         String normalizedMethod = normalizeEnumFilter(paymentMethod, VALID_PAYMENT_METHODS);
         String normalizedStatus = normalizeEnumFilter(status, VALID_PAYMENT_STATUSES);
 
+        BigDecimal usdToVnd = exchangeRateService.getUsdToVnd();
         return adminRevenueRepository.findTransactionLog(
                         normalizedSearch,
                         categoryId,
@@ -182,7 +191,7 @@ public class AdminRevenueService {
                         row.getCategoryId(),
                         row.getCategoryName(),
                         row.getPaymentMethod(),
-                        row.getAmount(),
+                        toUsd(row.getAmount(), usdToVnd),
                         "USD",
                         mapPaymentStatus(row.getStatus()),
                         row.getPaidAt()
@@ -190,7 +199,8 @@ public class AdminRevenueService {
     }
 
     public AdminRevenueTransactionInsightsResponse getTransactionInsights() {
-        List<AdminRevenueTransactionInsightsResponse.CategoryMetric> metrics = buildCategoryBreakdown().stream()
+        BigDecimal usdToVnd = exchangeRateService.getUsdToVnd();
+        List<AdminRevenueTransactionInsightsResponse.CategoryMetric> metrics = buildCategoryBreakdown(usdToVnd).stream()
                 .map(item -> new AdminRevenueTransactionInsightsResponse.CategoryMetric(
                         item.categoryId(),
                         item.categoryName(),
@@ -206,7 +216,7 @@ public class AdminRevenueService {
         if (peakDay != null && peakDay.getDay() != null) {
             peakDayRecord = new AdminRevenueTransactionInsightsResponse.PeakDayRecord(
                     peakDay.getDay().format(DateTimeFormatter.ofPattern("EEE, dd MMM yyyy", Locale.ENGLISH)),
-                    nullToZero(peakDay.getAmount())
+                    toUsd(peakDay.getAmount(), usdToVnd)
             );
         }
 
@@ -215,11 +225,12 @@ public class AdminRevenueService {
             LocalDate monthStart = peakMonth.getMonthStart().withDayOfMonth(1);
             Instant from = monthStart.atStartOfDay(ZONE).toInstant();
             Instant prevFrom = monthStart.minusMonths(1).atStartOfDay(ZONE).toInstant();
-            BigDecimal prevAmount = nullToZero(adminRevenueRepository.sumPaidItemRevenueBetween(prevFrom, from));
-            Double growth = PercentDeltaCalculator.percentDelta(prevAmount, nullToZero(peakMonth.getAmount()));
+            BigDecimal prevAmount = toUsd(adminRevenueRepository.sumSuccessfulPaymentAmountBetween(prevFrom, from), usdToVnd);
+            BigDecimal peakAmount = toUsd(peakMonth.getAmount(), usdToVnd);
+            Double growth = PercentDeltaCalculator.percentDelta(prevAmount, peakAmount);
             peakMonthRecord = new AdminRevenueTransactionInsightsResponse.PeakMonthRecord(
                     monthStart.format(MONTH_LABEL),
-                    nullToZero(peakMonth.getAmount()),
+                    peakAmount,
                     growth
             );
         }
@@ -227,7 +238,7 @@ public class AdminRevenueService {
         return new AdminRevenueTransactionInsightsResponse(metrics, peakDayRecord, peakMonthRecord);
     }
 
-    private List<AdminRevenueOverviewResponse.CategoryBreakdownItem> buildCategoryBreakdown() {
+    private List<AdminRevenueOverviewResponse.CategoryBreakdownItem> buildCategoryBreakdown(BigDecimal usdToVnd) {
         List<AdminRevenueRepository.CategoryRevenueProjection> rows = adminRevenueRepository.findRevenueByCategory();
         BigDecimal total = rows.stream()
                 .map(row -> nullToZero(row.getAmount()))
@@ -243,7 +254,7 @@ public class AdminRevenueService {
                     return new AdminRevenueOverviewResponse.CategoryBreakdownItem(
                             row.getCategoryId(),
                             row.getCategoryName(),
-                            amount,
+                            toUsd(amount, usdToVnd),
                             share
                     );
                 })
@@ -367,6 +378,18 @@ public class AdminRevenueService {
 
     private BigDecimal nullToZero(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
+    }
+
+    /** Payments and payouts are persisted in VND; admin revenue is reported in USD. */
+    private BigDecimal toUsd(BigDecimal amountVnd, BigDecimal usdToVnd) {
+        BigDecimal amount = nullToZero(amountVnd);
+        if (amount.signum() == 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.UNNECESSARY);
+        }
+        if (usdToVnd == null || usdToVnd.signum() <= 0) {
+            throw new IllegalStateException("USD/VND exchange rate must be greater than zero");
+        }
+        return amount.divide(usdToVnd, 2, RoundingMode.HALF_UP);
     }
 
     private record ChartWindow(String bucket, Instant from, Instant to, List<LocalDate> periods) {}

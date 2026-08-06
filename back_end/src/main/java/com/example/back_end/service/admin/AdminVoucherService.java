@@ -1,8 +1,11 @@
 package com.example.back_end.service.admin;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.back_end.dto.request.admin.AdminVoucherRequest;
 import com.example.back_end.dto.response.admin.AdminVoucherCampaignStatsResponse;
+import com.example.back_end.dto.response.admin.AdminVoucherOverviewResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageFrequencyResponse;
 import com.example.back_end.dto.response.admin.AdminVoucherUsageHistoryResponse;
@@ -22,12 +26,15 @@ import com.example.back_end.exception.BusinessException;
 import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.repository.admin.AdminUserRepository;
 import com.example.back_end.repository.admin.AdminVoucherRepository;
+import com.example.back_end.util.PercentDeltaCalculator;
 
 import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
 public class AdminVoucherService {
+
+    private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
     private final AdminVoucherRepository voucherRepository;
     private final AdminUserRepository adminUserRepository;
@@ -38,6 +45,43 @@ public class AdminVoucherService {
     ) {
         this.voucherRepository = voucherRepository;
         this.adminUserRepository = adminUserRepository;
+    }
+
+    public AdminVoucherOverviewResponse getOverview() {
+        OffsetDateTime now = OffsetDateTime.now(ZONE);
+        Instant instantNow = Instant.now();
+        Instant monthStart = YearMonth.now(ZONE).atDay(1).atStartOfDay(ZONE).toInstant();
+        Instant prevMonthStart = YearMonth.now(ZONE).minusMonths(1).atDay(1).atStartOfDay(ZONE).toInstant();
+
+        long totalVouchers = voucherRepository.count();
+        long createdThisMonth = voucherRepository.countCreatedBetween(monthStart, instantNow);
+        long createdPrevMonth = voucherRepository.countCreatedBetween(prevMonthStart, monthStart);
+        Double totalVouchersDeltaPercent = PercentDeltaCalculator.percentDelta(
+                BigDecimal.valueOf(createdPrevMonth),
+                BigDecimal.valueOf(createdThisMonth)
+        );
+
+        long activeVouchers = voucherRepository.countActiveVouchers(now);
+        long expiredVouchers = voucherRepository.countExpiredVouchers(now);
+        long appliedUses = voucherRepository.countPaidOrdersWithVoucher();
+        long paidOrders = voucherRepository.countPaidOrders();
+
+        Double conversionRatePercent = null;
+        if (paidOrders > 0) {
+            conversionRatePercent = BigDecimal.valueOf(appliedUses)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(paidOrders), 1, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+
+        return new AdminVoucherOverviewResponse(
+                totalVouchers,
+                totalVouchersDeltaPercent,
+                activeVouchers,
+                expiredVouchers,
+                appliedUses,
+                conversionRatePercent
+        );
     }
 
     public List<AdminVoucherResponse> getAllVouchers() {

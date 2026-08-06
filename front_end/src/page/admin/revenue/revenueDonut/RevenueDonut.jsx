@@ -22,7 +22,12 @@ const formatCompactMoney = (value) => {
   if (amount >= 1_000) {
     return `$${(amount / 1_000).toFixed(1)}K`;
   }
-  return `$${amount.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
 };
 
 

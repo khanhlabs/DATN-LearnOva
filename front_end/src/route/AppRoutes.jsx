@@ -46,7 +46,6 @@ import PaymentSuccess from "../page/home/payment/PaymentSuccess.jsx";
 import PaymentCancel from "../page/home/payment/PaymentCancel.jsx";
 import ApplyTeacherPage from "../page/teacherApplication/ApplyTeacherPage.jsx";
 import TeacherApplicationPage from "../page/admin/teacherApplication/TeacherApplicationPage.jsx";
-import AdminPayoutRequestsPage from "../page/admin/payoutRequests/AdminPayoutRequestsPage.jsx";
 import AdminProfilePage from "../page/admin/profile/AdminProfilePage.jsx";
 import Settings from "../page/admin/settings/Settings.jsx";
 import VerifyCertificatePage from "../page/certificate/VerifyCertificatePage.jsx";
@@ -91,8 +90,6 @@ const App = () => {
                     <Route path="violation-reports" element={<ViolationReports/>}/>
                     <Route path="teacher-applications" element={<TeacherApplicationPage/>}/>
                     <Route path="teacher-applications/:applicationId" element={<TeacherApplicationPage/>}/>
-                    <Route path="payout-requests" element={<AdminPayoutRequestsPage/>}/>
-                    <Route path="payout-requests/:requestId" element={<AdminPayoutRequestsPage/>}/>
                     <Route path="profile" element={<AdminProfilePage/>}/>
                     <Route path="settings" element={<Settings/>}/>
                 </Route>

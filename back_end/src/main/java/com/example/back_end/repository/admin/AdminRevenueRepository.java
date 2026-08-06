@@ -93,7 +93,13 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                             cate.category_id,
                             cate.name AS category,
                             COUNT(DISTINCT e.user_id) AS students,
-                            COALESCE(SUM(oi.price), 0) AS revenue
+                            COALESCE(SUM(
+                                CASE
+                                    WHEN item_totals.item_sum > 0
+                                        THEN p.amount * (oi.price / item_totals.item_sum)
+                                    ELSE 0
+                                END
+                            ), 0) AS revenue
                         FROM courses c
                         LEFT JOIN users u
                                ON c.instructor_id = u.user_id
@@ -112,8 +118,19 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                                ON oi.order_id = o.order_id
                               AND o.status = 'PAID'
                         JOIN payments p
-                               ON p.order_id = o.order_id
-                              AND p.status = 'SUCCESS'
+                               ON p.payment_id = (
+                                    SELECT p2.payment_id
+                                    FROM payments p2
+                                    WHERE p2.order_id = o.order_id
+                                      AND p2.status = 'SUCCESS'
+                                    ORDER BY p2.payment_id DESC
+                                    LIMIT 1
+                               )
+                        JOIN (
+                                SELECT oi2.order_id AS order_id, SUM(oi2.price) AS item_sum
+                                FROM order_items oi2
+                                GROUP BY oi2.order_id
+                        ) item_totals ON item_totals.order_id = o.order_id
                         LEFT JOIN enrollments e
                                ON c.course_id = e.course_id
                         WHERE c.is_deleted = FALSE
@@ -165,9 +182,21 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                             u.full_name AS instructor,
                             COUNT(DISTINCT c.course_id) AS total_courses,
                             COUNT(DISTINCT e.user_id) AS total_students,
-                            COALESCE(SUM(oi.price), 0) AS revenue,
+                            COALESCE(SUM(
+                                CASE
+                                    WHEN item_totals.item_sum > 0
+                                        THEN p.amount * (oi.price / item_totals.item_sum)
+                                    ELSE 0
+                                END
+                            ), 0) AS revenue,
                             ROUND(
-                                COALESCE(SUM(oi.price), 0) /
+                                COALESCE(SUM(
+                                    CASE
+                                        WHEN item_totals.item_sum > 0
+                                            THEN p.amount * (oi.price / item_totals.item_sum)
+                                        ELSE 0
+                                    END
+                                ), 0) /
                                 NULLIF(COUNT(DISTINCT c.course_id), 0),
                                 2
                             ) AS avg_per_course
@@ -185,8 +214,19 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                           ON o.order_id = oi.order_id
                          AND o.status = 'PAID'
                         JOIN payments p
-                          ON p.order_id = o.order_id
-                         AND p.status = 'SUCCESS'
+                          ON p.payment_id = (
+                                SELECT p2.payment_id
+                                FROM payments p2
+                                WHERE p2.order_id = o.order_id
+                                  AND p2.status = 'SUCCESS'
+                                ORDER BY p2.payment_id DESC
+                                LIMIT 1
+                          )
+                        JOIN (
+                                SELECT oi2.order_id AS order_id, SUM(oi2.price) AS item_sum
+                                FROM order_items oi2
+                                GROUP BY oi2.order_id
+                        ) item_totals ON item_totals.order_id = o.order_id
                         LEFT JOIN enrollments e
                           ON e.course_id = c.course_id
                         WHERE r.role_name = 'ROLE_TEACHER'
@@ -262,6 +302,25 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
     );
 
     @Query(value = """
+            SELECT COALESCE(SUM(p.amount), 0)
+            FROM payments p
+            WHERE p.status = 'SUCCESS'
+            """, nativeQuery = true)
+    BigDecimal sumSuccessfulPaymentAmountAllTime();
+
+    @Query(value = """
+            SELECT COALESCE(SUM(p.amount), 0)
+            FROM payments p
+            WHERE p.status = 'SUCCESS'
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) >= :fromTs
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) < :toTs
+            """, nativeQuery = true)
+    BigDecimal sumSuccessfulPaymentAmountBetween(
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query(value = """
             SELECT COUNT(DISTINCT p.payment_id)
             FROM payments p
             WHERE p.status = 'SUCCESS'
@@ -303,22 +362,51 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
             SELECT
                 cate.category_id AS "categoryId",
                 cate.name AS "categoryName",
-                COALESCE(SUM(oi.price), 0) AS amount
-            FROM order_items oi
-            JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+                COALESCE(SUM(
+                    CASE
+                        WHEN item_totals.item_sum > 0 AND cat_counts.cat_count > 0
+                            THEN p.amount * (oi.price / item_totals.item_sum) / cat_counts.cat_count
+                        ELSE 0
+                    END
+                ), 0) AS amount
+            FROM payments p
+            JOIN orders o ON o.order_id = p.order_id AND o.status = 'PAID'
+            JOIN order_items oi ON oi.order_id = o.order_id
             JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
             JOIN course_categories cc ON cc.course_id = c.course_id
             JOIN categories cate ON cate.category_id = cc.category_id AND cate.is_deleted = FALSE
-            WHERE EXISTS (
-                    SELECT 1
-                    FROM payments p
-                    WHERE p.order_id = o.order_id
-                      AND p.status = 'SUCCESS'
-              )
+            JOIN (
+                    SELECT oi2.order_id AS order_id, SUM(oi2.price) AS item_sum
+                    FROM order_items oi2
+                    GROUP BY oi2.order_id
+            ) item_totals ON item_totals.order_id = o.order_id
+            JOIN (
+                    SELECT course_id, COUNT(*) AS cat_count
+                    FROM course_categories
+                    GROUP BY course_id
+            ) cat_counts ON cat_counts.course_id = c.course_id
+            WHERE p.status = 'SUCCESS'
             GROUP BY cate.category_id, cate.name
             ORDER BY amount DESC
             """, nativeQuery = true)
     List<CategoryRevenueProjection> findRevenueByCategory();
+
+    @Query(value = """
+            SELECT
+                (date_trunc(CAST(:bucket AS text), COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) AT TIME ZONE 'Asia/Ho_Chi_Minh'))::date AS period,
+                COALESCE(SUM(p.amount), 0) AS amount
+            FROM payments p
+            WHERE p.status = 'SUCCESS'
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) >= :fromTs
+              AND COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz)) < :toTs
+            GROUP BY 1
+            ORDER BY 1
+            """, nativeQuery = true)
+    List<PeriodAmountProjection> findStudentPaymentsByBucket(
+            @Param("bucket") String bucket,
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
 
     @Query(value = """
             SELECT
@@ -373,8 +461,12 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                         cate.category_id AS "categoryId",
                         cate.name AS "categoryName",
                         CAST(p.payment_method AS text) AS "paymentMethod",
-                        COALESCE(oi.price, 0) AS amount,
-                        CAST('USD' AS text) AS currency,
+                        CASE
+                            WHEN item_totals.item_sum > 0
+                                THEN ROUND(p.amount * (oi.price / item_totals.item_sum), 2)
+                            ELSE 0
+                        END AS amount,
+                        CAST('VND' AS text) AS currency,
                         CAST(p.status AS text) AS status,
                         COALESCE(p.paid_at, o.created_at) AS "paidAt"
                     FROM order_items oi
@@ -388,6 +480,11 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                         ORDER BY p2.payment_id DESC
                         LIMIT 1
                     )
+                    JOIN (
+                            SELECT oi2.order_id AS order_id, SUM(oi2.price) AS item_sum
+                            FROM order_items oi2
+                            GROUP BY oi2.order_id
+                    ) item_totals ON item_totals.order_id = o.order_id
                     LEFT JOIN LATERAL (
                         SELECT cat.category_id, cat.name
                         FROM course_categories cc0
@@ -463,17 +560,10 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                 amount
             FROM (
                 SELECT
-                    date_trunc('day', o.created_at) AS day_bucket,
-                    COALESCE(SUM(oi.price), 0) AS amount
-                FROM order_items oi
-                JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
-                JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
-                WHERE EXISTS (
-                        SELECT 1
-                        FROM payments p
-                        WHERE p.order_id = o.order_id
-                          AND p.status = 'SUCCESS'
-                  )
+                    date_trunc('day', COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz))) AS day_bucket,
+                    COALESCE(SUM(p.amount), 0) AS amount
+                FROM payments p
+                WHERE p.status = 'SUCCESS'
                 GROUP BY 1
             ) ranked
             ORDER BY amount DESC
@@ -487,17 +577,10 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
                 amount
             FROM (
                 SELECT
-                    date_trunc('month', o.created_at) AS month_bucket,
-                    COALESCE(SUM(oi.price), 0) AS amount
-                FROM order_items oi
-                JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
-                JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
-                WHERE EXISTS (
-                        SELECT 1
-                        FROM payments p
-                        WHERE p.order_id = o.order_id
-                          AND p.status = 'SUCCESS'
-                  )
+                    date_trunc('month', COALESCE(p.paid_at, CAST(p.updated_at AS timestamptz))) AS month_bucket,
+                    COALESCE(SUM(p.amount), 0) AS amount
+                FROM payments p
+                WHERE p.status = 'SUCCESS'
                 GROUP BY 1
             ) ranked
             ORDER BY amount DESC

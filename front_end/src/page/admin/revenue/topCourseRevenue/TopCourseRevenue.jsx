@@ -6,9 +6,12 @@ import { useTranslation } from "react-i18next";
 const PAGE_SIZE = 5;
 
 const formatMoney = (value) =>
-  `$${Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 0,
-  })}`;
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value || 0));
 
 const formatPercent = (value) => `${Number(value || 0).toFixed(0)}%`;
 
