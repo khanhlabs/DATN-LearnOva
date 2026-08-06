@@ -12,6 +12,7 @@ import { useAuth } from "../../../../shared/hooks/useAuth";
 import { addCourseToCart } from "../../../../shared/utils/cartStorage";
 import { getPublicCoursesApi } from "../../infrastructure/api/CourseApi";
 import { getFileUrl } from "../../../../shared/api/public/CoursesApi";
+import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../../api/CourseApi.js";
 import {
   addWishlistApi,
   removeWishlistApi,
@@ -118,6 +119,8 @@ function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [voiceCourseIds, setVoiceCourseIds] = useState(null);
+  const [voiceFilters, setVoiceFilters] = useState(null);
 
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
@@ -180,6 +183,13 @@ function CoursesPage() {
   const displayCourses = useMemo(() => {
     let result = dbCourses;
 
+    if (voiceCourseIds) {
+      const voiceOrder = new Map(voiceCourseIds.map((id, index) => [id, index]));
+      result = result
+        .filter((course) => voiceOrder.has(course.courseId))
+        .sort((left, right) => voiceOrder.get(left.courseId) - voiceOrder.get(right.courseId));
+    }
+
     const trimmedSearch = searchTerm.trim().toLowerCase();
     if (trimmedSearch) {
       result = result.filter(
@@ -211,7 +221,35 @@ function CoursesPage() {
     }
 
     return result;
-  }, [dbCourses, selectedCategories, selectedLevels, searchTerm]);
+  }, [dbCourses, selectedCategories, selectedLevels, searchTerm, voiceCourseIds]);
+
+  const runVoiceSearch = async (query) => {
+    try {
+      const data = await voiceSearchCoursesApi(query);
+      setVoiceCourseIds((data.courses || []).map((course) => course.courseId));
+      setVoiceFilters(data.filters || null);
+      setSearchTerm(data.filters?.keyword || "");
+      setSelectedCategories([]);
+      setSelectedLevels([]);
+      setCurrentPage(1);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("coursesPage.voiceSearchFailed"));
+    }
+  };
+
+  useEffect(() => {
+    const voiceQuery = searchParams.get("voiceQuery")?.trim();
+    if (voiceQuery) runVoiceSearch(voiceQuery);
+  }, [searchParams]);
+
+  const clearVoiceSearch = () => {
+    setVoiceCourseIds(null);
+    setVoiceFilters(null);
+    setSearchTerm("");
+    setSelectedCategories([]);
+    setSelectedLevels([]);
+    setCurrentPage(1);
+  };
 
   const coursesPerPage = 8;
   const totalPages = Math.ceil(displayCourses.length / coursesPerPage);
@@ -426,11 +464,33 @@ function CoursesPage() {
                 value={searchTerm}
                 onChange={(event) => {
                   setSearchTerm(event.target.value);
+                  setVoiceCourseIds(null);
+                  setVoiceFilters(null);
                   setCurrentPage(1);
                 }}
               />
             </div>
           </div>
+
+          {voiceFilters && (
+            <div className="voice-search-summary">
+              <span>{t("coursesPage.voiceSearchUnderstood")}</span>
+              {voiceFilters.keyword && <strong>{voiceFilters.keyword}</strong>}
+              {voiceFilters.instructor && <strong>{voiceFilters.instructor}</strong>}
+              {voiceFilters.category && <strong>{voiceFilters.category}</strong>}
+              {voiceFilters.courseType && <strong>{voiceFilters.courseType === "free" ? t("coursesPage.freeCourses") : t("coursesPage.paidCourses")}</strong>}
+              {voiceFilters.level && <strong>{voiceFilters.level}</strong>}
+              {voiceFilters.minPrice != null && <strong>≥ ${voiceFilters.minPrice}</strong>}
+              {voiceFilters.maxPrice != null && <strong>≤ ${voiceFilters.maxPrice}</strong>}
+              {voiceFilters.minRating != null && <strong>★ {voiceFilters.minRating}+</strong>}
+              {voiceFilters.minDurationMinutes != null && <strong>≥ {voiceFilters.minDurationMinutes}m</strong>}
+              {voiceFilters.maxDurationMinutes != null && <strong>≤ {voiceFilters.maxDurationMinutes}m</strong>}
+              {voiceFilters.minStudents != null && <strong>≥ {voiceFilters.minStudents} {t("coursesPage.students")}</strong>}
+              <button type="button" onClick={clearVoiceSearch}>
+                {t("coursesPage.clearVoiceSearch")}
+              </button>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="courses-empty-state">{t("coursesPage.loading")}</div>
