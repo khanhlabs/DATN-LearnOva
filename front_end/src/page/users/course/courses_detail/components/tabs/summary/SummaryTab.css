@@ -1,0 +1,136 @@
+.summary-content {
+    padding: 20px;
+}
+
+.summary-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.summary-empty p {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 20px;
+    max-width: 420px;
+}
+
+.summary-generate-btn {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #ae81f4;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.summary-generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(174, 129, 244, 0.25);
+}
+
+.summary-generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.summary-card {
+    background: #fff;
+    border: 1px solid #eef2f7;
+    border-radius: 20px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.summary-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.summary-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: #ede9fe;
+    color: #ae81f4;
+    font-size: 16px;
+}
+
+.summary-card-header h4 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.summary-intro {
+    font-size: 15px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.summary-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.summary-list-item .summary-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-top: 8px;
+    border-radius: 50%;
+    background: #ae81f4;
+}
+
+.summary-sublist {
+    list-style: none;
+    margin: 6px 0 0 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-sublist .summary-list-item .summary-dot {
+    width: 6px;
+    height: 6px;
+    background: #cbb8f7;
+}
+
+.summary-error {
+    margin-top: 14px;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .summary-card {
+        padding: 20px;
+    }
+}

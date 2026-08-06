@@ -1,0 +1,199 @@
+/* ===== MAIN FILTER BOX ===== */
+.course-filter {
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 28px 24px;
+  min-width: 240px;
+  max-width: 280px;
+  font-size: 15px;
+  height: fit-content;
+  margin-top: 55px;
+  border: 1px solid rgba(241, 245, 249, 0.8);
+  transition: box-shadow 0.3s ease;
+  position: sticky;
+  top: 100px;
+}
+
+.course-filter:hover {
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.course-filter h4 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.3px;
+}
+
+/* ===== FILTER GROUPS ===== */
+.filter-group {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* ===== CATEGORIES WITH SCROLL ===== */
+.filter-group.categories-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Scrollbar styling */
+.filter-group.categories-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-group.categories-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.filter-group.categories-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.filter-group.categories-list::-webkit-scrollbar-thumb:hover {
+  background: #ff9800;
+}
+
+.filter-group.categories-list {
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-width: thin;
+}
+
+/* ===== FILTER GROUP LABELS ===== */
+.filter-group b {
+  display: block;
+  margin-bottom: 12px;
+  color: #ff9800;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== CHECKBOXES & LABELS ===== */
+.filter-group label,
+.filter-group > div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #475569;
+  font-size: 14px;
+}
+
+.filter-group label:hover,
+.filter-group > div:hover {
+  color: #ff9800;
+  transform: translateX(2px);
+}
+
+.filter-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #ff9800;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.filter-group input[type="checkbox"]:hover {
+  transform: scale(1.1);
+}
+
+.filter-group input[type="checkbox"]:checked {
+  background: #ff9800;
+}
+
+/* ===== RANGE SLIDER ===== */
+.filter-group input[type="range"] {
+  width: 100%;
+  margin: 12px 0;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.filter-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ff9800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3);
+}
+
+.filter-group input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.filter-group input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ff9800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3);
+}
+
+.filter-group input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.filter-group input[type="range"]::-webkit-slider-runnable-track {
+  background: #e2e8f0;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.filter-group input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* ===== LINKS ===== */
+.filter-group a {
+  color: #007bff;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  padding-bottom: 2px;
+  border-bottom: 1.5px solid rgba(0, 123, 255, 0.3);
+}
+
+.filter-group a:hover {
+  color: #ff9800;
+  border-bottom-color: #ff9800;
+}
