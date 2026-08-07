@@ -4,7 +4,7 @@ import TrustBar from './hero/TrustBar.jsx';
 import ContinueLearning from '../../component/courses/ContinueLearning.jsx';
 import Course from './courses/Course.jsx';
 import Categories from './categories/Categories.jsx';
-import HowItWorks from './how-it-works/HowItWorks.jsx';
+import HowItWorks from './how_it_work/HowItWorks.jsx';
 import Instructors from './instructors/Instructors.jsx';
 import Testimonials from './testimonials/Testimonials.jsx';
 import FAQ from './faq/FAQ.jsx';
