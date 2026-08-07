@@ -14,6 +14,10 @@ import { addCourseToCart } from "../../../utils/cartStorage.js";
 import { createPaymentApi } from "../../../api/PaymentApi.js";
 import { applyVoucherApi } from "../../../api/VoucherApi.js";
 import PaymentModal from "../../../component/payment/PaymentModal.jsx";
+import {
+  getPendingPayOsPayment,
+  savePendingPayOsPayment,
+} from "../../../utils/pendingPayOsPayment.js";
 import LearnovaAI from "../chat-bot/chatBot.jsx";
 
 import "./CourseDetail.css";
@@ -300,10 +304,17 @@ export default function CourseDetail() {
         try {
             setIsCreatingPayment(true);
 
+            const courseId = Number(course.courseId || course.id || id);
+            const pendingPayment = getPendingPayOsPayment([courseId]);
+            if (pendingPayment) {
+                setActivePayment(pendingPayment);
+                return;
+            }
+
             const payment = await createPaymentApi(
                 axiosPrivate,
                 {
-                    courseId: Number(course.courseId || course.id || id),
+                    courseId,
                     voucherCode: appliedVoucher?.code || null,
                 },
                 accessToken,
@@ -321,6 +332,7 @@ export default function CourseDetail() {
                 return;
             }
 
+            savePendingPayOsPayment(payment, [courseId]);
             setActivePayment(payment);
         } catch (err) {
             const message =

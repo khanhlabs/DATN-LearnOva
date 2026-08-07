@@ -10,6 +10,10 @@ import { createPaymentApi } from "../../../api/PaymentApi.js";
 import { getPublicCoursesApi } from "../../../api/CourseApi.js";
 import { getMyCartApi, removeCartItemApi } from "../../../api/CartApi.js";
 import PaymentModal from "../../../component/payment/PaymentModal.jsx";
+import {
+  getPendingPayOsPayment,
+  savePendingPayOsPayment,
+} from "../../../utils/pendingPayOsPayment.js";
 import { useAuth } from "../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
 import {
@@ -210,6 +214,16 @@ const Cart = () => {
 
     try {
       setIsCreatingPayment(true);
+
+      const pendingPayment = getPendingPayOsPayment(courseIds);
+      if (pendingPayment) {
+        setActivePayment({
+          ...pendingPayment,
+          cartItemIds: checkoutPairs.map((pair) => pair.item.id),
+        });
+        return;
+      }
+
       const payment = await createPaymentApi(
         axiosPrivate,
         {
@@ -243,10 +257,12 @@ const Cart = () => {
         return;
       }
 
-      setActivePayment({
+      const nextPayment = {
         ...payment,
         cartItemIds: checkoutPairs.map((pair) => pair.item.id),
-      });
+      };
+      savePendingPayOsPayment(nextPayment, courseIds);
+      setActivePayment(nextPayment);
     } catch (err) {
       const msg =
         err?.response?.data?.message ||

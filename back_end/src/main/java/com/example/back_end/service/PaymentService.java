@@ -457,6 +457,15 @@ public class PaymentService {
             return;
         }
 
+        // Local 15-minute TTL: expire pending QR even if PayOS status poll is unavailable.
+        if (order.getStatus() == OrderStatus.PENDING
+                && payment.getStatus() == PaymentStatus.PENDING
+                && order.getCreatedAt() != null
+                && Instant.now().isAfter(order.getCreatedAt().plusSeconds(PayOSService.PAYOS_QR_TTL_SECONDS))) {
+            markOrderCancelled(order, payment);
+            return;
+        }
+
         try {
             PayOSService.PayOSPaymentInfo payOSPayment;
             if (StringUtils.hasText(payment.getTransactionId())) {

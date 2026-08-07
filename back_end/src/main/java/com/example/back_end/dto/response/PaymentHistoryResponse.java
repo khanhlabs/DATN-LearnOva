@@ -7,6 +7,7 @@ import java.util.List;
 
 public record PaymentHistoryResponse(
         Long orderId,
+        Long paymentId,
         Instant createdAt,
         OffsetDateTime paidAt,
         List<String> courseTitles,

@@ -2,9 +2,10 @@ import { ExternalLink, Loader2, QrCode, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
-import { getPaymentStatusApi } from "../../api/PaymentApi.js";
+import { cancelPaymentApi, getPaymentStatusApi } from "../../api/PaymentApi.js";
 import { useAuth } from "../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../hook/UseAxiosPrivate.js";
+import { clearPendingPayOsPayment } from "../../utils/pendingPayOsPayment.js";
 import "./PaymentModal.css";
 
 const formatUsd = (value) =>
@@ -32,9 +33,10 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
   const [pollError, setPollError] = useState("");
   const [qrImageSrc, setQrImageSrc] = useState("");
   const [qrError, setQrError] = useState("");
+  const [isClosing, setIsClosing] = useState(false);
   const doneRef = useRef(false);
+  const expireCancelRef = useRef(false);
 
-  // Draw QR once when payment is created
   useEffect(() => {
     let alive = true;
     const source = buildQrSource(payment);
@@ -70,7 +72,6 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
     };
   }, [payment]);
 
-  // Poll PayOS status every 2s (covers local when webhook cannot reach localhost)
   useEffect(() => {
     if (!payment?.orderId) return undefined;
 
@@ -87,11 +88,20 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
         const paid = next.orderStatus === "PAID" || next.paymentStatus === "SUCCESS";
         if (!doneRef.current && paid) {
           doneRef.current = true;
+          clearPendingPayOsPayment();
           onPaid?.(next);
           window.setTimeout(() => {
             onClose?.();
             navigate("/learnova/user/profile/courses");
           }, 1200);
+        }
+
+        const failed =
+          next.orderStatus === "CANCELLED" ||
+          next.paymentStatus === "FAILED" ||
+          next.orderStatus === "FAILED";
+        if (failed) {
+          clearPendingPayOsPayment();
         }
       } catch (err) {
         if (err?.response?.status === 401) {
@@ -118,20 +128,18 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
     };
   }, [accessToken, axiosPrivate, navigate, onClose, onPaid, payment]);
 
-  if (!payment) return null;
-
   const isPaid = status?.orderStatus === "PAID" || status?.paymentStatus === "SUCCESS";
   const isCancelled =
     status?.orderStatus === "CANCELLED" ||
     status?.paymentStatus === "FAILED" ||
     status?.orderStatus === "FAILED";
 
-  const amountVnd = status?.amountVnd ?? payment.amountVnd;
-  const rate = Math.round(Number(payment.exchangeRate) || 0);
-  const totalUsd = Number(status?.totalUsd ?? payment.totalUsd ?? payment.totalAmount) || 0;
-  const subtotalUsd = Number(payment.subtotal) || 0;
-  const discountUsd = Number(payment.discountAmount) || 0;
-  const expiresAt = payment.expiresAt ? new Date(payment.expiresAt) : null;
+  const amountVnd = status?.amountVnd ?? payment?.amountVnd;
+  const rate = Math.round(Number(payment?.exchangeRate) || 0);
+  const totalUsd = Number(status?.totalUsd ?? payment?.totalUsd ?? payment?.totalAmount) || 0;
+  const subtotalUsd = Number(payment?.subtotal) || 0;
+  const discountUsd = Number(payment?.discountAmount) || 0;
+  const expiresAt = payment?.expiresAt ? new Date(payment.expiresAt) : null;
   const expired =
     !isPaid &&
     !isCancelled &&
@@ -139,7 +147,25 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
     !Number.isNaN(expiresAt.getTime()) &&
     expiresAt.getTime() <= Date.now();
 
-  const pill = isPaid ? "SUCCESS" : isCancelled ? "CANCELLED" : expired ? "EXPIRED" : "PENDING";
+  useEffect(() => {
+    if (!payment?.orderId || !expired || expireCancelRef.current) return undefined;
+    expireCancelRef.current = true;
+    clearPendingPayOsPayment();
+    cancelPaymentApi(axiosPrivate, payment.orderId, accessToken)
+      .then((next) => setStatus((prev) => ({ ...prev, ...next })))
+      .catch(() => {
+        setStatus((prev) => ({
+          ...prev,
+          orderStatus: "CANCELLED",
+          paymentStatus: "FAILED",
+        }));
+      });
+    return undefined;
+  }, [accessToken, axiosPrivate, expired, payment?.orderId]);
+
+  if (!payment) return null;
+
+  const pill = isPaid ? "SUCCESS" : isCancelled || expired ? "FAILED" : "PENDING";
 
   const titles =
     (status?.courseTitles?.length ? status.courseTitles : null) ||
@@ -148,15 +174,25 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
   const headerTitle =
     titles.length > 1 ? `${titles.length} courses` : titles[0] || "Checkout";
 
-  const handleClose = () => {
-    // Closing / skipping payment keeps cart items (Cart only removes them after PAID).
-    onClose?.();
+  const handleClose = async () => {
+    if (isClosing) return;
+    setIsClosing(true);
+    try {
+      if (!isPaid && !isCancelled && payment?.orderId) {
+        await cancelPaymentApi(axiosPrivate, payment.orderId, accessToken);
+      }
+    } catch {
+      // still close UI; cart items remain
+    } finally {
+      clearPendingPayOsPayment();
+      onClose?.();
+    }
   };
 
   return (
     <div className="payment-modal-backdrop" role="presentation">
       <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
-        <button className="payment-modal-close" type="button" onClick={handleClose} aria-label="Close payment modal">
+        <button className="payment-modal-close" type="button" onClick={handleClose} aria-label="Close payment modal" disabled={isClosing}>
           <X size={18} />
         </button>
 
@@ -184,7 +220,7 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
             {isPaid || isCancelled || expired ? (
               <div className="payment-qr-empty">
                 <QrCode size={52} />
-                <span>{isPaid ? "Paid" : expired ? "QR expired" : "Payment cancelled"}</span>
+                <span>{isPaid ? "Paid" : expired ? "QR expired" : "Payment failed"}</span>
               </div>
             ) : qrImageSrc ? (
               <img src={qrImageSrc} alt="payOS QR code" />
@@ -237,19 +273,19 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
           {isPaid ? (
             <span>Payment confirmed. Courses unlocked.</span>
           ) : isCancelled ? (
-            <span>Payment skipped. Courses stay in your cart — checkout again anytime.</span>
+            <span>Payment cancelled / failed. Courses stay in your cart — checkout again anytime.</span>
           ) : expired ? (
-            <span>QR expired. Close and create a new payment. Cart items stay.</span>
+            <span>QR expired (15 minutes). Status is Failed. Create a new payment to pay.</span>
           ) : (
             <>
               <Loader2 size={16} className="payment-spin" />
-              <span>Scan the QR here (English). Amount is pre-filled. Checking every 2 seconds.</span>
+              <span>Scan the QR here (English). Amount is pre-filled. Valid for 15 minutes.</span>
             </>
           )}
         </div>
 
         <p className="payment-hint">
-          Prefer this English screen: scan the QR above. Close (X) or Cancel on payOS keeps courses in your cart for later.
+          Prefer this English screen: scan the QR above. Close (X) cancels this QR (Failed). While still valid, checkout again reopens the same QR.
           The external payOS website may stay in Vietnamese — that page is owned by payOS, not LearnOva.
         </p>
 
@@ -260,7 +296,7 @@ const PaymentModal = ({ payment, onClose, onPaid }) => {
             className="payment-checkout-button"
             type="button"
             onClick={() => window.open(payment.checkoutUrl, "_blank", "noopener,noreferrer")}
-            disabled={!payment.checkoutUrl || isPaid || isCancelled || expired}
+            disabled={!payment.checkoutUrl || isPaid || isCancelled || expired || isClosing}
           >
             <ExternalLink size={18} />
             Open payOS (optional)

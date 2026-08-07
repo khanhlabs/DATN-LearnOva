@@ -131,6 +131,7 @@ public class PaymentHistoryService {
 
         return new PaymentHistoryResponse(
                 order.getId(),
+                payment.getId(),
                 order.getCreatedAt(),
                 payment.getPaidAt(),
                 courseTitles,
@@ -140,7 +141,7 @@ public class PaymentHistoryService {
                 payment.getPaymentMethod() == null ? null : payment.getPaymentMethod().name(),
                 order.getStatus() == null ? null : order.getStatus().name(),
                 payment.getStatus() == null ? null : payment.getStatus().name(),
-                payment.getTransactionId()
+                formatPaymentCode(payment.getId())
         );
     }
 
@@ -153,6 +154,7 @@ public class PaymentHistoryService {
 
         return new PaymentHistoryDetailResponse(
                 order.getId(),
+                payment.getId(),
                 order.getCreatedAt(),
                 payment.getPaidAt(),
                 order.getUser().getFullName(),
@@ -168,8 +170,13 @@ public class PaymentHistoryService {
                 payment.getPaymentMethod() == null ? null : payment.getPaymentMethod().name(),
                 order.getStatus() == null ? null : order.getStatus().name(),
                 payment.getStatus() == null ? null : payment.getStatus().name(),
-                payment.getTransactionId()
+                formatPaymentCode(payment.getId())
         );
+    }
+
+    /** Same display code as admin revenue log: PAY-{paymentId}. */
+    private static String formatPaymentCode(Long paymentId) {
+        return paymentId == null ? null : "PAY-" + paymentId;
     }
 
     private PaymentHistoryItemResponse toItemResponse(OrderItem item) {

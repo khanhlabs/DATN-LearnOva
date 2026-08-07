@@ -4,11 +4,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
-  Download,
   FileText,
   Loader2,
   Search,
-  X,
 } from "lucide-react";
 import { useAuth } from "../../../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../../../hook/UseAxiosPrivate.js";
@@ -18,23 +16,14 @@ import {
   getPaymentHistoryDetailApi,
 } from "../../../../../api/PaymentHistoryApi.js";
 import { toast } from "react-toastify";
+import PaymentReceiptModal, {
+  PaymentHistoryStatus,
+  formatPaymentHistoryDate,
+  formatPaymentHistoryVnd,
+} from "./PaymentReceiptModal.jsx";
 import "./PaymentHistorySection.css";
 
 const STATUS_KEYS = ["ALL", "SUCCESS", "PENDING", "FAILED", "CANCELLED", "REFUNDED"];
-
-const formatDate = (value, language) =>
-  value
-    ? new Intl.DateTimeFormat(language === "vi" ? "vi-VN" : "en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }).format(new Date(value))
-    : "—";
-
-const formatVnd = (value, currency = "VND") =>
-  value === null || value === undefined
-    ? "—"
-    : `${new Intl.NumberFormat("vi-VN").format(value)} ${currency}`;
 
 const toDateParam = (date) => date.toISOString().slice(0, 10);
 
@@ -44,15 +33,6 @@ const getPeriodParams = (period) => {
   const from = new Date();
   from.setDate(from.getDate() - days);
   return { from: toDateParam(from), to: toDateParam(new Date()) };
-};
-
-const PaymentStatus = ({ status, translate }) => {
-  const normalizedStatus = status?.toLowerCase() || "pending";
-  return (
-    <span className={`payment-status payment-status--${normalizedStatus}`}>
-      {translate(`profile.paymentHistory.status.${normalizedStatus}`)}
-    </span>
-  );
 };
 
 const PaymentHistorySection = () => {
@@ -142,7 +122,6 @@ const PaymentHistorySection = () => {
   };
 
   const payments = history.content || [];
-  const isReceiptAvailable = selectedPayment?.orderStatus === "PAID" && selectedPayment?.paymentStatus === "SUCCESS";
 
   return (
     <section className="payment-history-page">
@@ -180,11 +159,11 @@ const PaymentHistorySection = () => {
         </div>
         {isLoading ? <div className="payment-history-empty"><Loader2 className="payment-history-spinner" size={28} /><span>{t("profile.paymentHistory.loading")}</span></div> : error ? <div className="payment-history-empty"><strong>{error}</strong></div> : payments.length ? payments.map((payment) => (
           <button className="payment-history-row" key={payment.orderId} onClick={() => handleOpenDetail(payment.orderId)} type="button">
-            <strong>#{payment.orderId}</strong>
+            <strong>{payment.transactionId || (payment.paymentId != null ? `PAY-${payment.paymentId}` : `#${payment.orderId}`)}</strong>
             <span className="payment-course-cell"><b>{payment.courseTitles?.[0] || t("profile.paymentHistory.unknownCourse")}</b>{payment.courseTitles?.length > 1 && <small>+{payment.courseTitles.length - 1} {t("profile.paymentHistory.moreCourses")}</small>}</span>
-            <span>{formatDate(payment.paidAt || payment.createdAt, i18n.language)}</span>
-            <span><b>{formatVnd(payment.amountVnd, "VND")}</b></span>
-            <PaymentStatus status={payment.paymentStatus || payment.orderStatus} translate={t} />
+            <span>{formatPaymentHistoryDate(payment.paidAt || payment.createdAt, i18n.language)}</span>
+            <span><b>{formatPaymentHistoryVnd(payment.amountVnd, "VND")}</b></span>
+            <PaymentHistoryStatus status={payment.paymentStatus || payment.orderStatus} translate={t} />
             <ChevronRight size={18} />
           </button>
         )) : <div className="payment-history-empty"><FileText size={34} /><strong>{t("profile.paymentHistory.emptyTitle")}</strong><span>{t("profile.paymentHistory.emptyDescription")}</span></div>}
@@ -197,21 +176,13 @@ const PaymentHistorySection = () => {
       </div>}
 
       {(isLoadingDetail || selectedPayment) && (
-        <div className="payment-detail-backdrop" role="presentation" onClick={() => !isLoadingDetail && setSelectedPayment(null)}>
-          {isLoadingDetail ? <div className="payment-detail-loading"><Loader2 className="payment-history-spinner" size={30} /></div> : <article className="payment-detail-modal" role="dialog" aria-modal="true" aria-label={t("profile.paymentHistory.detail.ariaLabel")} onClick={(event) => event.stopPropagation()}>
-            <button className="payment-detail-close" onClick={() => setSelectedPayment(null)} type="button" aria-label={t("profile.paymentHistory.detail.close")}><X size={20} /></button>
-            <div className="payment-detail-title"><span className="payment-detail-icon"><FileText size={20} /></span><div><span>{t("profile.paymentHistory.receipt")}</span><h2>#{selectedPayment.orderId}</h2></div><PaymentStatus status={selectedPayment.paymentStatus || selectedPayment.orderStatus} translate={t} /></div>
-            <div className="payment-detail-grid">
-              <div><span>{t("profile.paymentHistory.detail.orderDate")}</span><strong>{formatDate(selectedPayment.createdAt, i18n.language)}</strong></div>
-              <div><span>{t("profile.paymentHistory.detail.paidDate")}</span><strong>{formatDate(selectedPayment.paidAt, i18n.language)}</strong></div>
-              <div><span>{t("profile.paymentHistory.detail.paymentMethod")}</span><strong>{selectedPayment.paymentMethod || "—"}</strong></div>
-              <div><span>{t("profile.paymentHistory.detail.transactionId")}</span><strong>{selectedPayment.transactionId || "—"}</strong></div>
-            </div>
-            <div className="payment-detail-courses"><h3>{t("profile.paymentHistory.detail.purchasedCourses")}</h3>{(selectedPayment.items || []).map((item) => <div key={item.courseId}><span>{item.courseTitle}</span></div>)}</div>
-            <div className="payment-detail-summary"><div className="payment-detail-total"><span>{t("profile.paymentHistory.detail.totalVnd")}</span><strong>{formatVnd(selectedPayment.amountVnd, "VND")}</strong></div></div>
-            <button className="payment-invoice-button" type="button" disabled={!isReceiptAvailable || isDownloading} onClick={handleDownloadReceipt}><Download size={17} />{isDownloading ? t("profile.paymentHistory.downloading") : isReceiptAvailable ? t("profile.paymentHistory.downloadReceipt") : t("profile.paymentHistory.receiptUnavailable")}</button>
-          </article>}
-        </div>
+        <PaymentReceiptModal
+          payment={selectedPayment}
+          isLoading={isLoadingDetail}
+          isDownloading={isDownloading}
+          onClose={() => setSelectedPayment(null)}
+          onDownload={handleDownloadReceipt}
+        />
       )}
     </section>
   );
