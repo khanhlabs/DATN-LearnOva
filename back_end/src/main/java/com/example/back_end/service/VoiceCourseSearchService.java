@@ -24,6 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +54,9 @@ public class VoiceCourseSearchService {
                 .distinct()
                 .toList();
 
-        SearchFilters filters = parseFilters(query, categories, instructorNames);
+        SearchFilters filters = applyHeuristics(
+                parseFilters(query, categories, instructorNames), query
+        );
         List<PublicCourseResponse> results = allCourses.stream()
                 .filter(course -> matches(course, filters))
                 .sorted(comparator(filters.sort()))
@@ -140,6 +144,59 @@ public class VoiceCourseSearchService {
             if (ex instanceof InterruptedException) Thread.currentThread().interrupt();
             return fallbackFilters(query, categories, instructors);
         }
+    }
+
+    private SearchFilters applyHeuristics(SearchFilters filters, String query) {
+        String text = normalizeSpeech(query);
+        BigDecimal minPrice = filters.minPrice();
+        BigDecimal maxPrice = filters.maxPrice();
+        Double minRating = filters.minRating();
+        String sort = filters.sort();
+        String courseType = filters.courseType();
+
+        Matcher range = Pattern.compile("(?:tu|between)\\s+(\\d+(?:[.,]\\d+)?)\\s+(?:den|and|to)\\s+(\\d+(?:[.,]\\d+)?)")
+                .matcher(text);
+        if (range.find()) {
+            minPrice = number(range.group(1));
+            maxPrice = number(range.group(2));
+        }
+
+        Matcher upper = Pattern.compile("(?:duoi|toi da|nho hon|under|less than)\\s+(?:\\$\\s*)?(\\d+(?:[.,]\\d+)?)").matcher(text);
+        if (upper.find()) maxPrice = number(upper.group(1));
+
+        Matcher lower = Pattern.compile("(?:tren|tu|it nhat|at least|over|above)\\s+(?:\\$\\s*)?(\\d+(?:[.,]\\d+)?)").matcher(text);
+        if (lower.find() && !text.contains("tu ")) minPrice = number(lower.group(1));
+
+        Matcher rating = Pattern.compile("(?:rating|danh gia|tu|tren|it nhat|at least)?\\s*(\\d(?:[.,]\\d)?)\\s*(?:sao|star|stars)").matcher(text);
+        if (rating.find()) minRating = Double.valueOf(rating.group(1).replace(',', '.'));
+
+        if (text.contains("re nhat") || text.contains("gia thap nhat") || text.contains("cheapest")) sort = "price_asc";
+        if (text.contains("dat nhat") || text.contains("gia cao nhat") || text.contains("most expensive")) sort = "price_desc";
+        if (text.contains("danh gia cao nhat") || text.contains("highest rated")) sort = "rating";
+        if (text.contains("moi nhat") || text.contains("newest")) sort = "newest";
+        if (text.contains("mien phi") || text.contains("free")) courseType = "free";
+        if (text.contains("co phi") || text.contains("paid")) courseType = "paid";
+
+        return new SearchFilters(filters.keyword(), filters.instructor(), filters.category(), courseType,
+                filters.level(), minPrice, maxPrice, minRating, filters.minDurationMinutes(),
+                filters.maxDurationMinutes(), filters.minStudents(), sort);
+    }
+
+    private static BigDecimal number(String value) {
+        try {
+            return new BigDecimal(value.replace(',', '.'));
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private static String normalizeSpeech(String value) {
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9.,$\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     private SearchFilters sanitize(JsonNode node, String fallbackKeyword, List<String> categories, List<String> instructors) {
