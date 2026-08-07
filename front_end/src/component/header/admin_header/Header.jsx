@@ -3,8 +3,8 @@ import { ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import i18n, { LANGUAGE_STORAGE_KEY } from "../../../i18n/i18n.js";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import defaultAvatar from "../../../assets/default_avatar.jpg";
-import { useAuth } from "../../../hook/UseAuth.jsx";
+import defaultAvatar from "../../../assets/image/DefaultAvatar.jpg";
+import { useAuth } from "../../../hook/useAuth.jsx";
 import NotificationBell from "./NotificationBell.jsx";
 import "./Header.css";
 
@@ -71,7 +71,7 @@ const Header = () => {
   } else if (normPath === "/learnova/admin/vouchers") {
     title = t("admin.vouchers");
   } else if (normPath === "/learnova/admin/violation-reports") {
-    title = t("admin.violationReports");
+    title = t("admin.violation_reports");
   } else if (normPath === "/learnova/admin/settings") {
     title = t("admin.settings");
   } else if (normPath.startsWith("/learnova/admin/profile")) {

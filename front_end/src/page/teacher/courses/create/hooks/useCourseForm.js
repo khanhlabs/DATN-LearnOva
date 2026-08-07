@@ -13,7 +13,7 @@ import {
     updateSection,
     getCourseForEdit,
     getFileUrl,
-} from "../../../../../api/teacher/CourseApi.js";
+} from "../../../../../api/teacher/CoursesApi.js";
 import {clearDraft, loadDraft, useDraftPersistence} from "./useDraftPersistence.js";
 
 let tempIdCounter = 0;

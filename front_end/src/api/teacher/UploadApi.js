@@ -1,4 +1,4 @@
-import apiClient from "../AxiosClient.js";
+import apiClient from "../client/AxiosClient.js";
 
 export const generateUploadUrl = async ({type, fileName, contentType}) => {
     const response = await apiClient.post("/uploads/presigned-url",

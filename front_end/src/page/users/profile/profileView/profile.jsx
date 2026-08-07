@@ -14,13 +14,13 @@ import FavoriteCourseDetailSection from "./sections/favoriteCourseDetail/Favorit
 import FavoritesSection from "./sections/FavoritesSection";
 import SecuritySection from "./sections/SecuritySection";
 import ProfileFormSection from "./sections/ProfileFormSection";
-import { getMyEnrolledCoursesApi } from "../../../../api/EnrollmentApi.js";
-import { useAuth } from "../../../../hook/UseAuth.jsx";
-import { useAxiosPrivate } from "../../../../hook/UseAxiosPrivate.js";
-import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../../../api/UserApi.js";
-import { generateUploadUrl } from "../../../../api/UploadApi.js";
+import { getMyEnrolledCoursesApi } from "../../../../api/courses/EnrollmentApi.js";
+import { useAuth } from "../../../../hook/useAuth.jsx";
+import { useAxiosPrivate } from "../../../../hook/useAxiosPrivate.js";
+import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../../../api/user/UserApi.js";
+import { generateUploadUrl } from "../../../../api/upload/UploadApi.js";
 import { uploadFileToS3 } from "../../../../services/UploadService.js";
-import { getUserStatsApi } from "../../../../api/UserStatsApi.js";
+import { getUserStatsApi } from "../../../../api/public/UserStatsApi.js";
 import { toast } from "react-toastify";
 
 const EMPTY_STATS = { totalStudyHours: 0, streakDays: 0, enrolledCourseCount: 0, completedCourseCount: 0, points: 0 };

@@ -1,6 +1,6 @@
-import ReportCards from "./reportCards/ReportCards.jsx";
-import ReportFilter from "./reportFilter/ReportFilter.jsx";
-import ReportCharts from "./reportCharts/ReportCharts.jsx";
+import ReportCards from "./report_card/ReportCards.jsx";
+import ReportFilter from "./report_filter/ReportFilter.jsx";
+import ReportCharts from "./report_chart/ReportCharts.jsx";
 import "./Reports.css";
 
 const Reports = () => {

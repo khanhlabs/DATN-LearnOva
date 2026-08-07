@@ -1,7 +1,7 @@
 import { BiCart } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../../hook/UseAuth.jsx";
+import { useAuth } from "../../../../hook/useAuth.jsx";
 import { addCourseToCart } from "../../../../utils/cartStorage.js";
 import "../../courses/components/CourseCard.css";
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getTeacherDashboard } from "../../../api/teacher/TeacherDashboardApi.js";
-import { getFileUrl } from "../../../api/teacher/CourseApi.js";
+import { getTeacherDashboard } from "../../../api/teacher/Dashboard.js";
+import { getFileUrl } from "../../../api/teacher/CoursesApi.js";
 
 export const useTeacherDashboard = () => {
   const [data, setData] = useState(null);

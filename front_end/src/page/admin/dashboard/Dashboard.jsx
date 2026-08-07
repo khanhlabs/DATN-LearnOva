@@ -3,14 +3,14 @@ import { getAdminDashboardApi } from "../../../api/admin/DashboardApi.js";
 import { getAdminCoursesApi } from "../../../api/admin/CourseApi.js";
 import { getAdminInstructorsApi } from "../../../api/admin/InstructorApi.js";
 import { getAdminUsersApi } from "../../../api/admin/AdminUserApi.js";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import Statistics from "./statistics/Statistics";
 import "./Dashboard.css";
-import GrowthChart from "./growthChart/GrowthChart";
-import RoleDistribution from "./roleDistribution/RoleDistribution";
-import UserRow from "./userRow/UserRow";
-import TeacherRow from "./teacherRow/TeacherRow";
-import ActivityRow from "./activityRow/ActivityRow";
+import GrowthChart from "./growth_chart/GrowthChart";
+import RoleDistribution from "./role_distribution/RoleDistribution";
+import UserRow from "./user_row/UserRow";
+import TeacherRow from "./teacher_row/TeacherRow";
+import ActivityRow from "./activity_row/ActivityRow";
 
 const monthLabels = [
   "January",

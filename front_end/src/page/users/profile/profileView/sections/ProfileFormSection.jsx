@@ -1,7 +1,7 @@
 import { Camera } from "lucide-react";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import defaultAvatar from "../../../../../assets/default_avatar.jpg";
+import defaultAvatar from "../../../../../assets/image/DefaultAvatar.jpg";
 
 function ProfileFormSection({
   profileData,

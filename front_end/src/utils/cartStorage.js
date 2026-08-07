@@ -1,9 +1,9 @@
-import axiosClient from "../api/AxiosClient.js";
+import axiosClient from "../api/client/AxiosClient.js";
 import {
   addCartItemApi,
   getMyCartApi,
   mergeCartApi,
-} from "../api/CartApi.js";
+} from "../api/cart/CartApi.js";
 
 const CART_STORAGE_KEY = "learnova_cart_items";
 export const CART_UPDATED_EVENT = "learnova-cart-updated";

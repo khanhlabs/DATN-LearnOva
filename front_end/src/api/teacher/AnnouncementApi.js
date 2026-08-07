@@ -1,4 +1,4 @@
-import api from "../AxiosClient.js";
+import api from "../client/AxiosClient.js";
 
 export const getMyAnnouncements = async (page = 0, size = 10) => {
     const response = await api.get("/teacher/announcements", { params: { page, size } });

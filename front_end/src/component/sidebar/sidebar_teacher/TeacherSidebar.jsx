@@ -12,7 +12,7 @@ import {
   Users,
   WalletCards,
 } from "lucide-react";
-import LogoText from "../../../assets/LogoText.png";
+import LogoText from "../../../assets/logo/LogoText.png";
 import "./TeacherSidebar.css";
 
 const teacherNavSections = [

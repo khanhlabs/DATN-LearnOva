@@ -1,4 +1,4 @@
-import axiosClient from "../AxiosClient.js";
+import axiosClient from "../client/AxiosClient.js";
 
 export const getTeacherAnalytics = async () => {
   const response = await axiosClient.get("/teacher/analytics");

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, LogOut, Repeat } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getCurrentUserApi } from "../../../api/UserApi.js";
-import { useAuth } from "../../../hook/UseAuth.jsx";
+import { getCurrentUserApi } from "../../../api/user/UserApi.js";
+import { useAuth } from "../../../hook/useAuth.jsx";
 import NotificationBell from "./NotificationBell.jsx";
-import default_avatar from '../../../assets/default_avatar.jpg'
+import default_avatar from '../../../assets/image/DefaultAvatar.jpg'
 import "./TeacherHeader.css";
 
 const DEFAULT_AVATAR = default_avatar;

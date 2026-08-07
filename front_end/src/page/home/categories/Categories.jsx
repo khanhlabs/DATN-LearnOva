@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTopCategories } from '../../../api/PublicCourseApi.js';
+import { getTopCategories } from '../../../api/public/CoursesApi.js';
 import './Categories.css';
 
 const PALETTE = [

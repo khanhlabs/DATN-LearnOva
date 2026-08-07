@@ -17,8 +17,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useEffect } from "react";
-import { getWishlistApi, removeWishlistApi } from "../../../../../api/WishlistApi.js";
-import { getFileUrl } from "../../../../../api/PublicCourseApi.js";
+import { getWishlistApi, removeWishlistApi } from "../../../../../api/courses/WishlistApi.js";
+import { getFileUrl } from "../../../../../api/public/CoursesApi.js";
 
 
 

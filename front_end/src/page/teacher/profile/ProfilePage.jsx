@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Globe, Link2, Loader2, Upload, User } from "lucide-react";
-import { getMyInstructorProfile, updateMyInstructorProfile } from "../../../api/teacher/InstructorProfileApi.js";
+import { getMyInstructorProfile, updateMyInstructorProfile } from "../../../api/teacher/ProfileApi.js";
 import { generateUploadUrl } from "../../../api/teacher/UploadApi.js";
-import { getFileUrl } from "../../../api/teacher/CourseApi.js";
+import { getFileUrl } from "../../../api/teacher/CoursesApi.js";
 import { uploadFileToS3 } from "../../../services/UploadService.js";
 import "./ProfilePage.css";
 

@@ -5,11 +5,11 @@ import { FaStar, FaCheckCircle } from "react-icons/fa";
 import { UserPlus, UserCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import LearnovaAI from "../home/chat-bot/chatBot.jsx";
-import { getPublicInstructorsApi } from "../../api/InstructorApi.js";
-import { getFollowStatusApi, followInstructorApi, unfollowInstructorApi } from "../../api/FollowApi.js";
-import { useAuth } from "../../hook/UseAuth.jsx";
-import defaultAvatar from "../../assets/default_avatar.jpg";
+import LearnovaAI from "../home/chat_bot/chatBot.jsx";
+import { getPublicInstructorsApi } from "../../api/public/InstructorApi.js";
+import { getFollowStatusApi, followInstructorApi, unfollowInstructorApi } from "../../api/user/FollowApi.js";
+import { useAuth } from "../../hook/useAuth.jsx";
+import defaultAvatar from "../../assets/image/DefaultAvatar.jpg";
 
 const RATING_BUCKETS = [
   { value: 5, label: "5.0" },

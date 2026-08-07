@@ -1,4 +1,4 @@
-import axiosClient from "../AxiosClient.js";
+import axiosClient from "../client/AxiosClient.js";
 
 const ADMIN_USERS_PATH = "/admin/users";
 

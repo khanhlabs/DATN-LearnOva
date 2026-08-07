@@ -1,4 +1,4 @@
-import axiosClient from "../AxiosClient.js";
+import axiosClient from "../client/AxiosClient.js";
 
 export const getAdminCategoriesApi = async (client = axiosClient) => {
   const response = await client.get("/admin/categories-management");

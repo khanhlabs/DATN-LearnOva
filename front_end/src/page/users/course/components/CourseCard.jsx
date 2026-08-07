@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../css/CourseCard.css";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../../hook/UseAuth.jsx";
+import { useAuth } from "../../../../hook/useAuth.jsx";
 import { addCourseToCart } from "../../../../utils/cartStorage.js";
 import { Heart } from "lucide-react";
 

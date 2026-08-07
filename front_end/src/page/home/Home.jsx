@@ -1,15 +1,15 @@
 import Header from '../../component/header/user_header/Header.jsx';
 import HeroSplit from './hero/HeroSplit.jsx';
 import TrustBar from './hero/TrustBar.jsx';
-import ContinueLearning from './dashboard/components/ContinueLearning.jsx';
+import ContinueLearning from '../../component/courses/ContinueLearning.jsx';
 import Course from './courses/Course.jsx';
 import Categories from './categories/Categories.jsx';
 import HowItWorks from './how-it-works/HowItWorks.jsx';
 import Instructors from './instructors/Instructors.jsx';
 import Testimonials from './testimonials/Testimonials.jsx';
 import FAQ from './faq/FAQ.jsx';
-import Footer from './../../component/footer/footer.jsx';
-import LearnovaAI from './chat-bot/chatBot.jsx';
+import Footer from '../../component/footer/Footer.jsx';
+import LearnovaAI from './chat_bot/chatBot.jsx';
 
 import './Home.css';
 

@@ -1,15 +1,10 @@
 name: Deploy to EC2
 
-# --- Trigger: swap between the two phases described in the deploy plan ---
-# Phase 1 (most of the 20 days, actively coding features): auto-deploy on push.
-on:
-  push:
-    branches: [main]
-
-# Phase 2 (1-2 days before bảo vệ): comment out the block above and uncomment
-# this one instead, so nothing can auto-deploy over a working demo:
 # on:
-#   workflow_dispatch: {}
+#   push:
+#     branches: [main]
+on:
+  workflow_dispatch: {}
 
 permissions:
   id-token: write # required for GitHub OIDC -> AWS role assumption
