@@ -38,7 +38,7 @@ export const getAdminRevenueComparisonApi = async (
 export const getAdminRevenueTransactionsApi = async (
   {
     page = 0,
-    size = 7,
+    size = 5,
     search = "",
     categoryId,
     paymentMethod,

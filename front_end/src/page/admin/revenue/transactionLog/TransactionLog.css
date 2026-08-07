@@ -319,6 +319,25 @@
   transform: translateY(-2px);
 }
 
+.transactionActionButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.transactionActionSpinner {
+  animation: transactionActionSpin 0.8s linear infinite;
+}
+
+@keyframes transactionActionSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Pagination */
 .transactionLogPagination {
   display: flex;

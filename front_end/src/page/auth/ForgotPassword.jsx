@@ -58,7 +58,7 @@ const ForgotPassword = () => {
     if (view === "sent") {
         return (
             <div className="auth-page forgot-password-page">
-                <Link to="/learnova/home" className="auth-back-home">
+                <Link to="/" className="auth-back-home">
                     <ArrowLeft size={20} />
                     <span>Back to home</span>
                 </Link>
@@ -76,7 +76,7 @@ const ForgotPassword = () => {
 
     return (
         <div className="auth-page forgot-password-page">
-            <Link to="/learnova/home" className="auth-back-home">
+            <Link to="/" className="auth-back-home">
                 <ArrowLeft size={20} />
                 <span>Back to home</span>
             </Link>

@@ -8,6 +8,7 @@ import com.example.back_end.dto.response.QuestionResponse;
 import com.example.back_end.entity.Course;
 import com.example.back_end.entity.Lesson;
 import com.example.back_end.entity.LessonQA;
+import com.example.back_end.entity.LessonQALike;
 import com.example.back_end.entity.User;
 import com.example.back_end.entity.enums.NotificationType;
 import com.example.back_end.exception.BusinessException;
@@ -15,6 +16,7 @@ import com.example.back_end.exception.ResourceNotFoundException;
 import com.example.back_end.dto.response.teacher.TeacherQuestionResponse;
 import com.example.back_end.repository.EnrollmentRepository;
 import com.example.back_end.repository.LessonQARepository;
+import com.example.back_end.repository.LessonQALikeRepository;
 import com.example.back_end.repository.LessonRepository;
 import com.example.back_end.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class LessonQAService {
     private final UserRepository userRepo;
     private final NotificationService notificationService;
     private final EnrollmentRepository enrollmentRepository;
+    private final LessonQALikeRepository likeRepository;
 
     private void requireEnrolledOrInstructor(Long userId, Course course) {
         boolean isInstructor = course.getInstructor().getId().equals(userId);
@@ -52,7 +55,7 @@ public class LessonQAService {
     // =========================
     // 1. GET Q&A COURSE
     // =========================
-    public LessonQAResponse getCourseQnA(Long courseId) {
+    public LessonQAResponse getCourseQnA(Long courseId, Long userId) {
 
         List<Lesson> lessons = lessonRepo.findBySectionCourseId(courseId);
 
@@ -99,9 +102,11 @@ public class LessonQAService {
                 List<AnswerResponse> answerResponses =
                         answersByQuestion.getOrDefault(q.getId(), List.of())
                                 .stream()
-                                .map(this::toAnswerResponse)
+                                .map(answer -> toAnswerResponse(answer, userId))
                                 .toList();
 
+                qr.setLikeCount(q.getLikeCount());
+                qr.setLikedByCurrentUser(userId != null && likeRepository.existsByQa_IdAndUser_Id(q.getId(), userId));
                 qr.setAnswers(answerResponses);
                 allQuestions.add(qr);
             }
@@ -115,7 +120,7 @@ public class LessonQAService {
     // =========================
     // 2. GET Q&A LESSON
     // =========================
-    public LessonQAResponse getLessonQnA(Long lessonId) {
+    public LessonQAResponse getLessonQnA(Long lessonId, Long userId) {
 
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
@@ -142,8 +147,10 @@ public class LessonQAService {
                     qr.setCreatedAt(question.getCreatedAt());
                     qr.setIsSolved(question.getIsSolved());
                     qr.setIsPinned(question.getIsPinned());
+                    qr.setLikeCount(question.getLikeCount());
+                    qr.setLikedByCurrentUser(userId != null && likeRepository.existsByQa_IdAndUser_Id(question.getId(), userId));
 
-                    qr.setAnswers(buildReplies(question.getId(), replyMap));
+                    qr.setAnswers(buildReplies(question.getId(), replyMap, userId));
 
                     return qr;
                 })
@@ -155,6 +162,38 @@ public class LessonQAService {
         response.setQuestions(questionResponses);
 
         return response;
+    }
+
+    @Transactional
+    public com.example.back_end.dto.response.LikeResponse toggleLike(Long userId, Long qaId) {
+        LessonQA qa = qaRepo.findById(qaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Q&A not found"));
+        requireEnrolledOrInstructor(userId, qa.getLesson().getSection().getCourse());
+
+        var existing = likeRepository.findByQa_IdAndUser_Id(qaId, userId);
+        boolean liked;
+        int count = qa.getLikeCount() == null ? 0 : qa.getLikeCount();
+
+        if (existing.isPresent()) {
+            likeRepository.delete(existing.get());
+            count = Math.max(0, count - 1);
+            liked = false;
+        } else {
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            LessonQALike like = new LessonQALike();
+            like.setQa(qa);
+            like.setUser(user);
+            like.setCreatedAt(Instant.now());
+            likeRepository.save(like);
+            count++;
+            liked = true;
+        }
+
+        qa.setLikeCount(count);
+        qa.setUpdatedAt(Instant.now());
+        qaRepo.save(qa);
+        return new com.example.back_end.dto.response.LikeResponse(count, liked);
     }
 
     // =========================
@@ -250,7 +289,8 @@ public class LessonQAService {
 
     private List<AnswerResponse> buildReplies(
             Long parentId,
-            Map<Long, List<LessonQA>> replyMap
+            Map<Long, List<LessonQA>> replyMap,
+            Long userId
     ) {
 
         return replyMap
@@ -258,10 +298,10 @@ public class LessonQAService {
                 .stream()
                 .map(reply -> {
 
-                    AnswerResponse ar = toAnswerResponse(reply);
+                    AnswerResponse ar = toAnswerResponse(reply, userId);
 
                     ar.setReplies(
-                            buildReplies(reply.getId(), replyMap)
+                            buildReplies(reply.getId(), replyMap, userId)
                     );
 
                     return ar;
@@ -270,7 +310,7 @@ public class LessonQAService {
                 .toList();
     }
 
-    private AnswerResponse toAnswerResponse(LessonQA qa) {
+    private AnswerResponse toAnswerResponse(LessonQA qa, Long userId) {
 
         AnswerResponse ar = new AnswerResponse();
 
@@ -283,6 +323,7 @@ public class LessonQAService {
         ar.setCreatedAt(qa.getCreatedAt());
 
         ar.setLikeCount(qa.getLikeCount());
+        ar.setLikedByCurrentUser(userId != null && likeRepository.existsByQa_IdAndUser_Id(qa.getId(), userId));
 
         ar.setParentId(
                 qa.getParent() != null

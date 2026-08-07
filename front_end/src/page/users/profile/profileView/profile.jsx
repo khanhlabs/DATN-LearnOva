@@ -22,9 +22,13 @@ import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../..
 import { generateUploadUrl } from "../../../../api/UploadApi.js";
 import { uploadFileToS3 } from "../../../../services/UploadService.js";
 import { getUserStatsApi } from "../../../../api/UserStatsApi.js";
+
 import { ToastContainer, toast } from "react-toastify";
 
 const PROFILE_TOAST_ID = "profile-toast";
+
+
+
 
 const EMPTY_STATS = { totalStudyHours: 0, streakDays: 0, enrolledCourseCount: 0, completedCourseCount: 0, points: 0 };
 
@@ -215,7 +219,11 @@ const ProfileView = ({
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      toast.error("Please fix the highlighted fields before saving.");
+
+      toast.error("Please fix the highlighted fields before saving.", {
+        containerId: PROFILE_TOAST_ID,
+      });
+
       return;
     }
 
@@ -228,6 +236,7 @@ const ProfileView = ({
         dateOfBirth: profileData.dateOfBirth,
         gender: profileData.gender,
         avatar: profileData.avatar,
+
       }, accessToken);
 
       setProfileData((prev) => ({

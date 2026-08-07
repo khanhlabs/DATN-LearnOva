@@ -40,15 +40,18 @@ public class AdminCourseController {
         return ResponseEntity.ok(new GetFileUrlResponse(signedUrl));
     }
 
+
     @GetMapping("/{id}/detail")
     public ResponseEntity<AdminCourseDetailResponse> getDetail(@PathVariable Long id) {
         return ResponseEntity.ok(adminCourseService.getCourseDetail(id));
     }
 
+
     @PatchMapping("/{id}/approve")
     public ResponseEntity<AdminCourseDetailResponse> approve(@PathVariable Long id) {
         return ResponseEntity.ok(adminCourseService.approveCourse(id));
     }
+
 
     @PatchMapping("/{id}/reject")
     public ResponseEntity<AdminCourseDetailResponse> reject(

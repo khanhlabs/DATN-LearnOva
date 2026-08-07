@@ -16,6 +16,7 @@ public class AnswerResponse {
     private Instant createdAt;
 
     private Integer likeCount;
+    private Boolean likedByCurrentUser;
     private Boolean instructor;
     private Long parentId;
     private Long replyToUserId;

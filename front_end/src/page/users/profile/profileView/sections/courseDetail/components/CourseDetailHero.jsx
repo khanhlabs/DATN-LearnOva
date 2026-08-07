@@ -8,7 +8,7 @@ import {
 import { useTranslation } from "react-i18next";
 import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
 
-const CourseDetailHero = ({ course, onBack }) => {
+const CourseDetailHero = ({ course, onBack, onContinue }) => {
   const { t } = useTranslation();
 
   return (
@@ -26,11 +26,17 @@ const CourseDetailHero = ({ course, onBack }) => {
 
         <div className="learning-hero-grid">
           <div className="learning-video-cover">
-            <img src={course.image} alt={course.title} />
+            {course.image && (
+              <img src={course.image} alt={course.title} />
+            )}
 
             <span>{course.category}</span>
 
-            <button type="button" aria-label={t("profile.learningDetail.watchLesson")}>
+            <button
+              type="button"
+              onClick={onContinue}
+              aria-label={t("profile.learningDetail.watchLesson")}
+            >
               <Play size={32} fill="currentColor" />
             </button>
           </div>

@@ -270,14 +270,21 @@ const FavoritesSection = ({ onOpenCourse }) => {
         </div>
       </div>
 
-      <CourseCardGrid
-          courses={paginatedCourses}
-          onOpenCourse={openCourse}
-          onRemoveFavorite={handleRemoveFavorite}
-          variant="favorite"
-      />
+      {sortedCourses.length === 0 ? (
+        <div className="empty-state">
+          <h4>{t("profile.favorites.noSearchResults")}</h4>
+          <p>{t("profile.favorites.noSearchResultsSubtitle")}</p>
+        </div>
+      ) : (
+        <>
+          <CourseCardGrid
+              courses={paginatedCourses}
+              onOpenCourse={openCourse}
+              onRemoveFavorite={handleRemoveFavorite}
+              variant="favorite"
+          />
 
-      {totalPages > 1 && (
+          {totalPages > 1 && (
         <div className="course-pagination">
           <button
             type="button"
@@ -312,7 +319,8 @@ const FavoritesSection = ({ onOpenCourse }) => {
             <ChevronRight size={14} />
           </button>
         </div>
-
+          )}
+        </>
       )}
       <ToastContainer position="top-right" autoClose={2000} />
     </div>

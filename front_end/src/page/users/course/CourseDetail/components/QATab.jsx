@@ -26,7 +26,8 @@ import {
     updateAnswerApi,
     updateQuestionApi,
     setQuestionSolvedApi,
-    setQuestionPinnedApi
+    setQuestionPinnedApi,
+    toggleQALikeApi
 } from "../../../../../api/lessonQAApi";
 
 import { AuthContext } from "../../../../../context/AuthContext";
@@ -65,6 +66,55 @@ function QATab({
     const [activeTab, setActiveTab] = useState("all");
     const [editAnswer, setEditAnswer] = useState(null);
     const [editLessonId, setEditLessonId] = useState(null);
+
+    const updateLikedItem = (item, qaId, likeResult) => {
+        if (!item) return item;
+        if (item.id === qaId) {
+            return {
+                ...item,
+                likeCount: likeResult.likeCount,
+                likedByCurrentUser: likeResult.likedByCurrentUser,
+            };
+        }
+        return {
+            ...item,
+            answers: item.answers?.map((answer) => updateLikedItem(answer, qaId, likeResult)),
+        };
+    };
+
+    const handleLike = async (qaId) => {
+        const previousQuestions = questions;
+        const previousSelectedQuestion = selectedQuestion;
+        const optimisticResult = (() => {
+            const findItem = (items) => {
+                for (const item of items || []) {
+                    if (item.id === qaId) return item;
+                    const nested = findItem(item.answers);
+                    if (nested) return nested;
+                }
+                return null;
+            };
+            const item = findItem(questions);
+            const liked = !item?.likedByCurrentUser;
+            return {
+                likeCount: Math.max(0, Number(item?.likeCount || 0) + (liked ? 1 : -1)),
+                likedByCurrentUser: liked,
+            };
+        })();
+
+        setQuestions((prev) => prev.map((question) => updateLikedItem(question, qaId, optimisticResult)));
+        setSelectedQuestion((prev) => updateLikedItem(prev, qaId, optimisticResult));
+
+        try {
+            const result = await toggleQALikeApi(qaId);
+            setQuestions((prev) => prev.map((question) => updateLikedItem(question, qaId, result)));
+            setSelectedQuestion((prev) => updateLikedItem(prev, qaId, result));
+        } catch (error) {
+            setQuestions(previousQuestions);
+            setSelectedQuestion(previousSelectedQuestion);
+            toast.error(error.response?.data?.message || "Unable to update Like.");
+        }
+    };
 
     const currentUserId =
         currentUser?.id ||
@@ -382,7 +432,10 @@ function QATab({
                                 <FaRegCommentDots />
                                 {t("courseDetail.qa.reply")}
                             </button>
-                            <button className="btn-like">
+                            <button
+                                className={`btn-like ${answer.likedByCurrentUser ? "liked" : ""}`}
+                                onClick={() => handleLike(answer.id)}
+                            >
                                 <FaRegThumbsUp />
                                 <span>{answer.likeCount || 0}</span>
                             </button>
@@ -765,7 +818,10 @@ function QATab({
                                           <span>{t("courseDetail.qa.reply")}</span>
                                       </button>
 
-                                      <button className="btn-like">
+                                      <button
+                                          className={`btn-like ${selectedQuestion.likedByCurrentUser ? "liked" : ""}`}
+                                          onClick={() => handleLike(selectedQuestion.id)}
+                                      >
                                           <FaRegThumbsUp />
                                           <span>{selectedQuestion.likeCount || 0}</span>
                                       </button>

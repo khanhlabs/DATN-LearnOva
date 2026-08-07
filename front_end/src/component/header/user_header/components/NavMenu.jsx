@@ -6,7 +6,7 @@ const NavMenu = () => {
     const { t } = useTranslation();
 
     const leftNav = [
-        { key: "header.home", path: "/learnova/home" },
+        { key: "header.home", path: "/" },
         { key: "header.courses", path: "/learnova/courses" },
     ];
 

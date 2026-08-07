@@ -21,7 +21,7 @@ const LoggedInHeader = () => {
         </div>
 
         <div className="user-logged-home-shell">
-          <Link to="/learnova/home" className="user-logged-home-link">
+          <Link to="/" className="user-logged-home-link">
             {t("header.home")}
           </Link>
 
@@ -41,7 +41,7 @@ const LoggedInHeader = () => {
           <Link to="/learnova/intructors" className="user-logged-nav-button">
             {t("header.instructors")}
           </Link>
-          <Link to="/learnova/home" className="user-logged-nav-button">
+          <Link to="/" className="user-logged-nav-button">
             {t("header.subscribe")}
           </Link>
         </nav>

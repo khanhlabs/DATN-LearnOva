@@ -18,6 +18,9 @@ public class QuestionResponse {
     private Boolean isSolved;
     private Boolean isPinned;
 
+    private Integer likeCount;
+    private Boolean likedByCurrentUser;
+
     private List<AnswerResponse> answers;
     private Long rootId;
 

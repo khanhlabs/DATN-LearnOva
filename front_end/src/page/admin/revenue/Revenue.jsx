@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+
 import { getAdminRevenueOverviewApi } from "../../../api/admin/RevenueApi.js";
 import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+
 import RevenueCard from "./revenueCard/RevenueCard.jsx";
 import RevenueChart from "./revenueChart/RevenueChart.jsx";
 import RevenueDonut from "./revenueDonut/RevenueDonut.jsx";
+
 import "./Revenue.css";
 import { useTranslation } from "react-i18next";
 
@@ -13,6 +16,7 @@ const EMPTY_BREAKDOWN = [];
 const Revenue = () => {
   const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
+  const EMPTY_BREAKDOWN = [];
   const [overview, setOverview] = useState(null);
   const [error, setError] = useState("");
 
@@ -37,6 +41,7 @@ const Revenue = () => {
       mounted = false;
     };
   }, [axiosPrivate]);
+
 
   return (
     <div className="revenuePage">

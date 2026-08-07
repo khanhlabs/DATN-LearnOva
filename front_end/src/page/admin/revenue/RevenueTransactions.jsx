@@ -13,6 +13,7 @@ const EMPTY_METRICS = [];
 const RevenueTransactions = () => {
   const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
+  const EMPTY_METRICS = [];
   const [insights, setInsights] = useState(null);
   const [error, setError] = useState("");
 
@@ -43,7 +44,8 @@ const RevenueTransactions = () => {
       <div className="revenuePageInner">
         <div className="revenueDetailHeader">
           <div>
-            <h2>{t("revenueDetails.transactionDetails")}</h2><p>{t("revenueDetails.transactionDesc")}</p>
+            <h2>{t("revenueDetails.transactionDetails")}</h2>
+            <p>{t("revenueDetails.transactionDesc")}</p>
           </div>
           <Link className="revenueDetailBack" to="/learnova/admin/revenue">
             {t("revenueDetails.back")}

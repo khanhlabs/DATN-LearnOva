@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
+import java.time.Instant;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public class S3Service {
 
     @Value("${cloudfront.key-pair-id:}")
     private String cloudFrontKeyPairId;
+
 
     public UploadUrlResponse generateUploadUrl(
             UploadType type,
@@ -141,8 +143,10 @@ public class S3Service {
         }
 
         PrivateKey cloudFrontPrivateKey = cloudFrontPrivateKeyProvider.getIfAvailable();
+
         if (isCloudFrontSigningConfigured(cloudFrontPrivateKey)) {
             String resourceUrl = "https://" + cloudFrontDomain + "/" + fileKey;
+
             CannedSignerRequest signerRequest = CannedSignerRequest.builder()
                     .resourceUrl(resourceUrl)
                     .privateKey(cloudFrontPrivateKey)
@@ -150,7 +154,9 @@ public class S3Service {
                     .expirationDate(Instant.now().plus(validFor))
                     .build();
 
-            return cloudFrontUtilities.getSignedUrlWithCannedPolicy(signerRequest).url();
+            return cloudFrontUtilities
+                    .getSignedUrlWithCannedPolicy(signerRequest)
+                    .url();
         }
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()

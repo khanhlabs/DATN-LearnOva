@@ -16,7 +16,20 @@
     "login": "Log in",
     "signup": "Sign up",
     "searchPlaceholder": "Search courses...",
-    "searchCourseInstructorCategory": "Search Course, Instructor, Category"
+    "searchCourseInstructorCategory": "Search Course, Instructor, Category",
+    "voiceSearch": "Search by voice",
+    "voiceSearchListening": "Listening…",
+    "voiceSearchDone": "Got it!",
+    "voiceSearchHint": "Say the course, topic, level, price, or rating you want.",
+    "voiceSearchProcessing": "Preparing your course results…",
+    "voiceSearchSpeakNow": "Your voice request will appear here",
+    "voiceSearchStart": "Click the microphone and start speaking",
+    "voiceSearchStop": "Click again to stop",
+    "voiceSearchPaused": "Microphone paused. Click to speak again.",
+    "voiceSearchSilence": "No speech detected. Microphone paused.",
+    "voiceSearchTryAgain": "I couldn't hear that. Please try again.",
+    "voiceSearchUnsupported": "This browser does not support voice search.",
+    "closeVoiceSearch": "Close voice search"
   },
   "instructorAdmin": {"title":"Instructors","managedCourses":"Managed Courses","studentEnrollment":"Student Enrollment","systemRevenue":"System Revenue","search":"Search by instructor name, email, or code...","instructorId":"Instructor ID","instructorSpecialization":"Instructor / Specialization","numberOfClasses":"Number of Classes","students":"Students","managementActions":"Management Actions","noResults":"No instructors found.","loading":"Loading instructors...","view":"View","viewInstructor":"View Instructor","previous":"Previous","next":"Next","courses":"Courses Of This Instructor","course":"Course","category":"Category","rating":"Rating","price":"Price","status":"Status","publishedAt":"Published At","close":"Close","basicInformation":"Basic Information","teachingStatistics":"Teaching Statistics","fullName":"Full Name","email":"Email","phone":"Phone","specialization":"Specialization","gender":"Gender","visibility":"Visibility","dateOfBirth":"Date Of Birth","createdAt":"Created At","updatedAt":"Updated At","totalStudents":"Total Students","totalRevenue":"Total Revenue","noCourseData":"No course data returned yet.","loadingDetails":"Loading details...","available":"Available","hidden":"Hidden"},
   "courseAdmin": {"total":"Total Courses","published":"Published","pending":"Pending Review","archived":"Archived","deleted":"Deleted","database":"from database","status":"status","search":"Search by course name or instructor...","allCategories":"All Categories","instructor":"Instructor","allInstructors":"All Instructors","publishedSort":"Published","newest":"Newest","oldest":"Oldest","price":"Price","allTypes":"All Types","paid":"Paid","free":"Free","course":"Course","category":"Category","level":"Level","priceColumn":"Price","actions":"Actions","previous":"Previous","next":"Next","viewDetails":"View Details","beginner":"Beginner","active":"Active","inactive":"Inactive","freeLabel":"Free","noResults":"No courses found."},
@@ -259,6 +272,7 @@
       "cancel": "Cancel",
       "saveChanges": "Save Changes"
     },
+
     "paymentHistory": {
       "eyebrow": "Account billing",
       "title": "Payment history",
@@ -280,6 +294,7 @@
       "loadError": "Could not load payment history.",
       "detailError": "Could not load payment details.",
       "downloadError": "Could not download the payment receipt.",
+      "downloadSuccess": "Payment receipt downloaded successfully.",
       "downloading": "Downloading...",
       "unknownCourse": "Unknown course",
       "previous": "Previous",
@@ -290,6 +305,7 @@
       "table": {"order": "Order", "course": "Course", "date": "Date", "amount": "Amount (VND)", "status": "Status"},
       "detail": {"ariaLabel": "Payment details", "close": "Close", "orderDate": "Order date", "paidDate": "Paid date", "paymentMethod": "Payment method", "transactionId": "Transaction ID", "purchasedCourses": "Purchased courses", "totalVnd": "Total paid (VND)"}
     },
+
     "myLearning": {
       "title": "Enrolled Courses",
       "tabInProgress": "In Progress",
@@ -410,6 +426,8 @@
       "loading": "Loading...",
       "emptyTitle": "No favorite courses yet",
       "emptySubtitle": "Save the courses you're interested in by clicking the heart icon. They'll appear here for easy access.",
+      "noSearchResults": "No courses found",
+      "noSearchResultsSubtitle": "Try searching with another keyword.",
       "browseCourses": "Browse Courses",
       "removedFromWishlist": "Removed from wishlist.",
       "genericError": "Something went wrong."
@@ -679,8 +697,17 @@
   },
   "coursesPage": {
     "categories": "Categories",
+    "allCategories": "All Categories",
     "level": "Level",
     "searchPlaceholder": "Search courses, instructors, categories...",
+    "voiceSearch": "Search courses by voice",
+    "voiceSearchUnderstood": "AI understood:",
+    "clearVoiceSearch": "Clear voice search",
+    "voiceSearchFailed": "Voice search could not be completed.",
+    "freeCourses": "Free",
+    "paidCourses": "Paid",
+    "students": "students",
+    "voiceSearchUnsupported": "Your browser does not support voice search.",
     "loading": "Loading courses...",
     "noCourses": "No courses available yet.",
     "bestseller": "BESTSELLER",

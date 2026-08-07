@@ -133,6 +133,7 @@ const PaymentHistorySection = () => {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
+      toast.success(t("profile.paymentHistory.downloadSuccess"));
     } catch (requestError) {
       toast.error(requestError?.response?.data?.message || t("profile.paymentHistory.downloadError"));
     } finally {

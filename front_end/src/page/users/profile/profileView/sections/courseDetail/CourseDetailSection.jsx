@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { buildCourseDetail } from "./data/courseDetailData";
 
@@ -18,6 +19,7 @@ import {
   getCertificateForCourseApi,
   getCertificateDownloadUrlApi,
 } from "../../../../../../api/CertificateApi.js";
+import { getFileUrl } from "../../../../../../api/PublicCourseApi.js";
 
 import { useAuth } from "../../../../../../hook/UseAuth.jsx";
 import { useAxiosPrivate } from "../../../../../../hook/UseAxiosPrivate.js";
@@ -30,14 +32,51 @@ const CourseDetailSection = ({ course, onBack }) => {
   const [activeTab, setActiveTab] = useState("curriculum");
   const axiosPrivate = useAxiosPrivate();
   const { accessToken } = useAuth();
+  const navigate = useNavigate();
 
   const [curriculum, setCurriculum] = useState(null);
   const [loadingCurriculum, setLoadingCurriculum] = useState(true);
+  const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const courseDetail = useMemo(() => buildCourseDetail(course), [course]);
 
 
   const [reviewsData, setReviewsData] = useState(null);
   const [certificate, setCertificate] = useState(null);
+
+  useEffect(() => {
+    const thumbnailKey = courseDetail.image;
+
+    if (!thumbnailKey) {
+      setThumbnailUrl(null);
+      return undefined;
+    }
+
+    if (thumbnailKey.startsWith("http://") || thumbnailKey.startsWith("https://")) {
+      setThumbnailUrl(thumbnailKey);
+      return undefined;
+    }
+
+    let mounted = true;
+    setThumbnailUrl(null);
+
+    getFileUrl(thumbnailKey)
+      .then((url) => {
+        if (mounted) setThumbnailUrl(url);
+      })
+      .catch(() => {
+        if (mounted) setThumbnailUrl(null);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [courseDetail.image]);
+
+  const handleContinueLearning = () => {
+    if (courseDetail.courseId) {
+      navigate(`/learnova/user/courses-detail/${courseDetail.courseId}`);
+    }
+  };
 
   const renderTabContent = () => {
     if (activeTab === "about") {
@@ -147,7 +186,11 @@ const CourseDetailSection = ({ course, onBack }) => {
   return (
     <div className="learning-detail-page">
       <div className="learning-detail-main">
-        <CourseDetailHero course={courseDetail} onBack={onBack} />
+        <CourseDetailHero
+          course={{ ...courseDetail, image: thumbnailUrl }}
+          onBack={onBack}
+          onContinue={handleContinueLearning}
+        />
         <CourseDetailTabs
           activeTab={activeTab}
           onChangeTab={setActiveTab}

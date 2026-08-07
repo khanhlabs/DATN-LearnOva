@@ -2,39 +2,29 @@ package com.example.back_end.controller;
 
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.back_end.dto.request.CreatePaymentRequest;
 import com.example.back_end.dto.response.CreatePaymentResponse;
-import com.example.back_end.dto.response.PaymentStatusResponse;
 import com.example.back_end.dto.response.PaymentHistoryDetailResponse;
 import com.example.back_end.dto.response.PaymentHistoryResponse;
-import com.example.back_end.service.ExchangeRateService;
-import com.example.back_end.service.PaymentHistoryService;
-import com.example.back_end.service.PaymentService;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
-import com.example.back_end.dto.request.CreatePaymentRequest;
-import com.example.back_end.dto.response.CreatePaymentResponse;
 import com.example.back_end.dto.response.PaymentStatusResponse;
 import com.example.back_end.service.ExchangeRateService;
+import com.example.back_end.service.PaymentHistoryService;
 import com.example.back_end.service.PaymentService;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -111,6 +101,7 @@ public class PaymentController {
         int safeSize = Math.min(Math.max(size, 1), 50);
         return PageRequest.of(safePage, safeSize, Sort.unsorted());
     }
+
 
     /**
      * Called by PayOS after payment (server → server). Frontend never calls this.

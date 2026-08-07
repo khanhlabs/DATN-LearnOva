@@ -20,6 +20,7 @@ const CoursesSection = ({
   const { t } = useTranslation();
   const [filterTab, setFilterTab] = useState("in_progress");
   const [sortBy, setSortBy] = useState("newest");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const statusFilter = searchParams.get("tab") === "completed" ? "completed" : "inProgress";
 
@@ -38,7 +39,21 @@ const CoursesSection = ({
     reviews: course.reviews || "0",
   }));
   const filteredCourses = useMemo(() => {
+    const keyword = searchKeyword.trim().toLowerCase();
+
     return courses.filter((course) => {
+      const matchesSearch = !keyword || [
+        course.title,
+        course.instructorName,
+        course.instructor?.fullName,
+        course.categoryName,
+        course.category?.name,
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(keyword));
+
+      if (!matchesSearch) return false;
+
       if (filterTab === "in_progress") {
         return course.progress < 100;
       }
@@ -47,7 +62,7 @@ const CoursesSection = ({
       }
       return true;
     });
-  }, [courses, filterTab]);
+  }, [courses, filterTab, searchKeyword]);
 
   const sortedCourses = useMemo(() => {
     const nextCourses = [...filteredCourses];
@@ -115,7 +130,16 @@ const CoursesSection = ({
 
         <div className="course-tools">
           <label className="course-search">
-            <input type="text" placeholder={t("profile.myLearning.searchPlaceholder")} />
+            <input
+              type="text"
+              value={searchKeyword}
+              onChange={(event) => {
+                setSearchKeyword(event.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder={t("profile.myLearning.searchPlaceholder")}
+              aria-label={t("profile.myLearning.searchPlaceholder")}
+            />
             <Search size={15} />
           </label>
           <select

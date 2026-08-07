@@ -107,6 +107,7 @@ const RevenueCard = ({ kpis = null }) => {
     },
   ];
 
+
   return (
     <section className="revenueSection" aria-label={t("admin.revenue")}>
       <div className="revenueContainer">

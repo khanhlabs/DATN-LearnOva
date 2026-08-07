@@ -197,10 +197,14 @@ function CourseDetail() {
         hasReviewed
     ]);
 
-    const handleVideoProgressUpdate = useCallback(async (currentTime) => {
+    const handleVideoProgressUpdate = useCallback(async (currentTime, isEnded = false) => {
         if (!activeLesson || !currentUserId) return;
+
+        const watchedSeconds = Math.max(0, Math.floor(Number(currentTime) || 0));
+        if (!watchedSeconds && !isEnded) return;
+
         try {
-            const res = await updateLessonProgressApi(activeLesson.lessonId, currentTime);
+            const res = await updateLessonProgressApi(activeLesson.lessonId, watchedSeconds);
             setCourseProgress(res);
             const isCompleted = res?.isCourseCompleted || res?.courseCompleted || Math.round(res?.courseProgressPercent || 0) === 100;
             if (isCompleted && !hasReviewed && !hasAutoPromptedReview.current) {
@@ -208,9 +212,10 @@ function CourseDetail() {
                 setShowReviewModal(true);
             }
         } catch (err) {
-            // Silence progress update errors for non-enrolled users
+            // Progress failures are handled by the existing progress implementation.
+            // Do not show a toast for background progress requests.
         }
-    }, [activeLesson, currentUserId, reviewsData, hasReviewed]);
+    }, [activeLesson, currentUserId, hasReviewed]);
 
     const handleReviewSubmit = async ({ rating, comment }) => {
         setIsSubmittingReview(true);
@@ -310,6 +315,15 @@ function CourseDetail() {
                         onProgressUpdate={handleVideoProgressUpdate}
                     />
                     <ToastContainer />
+
+                    {activeLesson?.title && (
+                        <div className="current-lesson-heading">
+                            <span className="current-lesson-label">
+                                {t("courseDetail.currentLesson", { defaultValue: "Current lesson" })}
+                            </span>
+                            <h2>{activeLesson.title}</h2>
+                        </div>
+                    )}
 
                     <div className="tabs-container">
                         <div className="tabs-wrapper">
