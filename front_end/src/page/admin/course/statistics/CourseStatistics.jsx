@@ -1,8 +1,8 @@
-import TotalCoursesCard from "./cards/totalCourses/TotalCoursesCard";
-import PublishedCoursesCard from "./cards/publishedCourses/PublishedCoursesCard";
-import PendingReviewCard from "./cards/pendingReview/PendingReviewCard";
-import SuspendedCoursesCard from "./cards/suspendedCourses/SuspendedCoursesCard";
-import ReportedCoursesCard from "./cards/reportedCourses/ReportedCoursesCard";
+import TotalCoursesCard from "./cards/total_courses/TotalCoursesCard";
+import PublishedCoursesCard from "./cards/published_courses/PublishedCoursesCard";
+import PendingReviewCard from "./cards/pending_review/PendingReviewCard";
+import SuspendedCoursesCard from "./cards/suspended_courses/SuspendedCoursesCard";
+import ReportedCoursesCard from "./cards/reported_courses/ReportedCoursesCard";
 import "./CourseStatistics.css";
 import { useTranslation } from "react-i18next";
 

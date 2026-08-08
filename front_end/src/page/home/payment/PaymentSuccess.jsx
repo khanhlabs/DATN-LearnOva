@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { getPaymentStatusApi } from "../../../api/PaymentApi.js";
-import { useAuth } from "../../../hook/UseAuth.jsx";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { getPaymentStatusApi } from "../../../api/payment/PaymentApi.js";
+import { useAuth } from "../../../hook/useAuth.jsx";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import "./PaymentSuccess.css";
 
 const PaymentSuccess = () => {

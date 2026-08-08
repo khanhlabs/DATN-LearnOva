@@ -2,7 +2,7 @@ import { AlertTriangle, Edit3, Plus, Tag as TagIcon, Trash2, X } from "lucide-re
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { adminNotifySuccess } from "../../../api/NotificationApi.js";
+import { adminNotifySuccess } from "../../../api/noti/NotificationApi.js";
 import {
   createAdminTagApi,
   deleteAdminTagApi,
@@ -11,7 +11,7 @@ import {
   updateAdminTagApi,
 } from "../../../api/admin/TagApi.js";
 import AdminHoverSelect from "../shared/AdminHoverSelect";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import "./Tag.css";
 
 const pageSize = 8;

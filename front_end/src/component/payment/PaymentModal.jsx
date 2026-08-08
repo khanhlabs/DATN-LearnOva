@@ -2,10 +2,10 @@ import { ExternalLink, Loader2, QrCode, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
-import { cancelPaymentApi, getPaymentStatusApi } from "../../api/PaymentApi.js";
-import { useAuth } from "../../hook/UseAuth.jsx";
-import { useAxiosPrivate } from "../../hook/UseAxiosPrivate.js";
 import { clearPendingPayOsPayment } from "../../utils/pendingPayOsPayment.js";
+import { cancelPaymentApi, getPaymentStatusApi } from "../../api/payment/PaymentApi.js";
+import { useAuth } from "../../hook/useAuth.jsx";
+import { useAxiosPrivate } from "../../hook/useAxiosPrivate.js";
 import "./PaymentModal.css";
 
 const formatUsd = (value) =>

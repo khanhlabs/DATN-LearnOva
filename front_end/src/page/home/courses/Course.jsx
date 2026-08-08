@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
-import {getFeaturedCourses, getFileUrl} from '../../../api/PublicCourseApi.js';
+import {getFeaturedCourses, getFileUrl} from '../../../api/public/CoursesApi.js';
 import './Course.css';
 
 const formatUsd = (value) => {

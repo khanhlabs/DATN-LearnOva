@@ -1,4 +1,4 @@
-import api from "../AxiosClient.js";
+import api from "../client/AxiosClient.js";
 
 export const getPayoutBalance = async () => {
     const response = await api.get("/teacher/payout-requests/balance");

@@ -13,7 +13,7 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
-import logoText from "../../../assets/LogoText.png";
+import logoText from "../../../assets/logo/LogoText.png";
 import "../sidebar_teacher/TeacherSidebar.css";
 import "./SidebarAdmin.css";
 

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import "./Vouchers.css";
-import VoucherCards from "./voucherCard/VoucherCards.jsx";
-import VoucherChart from "./voucherChart/VoucherChart.jsx";
-import VoucherCampaignChart from "./voucherCampaignChart/VoucherCampaignChart.jsx";
-import VoucherTable from "./voucherTable/VoucherTable.jsx";
-import VoucherHistory from "./voucherHistory/VoucherHistory.jsx";
-import VoucherCreate from "./voucherCreate/VoucherCreate.jsx";
+import VoucherCards from "./voucher_card/VoucherCards.jsx";
+import VoucherChart from "./voucher_chart/VoucherChart.jsx";
+import VoucherCampaignChart from "./voucher_campaign_chart/VoucherCampaignChart.jsx";
+import VoucherTable from "./voucher_table/VoucherTable.jsx";
+import VoucherHistory from "./voucher_history/VoucherHistory.jsx";
+import VoucherCreate from "./voucher_create/VoucherCreate.jsx";
 
 const Vouchers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

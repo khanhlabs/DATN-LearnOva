@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import {
   ADMIN_NOTIFICATIONS_CHANGED,
   getMyNotificationsApi,
   getUnreadCountApi,
   markNotificationReadApi,
-} from "../../../api/NotificationApi.js";
+} from "../../../api/noti/NotificationApi.js";
 
 const timeAgo = (dateStr) => {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);

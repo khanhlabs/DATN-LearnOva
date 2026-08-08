@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./Instructors.css";
-import { getPublicInstructorsApi } from "../../../api/InstructorApi.js";
+import { getPublicInstructorsApi } from "../../../api/public/InstructorApi.js";
 
 const AVATAR_COLORS = ["#2563eb", "#4361ee", "#f72585", "#059669", "#d97706"];
 

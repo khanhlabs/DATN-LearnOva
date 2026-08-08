@@ -14,7 +14,7 @@ export const DEFAULT_PROFILE = {
   email: "michael.nguyen@gmail.com",
   phone: "+84 90 123 4567",
   address: "District 1, Ho Chi Minh City",
-  bio: "I am a young graphic designer passionate about learning UI/UX and chat-bot.",
+  bio: "I am a young graphic designer passionate about learning UI/UX and chat_bot.",
   goal: "Fullstack Developer & UI/UX Designer",
   avatar: PRESET_AVATARS[0],
 };

@@ -3,11 +3,11 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "react-toastify";
-import AuthBanner from "./components/AuthBanner.jsx";
-import LoginForm from "./components/LoginForm.jsx";
-import RegisterForm from "./components/RegisterForm.jsx";
-import VerifyAccountModal from "./components/VerifyAccountModal.jsx";
-import { verifyAccountApi } from "../../api/AuthApi.js";
+import AuthBanner from "./components/banner/AuthBanner.jsx";
+import LoginForm from "./components/login_form/LoginForm.jsx";
+import RegisterForm from "./components/register_form/RegisterForm.jsx";
+import VerifyAccountModal from "./components/modal/verify/VerifyAccountModal.jsx";
+import { verifyAccountApi } from "../../api/auth/AuthApi.js";
 import "./AuthPage.css";
 
 const AuthPage = () => {

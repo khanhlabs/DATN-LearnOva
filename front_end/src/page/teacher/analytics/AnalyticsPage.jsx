@@ -4,7 +4,7 @@ import LearningPerformancePanel from "./components/LearningPerformancePanel.jsx"
 import LessonsAttentionPanel from "./components/LessonsAttentionPanel.jsx";
 import StudentEngagementPanel from "./components/StudentEngagementPanel.jsx";
 import AnalyticsStatCard from "./components/AnalyticsStatCard.jsx";
-import { buildAnalyticsStats, buildEngagementItems } from "./analyticsPageData.js";
+import { buildAnalyticsStats, buildEngagementItems } from "./AnalyticsData.js";
 import { useTeacherAnalytics } from "./useTeacherAnalytics.js";
 import { fillDailySeries } from "../../../utils/dateSeries.js";
 import "./AnalyticsPage.css";

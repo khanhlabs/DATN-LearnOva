@@ -6,7 +6,7 @@ import {
   Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
+import defaultAvatar from "../../../../../../../assets/image/DefaultAvatar.jpg";
 
 const CourseDetailHero = ({ course, onBack, onContinue }) => {
   const { t } = useTranslation();

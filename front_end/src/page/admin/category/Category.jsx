@@ -2,7 +2,7 @@ import { AlertTriangle, Edit3, FolderTree, Plus, Trash2, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { adminNotifySuccess } from "../../../api/NotificationApi.js";
+import { adminNotifySuccess } from "../../../api/noti/NotificationApi.js";
 import {
   createAdminCategoryApi,
   deleteAdminCategoryApi,
@@ -10,7 +10,7 @@ import {
   updateAdminCategoryApi,
 } from "../../../api/admin/CategoryApi.js";
 import AdminHoverSelect from "../shared/AdminHoverSelect";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import "./Category.css";
 
 const pageSize = 6;

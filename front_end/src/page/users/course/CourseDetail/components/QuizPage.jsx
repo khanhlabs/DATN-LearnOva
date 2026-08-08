@@ -6,7 +6,7 @@ import {
     generateQuizApi,
     getQuizApi,
     submitQuizApi,
-} from "../../../../../api/QuizApi.js";
+} from "../../../../../api/courses/QuizApi.js";
 
 import "../css/QuizPage.css";
 

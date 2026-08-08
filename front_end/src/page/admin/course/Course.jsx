@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import { getAdminCategoriesApi } from "../../../api/admin/CategoryApi.js";
 import { getAdminCourseDetailApi, getAdminCoursesApi } from "../../../api/admin/CourseApi.js";
 import { getAdminInstructorsApi } from "../../../api/admin/InstructorApi.js";
 import CourseFilters from "./filters/CourseFilters";
 import CourseStatistics from "./statistics/CourseStatistics";
-import CourseTable from "./courseTable/CourseTable";
+import CourseTable from "./courses_table/CourseTable";
 import "./Course.css";
 
 const mergeInstructorOptions = (apiInstructors = [], courseData = []) => {

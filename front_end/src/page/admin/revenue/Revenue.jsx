@@ -2,12 +2,10 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { getAdminRevenueOverviewApi } from "../../../api/admin/RevenueApi.js";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
-
-import RevenueCard from "./revenueCard/RevenueCard.jsx";
-import RevenueChart from "./revenueChart/RevenueChart.jsx";
-import RevenueDonut from "./revenueDonut/RevenueDonut.jsx";
-
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
+import RevenueCard from "./revenue_card/RevenueCard.jsx";
+import RevenueChart from "./revenue_chart/RevenueChart.jsx";
+import RevenueDonut from "./revenue_donut/RevenueDonut.jsx";
 import "./Revenue.css";
 import { useTranslation } from "react-i18next";
 

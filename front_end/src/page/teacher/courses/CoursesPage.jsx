@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { BookOpen, CheckCircle2, Star, Users } from "lucide-react";
-import {getMyCourses, getFileUrl, getActiveCategories, softDeleteCourse, toggleCourseVisibility,} from "../../../api/teacher/CourseApi.js";
+import {getMyCourses, getFileUrl, getActiveCategories, softDeleteCourse, toggleCourseVisibility,} from "../../../api/teacher/CoursesApi.js";
 import {buildCategoryOptions, getFilteredCourses,} from "./coursePageConfig.js";
 import CoursesTable from "./components/CoursesTable.jsx";
 import CoursesToolbar from "./components/CoursesToolbar.jsx";

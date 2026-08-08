@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
-import { getMyCourses, getFileUrl } from "../../../api/teacher/CourseApi.js";
+import { getMyCourses, getFileUrl } from "../../../api/teacher/CoursesApi.js";
 import { getMyPromotions, createPromotion, updatePromotion } from "../../../api/teacher/PromotionApi.js";
 import PromotionCard from "./components/PromotionCard.jsx";
 import PromotionModal from "./components/PromotionModal.jsx";

@@ -17,11 +17,11 @@ import {
 
 import HeaderIntructor from "./components/headerIntructor.jsx";
 import MainIntructor from "./components/MainIntructor.jsx";
-import LearnovaAI from "../../../home/chat-bot/chatBot.jsx";
+import LearnovaAI from "../../../home/chat_bot/chatBot.jsx";
 
-import { getPublicInstructorByIdApi } from "../../../../api/InstructorApi.js";
-import { getInstructorProfile } from "../../../../api/PublicInstructorApi.js";
-import { getFileUrl } from "../../../../api/PublicCourseApi.js";
+import { getPublicInstructorByIdApi } from "../../../../api/public/InstructorApi.js";
+import { getInstructorProfile } from "../../../../api/public/TeacherApi.js";
+import { getFileUrl } from "../../../../api/public/CoursesApi.js";
 
 const DEFAULT_AVATAR =
   "https://api.dicebear.com/7.x/initials/svg?seed=Instructor&backgroundType=gradientLinear";

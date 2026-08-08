@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../hook/UseAuth.jsx";
+import { useAuth } from "../hook/useAuth.jsx";
 
 const RequireRole = ({ role, children }) => {
   const { isAuthenticated, currentUser, loading } = useAuth();

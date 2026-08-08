@@ -22,7 +22,6 @@ export const createSelfNotificationApi = async (payload, client = axiosClient) =
   return response.data;
 };
 
-/** Admin toast + write into the admin noti bell (no extra util file). */
 export const adminNotifySuccess = async (message, { title = "Admin action", link } = {}) => {
   toast.success(message);
   try {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ChevronLeft, ChevronRight, Megaphone, Send } from "lucide-react";
-import { getMyCourses } from "../../../api/teacher/CourseApi.js";
+import { getMyCourses } from "../../../api/teacher/CoursesApi.js";
 import { getMyAnnouncements, createAnnouncement } from "../../../api/teacher/AnnouncementApi.js";
 import "./AnnouncementsPage.css";
 

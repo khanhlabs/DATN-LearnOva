@@ -9,7 +9,7 @@ import {
 import SecurityContactCard from "./security/SecurityContactCard";
 import SecurityOverviewCard from "./security/SecurityOverviewCard";
 import SecurityPasswordCard from "./security/SecurityPasswordCard";
-import { changePasswordApi } from "../../../../../api/UserApi.js";
+import { changePasswordApi } from "../../../../../api/user/UserApi.js";
 import { toast } from "react-toastify";
 
 const initialPasswordValues = PASSWORD_FIELDS.reduce(

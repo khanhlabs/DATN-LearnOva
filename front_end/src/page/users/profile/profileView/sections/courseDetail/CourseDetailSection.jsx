@@ -14,15 +14,16 @@ import CourseReviews from "./components/CourseReviews";
 import {
   getCourseCurriculumApi,
   getCourseReviewsApi,
-} from "../../../../../../api/EnrollmentApi.js";
+} from "../../../../../../api/courses/EnrollmentApi.js";
 import {
   getCertificateForCourseApi,
   getCertificateDownloadUrlApi,
-} from "../../../../../../api/CertificateApi.js";
+} from "../../../../../../api/courses/CertificateApi.js";
 import { getFileUrl } from "../../../../../../api/PublicCourseApi.js";
 
-import { useAuth } from "../../../../../../hook/UseAuth.jsx";
-import { useAxiosPrivate } from "../../../../../../hook/UseAxiosPrivate.js";
+
+import { useAuth } from "../../../../../../hook/useAuth.jsx";
+import { useAxiosPrivate } from "../../../../../../hook/useAxiosPrivate.js";
 
 
 

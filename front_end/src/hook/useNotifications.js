@@ -4,9 +4,9 @@ import {
     getUnreadCountApi,
     markAllNotificationsReadApi,
     markNotificationReadApi,
-} from "../api/NotificationApi.js";
-import { useAxiosPrivate } from "./UseAxiosPrivate.js";
-import { useAuth } from "./UseAuth.jsx";
+} from "../api/noti/NotificationApi.js";
+import { useAxiosPrivate } from "./useAxiosPrivate.js";
+import { useAuth } from "./useAuth.jsx";
 
 const POLL_INTERVAL_MS = 45000;
 

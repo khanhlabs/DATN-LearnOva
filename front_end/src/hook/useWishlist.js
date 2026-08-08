@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "./UseAuth.jsx";
+import { useAuth } from "./useAuth.jsx";
 import {
   addToWishlistApi,
   removeFromWishlistApi,
@@ -8,7 +8,7 @@ import {
   checkIsInWishlistApi,
   getWishlistCountApi,
   syncWishlistApi,
-} from "../api/WishlistApi.js";
+} from "../api/courses/WishlistApi.js";
 import {
   getStoredWishlistItems,
   addStoredWishlistItem,

@@ -28,7 +28,7 @@ import {
     setQuestionSolvedApi,
     setQuestionPinnedApi,
     toggleQALikeApi
-} from "../../../../../api/lessonQAApi";
+} from "../../../../../api/courses/lessonQAApi.js";
 
 import { AuthContext } from "../../../../../context/AuthContext";
 

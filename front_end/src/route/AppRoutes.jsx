@@ -1,25 +1,25 @@
 import {BrowserRouter, Routes, Route, Outlet} from "react-router-dom";
 import RequireRole from "./RequireRole.jsx";
 import AuthPage from "../page/auth/AuthPage.jsx";
-import ForgotPassword from "../page/auth/ForgotPassword.jsx";
-import ResetPassword from "../page/auth/ResetPassword.jsx";
+import ForgotPassword from "../page/auth/components/forgot_password/ForgotPassword.jsx";
+import ResetPassword from "../page/auth/components/reset_password/ResetPassword.jsx";
 import Home from "../page/home/Home.jsx";
 import HomeLayout from "../layout/home/HomeLayout.jsx";
 import DashboardLayout from "../layout/admin/DashboardLayout.jsx";
 import Dashboard from "../page/admin/dashboard/Dashboard.jsx";
-import UserManagement from "../page/admin/userManagement/UserManagement.jsx";
-import InstructorManagement from "../page/admin/instructorManagement/InstructorManagement.jsx";
+import UserManagement from "../page/admin/user_management/UserManagement.jsx";
+import TeacherManagement from "../page/admin/teacher_management/TeacherManagement.jsx";
 import Course from "../page/admin/course/Course.jsx";
-import CourseApprovalPage from "../page/admin/courseApproval/CourseApprovalPage.jsx";
+import CourseApprovalPage from "../page/admin/courses_approval/CourseApprovalPage.jsx";
 import Revenue from "../page/admin/revenue/Revenue.jsx";
-import RevenueTopRankings from "../page/admin/revenue/RevenueTopRankings.jsx";
-import RevenueTransactions from "../page/admin/revenue/RevenueTransactions.jsx";
+import RevenueTopRankings from "../page/admin/revenue/top_ranking/RevenueTopRankings.jsx";
+import RevenueTransactions from "../page/admin/revenue/transactions/RevenueTransactions.jsx";
 import Reports from "../page/admin/reports/Reports.jsx";
 import Vouchers from "../page/admin/vouchers/Vouchers.jsx";
-import VoucherCreate from "../page/admin/vouchers/voucherCreate/VoucherCreate.jsx";
+import VoucherCreate from "../page/admin/vouchers/voucher_create/VoucherCreate.jsx";
 import Category from "../page/admin/category/Category.jsx";
 import Tag from "../page/admin/tag/Tag.jsx";
-import ViolationReports from "../page/admin/violationReports/ViolationReports.jsx";
+import ViolationReports from "../page/admin/violation_reports/ViolationReports.jsx";
 import TeacherLayout from "../layout/teacher/TeacherLayout.jsx";
 import OverviewPage from "../page/teacher/overview/OverviewPage.jsx";
 import CoursesPage from "../page/teacher/courses/CoursesPage.jsx";
@@ -39,14 +39,14 @@ import AboutView from "../page/users/About/About.jsx";
 import ProfileViewProps from "../page/users/profile/profileView/profile.jsx";
 import CoursePage from "../page/users/course/CourseNew.jsx";
 import CourseDetail from "../page/users/course/CourseDetail/CourseDetail.jsx";
-import CourseDetaill from "../page/home/courses/CourseDetail.jsx";
+import CourseDetaill from "../page/home/courses/courses_detail/CourseDetail.jsx";
 import Cart from "../page/home/cart/Cart.jsx";
-import OAuth2Success from "../page/auth/OAuth2Success.jsx";
+import OAuth2Success from "../page/auth/components/oauth2/OAuth2Success.jsx";
 import PaymentSuccess from "../page/home/payment/PaymentSuccess.jsx";
 import PaymentCancel from "../page/home/payment/PaymentCancel.jsx";
-import ApplyTeacherPage from "../page/teacherApplication/ApplyTeacherPage.jsx";
-import TeacherApplicationPage from "../page/admin/teacherApplication/TeacherApplicationPage.jsx";
-import AdminProfilePage from "../page/admin/profile/AdminProfilePage.jsx";
+import ApplyTeacherPage from "../page/teacher_application/ApplyTeacherPage.jsx";
+import TeacherApplicationPage from "../page/admin/teacher_application/TeacherApplicationPage.jsx";
+import Profile from "../page/admin/profile/Profile.jsx";
 import Settings from "../page/admin/settings/Settings.jsx";
 import VerifyCertificatePage from "../page/certificate/VerifyCertificatePage.jsx";
 
@@ -74,7 +74,7 @@ const App = () => {
                 <Route path="/learnova/admin" element={<RequireRole role="ROLE_ADMIN"><DashboardLayout/></RequireRole>}>
                     <Route index element={<Dashboard/>}/>
                     <Route path="users" element={<UserManagement/>}/>
-                    <Route path="teachers" element={<InstructorManagement/>}/>
+                    <Route path="teachers" element={<TeacherManagement/>}/>
                     <Route path="courses" element={<Course/>}/>
                     <Route path="courses/edit/:courseId" element={<CourseCreationPage/>}/>
                     <Route path="course-approval" element={<CourseApprovalPage/>}/>
@@ -90,7 +90,7 @@ const App = () => {
                     <Route path="violation-reports" element={<ViolationReports/>}/>
                     <Route path="teacher-applications" element={<TeacherApplicationPage/>}/>
                     <Route path="teacher-applications/:applicationId" element={<TeacherApplicationPage/>}/>
-                    <Route path="profile" element={<AdminProfilePage/>}/>
+                    <Route path="profile" element={<Profile/>}/>
                     <Route path="settings" element={<Settings/>}/>
                 </Route>
 

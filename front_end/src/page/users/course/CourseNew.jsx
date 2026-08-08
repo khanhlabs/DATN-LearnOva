@@ -7,18 +7,18 @@ import { FaStar } from "react-icons/fa";
 import { X } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LearnovaAI from "../../home/chat-bot/chatBot.jsx";
-import { useAuth } from "../../../hook/UseAuth.jsx";
+import LearnovaAI from "../../home/chat_bot/chatBot.jsx";
+import { useAuth } from "../../../hook/useAuth.jsx";
 import { addCourseToCart } from "../../../utils/cartStorage.js";
-import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../../api/CourseApi.js";
 import { getActiveCategories } from "../../../api/teacher/CourseApi.js";
-import { getFileUrl } from "../../../api/PublicCourseApi.js";
+import { getPublicCoursesApi } from "../../../api/courses/CourseApi.js";
+import { getFileUrl } from "../../../api/public/CoursesApi.js";
 import {
   addWishlistApi,
   removeWishlistApi,
   getWishlistApi,
   syncWishlistApi,
-} from "../../../api/WishlistApi";
+} from "../../../api/courses/WishlistApi.js";
 
 const formatUsd = (value) => {
   const amount = Number(value) || 0;

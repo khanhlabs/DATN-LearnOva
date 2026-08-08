@@ -10,7 +10,7 @@ import {
   getCourseForEdit,
   getCourseReviews,
   getCourseRatingSummary,
-} from "../../../../api/teacher/CourseApi.js";
+} from "../../../../api/teacher/CoursesApi.js";
 
 const formatDuration = (totalSeconds) => {
   if (!totalSeconds) return "—";

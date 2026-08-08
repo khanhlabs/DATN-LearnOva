@@ -6,7 +6,7 @@ import {
     validateCourseInfo,
 } from "../../utils/courseValidation.js";
 import ThumbnailUploader from "./ThumbnailUploader.jsx";
-import {getActiveCategories} from "../../../../../../api/teacher/CourseApi.js";
+import {getActiveCategories} from "../../../../../../api/teacher/CoursesApi.js";
 
 const INITIAL_TOUCHED = {title: false, description: false, basePrice: false};
 

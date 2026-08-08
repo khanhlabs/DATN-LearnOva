@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
-import { loginApi, logoutApi, refreshApi } from "../api/AuthApi.js";
-import { getCurrentUserApi, switchActiveRoleApi } from "../api/UserApi.js";
+import { loginApi, logoutApi, refreshApi } from "../api/auth/AuthApi.js";
+import { getCurrentUserApi, switchActiveRoleApi } from "../api/user/UserApi.js";
 import { mergeGuestCartToServer } from "../utils/cartStorage.js";
 
 // eslint-disable-next-line react-refresh/only-export-components

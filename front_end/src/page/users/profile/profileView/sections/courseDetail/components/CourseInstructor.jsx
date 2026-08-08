@@ -1,6 +1,6 @@
 import { Award, BookOpen, Star, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import defaultAvatar from "../../../../../../../assets/default_avatar.jpg";
+import defaultAvatar from "../../../../../../../assets/image/DefaultAvatar.jpg";
 
 const statIcons = [Award, BookOpen, Users, Star];
 

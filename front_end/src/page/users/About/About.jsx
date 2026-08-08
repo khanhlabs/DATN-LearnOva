@@ -2,7 +2,7 @@ import React from 'react';
 import './About.css';
 import { Award, Target, Globe, Users, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import LearnovaAI from '../../home/chat-bot/chatBot.jsx';
+import LearnovaAI from '../../home/chat_bot/chatBot.jsx';
 
 function AboutView() {
     const { t } = useTranslation();

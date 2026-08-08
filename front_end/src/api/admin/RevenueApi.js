@@ -1,4 +1,4 @@
-import axiosClient from "../AxiosClient.js";
+import axiosClient from "../client/AxiosClient.js";
 
 export const getAdminTopRevenueCoursesApi = async (
   { page = 0, size = 5 } = {},

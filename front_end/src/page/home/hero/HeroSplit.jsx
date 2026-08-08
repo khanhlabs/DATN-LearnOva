@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './HeroSplit.css';
-import { getFeaturedCourses, getPlatformStats, getFileUrl } from '../../../api/PublicCourseApi.js';
+import { getFeaturedCourses, getPlatformStats, getFileUrl } from '../../../api/public/CoursesApi.js';
 
 const formatCompact = (num) => {
     const value = Number(num || 0);

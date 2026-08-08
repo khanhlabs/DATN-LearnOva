@@ -1,4 +1,4 @@
-import api from "../AxiosClient.js";
+import api from "../client/AxiosClient.js";
 
 export const getMyPromotions = async () => {
     const response = await api.get("/teacher/promotions/my-courses");

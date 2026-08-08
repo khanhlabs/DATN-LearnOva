@@ -1,4 +1,4 @@
-import axiosClient from "../client/AxiosClient";
+import axiosClient from "../client/AxiosClient.js";
 
 export const getMyCartApi = (axiosPrivate, accessToken) => {
   const client = axiosPrivate || axiosClient;

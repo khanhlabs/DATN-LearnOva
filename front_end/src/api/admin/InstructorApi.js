@@ -1,4 +1,4 @@
-import axiosClient from "../AxiosClient.js";
+import axiosClient from "../client/AxiosClient.js";
 
 export const getAdminInstructorsApi = async (client = axiosClient) => {
   const response = await client.get("/admin/instructors-management");

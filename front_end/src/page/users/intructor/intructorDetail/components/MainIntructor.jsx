@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { FaUserGraduate, FaStar, FaRegHeart, FaHeart } from "react-icons/fa";
-import defaultAvatar from "../../../../../assets/default_avatar.jpg";
-import { getFileUrl } from "../../../../../api/PublicCourseApi.js";
-import { addWishlistApi, removeWishlistApi, getWishlistApi } from "../../../../../api/WishlistApi.js";
-import { useAuth } from "../../../../../hook/UseAuth.jsx";
+import defaultAvatar from "../../../../../assets/image/DefaultAvatar.jpg";
+import { getFileUrl } from "../../../../../api/public/CoursesApi.js";
+import { addWishlistApi, removeWishlistApi, getWishlistApi } from "../../../../../api/courses/WishlistApi.js";
+import { useAuth } from "../../../../../hook/useAuth.jsx";
 
 function MainIntructor({
     activeTab,

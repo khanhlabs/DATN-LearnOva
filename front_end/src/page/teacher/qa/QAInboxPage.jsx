@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { HelpCircle, MessageSquare } from "lucide-react";
 import QAToolbar from "./components/QAToolbar.jsx";
 import QATable from "./components/QATable.jsx";
-import { getMyQuestions, setQuestionSolved, setQuestionPinned, answerQuestion } from "../../../api/teacher/QAApi.js";
+import { getMyQuestions, setQuestionSolved, setQuestionPinned, answerQuestion } from "../../../api/teacher/Q&AApi.js";
 import { buildCourseFilterOptions, filterQuestions } from "./qaPageUtils.js";
 import "./QAInboxPage.css";
 

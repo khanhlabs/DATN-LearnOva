@@ -44,7 +44,7 @@ body {
   left: 16px;
 }
 
-/* Chatbot wrapper — positioning handled by chat-bot.css */
+/* Chatbot wrapper — positioning handled by chat_bot.css */
 .chatbot-fixed {
   pointer-events: none;
 }

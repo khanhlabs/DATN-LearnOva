@@ -5,17 +5,17 @@ import { AlertTriangle, Tag, Trash2, X } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Cart.css";
-import { applyVoucherApi } from "../../../api/VoucherApi.js";
-import { createPaymentApi } from "../../../api/PaymentApi.js";
-import { getPublicCoursesApi } from "../../../api/CourseApi.js";
-import { getMyCartApi, removeCartItemApi } from "../../../api/CartApi.js";
+import { applyVoucherApi } from "../../../api/courses/VoucherApi.js";
+import { createPaymentApi } from "../../../api/payment/PaymentApi.js";
+import { getPublicCoursesApi } from "../../../api/courses/CourseApi.js";
+import { getMyCartApi, removeCartItemApi } from "../../../api/cart/CartApi.js";
 import PaymentModal from "../../../component/payment/PaymentModal.jsx";
 import {
   getPendingPayOsPayment,
   savePendingPayOsPayment,
 } from "../../../utils/pendingPayOsPayment.js";
-import { useAuth } from "../../../hook/UseAuth.jsx";
-import { useAxiosPrivate } from "../../../hook/UseAxiosPrivate.js";
+import { useAuth } from "../../../hook/useAuth.jsx";
+import { useAxiosPrivate } from "../../../hook/useAxiosPrivate.js";
 import {
   CART_UPDATED_EVENT,
   getStoredCartItems,

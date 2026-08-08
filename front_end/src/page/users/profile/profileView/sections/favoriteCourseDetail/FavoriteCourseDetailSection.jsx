@@ -25,14 +25,14 @@ import {
 import { ArrowLeft } from "lucide-react";
 import { FaFacebookF, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
-import { getCourseDetailApi } from "../../../../../../api/CourseApi";
-import { getCourseReviewsApi, createReviewApi, updateReviewApi, deleteReviewApi } from "../../../../../../api/ReviewApi";
-import { checkEnrollment } from "../../../../../../api/EnrollmentApi";
-import { removeWishlistApi } from "../../../../../../api/WishlistApi";
+import { getCourseDetailApi } from "../../../../../../api/courses/CourseApi.js";
+import { getCourseReviewsApi, createReviewApi, updateReviewApi, deleteReviewApi } from "../../../../../../api/courses/ReviewApi.js";
+import { checkEnrollment } from "../../../../../../api/courses/EnrollmentApi.js";
+import { removeWishlistApi } from "../../../../../../api/courses/WishlistApi.js";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../../../../hook/UseAuth";
+import { useAuth } from "../../../../../../hook/useAuth.jsx";
 import { useNavigate } from "react-router-dom";
-import defaultAvatar from "../../../../../../assets/default_avatar.jpg";
+import defaultAvatar from "../../../../../../assets/image/DefaultAvatar.jpg";
 
 const tabIcons = {
   overview: BookOpen,
