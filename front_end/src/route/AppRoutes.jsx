@@ -125,6 +125,7 @@ const App = () => {
                         <Route path="/learnova/user/profile/courses" element={<ProfileViewProps key="courses" initialTab="courses"/>}/>
                         <Route path="/learnova/user/profile/favorites" element={<ProfileViewProps key="favorites" initialTab="favorites"/>}/>
                         <Route path="/learnova/user/profile/payments" element={<ProfileViewProps key="payments" initialTab="payments"/>}/>
+                        <Route path="/learnova/user/profile/vouchers" element={<ProfileViewProps key="vouchers" initialTab="vouchers"/>}/>
                         <Route path="/learnova/user/profile/security" element={<ProfileViewProps key="security" initialTab="security"/>}/>
                         <Route path="/learnova/apply-teacher" element={<ApplyTeacherPage/>}/>
                     </Route>

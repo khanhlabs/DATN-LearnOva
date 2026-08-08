@@ -600,9 +600,7 @@ public class PaymentService {
         if (voucher.getUsageLimit() != null && voucher.getUsedCount() >= voucher.getUsageLimit()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Voucher usage limit reached");
         }
-        if (voucher.getMinimumOrder() != null && subtotal.compareTo(voucher.getMinimumOrder()) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order does not meet voucher minimum amount");
-        }
+        // No minimum-order gate — usageLimit / usedCount still apply.
         return voucher;
     }
 

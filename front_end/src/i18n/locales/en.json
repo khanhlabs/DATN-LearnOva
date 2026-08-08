@@ -248,9 +248,12 @@
       "profile": "Profile",
       "courses": "My Learning",
       "favorites": "My Favourite",
-      "payments": "Payment History",
+
+    "payments": "Payment History",
+    "vouchers": "Vouchers",
+
       "achievements": "Achievements",
-      "security": "Security",
+    "security": "Security",
       "logout": "Logout"
     },
     "form": {
@@ -306,6 +309,28 @@
       "detail": {"ariaLabel": "Payment details", "close": "Close", "orderDate": "Order date", "paidDate": "Paid date", "paymentMethod": "Payment method", "transactionId": "Transaction ID", "purchasedCourses": "Purchased courses", "totalVnd": "Total paid (VND)"}
     },
 
+    "vouchers": {
+      "eyebrow": "LearnOva rewards",
+      "title": "Offers & Vouchers",
+      "subtitle": "Claim special discounts and use them on your next course purchase.",
+      "tabs": {"all": "All vouchers", "available": "Available", "claimed": "My vouchers", "expiring": "Expiring soon"},
+      "searchPlaceholder": "Search voucher or campaign",
+      "off": "OFF",
+      "offFixed": "OFF",
+      "available": "Available",
+      "claimed": "Claimed",
+      "claim": "Claim voucher",
+      "copy": "Copy code",
+      "copied": "Copied",
+      "minimum": "Minimum order {{value}}",
+      "expires": "Expires {{date}}",
+      "remaining": "{{count}} uses left",
+      "emptyTitle": "No vouchers found",
+      "emptySubtitle": "Try another tab or search term.",
+      "loading": "Loading vouchers...",
+      "loadError": "Could not load vouchers.",
+      "claimError": "Could not claim this voucher."
+    },
     "myLearning": {
       "title": "Enrolled Courses",
       "tabInProgress": "In Progress",
@@ -493,7 +518,7 @@
     "enterVoucherCode": "Please enter a voucher code.",
     "cartEmpty": "Your cart is empty.",
     "voucherAlreadyApplied": "This voucher has already been applied.",
-    "voucherApplied": "Applied {{code}}. Used {{usedCount}}/{{usageLimit}} times.",
+    "voucherApplied": "Applied {{code}}.",
     "voucherAppliedSuccess": "Voucher applied successfully.",
     "voucherInvalid": "This voucher is invalid or no longer usable.",
     "loginToCheckout": "You need to log in to make a payment.",

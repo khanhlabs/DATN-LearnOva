@@ -170,13 +170,7 @@ const Cart = () => {
       setVoucherMessage("");
       const result = await applyVoucherApi({ code, subtotal });
       setAppliedVoucher(result);
-      setVoucherMessage(
-        t("cart.voucherApplied", {
-          code: result.code,
-          usedCount: result.usedCount,
-          usageLimit: result.usageLimit,
-        }),
-      );
+      setVoucherMessage(t("cart.voucherApplied", { code: result.code }));
       toast.success(t("cart.voucherAppliedSuccess"));
     } catch (err) {
       setAppliedVoucher(null);

@@ -58,10 +58,7 @@ public class VoucherService {
             throw new BusinessException("Voucher chưa đến thời gian sử dụng.");
         }
 
-        if (voucher.getMinimumOrder() != null && subtotal.compareTo(voucher.getMinimumOrder()) < 0) {
-            throw new BusinessException("Đơn hàng chưa đạt giá trị tối thiểu để dùng voucher.");
-        }
-
+        // No minimum-order gate: any active voucher with remaining uses can be applied.
         BigDecimal discountAmount = calculateDiscount(voucher, subtotal);
         int nextUsedCount = (voucher.getUsedCount() == null ? 0 : voucher.getUsedCount()) + 1;
         voucher.setUsedCount(nextUsedCount);

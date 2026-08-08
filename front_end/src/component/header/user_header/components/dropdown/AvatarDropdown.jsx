@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {User, BookOpen, Heart, Shield, Receipt, LogOut, Repeat, GraduationCap,} from "lucide-react";
+import {User, BookOpen, Heart, Shield, Receipt, TicketPercent, LogOut, Repeat, GraduationCap,} from "lucide-react";
 import HeaderDropdown from "./HeaderDropdown.jsx";
 import {useUserData} from "../data/UserData.js";
 import {useAuth} from "../../../../../hook/useAuth.jsx";
@@ -77,6 +77,12 @@ const AvatarDropdown = () => {
               <Receipt size={16} />
               {t("profile.sidebar.payments")}
 
+            </Link>
+          </li>
+          <li>
+            <Link to="/learnova/user/profile/vouchers" className="user-logged-menu-link">
+              <TicketPercent size={16} />
+              {t("profile.sidebar.vouchers")}
             </Link>
           </li>
           {!isAdmin && canSwitchToTeacher && (

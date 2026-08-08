@@ -20,7 +20,11 @@ const OAuth2Success = () => {
                 const activeRole = user?.activeRole;
                 // A stale activeRole (e.g. left over after a role was revoked) must not
                 // send the user into a dashboard they no longer have access to.
-                const effectiveRole = activeRole && roles.includes(activeRole) ? activeRole : null;
+                const effectiveRole = roles.includes("ROLE_ADMIN")
+                    ? "ROLE_ADMIN"
+                    : activeRole && roles.includes(activeRole)
+                        ? activeRole
+                        : null;
 
                 if (effectiveRole === "ROLE_ADMIN") {
                     navigate("/learnova/admin", { replace: true });

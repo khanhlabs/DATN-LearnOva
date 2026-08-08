@@ -1,4 +1,4 @@
-import { ShieldCheck, Award, BookOpen, CreditCard, Flame, Star, User } from "lucide-react";
+import { ShieldCheck, Award, BookOpen, CreditCard, Flame, Star, TicketPercent, User } from "lucide-react";
 
 export const PRESET_AVATARS = [
   "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200&h=200",
@@ -57,6 +57,7 @@ export const sidebarItems = [
   { id: "courses", label: "My Courses", icon: BookOpen, path: "/learnova/user/profile/courses" },
   { id: "favorites", label: "Favorite Courses", icon: Star, path: "/learnova/user/profile/favorites" },
   { id: "payments", label: "Payment History", icon: CreditCard, path: "/learnova/user/profile/payments" },
+  { id: "vouchers", label: "Vouchers", icon: TicketPercent, path: "/learnova/user/profile/vouchers" },
   { id: "security", label: "Security", icon: ShieldCheck, path: "/learnova/user/profile/security" },
 ];
 
