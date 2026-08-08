@@ -6,6 +6,7 @@ import {
   Heart,
   Shield,
   Receipt,
+  TicketPercent,
   LogOut,
   Repeat,
   GraduationCap,
@@ -86,6 +87,12 @@ const AvatarDropdown = () => {
               <Receipt size={16} />
               {t("profile.sidebar.payments")}
 
+            </Link>
+          </li>
+          <li>
+            <Link to="/learnova/user/profile/vouchers" className="user-logged-menu-link">
+              <TicketPercent size={16} />
+              {t("profile.sidebar.vouchers")}
             </Link>
           </li>
           {!isAdmin && canSwitchToTeacher && (
