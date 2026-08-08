@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   getPendingPayOsPayment,
   savePendingPayOsPayment,
-} from "../../../utils/pendingPayOsPayment.js";
+} from "../../../../utils/pendingPayOsPayment.js";
 import { getCourseDetail, getFileUrl } from "../../../../api/public/CoursesApi.js";
 import { checkEnrollment } from "../../../../api/courses/EnrollmentApi.js";
 import { addWishlistApi, removeWishlistApi, getWishlistApi } from "../../../../api/courses/WishlistApi.js";

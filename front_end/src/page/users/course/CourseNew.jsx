@@ -10,8 +10,8 @@ import "react-toastify/dist/ReactToastify.css";
 import LearnovaAI from "../../home/chat_bot/chatBot.jsx";
 import { useAuth } from "../../../hook/useAuth.jsx";
 import { addCourseToCart } from "../../../utils/cartStorage.js";
-import { getActiveCategories } from "../../../api/teacher/CourseApi.js";
-import { getPublicCoursesApi } from "../../../api/courses/CourseApi.js";
+import { getActiveCategories } from "../../../api/teacher/CoursesApi.js";
+import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../../api/courses/CourseApi.js";
 import { getFileUrl } from "../../../api/public/CoursesApi.js";
 import {
   addWishlistApi,

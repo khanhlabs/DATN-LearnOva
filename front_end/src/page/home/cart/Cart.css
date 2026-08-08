@@ -311,8 +311,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 44px;
-  padding: 0 12px;
+  min-height: 44px;
+  height: auto;
+  padding: 6px 8px 6px 12px;
   border: 1px solid #e6eefc;
   border-radius: 10px;
   color: #1d4ed8;
@@ -331,22 +332,33 @@
 }
 
 .voucher-input-wrap input {
+  flex: 1;
+  min-width: 0;
   width: 100%;
   border: none;
   outline: none;
+  background: transparent;
   color: #0f172a;
   font: inherit;
 }
 
 .voucher-apply-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #1d4ed8;
   color: #ffffff;
   cursor: pointer;
   font-weight: 700;
-  min-width: 62px;
-  padding: 7px 10px;
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  min-width: 88px;
+  height: 34px;
+  padding: 0 14px;
 }
 
 .voucher-apply-btn:disabled {

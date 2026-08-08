@@ -69,9 +69,10 @@
 .userManagementUsersTableHeader {
   display: grid;
   grid-template-columns:
-    minmax(280px, 1.35fr) minmax(120px, 0.6fr) minmax(130px, 0.65fr)
-    minmax(130px, 0.65fr) minmax(140px, 0.7fr) minmax(150px, 0.65fr);
+    minmax(220px, 1.35fr) minmax(110px, 0.55fr) minmax(120px, 0.6fr)
+    minmax(120px, 0.6fr) minmax(120px, 0.6fr) minmax(140px, 0.55fr);
   gap: 16px;
+  align-items: center;
   padding: 18px 24px;
   border-bottom: 1px solid rgba(37, 99, 235, 0.12);
   color: var(--text-muted);
@@ -79,13 +80,15 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  width: auto;
+  width: 100%;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .userManagementUsersTableHeader > span {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
 }
 
 .userManagementUsersColumn--actions {
@@ -110,14 +113,15 @@
 .userManagementUserRow {
   display: grid;
   grid-template-columns:
-    minmax(280px, 1.35fr) minmax(120px, 0.6fr) minmax(130px, 0.65fr)
-    minmax(130px, 0.65fr) minmax(140px, 0.7fr) minmax(150px, 0.65fr);
+    minmax(220px, 1.35fr) minmax(110px, 0.55fr) minmax(120px, 0.6fr)
+    minmax(120px, 0.6fr) minmax(120px, 0.6fr) minmax(140px, 0.55fr);
   gap: 16px;
   align-items: center;
   min-height: 68px;
   padding: 12px 24px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .userManagementUserRow:last-child {
@@ -178,14 +182,18 @@
 .userManagementUserVisibilityWrap,
 .userManagementUserJoinedWrap {
   min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.userManagementUserRoleWrap,
-.userManagementUserPhoneWrap,
-.userManagementUserVisibilityWrap,
-.userManagementUserJoinedWrap {
+.userManagementUserActions {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .userManagementUserRole,
@@ -259,12 +267,6 @@
 .userManagementUserVisibility--deleted {
   background: #fee2e2;
   color: #dc2626;
-}
-
-.userManagementUserActions {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
 }
 
 .userManagementUserActionButton {

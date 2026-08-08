@@ -87,8 +87,8 @@ const UsersList = ({
         <div className="userManagementUsersTableHeader" aria-hidden="true">
           {tableColumns.map((column) => (
             <span
-              key={column.id}
-              className={`userManagementUsersColumn userManagementUsersColumn--${column.id}`}
+              key={column}
+              className={`userManagementUsersColumn userManagementUsersColumn--${column}`}
             >
               {t(`admin.${column}`)}
             </span>

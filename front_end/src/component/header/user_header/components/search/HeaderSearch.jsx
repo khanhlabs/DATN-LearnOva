@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Mic, MicOff, Search, Waves, X } from "lucide-react";
-import "./VoiceSearch.css";
+import "../VoiceSearch.css";
 import { searchCourses } from "../../../../../api/courses/SearchApi.js";
 
 const HeaderSearch = ({ variant = "logged" }) => {

@@ -19,7 +19,7 @@ import {
   getCertificateForCourseApi,
   getCertificateDownloadUrlApi,
 } from "../../../../../../api/courses/CertificateApi.js";
-import { getFileUrl } from "../../../../../../api/PublicCourseApi.js";
+import { getFileUrl } from "../../../../../../api/courses/PublicCourseApi.js";
 
 
 import { useAuth } from "../../../../../../hook/useAuth.jsx";
