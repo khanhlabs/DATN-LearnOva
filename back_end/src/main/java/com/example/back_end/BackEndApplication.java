@@ -1,6 +1,6 @@
 package com.example.back_end;
 
-import com.example.back_end.repository.CourseSearchRepository;
+import com.example.back_end.search.infrastructure.elasticsearch.CourseSearchRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
@@ -16,5 +16,4 @@ public class BackEndApplication {
     public static void main(String[] args) {
         SpringApplication.run(BackEndApplication.class, args);
     }
-
 }

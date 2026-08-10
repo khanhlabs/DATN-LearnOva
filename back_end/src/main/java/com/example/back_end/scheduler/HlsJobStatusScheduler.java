@@ -1,9 +1,9 @@
 package com.example.back_end.scheduler;
 
-import com.example.back_end.entity.Lesson;
-import com.example.back_end.entity.enums.HlsStatus;
-import com.example.back_end.repository.LessonRepository;
-import com.example.back_end.service.MediaConvertService;
+import com.example.back_end.course.domain.Lesson;
+import com.example.back_end.media.domain.enums.HlsStatus;
+import com.example.back_end.course.infrastructure.persistence.LessonRepository;
+import com.example.back_end.media.infrastructure.video.MediaConvertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

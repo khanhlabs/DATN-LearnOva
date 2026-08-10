@@ -1,13 +1,13 @@
 package com.example.back_end.security;
 
-import com.example.back_end.entity.User;
+import com.example.back_end.auth.domain.User;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import com.example.back_end.repository.UserRepository;
+import com.example.back_end.auth.infrastructure.persistence.UserRepository;
 
 @Service
 @RequiredArgsConstructor

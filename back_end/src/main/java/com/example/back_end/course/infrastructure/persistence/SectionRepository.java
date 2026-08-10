@@ -1,0 +1,9 @@
+package com.example.back_end.course.infrastructure.persistence;
+
+import com.example.back_end.course.domain.Section;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface SectionRepository extends JpaRepository<Section, Long> {
+    List<Section> findByCourseIdOrderBySectionOrderAsc(Long courseId);
+}

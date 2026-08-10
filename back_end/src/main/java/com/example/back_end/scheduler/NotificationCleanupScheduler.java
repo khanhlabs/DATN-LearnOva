@@ -1,6 +1,6 @@
 package com.example.back_end.scheduler;
 
-import com.example.back_end.service.NotificationService;
+import com.example.back_end.notification.application.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
