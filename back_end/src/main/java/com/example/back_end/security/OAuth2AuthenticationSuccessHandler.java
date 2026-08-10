@@ -1,12 +1,12 @@
 package com.example.back_end.security;
 
-import com.example.back_end.entity.Role;
-import com.example.back_end.entity.User;
-import com.example.back_end.entity.enums.RoleName;
-import com.example.back_end.repository.RoleRepository;
-import com.example.back_end.repository.UserRepository;
-import com.example.back_end.service.CookieService;
-import com.example.back_end.service.VerificationTokenService;
+import com.example.back_end.auth.domain.Role;
+import com.example.back_end.auth.domain.User;
+import com.example.back_end.auth.domain.enums.RoleName;
+import com.example.back_end.auth.infrastructure.persistence.RoleRepository;
+import com.example.back_end.auth.infrastructure.persistence.UserRepository;
+import com.example.back_end.auth.application.CookieService;
+import com.example.back_end.auth.application.VerificationTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

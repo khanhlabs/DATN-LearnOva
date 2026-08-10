@@ -1,6 +1,6 @@
 package com.example.back_end.scheduler;
 
-import com.example.back_end.service.VerificationTokenService;
+import com.example.back_end.auth.application.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
