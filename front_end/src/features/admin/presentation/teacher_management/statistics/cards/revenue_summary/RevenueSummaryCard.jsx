@@ -1,5 +1,5 @@
 import { BadgeDollarSign } from "lucide-react";
-import "./RevenueSummaryCard";
+import "./RevenueSummaryCard.css";
 
 const RevenueSummaryCard = ({ title, value }) => {
   return (

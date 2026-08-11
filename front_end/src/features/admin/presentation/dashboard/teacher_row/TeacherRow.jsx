@@ -2,7 +2,7 @@ import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getFileUrl } from "../../../../../shared/api/public/CoursesApi";
-import "./TeacherRow";
+import "./TeacherRow.css";
 
 const getInitials = (name) =>
   String(name || "")

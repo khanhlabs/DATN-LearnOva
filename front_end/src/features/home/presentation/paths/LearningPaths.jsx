@@ -1,6 +1,6 @@
 import { Code, LineChart } from 'lucide-react';
 import PathJourneyCard from './PathJourneyCard';
-import './LearningPaths';
+import './LearningPaths.css';
 
 const paths = [
     {

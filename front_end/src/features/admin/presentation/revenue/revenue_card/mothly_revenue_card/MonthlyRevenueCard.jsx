@@ -1,4 +1,4 @@
-import "./MonthlyRevenueCard";
+import "./MonthlyRevenueCard.css";
 
 const MonthlyRevenueCard = ({ title, value, delta, subtitle, icon: Icon }) => {
   return (

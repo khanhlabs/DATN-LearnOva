@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { updateAdminUserApi } from "../../../../infrastructure/api/AdminUserApi";
-import "./ViewUserModal";
+import "./ViewUserModal.css";
 
 const roleOptions = [
   { value: "ROLE_USER", label: "Student", role: "Student", tone: "student", filter: "student" },

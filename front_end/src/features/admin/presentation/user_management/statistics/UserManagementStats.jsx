@@ -3,7 +3,7 @@ import StudentsCard from "./cards/students/StudentsCard";
 import TeachersCard from "./cards/teacher/TeachersCard";
 import AdminsCard from "./cards/admin/AdminsCard";
 import LockedAccountsCard from "./cards/looked_account/LockedAccountsCard";
-import "./UserManagementStats";
+import "./UserManagementStats.css";
 import { useTranslation } from "react-i18next";
 
 const formatCount = (value) => new Intl.NumberFormat("en-US").format(value);

@@ -939,32 +939,32 @@ Màn hình admin đối soát:
 
 Controller:
 
-- `back_end/src/main/java/com/example/back_end/controller/PaymentController.java`
+- [PaymentController.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/adapter/in/web/PaymentController.java)
 
 Service:
 
-- `back_end/src/main/java/com/example/back_end/service/PaymentService.java`
-- `back_end/src/main/java/com/example/back_end/service/PayOSService.java`
+- [PaymentService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/application/PaymentService.java)
+- [PayOSService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/payment/PayOSService.java)
 
 Repository:
 
-- `back_end/src/main/java/com/example/back_end/repository/PaymentRepository.java`
-- `back_end/src/main/java/com/example/back_end/repository/OrderRepository.java`
-- `back_end/src/main/java/com/example/back_end/repository/OrderitemRepository.java`
-- `back_end/src/main/java/com/example/back_end/repository/EnrollmentRepository.java`
-- `back_end/src/main/java/com/example/back_end/repository/CourseRepository.java`
-- `back_end/src/main/java/com/example/back_end/repository/VoucherRepository.java`
+- [PaymentRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/persistence/PaymentRepository.java)
+- [OrderRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/persistence/OrderRepository.java)
+- [OrderItemRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/persistence/OrderItemRepository.java)
+- [EnrollmentRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/learning/infrastructure/persistence/EnrollmentRepository.java)
+- [CourseRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/course/infrastructure/persistence/CourseRepository.java)
+- [VoucherRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/persistence/VoucherRepository.java)
 
 DTO:
 
-- `back_end/src/main/java/com/example/back_end/dto/resquest/CreatePaymentRequest.java`
-- `back_end/src/main/java/com/example/back_end/dto/response/CreatePaymentResponse.java`
-- `back_end/src/main/java/com/example/back_end/dto/response/PaymentStatusResponse.java`
+- [CreatePaymentRequest.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/adapter/in/web/dto/CreatePaymentRequest.java)
+- [CreatePaymentResponse.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/adapter/in/web/dto/CreatePaymentResponse.java)
+- [PaymentStatusResponse.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/adapter/in/web/dto/PaymentStatusResponse.java)
 
 Config:
 
-- `back_end/src/main/resources/application.properties`
-- `back_end/src/main/java/com/example/back_end/config/SecurityConfig.java`
+- [application.properties](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/resources/application.properties)
+- [SecurityConfig.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/shared/config/SecurityConfig.java)
 
 ## 10. Setup / Configuration Guide
 
@@ -1062,7 +1062,7 @@ payos.cancel-url=http://localhost:5173/payment/cancel
 File:
 
 ```text
-back_end/src/main/java/com/example/back_end/config/SecurityConfig.java
+back_end/src/main/java/com/example/back_end/shared/config/SecurityConfig.java
 ```
 
 Webhook phải `permitAll` vì payOS gọi vào backend, không có JWT của user:
@@ -1251,21 +1251,20 @@ Nếu frontend không chuyển success:
 
 ## 11. Implementation Notes Based On Current Source
 
-### 11.1 Current Commented Payment Code
+### 11.1 Current Active Payment Code
 
-Trong source hiện tại, các file payment có logic gần đúng nhưng đang bị comment:
+Trong source hiện tại, các file payment đã được uncomment và tích hợp hoàn chỉnh dưới cấu trúc Hexagonal Architecture:
 
-- `PaymentController.java`
-- `PaymentService.java`
-- `PayOSService.java`
-- `PaymentRepository.java`
+- [PaymentController.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/adapter/in/web/PaymentController.java)
+- [PaymentService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/application/PaymentService.java)
+- [PayOSService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/payment/PayOSService.java)
+- [PaymentRepository.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/commerce/infrastructure/persistence/PaymentRepository.java)
 
-Khi fix/uncomment cần check:
+Lưu ý khi vận hành/cập nhật:
 
-- Package DTO đang là `dto.resquest` trong project, không phải `dto.request`.
-- Java version có hỗ trợ `List.getFirst()` hay không. Nếu project không dùng Java 21, đổi sang `list.get(0)`.
-- `Course` entity map column `thumbnail_key`, trong `database.sql` đang có `thumbnail_url`; nếu build/run lỗi entity mapping thì cần xử lý riêng, không nằm trong scope payment DB change.
-- `application.properties` hiện đang comment payOS config, cần mở lại đúng giá trị sandbox.
+- Project sử dụng Java 25, do đó các cú pháp nâng cao của Java mới (như `list.getFirst()`) được hỗ trợ và sử dụng trực tiếp trong code.
+- DTO request nằm ở `com.example.back_end.commerce.adapter.in.web.dto` sử dụng Java Record.
+- Cấu hình PayOS trong `application.properties` đã được mở và liên kết với biến môi trường của môi trường local/prod tương ứng.
 
 ### 11.2 Repository Methods Needed
 

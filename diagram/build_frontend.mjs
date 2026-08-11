@@ -1,8 +1,8 @@
 // LearnOva Frontend architecture (React + Vite) — type "pipeline" (layered request flow, LR).
 // Source: front_end/src (route/AppRoutes.jsx, layout/, page/, context/, hook/, api/, services/).
 import { writeFileSync } from "node:fs";
-import { Diagram } from "../../../drawio-ai-kit/src/builder.mjs";
-import { stage, band, endpoint, ossBox, box, icon, phantom, renderTree } from "../../../drawio-ai-kit/src/layout-engine.mjs";
+import { Diagram } from "../../../AgentSkill/drawio-ai-kit/src/builder.mjs";
+import { stage, band, endpoint, ossBox, box, icon, phantom, renderTree } from "../../../AgentSkill/drawio-ai-kit/src/layout-engine.mjs";
 
 const d = new Diagram("pipeline");
 

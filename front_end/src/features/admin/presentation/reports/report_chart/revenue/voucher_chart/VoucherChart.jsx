@@ -1,6 +1,6 @@
 import { Doughnut } from "react-chartjs-2";
 import "../../chartConfig";
-import "./VoucherChart";
+import "./VoucherChart.css";
 
 const VoucherChart = () => {
   const data = {

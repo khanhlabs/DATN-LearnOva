@@ -7,7 +7,7 @@ import TransactionsPanel from "./components/panel/TransactionsPanel";
 import { useTeacherRevenue } from "./utils/useTeacherRevenue";
 import { formatCurrency, formatDate, formatDeltaNote } from "./data/revenuePageData";
 import { fillDailySeries } from "../../../../../shared/utils/dateSeries";
-import "./RevenuePage";
+import "./RevenuePage.css";
 
 const DAYS_IN_WINDOW = 30;
 

@@ -8,7 +8,7 @@ import {
   createAdminVoucherApi,
   updateAdminVoucherApi,
 } from "../../../infrastructure/api/VoucherApi";
-import "./VoucherCreate";
+import "./VoucherCreate.css";
 
 const toDateInputValue = (value) => {
   if (!value) return "";

@@ -6,7 +6,7 @@ import StudentsToolbar from "./components/StudentsToolbar";
 import StudentDetailModal from "./components/StudentDetailModal";
 import { getMyStudents } from "../../../infrastructure/api/teacher/StudentApi";
 import { buildCourseFilterOptions, filterStudents } from "./utils/studentsPageUtils";
-import "./StudentsPage";
+import "./StudentsPage.css";
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import "./VerifyAccountModal";
+import "./VerifyAccountModal.css";
 
 const VerifyAccountModal = ({ status, message, onClose }) => {
     const { t } = useTranslation();

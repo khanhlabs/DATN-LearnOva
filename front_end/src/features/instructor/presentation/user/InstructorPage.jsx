@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import "./InstructorPage";
+import "./InstructorPage.css";
 import { FaStar, FaCheckCircle } from "react-icons/fa";
 import { UserPlus, UserCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";

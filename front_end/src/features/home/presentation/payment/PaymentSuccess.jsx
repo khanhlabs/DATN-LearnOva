@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { getPaymentStatusApi } from "../../../payment/infrastructure/api/PaymentApi";
 import { useAuth } from "../../../../shared/hooks/useAuth";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
-import "./PaymentSuccess";
+import "./PaymentSuccess.css";
 
 const PaymentSuccess = () => {
   const axiosPrivate = useAxiosPrivate();

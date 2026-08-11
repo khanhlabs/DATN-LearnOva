@@ -1,7 +1,7 @@
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { deleteAdminUserApi } from "../../../../infrastructure/api/AdminUserApi";
-import "./ViewUserModal";
+import "./ViewUserModal.css";
 
 const DeleteUserModal = ({ user, onClose, onDeleted, onNotify = () => {} }) => {
   const [isDeleting, setIsDeleting] = useState(false);

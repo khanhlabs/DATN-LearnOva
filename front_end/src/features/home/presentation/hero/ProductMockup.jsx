@@ -1,5 +1,5 @@
 import { CheckCircle, Circle, Play } from 'lucide-react';
-import './ProductMockup';
+import './ProductMockup.css';
 
 const lessons = [
     { id: 1, title: 'Introduction to Web',    done: true  },

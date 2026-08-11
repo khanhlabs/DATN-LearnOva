@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './FinalCTA';
+import './FinalCTA.css';
 
 export default function FinalCTA() {
     const [email, setEmail] = useState('');

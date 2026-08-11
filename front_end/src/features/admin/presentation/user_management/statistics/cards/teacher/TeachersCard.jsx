@@ -1,5 +1,5 @@
 import { BookOpen } from "lucide-react";
-import "../../UserManagementStats";
+import "../../UserManagementStats.css";
 
 const TeachersCard = ({ title, value, trend, trendTone }) => {
   return (

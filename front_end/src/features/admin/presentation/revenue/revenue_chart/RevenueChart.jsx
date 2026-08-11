@@ -3,7 +3,7 @@ import Chart from "chart.js/auto";
 
 import { getAdminRevenueComparisonApi } from "../../../infrastructure/api/RevenueApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
-import "./RevenueChart";
+import "./RevenueChart.css";
 
 const timeRangeFilters = [
   { value: "day", label: "Day" },

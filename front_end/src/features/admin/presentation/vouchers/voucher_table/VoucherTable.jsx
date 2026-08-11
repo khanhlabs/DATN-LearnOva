@@ -9,7 +9,7 @@ import {
   getAdminVouchersApi,
   deleteAdminVoucherApi,
 } from "../../../infrastructure/api/VoucherApi";
-import "./VoucherTable";
+import "./VoucherTable.css";
 
 const statusOptions = ["All statuses", "Active", "Inactive", "Expiring Soon", "Delete"];
 const pageSize = 5;

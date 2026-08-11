@@ -15,7 +15,7 @@ import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
 import ApprovalConfirmModal from "./components/ApprovalConfirmModal";
 import ApprovalCourseDetail from "./components/ApprovalCourseDetail";
 import ApprovalSidebar from "./components/ApprovalSidebar";
-import "./CourseApprovalPage";
+import "./CourseApprovalPage.css";
 
 const toArray = (value) => (Array.isArray(value) ? value : []);
 

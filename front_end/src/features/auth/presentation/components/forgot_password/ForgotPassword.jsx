@@ -5,8 +5,8 @@ import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { toast } from "react-toastify";
 import { forgotPasswordApi } from "../../../infrastructure/api/AuthApi";
 import EmailSent from "../email/EmailSent";
-import "../../AuthPage";
-import "./ForgotPassword";
+import "../../AuthPage.css";
+import "./ForgotPassword.css";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

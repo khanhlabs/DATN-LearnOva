@@ -1,5 +1,5 @@
 
-import "./chatBot";
+import "./chatBot.css";
 import { FaPaperPlane } from "react-icons/fa";
 import { ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";

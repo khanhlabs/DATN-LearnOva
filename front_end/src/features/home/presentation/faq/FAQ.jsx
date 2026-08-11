@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import './FAQ';
+import './FAQ.css';
 
 export default function FAQ() {
     const { t } = useTranslation();

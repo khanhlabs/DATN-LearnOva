@@ -1,5 +1,5 @@
 import StoryCard from './StoryCard';
-import './SuccessStories';
+import './SuccessStories.css';
 
 import instructor1 from '../../../assets/instructors/instructor-1.jpg';
 import instructor2 from '../../../assets/instructors/instructor-2.jpg';

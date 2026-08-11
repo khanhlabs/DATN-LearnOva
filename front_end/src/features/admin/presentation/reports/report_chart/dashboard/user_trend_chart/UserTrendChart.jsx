@@ -1,6 +1,6 @@
 import { Line } from "react-chartjs-2";
 import "../../chartConfig";
-import "./UserTrendChart";
+import "./UserTrendChart.css";
 
 const UserTrendChart = () => {
   const data = {

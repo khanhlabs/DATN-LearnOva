@@ -1,5 +1,5 @@
 import { LockKeyhole } from "lucide-react";
-import "../../UserManagementStats";
+import "../../UserManagementStats.css";
 
 const LockedAccountsCard = ({ title, value, trend, trendTone }) => {
   return (

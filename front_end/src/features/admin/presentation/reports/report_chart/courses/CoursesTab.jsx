@@ -2,7 +2,7 @@ import { createElement } from "react";
 import LaunchChart from "./launch_chart/LaunchChart";
 import CategoryChart from "./category_chart/CategoryChart";
 import SignupChart from "./signup_chart/SignupChart";
-import "./CoursesTab";
+import "./CoursesTab.css";
 
 const charts = [
   { id: "launch", component: LaunchChart },

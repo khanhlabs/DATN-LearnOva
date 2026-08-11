@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "../../../shared/components/header/admin_header/Header";
 import SidebarAdmin from "../../../shared/components/sidebar/sidebar_admin/SidebarAdmin";
-import "./DashboardLayout";
+import "./DashboardLayout.css";
 
 const Dashboard = () => {
   return (

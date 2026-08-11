@@ -1,5 +1,5 @@
 import { CheckCircle } from "lucide-react";
-import "./PublishedCoursesCard";
+import "./PublishedCoursesCard.css";
 
 const PublishedCoursesCard = ({ label, value, trend, trendPercent }) => {
   return (

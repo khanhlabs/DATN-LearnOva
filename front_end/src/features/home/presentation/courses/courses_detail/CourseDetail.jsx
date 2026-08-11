@@ -16,7 +16,7 @@ import { applyVoucherApi } from "../../../../course/infrastructure/api/VoucherAp
 import PaymentModal from "../../../../../shared/components/payment/PaymentModal";
 import LearnovaAI from "../../chat_bot/chatBot";
 
-import "./CourseDetail";
+import "./CourseDetail.css";
 
 const formatUsd = (value) => {
   const amount = Number(value) || 0;

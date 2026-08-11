@@ -1,4 +1,4 @@
-import "./TotalRevenueCard";
+import "./TotalRevenueCard.css";
 
 const TotalRevenueCard = ({ title, value, delta, subtitle, icon: Icon }) => {
   const deltaTone =

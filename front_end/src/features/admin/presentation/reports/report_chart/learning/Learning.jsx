@@ -2,7 +2,7 @@ import { createElement } from "react";
 import GraduationRateChart from "./graduation_rate_chart/GraduationRateChart";
 import StudyProgressChart from "./study_progress_chart/StudyProgressChart";
 import EngagementChart from "./engagement_chart/EngagementChart";
-import "./Learning";
+import "./Learning.css";
 
 const charts = [
   { id: "graduation", component: GraduationRateChart },

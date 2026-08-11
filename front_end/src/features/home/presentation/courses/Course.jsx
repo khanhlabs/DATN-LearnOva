@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import {getFeaturedCourses, getFileUrl} from '../../../../shared/api/public/CoursesApi';
-import './Course';
+import './Course.css';
 
 const formatUsd = (value) => {
   const amount = Number(value) || 0;

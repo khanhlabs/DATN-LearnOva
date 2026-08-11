@@ -12,7 +12,7 @@ import {
 } from "../../infrastructure/api/TagApi";
 import AdminHoverSelect from "../shared/AdminHoverSelect";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
-import "./Tag";
+import "./Tag.css";
 
 const pageSize = 8;
 

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import './TrustBar';
+import './TrustBar.css';
 
 const companies = ['Google', 'Microsoft', 'Amazon', 'Shopify', 'Spotify', 'Adobe'];
 

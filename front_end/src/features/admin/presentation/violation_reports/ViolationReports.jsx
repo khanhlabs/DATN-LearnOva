@@ -6,11 +6,11 @@ import { toast } from "react-toastify";
 import { getAdminCourseDetailApi } from "../../infrastructure/api/CourseApi";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
 import { CourseViewModal } from "../course/courses_table/CourseTable";
-import "../course/courses_table/CourseTable";
+import "../course/courses_table/CourseTable.css";
 import "../shared/AdminDataPage.css";
 import AdminHoverSelect from "../shared/AdminHoverSelect";
 import ModerationActionModal from "./modal/ModerationActionModal";
-import "./ViolationReports";
+import "./ViolationReports.css";
 
 const ALL_STATUSES = "All statuses";
 const ALL_COUNTS = "Report count";

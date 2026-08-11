@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import "./CourseFilters";
+import "./CourseFilters.css";
 
 const publishSortOptions = [
   { id: "newest", label: "Newest" },

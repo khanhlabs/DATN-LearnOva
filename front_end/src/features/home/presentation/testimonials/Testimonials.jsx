@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import './Testimonials';
+import './Testimonials.css';
 import { getPlatformTestimonialsApi } from '../../../course/infrastructure/api/ReviewApi';
 
 const CARD_COLORS = ['#4361ee', '#f72585', '#06d6a0', '#f59e0b', '#7209b7', '#2563eb'];

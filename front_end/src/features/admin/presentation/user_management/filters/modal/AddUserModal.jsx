@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import "./AddUserModal";
+import "./AddUserModal.css";
 
 const initialForm = {
   fullName: "",

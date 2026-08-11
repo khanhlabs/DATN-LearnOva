@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { reportChartTabs } from "./reportChartTabs";
-import "./ReportCharts";
+import "./ReportCharts.css";
 
 const DEFAULT_TAB_ID = "dashboard";
 

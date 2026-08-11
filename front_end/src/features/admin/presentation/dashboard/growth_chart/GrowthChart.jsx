@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
-import "./GrowthChart";
+import "./GrowthChart.css";
 
 const monthLabels = [
   "January",

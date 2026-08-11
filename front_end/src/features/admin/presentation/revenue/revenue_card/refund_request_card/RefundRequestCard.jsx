@@ -1,4 +1,4 @@
-import "./RefundRequestCard";
+import "./RefundRequestCard.css";
 
 const RefundRequestCard = ({ title, value, delta, label, icon: Icon, deltaTone = "negative" }) => {
   return (

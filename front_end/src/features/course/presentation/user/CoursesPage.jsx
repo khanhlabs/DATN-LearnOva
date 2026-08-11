@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import "./CoursesPage";
+import "./CoursesPage.css";
 import { BiHeart, BiSolidHeart, BiCart } from "react-icons/bi";
 import { FaStar } from "react-icons/fa";
 import { X } from "lucide-react";

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../../shared/hooks/useAuth";
 import { addCourseToCart } from "../../../../../shared/utils/cartStorage";
-import "./CourseCard";
+import "./CourseCard.css";
 
 const CourseCard = ({ course }) => {
   const { isAuthenticated, accessToken, loading: authLoading } = useAuth();

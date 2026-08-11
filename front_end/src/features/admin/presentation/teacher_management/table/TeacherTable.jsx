@@ -5,7 +5,7 @@ import { getAdminInstructorByIdApi } from "../../../infrastructure/api/Instructo
 import { getFileUrl } from "../../../../../shared/api/public/CoursesApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
 import ViewTeacherModal from "../modal/ViewTeacherModal";
-import "./TeacherTable";
+import "./TeacherTable.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 const API_ORIGIN = API_URL.replace(/\/api\/learnova\/?$/, "");

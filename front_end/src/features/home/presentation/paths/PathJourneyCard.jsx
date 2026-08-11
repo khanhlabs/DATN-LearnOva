@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import './PathJourneyCard';
+import './PathJourneyCard.css';
 
 const phaseConfig = {
     Start:    { color: '#22c55e', tag: 'START'   },

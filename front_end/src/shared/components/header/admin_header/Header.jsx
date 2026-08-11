@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import defaultAvatar from "../../../../assets/image/DefaultAvatar.jpg";
 import { useAuth } from "../../../hooks/useAuth";
 import NotificationBell from "./NotificationBell";
-import "./Header";
+import "./Header.css";
 
 const formatRoleName = (roles = []) => {
   const role = roles[0];

@@ -2,7 +2,7 @@ import { Clock, Star, Users } from "lucide-react";
 import GrowthChart from "./growth_chart/GrowthChart";
 import ApprovalChart from "./approval_chart/ApprovalChart";
 import ActivityChart from "./activity_chart/ActivityChart";
-import "./Teacher";
+import "./Teacher.css";
 
 const charts = [
   { id: "growth", component: GrowthChart },

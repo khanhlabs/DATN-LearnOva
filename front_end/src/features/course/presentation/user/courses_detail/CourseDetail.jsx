@@ -1,4 +1,4 @@
-import "./CourseDetail";
+import "./CourseDetail.css";
 import { FaClipboardCheck, FaPlay, FaPlayCircle, FaClock, FaCheckCircle, FaStar, FaFlag } from "react-icons/fa";
 import { ChevronDown } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";

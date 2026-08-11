@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { verifyCertificateApi } from "../../course/infrastructure/api/CertificateApi";
-import "./VerifyCertificatePage";
+import "./VerifyCertificatePage.css";
 
 const VerifyCertificatePage = () => {
   const { code } = useParams();

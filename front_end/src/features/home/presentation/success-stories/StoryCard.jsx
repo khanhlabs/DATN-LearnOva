@@ -1,4 +1,4 @@
-import './StoryCard';
+import './StoryCard.css';
 
 export default function StoryCard({ story }) {
     return (

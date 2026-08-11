@@ -8,7 +8,7 @@ import CoursesTable from "./components/table/CoursesTable";
 import CoursesToolbar from "./components/tool_bar/CoursesToolbar";
 import DeleteConfirmModal from "./components/modal/DeleteConfirmModal";
 import CourseDetailModal from "./components/modal/CourseDetailModal";
-import "./CoursesPage";
+import "./CoursesPage.css";
 
 const COURSES_CREATE_PATH = "/learnova/teacher/courses/create";
 

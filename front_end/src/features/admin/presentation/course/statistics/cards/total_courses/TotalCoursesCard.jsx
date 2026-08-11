@@ -1,5 +1,5 @@
 import { BookOpen } from "lucide-react";
-import "./TotalCoursesCard";
+import "./TotalCoursesCard.css";
 
 const TotalCoursesCard = ({ label, value, trend, trendPercent }) => {
   return (

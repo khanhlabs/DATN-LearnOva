@@ -5,7 +5,7 @@ import QAToolbar from "./components/QAToolbar";
 import QATable from "./components/QATable";
 import { getMyQuestions, setQuestionSolved, setQuestionPinned, answerQuestion } from "../../../infrastructure/api/teacher/Q&AApi";
 import { buildCourseFilterOptions, filterQuestions } from "./utils/Q&AUtils";
-import "./QAInboxPage";
+import "./QAInboxPage.css";
 
 const QAInboxPage = () => {
   const [questions, setQuestions] = useState([]);

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./ProfilePage";
+import "./ProfilePage.css";
 import AvatarModal from "./components/AvatarModal";
 import AchievementsSection from "./components/AchievementsSection";
 import ActivitiesSection from "./components/ActivitiesSection";

@@ -1,4 +1,4 @@
-import './InstructorCard';
+import './InstructorCard.css';
 
 export default function InstructorCard({ instructor }) {
     return (

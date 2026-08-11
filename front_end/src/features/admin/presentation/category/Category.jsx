@@ -11,7 +11,7 @@ import {
 } from "../../infrastructure/api/CategoryApi";
 import AdminHoverSelect from "../shared/AdminHoverSelect";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
-import "./Category";
+import "./Category.css";
 
 const pageSize = 6;
 

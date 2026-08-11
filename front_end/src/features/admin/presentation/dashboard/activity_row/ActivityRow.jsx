@@ -1,4 +1,4 @@
-import "./ActivityRow";
+import "./ActivityRow.css";
 import { useTranslation } from "react-i18next";
 import i18n from "../../../../../app/i18n/i18n";
 

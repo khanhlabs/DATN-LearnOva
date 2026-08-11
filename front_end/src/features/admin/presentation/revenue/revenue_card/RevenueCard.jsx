@@ -12,7 +12,7 @@ import TransactionsCard from "./transactions_card/TransactionsCard";
 import PendingPaymentCard from "./pending_payment_card/PendingPaymentCard";
 import RefundRequestCard from "./refund_request_card/RefundRequestCard";
 import GrowthRateCard from "./growth_rate_card/GrowthRateCard";
-import "./RevenueCard";
+import "./RevenueCard.css";
 import { useTranslation } from "react-i18next";
 
 const formatMoney = (value) =>

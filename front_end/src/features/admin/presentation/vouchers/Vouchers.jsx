@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Vouchers";
+import "./Vouchers.css";
 import VoucherCards from "./voucher_card/VoucherCards";
 import VoucherChart from "./voucher_chart/VoucherChart";
 import VoucherCampaignChart from "./voucher_campaign_chart/VoucherCampaignChart";

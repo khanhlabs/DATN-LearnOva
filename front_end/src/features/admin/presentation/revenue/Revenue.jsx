@@ -5,7 +5,7 @@ import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
 import RevenueCard from "./revenue_card/RevenueCard";
 import RevenueChart from "./revenue_chart/RevenueChart";
 import RevenueDonut from "./revenue_donut/RevenueDonut";
-import "./Revenue";
+import "./Revenue.css";
 import { useTranslation } from "react-i18next";
 
 const EMPTY_BREAKDOWN = [];

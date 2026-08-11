@@ -8,7 +8,7 @@ import CourseInfoStep from "./components/course-info/CourseInfoStep";
 import SectionsStep from "./components/curriculum/SectionsStep";
 import PreviewStep from "./components/preview/PreviewStep";
 import PublishStep from "./components/publish/PublishStep";
-import "./CourseCreationPage";
+import "./CourseCreationPage.css";
 
 const CourseCreationPage = () => {
     const navigate = useNavigate();

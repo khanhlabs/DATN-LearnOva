@@ -7,8 +7,8 @@ import PasswordStrengthMeter from "../password_strength/PasswordStrengthMeter";
 import { getPasswordStrength } from "../password_strength/passwordStrength";
 import WarningModal from "../modal/WarningModal";
 import SuccessModal from "../modal/SuccessModal";
-import "../../AuthPage";
-import "../forgot_password/ForgotPassword";
+import "../../AuthPage.css";
+import "../forgot_password/ForgotPassword.css";
 
 const REDIRECT_DELAY_MS = 3000;
 

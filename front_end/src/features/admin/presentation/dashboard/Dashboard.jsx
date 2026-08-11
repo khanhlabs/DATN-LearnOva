@@ -5,7 +5,7 @@ import { getAdminInstructorsApi } from "../../infrastructure/api/InstructorApi";
 import { getAdminUsersApi } from "../../infrastructure/api/AdminUserApi";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
 import Statistics from "./statistics/Statistics";
-import "./Dashboard";
+import "./Dashboard.css";
 import GrowthChart from "./growth_chart/GrowthChart";
 import RoleDistribution from "./role_distribution/RoleDistribution";
 import UserRow from "./user_row/UserRow";

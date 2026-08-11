@@ -1,5 +1,5 @@
 import { Calendar, TrendingUp } from "lucide-react";
-import "./RevenueRecords";
+import "./RevenueRecords.css";
 
 const formatMoney = (value) =>
   `$ ${Number(value || 0).toLocaleString("en-US", {

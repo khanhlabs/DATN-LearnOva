@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import "../quiz/QuizTab";
+import "../quiz/QuizTab.css";
 
 function SummaryTab() {
     const { t } = useTranslation();

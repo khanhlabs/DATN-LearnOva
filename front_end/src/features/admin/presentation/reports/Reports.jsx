@@ -1,7 +1,7 @@
 import ReportCards from "./report_card/ReportCards";
 import ReportFilter from "./report_filter/ReportFilter";
 import ReportCharts from "./report_chart/ReportCharts";
-import "./Reports";
+import "./Reports.css";
 
 const Reports = () => {
   return (

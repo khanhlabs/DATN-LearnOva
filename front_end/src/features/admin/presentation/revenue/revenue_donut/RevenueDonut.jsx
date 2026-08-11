@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
-import "./RevenueDonut";
+import "./RevenueDonut.css";
 import { useTranslation } from "react-i18next";
 
 const DONUT_COLORS = [

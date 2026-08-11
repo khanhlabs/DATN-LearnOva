@@ -7,7 +7,7 @@ import AnalyticsStatCard from "./components/AnalyticsStatCard";
 import { buildAnalyticsStats, buildEngagementItems } from "./data/AnalyticsData";
 import { useTeacherAnalytics } from "./utils/useTeacherAnalytics";
 import { fillDailySeries } from "../../../../../shared/utils/dateSeries";
-import "./AnalyticsPage";
+import "./AnalyticsPage.css";
 
 // Gender is nominal (no inherent order): each identity keeps its own fixed hue.
 // "Unspecified" isn't a real category, just missing data, so it gets a neutral gray.

@@ -1,4 +1,4 @@
-import "./GrowthRateCard";
+import "./GrowthRateCard.css";
 
 const GrowthRateCard = ({ title, value, detail, icon: Icon }) => {
   return (

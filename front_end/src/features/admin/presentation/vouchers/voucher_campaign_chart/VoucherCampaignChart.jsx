@@ -3,7 +3,7 @@ import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
 import { getAdminVoucherCampaignStatsApi } from "../../../infrastructure/api/VoucherApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
-import "./VoucherCampaignChart";
+import "./VoucherCampaignChart.css";
 
 const formatCurrency = (value) =>
   new Intl.NumberFormat("vi-VN", {

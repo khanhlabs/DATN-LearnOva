@@ -1,5 +1,5 @@
 import { Shield } from "lucide-react";
-import "../../UserManagementStats";
+import "../../UserManagementStats.css";
 
 const AdminsCard = ({ title, value, trend, trendTone }) => {
   return (

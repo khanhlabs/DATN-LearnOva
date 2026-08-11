@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import CategoryChart from "./category_chart/CategoryChart";
 import VoucherChart from "./voucher_chart/VoucherChart";
-import "./Revenue";
+import "./Revenue.css";
 
 const charts = [
   { id: "revenue-category", component: CategoryChart },

@@ -5,7 +5,7 @@ import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
 import RevenueCategory from "../revenue_category/RevenueCategory";
 import RevenueRecords from "../revenue_records/RevenueRecords";
 import TransactionLog from "../transaction_log/TransactionLog";
-import "../Revenue";
+import "../Revenue.css";
 import { useTranslation } from "react-i18next";
 
 const EMPTY_METRICS = [];

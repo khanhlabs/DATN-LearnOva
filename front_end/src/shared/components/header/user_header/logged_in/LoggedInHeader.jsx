@@ -6,7 +6,7 @@ import CartDropdown from "../components/dropdown/CartDropdown";
 import HeaderSearch from "../components/search/HeaderSearch";
 import NotificationDropdown from "../components/dropdown/NotificationDropdown";
 import LanguageSwitcher from "../components/language/LanguageSwitcher";
-import "./LoggedInHeader";
+import "./LoggedInHeader.css";
 
 const LoggedInHeader = () => {
   const { t } = useTranslation();

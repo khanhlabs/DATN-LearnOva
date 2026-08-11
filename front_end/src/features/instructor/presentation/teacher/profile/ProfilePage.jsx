@@ -5,7 +5,7 @@ import { getMyInstructorProfile, updateMyInstructorProfile } from "../../../infr
 import { generateUploadUrl } from "../../../infrastructure/api/teacher/UploadApi";
 import { getFileUrl } from "../../../infrastructure/api/teacher/CoursesApi";
 import { uploadFileToS3 } from "../../../../../shared/services/UploadService";
-import "./ProfilePage";
+import "./ProfilePage.css";
 
 const SOCIAL_FIELDS = [
   { key: "website", label: "Website", icon: Globe },

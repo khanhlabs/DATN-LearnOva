@@ -1,5 +1,5 @@
 import { GraduationCap } from "lucide-react";
-import "../../UserManagementStats";
+import "../../UserManagementStats.css";
 
 const StudentsCard = ({ title, value, trend, trendTone }) => {
   return (

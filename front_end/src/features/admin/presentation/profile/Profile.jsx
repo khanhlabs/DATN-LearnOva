@@ -10,7 +10,7 @@ import {
 import { uploadFileToS3 } from "../../../../shared/services/UploadService";
 import { useAuth } from "../../../../shared/hooks/useAuth";
 import Form from "./Form";
-import "./Profile";
+import "./Profile.css";
 
 const EMPTY_PROFILE = {
   fullName: "",

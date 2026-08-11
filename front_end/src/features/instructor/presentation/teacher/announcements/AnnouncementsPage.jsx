@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { ChevronLeft, ChevronRight, Megaphone, Send } from "lucide-react";
 import { getMyCourses } from "../../../infrastructure/api/teacher/CoursesApi";
 import { getMyAnnouncements, createAnnouncement } from "../../../infrastructure/api/teacher/AnnouncementApi";
-import "./AnnouncementsPage";
+import "./AnnouncementsPage.css";
 
 const PAGE_SIZE = 10;
 const emptyForm = { courseId: "", title: "", content: "" };

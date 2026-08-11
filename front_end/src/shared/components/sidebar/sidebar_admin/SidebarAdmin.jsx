@@ -15,8 +15,8 @@ import {
   Users,
 } from "lucide-react";
 import logoText from "../../../../assets/logo/LogoText.png";
-import "../sidebar_teacher/TeacherSidebar";
-import "./SidebarAdmin";
+import "../sidebar_teacher/TeacherSidebar.css";
+import "./SidebarAdmin.css";
 
 const adminNavSections = [
   {

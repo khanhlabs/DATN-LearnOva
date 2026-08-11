@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTopCategories } from '../../../../shared/api/public/CoursesApi';
-import './Categories';
+import './Categories.css';
 
 const PALETTE = [
     '#2563eb', '#4361ee', '#f72585', '#06d6a0',

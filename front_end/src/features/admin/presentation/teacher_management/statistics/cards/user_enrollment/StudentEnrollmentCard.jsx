@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import "./StudentEnrollmentCard";
+import "./StudentEnrollmentCard.css";
 
 const StudentEnrollmentCard = ({ title, value }) => {
   return (

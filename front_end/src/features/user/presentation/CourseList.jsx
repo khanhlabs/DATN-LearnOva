@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CourseFilter from "../../course/presentation/user/components/filter/CourseFilter";
 import CourseCard from "../../course/presentation/user/components/card/CourseCard";
-import "../../course/presentation/user/css/CourseList";
+import "../../course/presentation/user/css/CourseList.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

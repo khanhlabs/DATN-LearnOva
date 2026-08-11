@@ -1,6 +1,6 @@
 import { Bar } from "react-chartjs-2";
 import "../../chartConfig";
-import "./LaunchChart";
+import "./LaunchChart.css";
 
 const LaunchChart = () => {
   const data = {

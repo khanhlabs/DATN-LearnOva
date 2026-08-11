@@ -1,5 +1,5 @@
 import { Users } from "lucide-react";
-import "../../UserManagementStats";
+import "../../UserManagementStats.css";
 
 const TotalUsersCard = ({ title, value, trend, trendTone }) => {
   return (

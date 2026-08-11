@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import defaultCover from "../../../../../assets/image/TeacherCoverImage.png";
-import "./ViewTeacherModal";
+import "./ViewTeacherModal.css";
 
 const formatCurrency = (value) => {
   const amount = Number(value);

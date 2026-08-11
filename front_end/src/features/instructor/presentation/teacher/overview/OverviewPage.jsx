@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { overviewLinks } from "./utils/OverviewConfig";
 import { useDashboard } from "./utils/useDashboard";
 import { fillDailySeries } from "../../../../../shared/utils/dateSeries";
-import "./OverviewPage";
+import "./OverviewPage.css";
 
 const statTones = ["blue", "gold", "green", "violet"];
 

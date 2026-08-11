@@ -3,7 +3,7 @@ import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
 import { getAdminVouchersApi } from "../../../infrastructure/api/VoucherApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
-import "./VoucherChart";
+import "./VoucherChart.css";
 
 const activationSeries = {
   id: "activation",

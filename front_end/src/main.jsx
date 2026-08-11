@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import "./index.css";
 import App from "./app/routes/AppRoutes";
 import {AuthProvider} from "./app/providers/AuthContext";
 import AxiosInterceptor from "./app/interceptors/AxiosInterceptor";

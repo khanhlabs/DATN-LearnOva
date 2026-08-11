@@ -1,4 +1,4 @@
-import "../VoucherCards";
+import "../VoucherCards.css";
 
 const ConversionRateVoucherCard = ({
   title,

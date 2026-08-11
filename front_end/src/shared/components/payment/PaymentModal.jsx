@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { getPaymentStatusApi } from "../../../features/payment/infrastructure/api/PaymentApi";
 import { useAuth } from "../../hooks/useAuth";
 import { useAxiosPrivate } from "../../hooks/useAxiosPrivate";
-import "./PaymentModal";
+import "./PaymentModal.css";
 
 const formatUsd = (value) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(value || 0));

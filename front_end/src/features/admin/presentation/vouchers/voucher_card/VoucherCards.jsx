@@ -7,7 +7,7 @@ import {
   FiPercent,
 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import "./VoucherCards";
+import "./VoucherCards.css";
 import TotalVoucherCard from "./total_voucher_card/TotalVoucherCard";
 import ActivatedVoucherCard from "./activated_voucher_card/ActivatedVoucherCard";
 import ExpiredVoucherCard from "./expired_voucher_card/ExpiredVoucherCard";

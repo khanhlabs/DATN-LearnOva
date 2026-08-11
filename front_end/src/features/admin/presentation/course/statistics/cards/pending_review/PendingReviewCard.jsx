@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import "./PendingReviewCard";
+import "./PendingReviewCard.css";
 
 const PendingReviewCard = ({ label, value, trend, trendPercent }) => {
   return (

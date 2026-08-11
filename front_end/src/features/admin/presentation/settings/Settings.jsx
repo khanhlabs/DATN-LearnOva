@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bell, KeyRound, Save, SlidersHorizontal, Users } from "lucide-react";
 import { toast } from "react-toastify";
-import "./Settings";
+import "./Settings.css";
 
 const LANGUAGE_STORAGE_KEY = "learnova_admin_language";
 

@@ -1,8 +1,8 @@
 // LearnOva AWS deployment architecture — type "network". Layout engine only, no hardcoded coords.
 // Source of truth: docs/aws-deployment-architecture.md
 import { writeFileSync } from "node:fs";
-import { Diagram } from "../../../drawio-ai-kit/src/builder.mjs";
-import { group, frame, icon, box, ossBox, phantom, band, renderTree } from "../../../drawio-ai-kit/src/layout-engine.mjs";
+import { Diagram } from "../../../AgentSkill/drawio-ai-kit/src/builder.mjs";
+import { group, frame, icon, box, ossBox, phantom, band, renderTree } from "../../../AgentSkill/drawio-ai-kit/src/layout-engine.mjs";
 
 const d = new Diagram("network");
 

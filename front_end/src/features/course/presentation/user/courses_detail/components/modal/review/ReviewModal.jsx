@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaStar, FaTimes, FaRegCheckCircle } from "react-icons/fa";
-import "./ReviewModal";
+import "./ReviewModal.css";
 
 function ReviewModal({ isOpen, onClose, onSubmit, isSubmitting }) {
   const { t } = useTranslation();

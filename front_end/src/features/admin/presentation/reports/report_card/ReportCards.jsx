@@ -1,6 +1,6 @@
 import ReportSummaryCard from "./ReportSummaryCard";
 import { reportSummaryCards } from "./reportSummaryData";
-import "./ReportCards";
+import "./ReportCards.css";
 
 const ReportCards = () => {
   return (

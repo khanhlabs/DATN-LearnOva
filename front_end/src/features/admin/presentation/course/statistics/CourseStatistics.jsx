@@ -3,7 +3,7 @@ import PublishedCoursesCard from "./cards/published_courses/PublishedCoursesCard
 import PendingReviewCard from "./cards/pending_review/PendingReviewCard";
 import SuspendedCoursesCard from "./cards/suspended_courses/SuspendedCoursesCard";
 import ReportedCoursesCard from "./cards/reported_courses/ReportedCoursesCard";
-import "./CourseStatistics";
+import "./CourseStatistics.css";
 import { useTranslation } from "react-i18next";
 
 const CourseStatistics = ({ courses = [], loading = false }) => {

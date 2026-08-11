@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { cancelPaymentApi, getPaymentStatusApi } from "../../../payment/infrastructure/api/PaymentApi";
 import { useAuth } from "../../../../shared/hooks/useAuth";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
-import "./PaymentSuccess";
+import "./PaymentSuccess.css";
 
 /**
  * PayOS cancelUrl lands here when the student clicks Cancel on payOS.

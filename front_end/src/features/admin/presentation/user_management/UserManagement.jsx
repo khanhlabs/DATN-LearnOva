@@ -8,7 +8,7 @@ import UserManagementStats from "./statistics/UserManagementStats";
 import UserManagementFilters from "./filters/UserManagementFilters";
 import UsersList from "./user_list/UsersList";
 import AddUserModal from "./filters/modal/AddUserModal";
-import "./UserManagement";
+import "./UserManagement.css";
 
 const formatDate = (value) => {
   if (!value) return "N/A";

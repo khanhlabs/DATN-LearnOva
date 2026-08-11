@@ -5,7 +5,7 @@ import ReviewsTable from "./components/ReviewsTable";
 import ReviewsToolbar from "./components/ReviewsToolbar";
 import { getMyReviews, replyToReview } from "../../../infrastructure/api/teacher/ReviewApi";
 import { buildCourseFilterOptions, filterReviews } from "./utils/reviewsPageUtils";
-import "./ReviewsPage";
+import "./ReviewsPage.css";
 
 const ReviewsPage = () => {
   const [reviews, setReviews] = useState([]);

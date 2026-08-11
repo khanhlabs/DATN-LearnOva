@@ -1,4 +1,4 @@
-import "./RevenueCategory";
+import "./RevenueCategory.css";
 
 const BAR_COLORS = [
   "#1f2937",

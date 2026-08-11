@@ -1,6 +1,6 @@
 import { Line } from "react-chartjs-2";
 import "../../chartConfig";
-import "./ActiveUsersChart";
+import "./ActiveUsersChart.css";
 
 const ActiveUsersChart = () => {
   const data = {

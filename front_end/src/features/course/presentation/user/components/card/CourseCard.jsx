@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../css/CourseCard";
+import "../../css/CourseCard.css";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../../../shared/hooks/useAuth";
 import { addCourseToCart } from "../../../../../../shared/utils/cartStorage";

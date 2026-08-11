@@ -8,7 +8,7 @@ import LoginForm from "./components/login_form/LoginForm";
 import RegisterForm from "./components/register_form/RegisterForm";
 import VerifyAccountModal from "./components/modal/verify/VerifyAccountModal";
 import { verifyAccountApi } from "../infrastructure/api/AuthApi";
-import "./AuthPage";
+import "./AuthPage.css";
 
 const AuthPage = () => {
   const { t } = useTranslation();

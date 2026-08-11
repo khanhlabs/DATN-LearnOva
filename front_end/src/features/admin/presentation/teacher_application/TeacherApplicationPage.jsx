@@ -11,7 +11,7 @@ import {
   getCvUrlApi,
   rejectTeacherApplicationApi,
 } from "../../infrastructure/api/TeacherApplicationApi";
-import "./TeacherApplicationPage";
+import "./TeacherApplicationPage.css";
 
 const TeacherApplicationPage = () => {
   const { t } = useTranslation();

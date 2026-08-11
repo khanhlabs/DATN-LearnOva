@@ -11,7 +11,7 @@ import FAQ from './faq/FAQ';
 import Footer from '../../../shared/components/footer/Footer';
 import LearnovaAI from './chat_bot/chatBot';
 
-import './Home';
+import './Home.css';
 
 const Home = () => {
     return (

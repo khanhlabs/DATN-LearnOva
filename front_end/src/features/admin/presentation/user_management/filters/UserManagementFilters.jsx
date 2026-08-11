@@ -1,6 +1,6 @@
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
 import { useTranslation } from "react-i18next";
-import "./UserManagementFilters";
+import "./UserManagementFilters.css";
 
 const searchFields = {
   searchPlaceholder: "search",

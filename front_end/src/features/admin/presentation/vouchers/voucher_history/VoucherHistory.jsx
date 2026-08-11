@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FiClipboard } from "react-icons/fi";
 import { getAdminVoucherUsageHistoriesApi } from "../../../infrastructure/api/VoucherApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
-import "./VoucherHistory";
+import "./VoucherHistory.css";
 
 const pageSize = 10;
 

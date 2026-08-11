@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import "./AdminHoverSelect";
+import "./AdminHoverSelect.css";
 
 const normalizeOptions = (options) =>
   options.map((option) =>

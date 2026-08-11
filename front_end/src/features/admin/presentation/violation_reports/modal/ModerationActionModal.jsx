@@ -1,6 +1,6 @@
 import { LockKeyhole, Megaphone, X } from "lucide-react";
 import { useState } from "react";
-import "../ViolationReports";
+import "../ViolationReports.css";
 
 const DEFAULT_WARN_MESSAGE =
   "Please review and update the reported video content as soon as possible.";

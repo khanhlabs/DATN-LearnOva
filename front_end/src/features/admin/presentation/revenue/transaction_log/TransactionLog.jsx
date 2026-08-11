@@ -4,7 +4,7 @@ import AdminHoverSelect from "../../shared/AdminHoverSelect";
 import { getAdminCategoriesApi } from "../../../infrastructure/api/CategoryApi";
 import { getAdminRevenueTransactionsApi } from "../../../infrastructure/api/RevenueApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
-import "./TransactionLog";
+import "./TransactionLog.css";
 import { useTranslation } from "react-i18next";
 
 const statusClasses = {

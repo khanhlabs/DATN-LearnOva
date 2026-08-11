@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import DeleteUserModal from "./modal/DeleteUserModal";
 import EditUserModal from "./modal/EditUserModal";
 import ViewUserModal from "./modal/ViewUserModal";
-import "./UsersList";
+import "./UsersList.css";
 
 const tableColumns = ["user", "role", "phone", "visibility", "joinedAt", "actions"];
 

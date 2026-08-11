@@ -1,4 +1,4 @@
-import "../VoucherCards";
+import "../VoucherCards.css";
 
 const ActivatedVoucherCard = ({ title, value, note, icon: Icon, accent }) => {
   return (

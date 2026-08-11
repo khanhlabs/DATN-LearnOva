@@ -24,14 +24,14 @@ Click sẽ gọi API đổi `active_role`, sau đó điều hướng sang layout
 ## 2. Chi tiết Backend
 
 ### 2.1. Migration
-`back_end/src/main/resources/db/migration/V16__add_active_role_to_users.sql`
+Đã được gộp vào schema khởi tạo tại [V1__initial_schema.sql](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/resources/db/migration/V1__initial_schema.sql) (dòng 1557):
 ```sql
-ALTER TABLE users ADD COLUMN active_role VARCHAR(50);
+active_role character varying(50)
 ```
 Cột nullable, mặc định `NULL` cho toàn bộ user hiện có — không cần backfill.
 
 ### 2.2. Entity
-`back_end/src/main/java/com/example/back_end/entity/User.java`
+[User.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/auth/domain/User.java)
 ```java
 @Enumerated(EnumType.STRING)
 @Column(name = "active_role")
@@ -39,7 +39,7 @@ private RoleName activeRole;
 ```
 
 ### 2.3. Enforce quyền — `CustomUserDetails.getAuthorities()`
-`back_end/src/main/java/com/example/back_end/security/CustomUserDetails.java`
+[CustomUserDetails.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/security/CustomUserDetails.java)
 
 Logic: nếu `activeRole` khác `null` **và** vẫn nằm trong tập `roles` hiện tại của user (phòng trường hợp role đã bị thu hồi sau khi set active), chỉ trả về authority của role đó. Ngược lại, trả về tất cả role như hành vi cũ.
 ```java
@@ -61,24 +61,24 @@ return user.getRoles()
 Vì `CustomUserDetailsService.loadUserByUsername()` được `JwtAuthenticationFilter` gọi lại (đọc DB) ở mỗi request, hàm này chạy lại mỗi lần → active role luôn được áp dụng tức thời.
 
 ### 2.4. API đổi active role
-- DTO: `back_end/src/main/java/com/example/back_end/dto/resquest/SwitchActiveRoleRequest.java`
+- DTO: [SwitchRoleRequest.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/auth/adapter/in/web/dto/SwitchRoleRequest.java)
   ```java
-  public record SwitchActiveRoleRequest(@NotNull RoleName role) {}
+  public record SwitchRoleRequest(@NotNull RoleName role) {}
   ```
-- Service: `AuthService.switchActiveRole(String email, RoleName role)` — load user, kiểm tra user thực sự sở hữu `role` đó (nếu không → ném `BusinessException`), set `activeRole`, save, trả về `CurrentUserResponse` mới. Logic map `User` → `CurrentUserResponse` được tách thành helper `toCurrentUserResponse()` dùng chung với `getCurrentUser()`.
-- Controller: `UserController.java`
+- Service: [AuthService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/auth/application/AuthService.java) (`switchActiveRole(String email, RoleName role)`) — load user, kiểm tra user thực sự sở hữu `role` đó (nếu không → ném `BusinessException`), set `activeRole`, save, trả về `CurrentUserResponse` mới. Logic map `User` → `CurrentUserResponse` được tách thành helper `toCurrentUserResponse()` dùng chung với `getCurrentUser()`.
+- Controller: [UserController.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/user/adapter/in/web/UserController.java)
   ```java
   @PatchMapping("/user/active-role")
   public ResponseEntity<CurrentUserResponse> switchActiveRole(
           Authentication authentication,
-          @Valid @RequestBody SwitchActiveRoleRequest request) {
+          @Valid @RequestBody SwitchRoleRequest request) {
       return ResponseEntity.ok(authService.switchActiveRole(authentication.getName(), request.role()));
   }
   ```
   Endpoint: `PATCH /api/learnova/user/active-role`, body `{ "role": "ROLE_TEACHER" }`.
 
 ### 2.5. Response DTO
-`CurrentUserResponse` (dùng chung cho `GET /user/me` và `PATCH /user/active-role`) thêm field:
+[CurrentUserResponse.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/user/adapter/in/web/dto/CurrentUserResponse.java) (dùng chung cho `GET /user/me` và `PATCH /user/active-role`) thêm field:
 ```java
 public record CurrentUserResponse(
         ..., // các field cũ
@@ -88,7 +88,7 @@ public record CurrentUserResponse(
 ```
 
 ### 2.6. Không đổi
-- `RequireRole.jsx` phía FE là nơi duy nhất phản ánh logic tương ứng; `SecurityConfig.java`, JWT (`JwtService`), `CustomUserDetailsService.loadUserByUsername()` giữ nguyên.
+- [RequireRole.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/app/routes/RequireRole.jsx) phía FE là nơi duy nhất phản ánh logic tương ứng; [SecurityConfig.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/shared/config/SecurityConfig.java), JWT ([JwtService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/security/JwtService.java)), [CustomUserDetailsService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/security/CustomUserDetailsService.java) giữ nguyên.
 - Không cần cấp lại token khi switch role.
 
 ---
@@ -96,7 +96,7 @@ public record CurrentUserResponse(
 ## 3. Chi tiết Frontend
 
 ### 3.1. API
-`front_end/src/api/UserApi.js`
+[UserApi.js](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/features/profile/infrastructure/api/UserApi.js)
 ```js
 export const switchActiveRoleApi = async (role) => {
     const response = await axiosClient.patch("/user/active-role", { role });
@@ -105,15 +105,15 @@ export const switchActiveRoleApi = async (role) => {
 ```
 
 ### 3.2. AuthContext
-`front_end/src/context/AuthContext.jsx` — thêm `switchActiveRole(role)`: gọi API, set `currentUser` trực tiếp từ response (không cần refetch riêng), expose qua context.
+[AuthContext.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/app/providers/AuthContext.jsx) — thêm `switchActiveRole(role)`: gọi API, set `currentUser` trực tiếp từ response (không cần refetch riêng), expose qua context.
 
 ### 3.3. UI switcher
-- **`AvatarDropdown.jsx`** (menu avatar ở header học viên): hiện mục **"Chuyển sang Giảng viên"** nếu `user.roles` chứa `ROLE_TEACHER`. Click → `switchActiveRole("ROLE_TEACHER")` → `navigate("/learnova/teacher")`.
-- **`headerData.js`** (`useUserData` hook): expose thêm `activeRole` từ `currentUser`.
-- **`TeacherHeader.jsx`** (header giảng viên): thêm nút **"Chuyển sang Học viên"** nếu user có `ROLE_USER`. Click → `switchActiveRole("ROLE_USER")` → `navigate("/learnova/home")`. Style thêm ở `TeacherHeader.css` (`.teacher-switch-role-btn`).
+- **[AvatarDropdown.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/user_header/components/dropdown/AvatarDropdown.jsx)** (menu avatar ở header học viên): hiện mục **"Chuyển sang Giảng viên"** nếu `user.roles` chứa `ROLE_TEACHER`. Click → `switchActiveRole("ROLE_TEACHER")` → `navigate("/learnova/teacher")`.
+- **[UserData.js](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/user_header/components/data/UserData.js)** (`useUserData` hook): expose thêm `activeRole` từ `currentUser`.
+- **[TeacherHeader.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/teacher_header/TeacherHeader.jsx)** (header giảng viên): thêm nút **"Chuyển sang Học viên"** nếu user có `ROLE_USER`. Click → `switchActiveRole("ROLE_USER")` → `navigate("/learnova/home")`. Style thêm ở [TeacherHeader.css](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/teacher_header/TeacherHeader.css) (`.teacher-switch-role-btn`).
 
 ### 3.4. Route guard — `RequireRole.jsx`
-`front_end/src/route/RequireRole.jsx` — khớp logic với backend: nếu `activeRole` đã set thì chỉ role đó được coi là có quyền; nếu chưa set (null) thì fallback kiểm tra theo `roles` (tập tất cả role user có) như hành vi cũ.
+[RequireRole.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/app/routes/RequireRole.jsx) — khớp logic với backend: nếu `activeRole` đã set thì chỉ role đó được coi là có quyền; nếu chưa set (null) thì fallback kiểm tra theo `roles` (tập tất cả role user có) như hành vi cũ.
 ```js
 const roles = currentUser?.roles ?? [];
 const activeRole = currentUser?.activeRole;
@@ -130,22 +130,22 @@ Nhờ vậy: user chưa từng switch (phổ biến nhất — user 1 role) khô
 ## 4. Danh sách file đã thay đổi
 
 **Backend**
-- `back_end/src/main/resources/db/migration/V16__add_active_role_to_users.sql` *(mới)*
-- `back_end/src/main/java/com/example/back_end/entity/User.java`
-- `back_end/src/main/java/com/example/back_end/security/CustomUserDetails.java`
-- `back_end/src/main/java/com/example/back_end/dto/resquest/SwitchActiveRoleRequest.java` *(mới)*
-- `back_end/src/main/java/com/example/back_end/dto/response/CurrentUserResponse.java`
-- `back_end/src/main/java/com/example/back_end/service/AuthService.java`
-- `back_end/src/main/java/com/example/back_end/controller/UserController.java`
+- [V1__initial_schema.sql](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/resources/db/migration/V1__initial_schema.sql) *(active_role nằm trong table users)*
+- [User.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/auth/domain/User.java)
+- [CustomUserDetails.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/security/CustomUserDetails.java)
+- [SwitchRoleRequest.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/auth/adapter/in/web/dto/SwitchRoleRequest.java)
+- [CurrentUserResponse.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/user/adapter/in/web/dto/CurrentUserResponse.java)
+- [AuthService.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/auth/application/AuthService.java)
+- [UserController.java](file:///d:/CODING/DATN/DATN-LearnOva/back_end/src/main/java/com/example/back_end/user/adapter/in/web/UserController.java)
 
 **Frontend**
-- `front_end/src/api/UserApi.js`
-- `front_end/src/context/AuthContext.jsx`
-- `front_end/src/component/header/user_header/components/AvatarDropdown.jsx`
-- `front_end/src/component/header/user_header/components/headerData.js`
-- `front_end/src/component/header/teacher_header/TeacherHeader.jsx`
-- `front_end/src/component/header/teacher_header/TeacherHeader.css`
-- `front_end/src/route/RequireRole.jsx`
+- [UserApi.js](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/features/profile/infrastructure/api/UserApi.js)
+- [AuthContext.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/app/providers/AuthContext.jsx)
+- [AvatarDropdown.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/user_header/components/dropdown/AvatarDropdown.jsx)
+- [UserData.js](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/user_header/components/data/UserData.js)
+- [TeacherHeader.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/teacher_header/TeacherHeader.jsx)
+- [TeacherHeader.css](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/shared/components/header/teacher_header/TeacherHeader.css)
+- [RequireRole.jsx](file:///d:/CODING/DATN/DATN-LearnOva/front_end/src/app/routes/RequireRole.jsx)
 
 ---
 

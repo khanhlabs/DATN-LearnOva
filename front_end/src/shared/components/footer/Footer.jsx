@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LANGUAGE_STORAGE_KEY } from '../../../app/i18n/i18n';
-import './Footer';
+import './Footer.css';
 import Logo from '../../../assets/logo/Logo.png'
 import LogoText from '../../../assets/logo/LogoText.png'
 import github from '../../../assets/svg_icon/Github.svg'

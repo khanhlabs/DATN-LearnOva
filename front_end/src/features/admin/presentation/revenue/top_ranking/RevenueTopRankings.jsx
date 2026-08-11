@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import TopCourseRevenue from "../top_course_revenue/TopCourseRevenue";
 import TopTeacherRevenue from "../top_teacher_revenue/TopTeacherRevenue";
-import "../Revenue";
+import "../Revenue.css";
 import { useTranslation } from "react-i18next";
 
 const RevenueTopRankings = () => {

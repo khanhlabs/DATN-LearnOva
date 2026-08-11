@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaFlag, FaTimes } from "react-icons/fa";
-import "./ReportModal";
+import "./ReportModal.css";
 
 /** Course / video quality → admin + instructor notified. */
 const COURSE_ISSUE_OPTIONS = [

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Chart from "chart.js/auto";
-import "./RoleDistribution";
+import "./RoleDistribution.css";
 
 const RoleDistribution = ({ data = [] }) => {
   const { t } = useTranslation();

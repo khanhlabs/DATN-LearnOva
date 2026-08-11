@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAdminTopEarningInstructorsApi } from "../../../infrastructure/api/RevenueApi";
-import "./TopTeacherRevenue";
+import "./TopTeacherRevenue.css";
 import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 5;

@@ -4,7 +4,7 @@ import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
 import TeacherStatistics from "./statistics/TeacherStatistics";
 import TeacherFilters from "./filters/TeacherFilters";
 import InstructorTable from "./table/TeacherTable";
-import "./TeacherManagement";
+import "./TeacherManagement.css";
 import { useTranslation } from "react-i18next";
 
 const TeacherManagement = () => {

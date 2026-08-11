@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import "./ViewUserModal";
+import "./ViewUserModal.css";
 
 const formatDate = (value, fallback) => {
   if (!value) return fallback || "N/A";

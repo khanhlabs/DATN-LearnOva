@@ -1,4 +1,4 @@
-import "./UserRow";
+import "./UserRow.css";
 import { useTranslation } from "react-i18next";
 
 // User fields guaranteed from Dashboard.mapRecentUsersFromDb():

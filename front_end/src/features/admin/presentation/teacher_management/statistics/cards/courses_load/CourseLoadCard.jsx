@@ -1,5 +1,5 @@
 import { BookOpen } from "lucide-react";
-import "./CourseLoadCard";
+import "./CourseLoadCard.css";
 
 const CourseLoadCard = ({ title, value }) => {
   return (

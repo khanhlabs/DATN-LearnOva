@@ -7,7 +7,7 @@ import { useAxiosPrivate } from "../../hooks/useAxiosPrivate";
 import { getContinueLearningApi } from "../../../features/course/infrastructure/api/EnrollmentApi";
 import { getFileUrl } from "../../api/public/CoursesApi";
 
-import "./ContinueLearning";
+import "./ContinueLearning.css";
 
 const DISMISS_KEY = "learnova_continue_learning_dismissed";
 

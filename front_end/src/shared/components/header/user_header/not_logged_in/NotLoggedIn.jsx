@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import logo from "../../../../../assets/logo/LogoText.png";
 import NavMenu from "../components/nav/NavMenu";
 import HeaderAction from "../components/nav/HeaderAction";
-import "./NotLoggedIn";
+import "./NotLoggedIn.css";
 
 const Header = () => {
     const headerRef = useRef(null);

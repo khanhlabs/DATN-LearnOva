@@ -1,6 +1,6 @@
 import { Compass, Code2, Briefcase } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import './HowItWorks';
+import './HowItWorks.css';
 
 const STEP_ICONS = [Compass, Code2, Briefcase];
 

@@ -7,7 +7,7 @@ import {
 } from "../../profile/infrastructure/api/TeacherApply.js";
 import { generateUploadUrl } from "../../instructor/infrastructure/api/teacher/UploadApi.js";
 import { uploadFileWithProgress } from "../../../shared/services/UploadService";
-import "./ApplyTeacherPage";
+import "./ApplyTeacherPage.css";
 
 const STATUS_LABEL = {
   PENDING: "Đang chờ duyệt",

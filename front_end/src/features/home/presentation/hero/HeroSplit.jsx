@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import './HeroSplit';
+import './HeroSplit.css';
 import { getFeaturedCourses, getPlatformStats, getFileUrl } from '../../../../shared/api/public/CoursesApi';
 
 const formatCompact = (num) => {

@@ -4,7 +4,7 @@ import {
   reportFilterFields,
 } from "./reportFilterData";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
-import "./ReportFilter";
+import "./ReportFilter.css";
 
 const FilterField = ({ field, value, onChange }) => {
   const inputClassName = field.className ?? "filterInput filterSelect";

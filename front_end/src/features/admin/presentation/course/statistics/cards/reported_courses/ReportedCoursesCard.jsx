@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import "./ReportedCoursesCard";
+import "./ReportedCoursesCard.css";
 
 const ReportedCoursesCard = ({ label, value, trend, trendPercent }) => {
   return (

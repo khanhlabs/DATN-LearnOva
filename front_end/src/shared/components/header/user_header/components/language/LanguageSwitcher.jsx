@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
 import { LANGUAGE_STORAGE_KEY } from "../../../../../../app/i18n/i18n";
-import "./LanguageSwitcher";
+import "./LanguageSwitcher.css";
 
 const LanguageSwitcher = () => {
     const { i18n } = useTranslation();

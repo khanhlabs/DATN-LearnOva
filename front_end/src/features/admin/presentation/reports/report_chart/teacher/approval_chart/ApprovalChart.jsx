@@ -1,6 +1,6 @@
 import { Bar } from "react-chartjs-2";
 import "../../chartConfig";
-import "./ApprovalChart";
+import "./ApprovalChart.css";
 
 const ApprovalChart = () => {
   const data = {

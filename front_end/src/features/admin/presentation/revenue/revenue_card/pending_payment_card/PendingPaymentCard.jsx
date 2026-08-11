@@ -1,4 +1,4 @@
-import "./PendingPaymentCard";
+import "./PendingPaymentCard.css";
 
 const PendingPaymentCard = ({ title, value, note, icon: Icon }) => {
   return (

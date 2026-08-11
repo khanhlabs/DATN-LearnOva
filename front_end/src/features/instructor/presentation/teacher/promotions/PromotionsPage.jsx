@@ -13,7 +13,7 @@ import {
   emptyPromotionForm,
   filterPromotionCourses,
 } from "./utils/PromotionConfig";
-import "./PromotionsPage";
+import "./PromotionsPage.css";
 
 const ITEMS_PER_PAGE = 8;
 

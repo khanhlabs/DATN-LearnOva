@@ -1,8 +1,8 @@
 // LearnOva Backend+Frontend combined architecture — type "pipeline" (system-level request flow, LR).
 // One box per system layer (detail lives in learnova_backend_architecture.drawio / learnova_frontend_architecture.drawio).
 import { writeFileSync } from "node:fs";
-import { Diagram } from "../../../drawio-ai-kit/src/builder.mjs";
-import { frame, band, endpoint, ossBox, icon, phantom, renderTree } from "../../../drawio-ai-kit/src/layout-engine.mjs";
+import { Diagram } from "../../../AgentSkill/drawio-ai-kit/src/builder.mjs";
+import { frame, band, endpoint, ossBox, icon, phantom, renderTree } from "../../../AgentSkill/drawio-ai-kit/src/layout-engine.mjs";
 
 const d = new Diagram("pipeline");
 

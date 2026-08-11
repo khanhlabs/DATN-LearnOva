@@ -1,4 +1,4 @@
-import "./TransactionsCard";
+import "./TransactionsCard.css";
 
 const TransactionsCard = ({ title, value, delta, subtitle, icon: Icon }) => {
   return (

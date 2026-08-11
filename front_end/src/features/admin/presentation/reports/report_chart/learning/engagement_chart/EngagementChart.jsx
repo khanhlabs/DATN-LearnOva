@@ -1,6 +1,6 @@
 import { Bar } from "react-chartjs-2";
 import "../../chartConfig";
-import "./EngagementChart";
+import "./EngagementChart.css";
 
 const EngagementChart = () => {
   const data = {

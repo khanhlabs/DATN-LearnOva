@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AlertTriangle, Tag, Trash2, X } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./Cart";
+import "./Cart.css";
 import { applyVoucherApi } from "../../../course/infrastructure/api/VoucherApi";
 import { createPaymentApi } from "../../../payment/infrastructure/api/PaymentApi";
 import { getPublicCoursesApi } from "../../../course/infrastructure/api/CourseApi";

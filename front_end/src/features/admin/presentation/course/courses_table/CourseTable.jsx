@@ -4,7 +4,7 @@ import {BookOpen, Clock, FileText, Globe, GraduationCap, Info, List, MessageSqua
 import axiosClient from "../../../../../shared/api-client/AxiosClient";
 import { getFileUrl } from "../../../../../shared/api/public/CoursesApi";
 import CourseVideoPlayer from "../../../../course/presentation/user/courses_detail/components/tabs/video/VideoPlayer";
-import "./CourseTable";
+import "./CourseTable.css";
 
 const pageSize = 10;
 const thumbnailUrlCache = new Map();

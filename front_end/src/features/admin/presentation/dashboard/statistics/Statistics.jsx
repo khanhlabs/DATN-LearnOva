@@ -4,7 +4,7 @@ import {
   SquareUserRound,
   CircleDollarSign,
 } from "lucide-react";
-import "./Statistics";
+import "./Statistics.css";
 import { useTranslation } from "react-i18next";
 
 const createStatisticsData = (data, loading) => [

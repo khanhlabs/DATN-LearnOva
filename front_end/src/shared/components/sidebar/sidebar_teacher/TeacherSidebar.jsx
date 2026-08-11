@@ -13,7 +13,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import LogoText from "../../../../assets/logo/LogoText.png";
-import "./TeacherSidebar";
+import "./TeacherSidebar.css";
 
 const teacherNavSections = [
   {

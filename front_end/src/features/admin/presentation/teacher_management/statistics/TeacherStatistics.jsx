@@ -5,7 +5,7 @@ import StudentEnrollmentCard from "./cards/user_enrollment/StudentEnrollmentCard
 import RevenueSummaryCard from "./cards/revenue_summary/RevenueSummaryCard";
 import { getAdminInstructorsApi } from "../../../infrastructure/api/InstructorApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
-import "./TeacherStatistics";
+import "./TeacherStatistics.css";
 
 const formatCurrency = (value) => {
   const amount = Number(value);

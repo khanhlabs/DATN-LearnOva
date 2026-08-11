@@ -5,7 +5,7 @@ import { getCurrentUserApi } from "../../../../features/profile/infrastructure/a
 import { useAuth } from "../../../hooks/useAuth";
 import NotificationBell from "./NotificationBell";
 import default_avatar from '../../../../assets/image/DefaultAvatar.jpg'
-import "./TeacherHeader";
+import "./TeacherHeader.css";
 
 const DEFAULT_AVATAR = default_avatar;
 

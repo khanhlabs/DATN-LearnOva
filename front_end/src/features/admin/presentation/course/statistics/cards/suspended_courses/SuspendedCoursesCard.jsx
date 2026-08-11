@@ -1,5 +1,5 @@
 import { Ban } from "lucide-react";
-import "./SuspendedCoursesCard";
+import "./SuspendedCoursesCard.css";
 
 const SuspendedCoursesCard = ({ label, value, trend, trendPercent }) => {
   return (

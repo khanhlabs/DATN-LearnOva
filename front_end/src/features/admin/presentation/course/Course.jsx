@@ -6,7 +6,7 @@ import { getAdminInstructorsApi } from "../../infrastructure/api/InstructorApi";
 import CourseFilters from "./filters/CourseFilters";
 import CourseStatistics from "./statistics/CourseStatistics";
 import CourseTable from "./courses_table/CourseTable";
-import "./Course";
+import "./Course.css";
 
 const mergeInstructorOptions = (apiInstructors = [], courseData = []) => {
   const instructorMap = new Map();
