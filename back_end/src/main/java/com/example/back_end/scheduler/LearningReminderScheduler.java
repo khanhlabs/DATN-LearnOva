@@ -1,11 +1,11 @@
 package com.example.back_end.scheduler;
 
-import com.example.back_end.entity.Enrollment;
-import com.example.back_end.entity.enums.NotificationType;
-import com.example.back_end.repository.EnrollmentRepository;
-import com.example.back_end.repository.NotificationRepository;
-import com.example.back_end.service.EmailService;
-import com.example.back_end.service.NotificationService;
+import com.example.back_end.auth.infrastructure.EmailService;
+import com.example.back_end.learning.domain.Enrollment;
+import com.example.back_end.learning.infrastructure.persistence.EnrollmentRepository;
+import com.example.back_end.notification.application.NotificationService;
+import com.example.back_end.notification.domain.enums.NotificationType;
+import com.example.back_end.notification.infrastructure.persistence.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

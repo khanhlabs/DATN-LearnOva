@@ -1,8 +1,8 @@
 package com.example.back_end.controller.teacher;
 
-import com.example.back_end.dto.response.PayoutBalanceResponse;
-import com.example.back_end.dto.response.PayoutRequestResponse;
-import com.example.back_end.service.PayoutRequestService;
+import com.example.back_end.commerce.adapter.in.web.dto.PayoutBalanceResponse;
+import com.example.back_end.commerce.adapter.in.web.dto.PayoutRequestResponse;
+import com.example.back_end.commerce.application.PayoutRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

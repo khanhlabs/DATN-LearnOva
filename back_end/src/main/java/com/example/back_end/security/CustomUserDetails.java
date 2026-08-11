@@ -1,8 +1,7 @@
 package com.example.back_end.security;
 
-import com.example.back_end.entity.Role;
-import com.example.back_end.entity.User;
-import com.example.back_end.entity.enums.RoleName;
+import com.example.back_end.auth.domain.User;
+import com.example.back_end.auth.domain.enums.RoleName;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

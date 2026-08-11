@@ -1,5 +1,7 @@
 package com.example.back_end.entity;
 
+import com.example.back_end.assessment.domain.LessonQA;
+import com.example.back_end.auth.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

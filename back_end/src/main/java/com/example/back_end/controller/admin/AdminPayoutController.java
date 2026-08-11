@@ -1,7 +1,7 @@
 package com.example.back_end.controller.admin;
 
-import com.example.back_end.dto.response.PayoutRequestResponse;
-import com.example.back_end.service.PayoutRequestService;
+import com.example.back_end.commerce.adapter.in.web.dto.PayoutRequestResponse;
+import com.example.back_end.commerce.application.PayoutRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
