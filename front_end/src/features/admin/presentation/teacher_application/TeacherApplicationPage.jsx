@@ -138,16 +138,16 @@ const TeacherApplicationPage = () => {
   return (
     <div className="teacherAppPage">
       <header className="teacherAppPageHeader">
-        <h1>{t("teacher_application.title")}</h1>
-        <p>{t("teacher_application.subtitle")}</p>
+        <h1>{t("teacherApplication.title")}</h1>
+        <p>{t("teacherApplication.subtitle")}</p>
       </header>
 
       <div className="teacherAppLayout">
         <aside className="teacherAppSidebar">
           {loadingList ? (
-            <p className="teacherAppEmptyState">{t("teacher_application.loading")}</p>
+            <p className="teacherAppEmptyState">{t("teacherApplication.loading")}</p>
           ) : applications.length === 0 ? (
-            <p className="teacherAppEmptyState">{t("teacher_application.empty")}</p>
+            <p className="teacherAppEmptyState">{t("teacherApplication.empty")}</p>
           ) : (
             <ul>
               {applications.map((app) => (
@@ -173,10 +173,10 @@ const TeacherApplicationPage = () => {
           {!selectedId ? (
             <div className="teacherAppEmptyState teacherAppEmptyStateCenter">
               <GraduationCap size={48} />
-              <p>{t("teacher_application.select")}</p>
+              <p>{t("teacherApplication.select")}</p>
             </div>
           ) : loadingDetail ? (
-            <div className="teacherAppEmptyStateCenter">{t("teacher_application.loadingDetail")}</div>
+            <div className="teacherAppEmptyStateCenter">{t("teacherApplication.loadingDetail")}</div>
           ) : !detail ? (
             <div className="teacherAppEmptyStateCenter">Application detail could not be loaded.</div>
           ) : (

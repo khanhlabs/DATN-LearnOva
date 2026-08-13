@@ -246,7 +246,7 @@ const Category = () => {
           />
           <button type="button" className="adminCategoryCreateButton" onClick={openCreate}>
             <Plus size={18} />
-            + {t("categoryAdmin.new")}
+            {t("categoryAdmin.new")}
           </button>
         </div>
 

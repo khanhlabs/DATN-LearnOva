@@ -265,7 +265,7 @@ const Tag = () => {
           />
           <button type="button" className="adminTagCreateButton" onClick={openCreate}>
             <Plus size={18} />
-            + {t("tagAdmin.new")}
+            {t("tagAdmin.new")}
           </button>
         </div>
 

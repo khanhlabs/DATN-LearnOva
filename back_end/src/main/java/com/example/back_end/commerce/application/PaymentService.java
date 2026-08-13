@@ -72,6 +72,7 @@ public class PaymentService {
     private final PayOSService payOSService;
     private final ExchangeRateService exchangeRateService;
     private final NotificationService notificationService;
+    private final AutomaticPayoutService automaticPayoutService;
 
     @Transactional
     public CreatePaymentResponse createPayment(CreatePaymentRequest request) {
@@ -435,6 +436,7 @@ public class PaymentService {
         payment.setUpdatedAt(Instant.now());
 
         if (firstTimePaid) {
+            automaticPayoutService.createForSuccessfulPayment(payment, orderItems);
             notificationService.create(
                     user,
                     NotificationType.GENERIC,

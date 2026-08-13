@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 const EMPTY_BREAKDOWN = [];
 
 const Revenue = () => {
+  const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [overview, setOverview] = useState(null);
   const [error, setError] = useState("");

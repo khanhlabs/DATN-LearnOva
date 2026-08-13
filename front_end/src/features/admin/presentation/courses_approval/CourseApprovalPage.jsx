@@ -221,18 +221,18 @@ const CourseApprovalPage = () => {
           onClick={() => navigate("/learnova/admin/courses")}
         >
           <ArrowLeft size={16} />
-          {t("courses_approval.back")}
+          {t("courseApproval.back")}
         </button>
 
         <div className="approvalPageHeaderTitle">
-          <h1>{t("courses_approval.title")}</h1>
-          <p>{t("courses_approval.subtitle")}</p>
+          <h1>{t("courseApproval.title")}</h1>
+          <p>{t("courseApproval.subtitle")}</p>
         </div>
       </header>
 
       <div className="approvalLayout">
         {loadingList ? (
-          <aside className="approvalSidebar approvalSidebarLoading">{t("courses_approval.loading")}</aside>
+          <aside className="approvalSidebar approvalSidebarLoading">{t("courseApproval.loading")}</aside>
         ) : (
           <ApprovalSidebar
             courses={draftCourses}
@@ -245,13 +245,13 @@ const CourseApprovalPage = () => {
           {!selectedId ? (
             <div className="approvalEmptyState">
               <BookOpen size={48} />
-              <p>{t("courses_approval.select")}</p>
+              <p>{t("courseApproval.select")}</p>
             </div>
           ) : loadingDetail ? (
-            <div className="approvalEmptyState">{t("courses_approval.loadingDetail")}</div>
+            <div className="approvalEmptyState">{t("courseApproval.loadingDetail")}</div>
           ) : !detail ? (
             <div className="approvalEmptyState approvalEmptyState--error">
-              {t("courses_approval.error")}
+              {t("courseApproval.error")}
             </div>
           ) : (
             <ApprovalCourseDetail
