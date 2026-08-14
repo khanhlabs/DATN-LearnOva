@@ -157,6 +157,11 @@
   background: #f1f5f9;
 }
 
+.approvalSidebarThumb--empty,
+.approvalCourseThumbnail--empty {
+  background: #e2e8f0;
+}
+
 .approvalSidebarThumbPlaceholder {
   width: 44px;
   height: 34px;

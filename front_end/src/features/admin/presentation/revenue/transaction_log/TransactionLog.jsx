@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, FileText } from "lucide-react";
+import { toast } from "react-toastify";
 import AdminHoverSelect from "../../shared/AdminHoverSelect";
 import { getAdminCategoriesApi } from "../../../infrastructure/api/CategoryApi";
 import { getAdminRevenueTransactionsApi } from "../../../infrastructure/api/RevenueApi";
+import {
+  downloadPaymentReceiptApi,
+  getPaymentHistoryDetailApi,
+} from "../../../../profile/infrastructure/api/PaymentHistoryApi";
+import PaymentReceiptModal from "../../../../profile/presentation/profileView/sections/PaymentReceiptModal";
+import { useAuth } from "../../../../../shared/hooks/useAuth";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
 import "./TransactionLog.css";
 import { useTranslation } from "react-i18next";
@@ -50,6 +57,7 @@ const formatGateway = (method) => {
 
 const TransactionLog = () => {
   const { t } = useTranslation();
+  const { accessToken } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
@@ -62,6 +70,10 @@ const TransactionLog = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedDisplayCode, setSelectedDisplayCode] = useState("");
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -158,6 +170,63 @@ const TransactionLog = () => {
     setCurrentPage(1);
   };
 
+  const closeReceipt = () => {
+    setSelectedPayment(null);
+    setSelectedDisplayCode("");
+  };
+
+  const handleOpenDetail = async (transaction) => {
+    if (!transaction?.orderId) return;
+    setIsLoadingDetail(true);
+    setSelectedPayment(null);
+    setSelectedDisplayCode(transaction.transactionId || `PAY-${transaction.paymentId}`);
+    try {
+      setSelectedPayment(
+        await getPaymentHistoryDetailApi(axiosPrivate, transaction.orderId, accessToken)
+      );
+    } catch (requestError) {
+      setSelectedDisplayCode("");
+      toast.error(
+        requestError?.response?.data?.message || t("profile.paymentHistory.detailError")
+      );
+    } finally {
+      setIsLoadingDetail(false);
+    }
+  };
+
+  const handleDownloadReceipt = async () => {
+    if (
+      !selectedPayment ||
+      selectedPayment.orderStatus !== "PAID" ||
+      selectedPayment.paymentStatus !== "SUCCESS"
+    ) {
+      return;
+    }
+    setIsDownloading(true);
+    try {
+      const blob = await downloadPaymentReceiptApi(
+        axiosPrivate,
+        selectedPayment.orderId,
+        accessToken
+      );
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `learnova-payment-receipt-${selectedPayment.orderId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast.success(t("profile.paymentHistory.downloadSuccess"));
+    } catch (requestError) {
+      toast.error(
+        requestError?.response?.data?.message || t("profile.paymentHistory.downloadError")
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <section
       className="transactionLogSection"
@@ -250,7 +319,9 @@ const TransactionLog = () => {
                       type="button"
                       className="transactionActionButton"
                       aria-label={`View invoice ${transaction.transactionId}`}
-                      title={`Order #${transaction.orderId}`}
+                      title={transaction.transactionId}
+                      disabled={isLoadingDetail}
+                      onClick={() => handleOpenDetail(transaction)}
                     >
                       <FileText size={16} />
                     </button>
@@ -294,6 +365,18 @@ const TransactionLog = () => {
           </div>
         ) : null}
       </div>
+
+      {(isLoadingDetail || selectedPayment) && (
+        <PaymentReceiptModal
+          payment={selectedPayment}
+          isLoading={isLoadingDetail}
+          isDownloading={isDownloading}
+          displayCode={selectedDisplayCode}
+          showStudent
+          onClose={closeReceipt}
+          onDownload={handleDownloadReceipt}
+        />
+      )}
     </section>
   );
 };

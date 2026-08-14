@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +19,45 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
+
+    @Query(value = """
+            SELECT DISTINCT o.*
+            FROM orders o
+            LEFT JOIN order_items oi ON oi.order_id = o.order_id
+            LEFT JOIN courses c ON c.course_id = oi.course_id
+            JOIN payments p ON p.order_id = o.order_id
+            WHERE o.user_id = :userId
+              AND (CAST(:status AS text) IS NULL OR CAST(o.status AS text) = CAST(:status AS text) OR CAST(p.status AS text) = CAST(:status AS text))
+              AND (CAST(:fromDate AS timestamp with time zone) IS NULL OR o.created_at >= CAST(:fromDate AS timestamp with time zone))
+              AND (CAST(:toDate AS timestamp with time zone) IS NULL OR o.created_at < CAST(:toDate AS timestamp with time zone))
+              AND (CAST(:search AS text) IS NULL OR CAST(o.order_id AS text) ILIKE CONCAT('%', CAST(:search AS text), '%')
+                   OR c.title ILIKE CONCAT('%', CAST(:search AS text), '%'))
+            ORDER BY o.created_at DESC
+            """,
+            countQuery = """
+            SELECT COUNT(DISTINCT o.order_id)
+            FROM orders o
+            LEFT JOIN order_items oi ON oi.order_id = o.order_id
+            LEFT JOIN courses c ON c.course_id = oi.course_id
+            JOIN payments p ON p.order_id = o.order_id
+            WHERE o.user_id = :userId
+              AND (CAST(:status AS text) IS NULL OR CAST(o.status AS text) = CAST(:status AS text) OR CAST(p.status AS text) = CAST(:status AS text))
+              AND (CAST(:fromDate AS timestamp with time zone) IS NULL OR o.created_at >= CAST(:fromDate AS timestamp with time zone))
+              AND (CAST(:toDate AS timestamp with time zone) IS NULL OR o.created_at < CAST(:toDate AS timestamp with time zone))
+              AND (CAST(:search AS text) IS NULL OR CAST(o.order_id AS text) ILIKE CONCAT('%', CAST(:search AS text), '%')
+                   OR c.title ILIKE CONCAT('%', CAST(:search AS text), '%'))
+            """,
+            nativeQuery = true)
+    Page<Order> findPaymentHistory(
+            @Param("userId") Long userId,
+            @Param("status") String status,
+            @Param("fromDate") Instant fromDate,
+            @Param("toDate") Instant toDate,
+            @Param("search") String search,
+            Pageable pageable
+    );
+
+    Optional<Order> findByIdAndUserId(Long id, Long userId);
 
     interface DailyRevenueProjection {
         LocalDate getDay();

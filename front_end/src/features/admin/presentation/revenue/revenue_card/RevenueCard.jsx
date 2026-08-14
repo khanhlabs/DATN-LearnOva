@@ -32,6 +32,15 @@ const formatDelta = (value) => {
 const formatCount = (value) => Number(value || 0).toLocaleString("en-US");
 
 const RevenueCard = ({ kpis = null }) => {
+  const { t } = useTranslation();
+  const labels = {
+    totalRevenue: t("revenueAdmin.total"),
+    monthlyRevenue: t("revenueAdmin.monthly"),
+    transactions: t("revenueAdmin.transactions"),
+    pendingPayment: t("revenueAdmin.pending"),
+    refundRequest: t("revenueAdmin.refunds"),
+    growthRate: t("revenueAdmin.growth"),
+  };
   const revenueBlocks = [
     {
       id: "totalRevenue",
