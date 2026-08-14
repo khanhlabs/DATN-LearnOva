@@ -9,6 +9,8 @@ public record AdminRevenueComparisonResponse(
 ) {
     public record ComparisonPoint(
             String label,
-            BigDecimal totalCashFlow
+            BigDecimal totalCashFlow,
+            BigDecimal instructorPayouts,
+            BigDecimal adminNet
     ) {}
 }

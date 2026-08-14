@@ -34,10 +34,10 @@ public class AdminUserService {
         return adminUserRepository.findAll()
             .stream()
             .map(user -> {
-                String roleText = user.getRoles()
-                    .stream()
-                    .map(role -> role.getRoleName().name().replace("ROLE_", ""))
-                    .findFirst()
+                String roleText = user.getRoles().stream()
+                    .map(role -> role.getRoleName())
+                    .reduce((left, right) -> rolePriority(left) >= rolePriority(right) ? left : right)
+                    .map(roleName -> roleName.name().replace("ROLE_", ""))
                     .orElse("USER");
 
                 String statusText = Boolean.TRUE.equals(user.getIsActive()) ? "Active" : "Inactive";
@@ -59,6 +59,16 @@ public class AdminUserService {
                 );
             })
             .toList();
+    }
+
+    private int rolePriority(RoleName roleName) {
+        if (roleName == RoleName.ROLE_ADMIN) {
+            return 3;
+        }
+        if (roleName == RoleName.ROLE_TEACHER) {
+            return 2;
+        }
+        return 1;
     }
 
     public AdminUserResponse createUser(AdminUserRequest request) {

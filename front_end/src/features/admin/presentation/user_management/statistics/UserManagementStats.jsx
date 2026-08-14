@@ -9,10 +9,11 @@ import { useTranslation } from "react-i18next";
 const formatCount = (value) => new Intl.NumberFormat("en-US").format(value);
 
 const getStatisticsCards = (users, isLoading) => {
-  const totalUsers = users.length;
-  const students = users.filter((user) => user.roleFilter === "student").length;
-  const teachers = users.filter((user) => user.roleFilter === "teacher").length;
-  const admins = users.filter((user) => user.roleFilter === "admin").length;
+  const activeUsers = users.filter((user) => !user.isDeleted);
+  const totalUsers = activeUsers.length;
+  const students = activeUsers.filter((user) => user.roleFilter === "student").length;
+  const teachers = activeUsers.filter((user) => user.roleFilter === "teacher").length;
+  const admins = activeUsers.filter((user) => user.roleFilter === "admin").length;
   const lockedAccounts = users.filter(
     (user) => user.statusFilter === "locked",
   ).length;

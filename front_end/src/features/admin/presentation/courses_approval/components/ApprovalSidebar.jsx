@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../../../../shared/api-client/AxiosClient";
+import { getFileUrl } from "../../../../../shared/api/public/CoursesApi";
 
 const thumbnailUrlCache = new Map();
 
@@ -12,18 +12,18 @@ const useCourseThumbnail = (thumbnailKeyFromDatabase) => {
     const thumbnailKey = thumbnailKeyFromDatabase?.trim();
 
     const loadThumbnailFromS3 = async () => {
-      if (!thumbnailKey) return;
+      if (!thumbnailKey) {
+        if (isMounted) setSignedThumbnailUrl(null);
+        return;
+      }
 
       try {
         let thumbnailUrl = thumbnailUrlCache.get(thumbnailKey);
         if (!thumbnailUrl) {
-          const response = await axiosClient.get("/admin/courses-management/thumbnail-url", {
-            params: { thumbnailKey },
-          });
-          thumbnailUrl = response.data?.url || null;
+          thumbnailUrl = await getFileUrl(thumbnailKey);
           if (thumbnailUrl) thumbnailUrlCache.set(thumbnailKey, thumbnailUrl);
         }
-        if (isMounted) setSignedThumbnailUrl(thumbnailUrl);
+        if (isMounted) setSignedThumbnailUrl(thumbnailUrl || null);
       } catch {
         if (isMounted) setSignedThumbnailUrl(null);
       }
@@ -39,22 +39,33 @@ const useCourseThumbnail = (thumbnailKeyFromDatabase) => {
 const ApprovalSidebarThumbnail = ({ course }) => {
   const thumbnailUrl = useCourseThumbnail(course.thumbnailKey);
 
-  return thumbnailUrl ? (
-    <img className="approvalSidebarThumb" src={thumbnailUrl} alt={course.title} />
-  ) : null;
+  if (!thumbnailUrl) {
+    return <div className="approvalSidebarThumb approvalSidebarThumb--empty" aria-hidden="true" />;
+  }
+
+  return (
+    <img
+      className="approvalSidebarThumb"
+      src={thumbnailUrl}
+      alt={course.title}
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  );
 };
 
 const ApprovalSidebar = ({ courses, selectedId, onSelect }) => {
   const { t } = useTranslation();
   return <aside className="approvalSidebar">
     <div className="approvalSidebarHeader">
-      <p className="approvalSidebarEyebrow">{t("courses_approval.pending")}</p>
-      <p className="approvalSidebarCount">{t("courses_approval.count", { count: courses.length })}</p>
+      <p className="approvalSidebarEyebrow">{t("courseApproval.pending")}</p>
+      <p className="approvalSidebarCount">{t("courseApproval.count", { count: courses.length })}</p>
     </div>
 
     <ul className="approvalSidebarList">
       {courses.length === 0 ? (
-        <li className="approvalSidebarEmpty">{t("courses_approval.empty")}</li>
+        <li className="approvalSidebarEmpty">{t("courseApproval.empty")}</li>
       ) : (
         courses.map((course) => (
           <li key={course.id}>

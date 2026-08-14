@@ -36,12 +36,23 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     long countActiveTeachers();
 
     @Query(value = """
-            SELECT CAST(r.role_name AS text) AS role_name, COUNT(DISTINCT u.user_id) AS total
-            FROM users u
-            JOIN user_role ur ON ur.user_id = u.user_id
-            JOIN roles r ON r.role_id = ur.role_id
-            WHERE u.is_deleted = false
-            GROUP BY CAST(r.role_name AS text)
+            WITH primary_role AS (
+              SELECT
+                u.user_id,
+                CASE
+                  WHEN BOOL_OR(CAST(r.role_name AS text) = 'ROLE_ADMIN') THEN 'ROLE_ADMIN'
+                  WHEN BOOL_OR(CAST(r.role_name AS text) = 'ROLE_TEACHER') THEN 'ROLE_TEACHER'
+                  ELSE 'ROLE_USER'
+                END AS role_name
+              FROM users u
+              LEFT JOIN user_role ur ON ur.user_id = u.user_id
+              LEFT JOIN roles r ON r.role_id = ur.role_id
+              WHERE u.is_deleted = false
+              GROUP BY u.user_id
+            )
+            SELECT role_name, COUNT(*) AS total
+            FROM primary_role
+            GROUP BY role_name
             """, nativeQuery = true)
     List<Object[]> countActiveUsersByRoleName();
 

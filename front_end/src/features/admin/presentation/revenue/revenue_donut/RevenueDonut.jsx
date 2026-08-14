@@ -27,6 +27,7 @@ const formatCompactMoney = (value) => {
 
 
 const RevenueDonut = ({ items = [] }) => {
+  const { t } = useTranslation();
   const donutRef = useRef(null);
   const chartRef = useRef(null);
 

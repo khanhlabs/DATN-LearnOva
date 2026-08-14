@@ -83,7 +83,7 @@ const RoleDistribution = ({ data = [] }) => {
   return (
     <section className="roleDistributionCard" aria-label="Role Distribution">
       <div className="roleDistributionHeader">
-        <h3 className="roleDistributionTitle">{t("admin.role_distribution")}</h3>
+        <h3 className="roleDistributionTitle">{t("admin.roleDistribution")}</h3>
       </div>
 
       <div className="roleDistributionChartWrap">

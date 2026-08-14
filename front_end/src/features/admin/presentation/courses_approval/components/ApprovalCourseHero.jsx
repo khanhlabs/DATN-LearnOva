@@ -1,6 +1,6 @@
 import { BookOpen, CheckCircle, Clock, EyeOff, FileText, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import axiosClient from "../../../../../shared/api-client/AxiosClient";
+import { getFileUrl } from "../../../../../shared/api/public/CoursesApi";
 
 const thumbnailUrlCache = new Map();
 
@@ -21,18 +21,18 @@ const useCourseThumbnail = (thumbnailKeyFromDatabase) => {
     const thumbnailKey = thumbnailKeyFromDatabase?.trim();
 
     const loadThumbnailFromS3 = async () => {
-      if (!thumbnailKey) return;
+      if (!thumbnailKey) {
+        if (isMounted) setSignedThumbnailUrl(null);
+        return;
+      }
 
       try {
         let thumbnailUrl = thumbnailUrlCache.get(thumbnailKey);
         if (!thumbnailUrl) {
-          const response = await axiosClient.get("/admin/courses-management/thumbnail-url", {
-            params: { thumbnailKey },
-          });
-          thumbnailUrl = response.data?.url || null;
+          thumbnailUrl = await getFileUrl(thumbnailKey);
           if (thumbnailUrl) thumbnailUrlCache.set(thumbnailKey, thumbnailUrl);
         }
-        if (isMounted) setSignedThumbnailUrl(thumbnailUrl);
+        if (isMounted) setSignedThumbnailUrl(thumbnailUrl || null);
       } catch {
         if (isMounted) setSignedThumbnailUrl(null);
       }
@@ -97,8 +97,13 @@ const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onReject }) => {
             className="approvalCourseThumbnail"
             src={thumbnailUrl}
             alt={course.title}
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
           />
-        ) : null}
+        ) : (
+          <div className="approvalCourseThumbnail approvalCourseThumbnail--empty" aria-hidden="true" />
+        )}
 
         <div className="approvalCourseInfo">
           <div className="approvalCourseInfoTop">

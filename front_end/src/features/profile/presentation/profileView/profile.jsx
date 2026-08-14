@@ -14,6 +14,8 @@ import FavoriteCourseDetailSection from "./sections/favoriteCourseDetail/Favorit
 import FavoritesSection from "./sections/FavoritesSection";
 import SecuritySection from "./sections/SecuritySection";
 import ProfileFormSection from "./sections/ProfileFormSection";
+import VouchersSection from "./sections/VouchersSection";
+import PaymentHistorySection from "./sections/PaymentHistorySection";
 import { getMyEnrolledCoursesApi } from "../../../course/infrastructure/api/EnrollmentApi";
 import { useAuth } from "../../../../shared/hooks/useAuth";
 import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
@@ -369,6 +371,14 @@ const ProfileView = ({
           onOpenCourse={handleOpenCourse}
         />
       );
+    }
+
+    if (activeTab === "vouchers") {
+      return <VouchersSection />;
+    }
+
+    if (activeTab === "payments") {
+      return <PaymentHistorySection />;
     }
 
     if (activeTab === "security") {

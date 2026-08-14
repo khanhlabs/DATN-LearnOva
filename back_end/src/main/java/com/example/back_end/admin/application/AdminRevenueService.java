@@ -7,6 +7,7 @@ import com.example.back_end.admin.adapter.in.web.dto.AdminRevenueOverviewRespons
 import com.example.back_end.admin.adapter.in.web.dto.AdminRevenueTransactionInsightsResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminRevenueTransactionResponse;
 import com.example.back_end.admin.infrastructure.persistence.AdminRevenueRepository;
+import com.example.back_end.commerce.application.RevenueShareCalculator;
 import com.example.back_end.shared.util.PercentDeltaCalculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,6 +43,7 @@ public class AdminRevenueService {
     private static final DateTimeFormatter MONTH_LABEL = DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH);
 
     private final AdminRevenueRepository adminRevenueRepository;
+    private final RevenueShareCalculator revenueShareCalculator;
 
     public Page<AdminRevenueCourseRankingResponse> getTopRevenueCourses(Pageable pageable) {
         return adminRevenueRepository.findTopRevenueCourses(pageable)
@@ -133,9 +135,13 @@ public class AdminRevenueService {
         );
         List<AdminRevenueComparisonResponse.ComparisonPoint> points = new ArrayList<>();
         for (LocalDate periodStart : window.periods()) {
+            BigDecimal studentPaid = cashFlow.getOrDefault(periodStart, BigDecimal.ZERO);
+            RevenueShareCalculator.RevenueShare share = revenueShareCalculator.calculate(studentPaid);
             points.add(new AdminRevenueComparisonResponse.ComparisonPoint(
                     formatPeriodLabel(periodStart, normalized),
-                    cashFlow.getOrDefault(periodStart, BigDecimal.ZERO)
+                    studentPaid,
+                    share.instructorAmount(),
+                    share.adminAmount()
             ));
         }
 
