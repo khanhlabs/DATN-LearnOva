@@ -326,7 +326,7 @@ public class AdminVoucherService {
         voucher.setDescription(voucherDescription);
         voucher.setDiscountType(discountType);
         voucher.setDiscountValue(voucherRequest.discountValue());
-        voucher.setMinimumOrder(BigDecimal.ZERO);
+        voucher.setMinimumOrder(voucherRequest.minimumOrder());
         voucher.setMaximumDiscountAmount(voucherRequest.maximumDiscountAmount());
         voucher.setUsageLimit(voucherRequest.usageLimit());
         voucher.setStartDate(startDate);
