@@ -9,7 +9,7 @@ import {
 import { useAxiosPrivate } from "./useAxiosPrivate";
 import { useAuth } from "./useAuth";
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 45000;
 
 export const useNotifications = () => {
     const axiosClient = useAxiosPrivate();
