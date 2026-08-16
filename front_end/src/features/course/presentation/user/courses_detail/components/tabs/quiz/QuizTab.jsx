@@ -8,7 +8,7 @@ import {
     submitQuizApi,
 } from "../../../../../../infrastructure/api/QuizApi";
 
-import "./css/QuizTab.css";
+import "./QuizTab.css";
 
 const LETTERS = ["A", "B", "C", "D"];
 

@@ -7,7 +7,12 @@ import com.example.back_end.commerce.domain.Voucher;
 import com.example.back_end.commerce.domain.enums.DiscountType;
 import com.example.back_end.shared.exception.BusinessException;
 import com.example.back_end.commerce.infrastructure.persistence.VoucherRepository;
+import com.example.back_end.commerce.infrastructure.persistence.UserVoucherRepository;
+import com.example.back_end.auth.domain.User;
+import com.example.back_end.auth.infrastructure.persistence.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,9 +25,17 @@ import java.time.OffsetDateTime;
 public class VoucherService {
 
     private final VoucherRepository voucherRepository;
+    private final UserRepository userRepository;
+    private final UserVoucherRepository userVoucherRepository;
 
-    public VoucherService(VoucherRepository voucherRepository) {
+    public VoucherService(
+            VoucherRepository voucherRepository,
+            UserRepository userRepository,
+            UserVoucherRepository userVoucherRepository
+    ) {
         this.voucherRepository = voucherRepository;
+        this.userRepository = userRepository;
+        this.userVoucherRepository = userVoucherRepository;
     }
 
     public ApplyVoucherResponse applyVoucher(ApplyVoucherRequest request) {
@@ -39,6 +52,19 @@ public class VoucherService {
 
         Voucher voucher = voucherRepository.findByCodeIgnoreCase(code)
                 .orElseThrow(() -> new BusinessException("Voucher không tồn tại."));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getName() == null || authentication.getName().isBlank()) {
+            throw new BusinessException("Vui lòng đăng nhập để sử dụng voucher.");
+        }
+
+        User user = userRepository.findByEmailAndIsDeletedFalse(authentication.getName())
+                .orElseThrow(() -> new BusinessException("Không tìm thấy tài khoản người dùng."));
+
+        if (userVoucherRepository.findByUser_IdAndVoucher_Id(user.getId(), voucher.getId()).isEmpty()) {
+            throw new BusinessException("Bạn cần nhận voucher trước khi áp dụng mã này.");
+        }
 
         OffsetDateTime now = OffsetDateTime.now();
         if (isExpired(voucher, now)) {
@@ -59,32 +85,21 @@ public class VoucherService {
             throw new BusinessException("Voucher chưa đến thời gian sử dụng.");
         }
 
-        if (voucher.getMinimumOrder() != null && subtotal.compareTo(voucher.getMinimumOrder()) < 0) {
-            throw new BusinessException("Đơn hàng chưa đạt giá trị tối thiểu để dùng voucher.");
-        }
-
+        // Preview only — do not consume usage here. Count increments when payment succeeds.
         BigDecimal discountAmount = calculateDiscount(voucher, subtotal);
-        int nextUsedCount = (voucher.getUsedCount() == null ? 0 : voucher.getUsedCount()) + 1;
-        voucher.setUsedCount(nextUsedCount);
-        if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0 && nextUsedCount >= voucher.getUsageLimit()) {
-            voucher.setIsActive(false);
-        }
-        voucher.setUpdatedAt(Instant.now());
-
-        Voucher savedVoucher = voucherRepository.save(voucher);
         BigDecimal total = subtotal.subtract(discountAmount).max(BigDecimal.ZERO);
 
         return new ApplyVoucherResponse(
-                savedVoucher.getId(),
-                savedVoucher.getCode(),
-                savedVoucher.getDiscountType() == null ? null : savedVoucher.getDiscountType().name(),
-                savedVoucher.getDiscountValue(),
+                voucher.getId(),
+                voucher.getCode(),
+                voucher.getDiscountType() == null ? null : voucher.getDiscountType().name(),
+                voucher.getDiscountValue(),
                 discountAmount,
                 subtotal,
                 total,
-                savedVoucher.getUsageLimit(),
-                savedVoucher.getUsedCount(),
-                savedVoucher.getIsActive()
+                voucher.getUsageLimit(),
+                voucher.getUsedCount(),
+                voucher.getIsActive()
         );
     }
 
@@ -114,7 +129,7 @@ public class VoucherService {
 
     private boolean isUsageLimitReached(Voucher voucher) {
         Integer usageLimit = voucher.getUsageLimit();
-        if (usageLimit == null || usageLimit <= 0) return true;
+        if (usageLimit == null || usageLimit <= 0) return false; // unlimited
         return (voucher.getUsedCount() == null ? 0 : voucher.getUsedCount()) >= usageLimit;
     }
 

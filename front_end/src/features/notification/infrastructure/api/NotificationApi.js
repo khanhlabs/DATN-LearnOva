@@ -45,3 +45,14 @@ export const markAllNotificationsReadApi = async (client = axiosClient) => {
   const response = await client.patch("/notifications/read-all");
   return response.data;
 };
+
+
+export const markSupportConversationReadApi = async (conversationId, client = axiosClient) => {
+  const response = await client.patch(`/notifications/support/${conversationId}/read`);
+  return response.data;
+};
+
+export const deleteSupportConversationNotificationsApi = async (conversationId, client = axiosClient) => {
+  const response = await client.delete(`/notifications/support/${conversationId}`);
+  return response.data;
+};
