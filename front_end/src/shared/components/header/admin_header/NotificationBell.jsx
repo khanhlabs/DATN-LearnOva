@@ -15,7 +15,9 @@ const NotificationBell = () => {
   const { notifications, unreadCount, loadNotifications, markRead } = useNotifications();
 
   const handleClick = async (notification) => {
-    if (!notification.isRead) await markRead(notification.id);
+    if (!notification.isRead) {
+      await markRead(notification.id).catch(() => null);
+    }
     if (notification.link) navigate(notification.link);
   };
 
