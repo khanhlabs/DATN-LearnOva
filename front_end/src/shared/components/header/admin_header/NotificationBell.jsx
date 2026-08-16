@@ -12,11 +12,16 @@ const timeAgo = (dateStr) => {
 
 const NotificationBell = () => {
   const navigate = useNavigate();
-  const { notifications, unreadCount, loadNotifications, markRead } = useNotifications();
+  const { notifications, unreadCount, loadNotifications, markRead, clearSupportConversationNotifications } = useNotifications();
 
   const handleClick = async (notification) => {
     if (!notification.isRead) {
       await markRead(notification.id).catch(() => null);
+    }
+    if (notification.type === "SUPPORT_MESSAGE" && notification.link) {
+      const url = new URL(notification.link, window.location.origin);
+      const conversationId = url.searchParams.get("conversationId");
+      if (conversationId) await clearSupportConversationNotifications(conversationId).catch(() => {});
     }
     if (notification.link) navigate(notification.link);
   };

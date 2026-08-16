@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/learnova/payments/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learnova/payments/exchange-rate/usd-vnd").permitAll()
                         .requestMatchers("/api/learnova/user/me").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         // ── Admin only ────────────────────────────────────────

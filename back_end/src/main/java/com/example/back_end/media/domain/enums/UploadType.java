@@ -7,5 +7,6 @@ public enum UploadType {
     DOCUMENT,
     CV,
     AVATAR,
-    INSTRUCTOR_AVATAR
+    INSTRUCTOR_AVATAR,
+    CHAT_IMAGE
 }

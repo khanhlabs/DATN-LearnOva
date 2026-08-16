@@ -9,7 +9,7 @@ import OverviewTab from "./components/tabs/overview/OverviewTab";
 import SummaryTab from "./components/tabs/summary/SummayTab";
 import QATab from "./components/tabs/q&a/Q&ATab.jsx";
 import ReviewsTab from "./components/tabs/review/ReviewTab";
-import chatbot from "../../../home/chat-bot/chatBot.jsx";
+import ChatBot from "../../../../home/presentation/chat_bot/chatBot.jsx";
 import QuizPage from "./components/tabs/quiz/QuizTab";
 import Header from "../../../../../shared/components/header/user_header/Header";
 import ReviewModal from "./components/modal/review/ReviewModal";
@@ -524,7 +524,7 @@ function CourseDetail() {
             />
 
             <div className="chatbot-fixed">
-                <chatbot />
+                <ChatBot />
             </div>
         </div>
     );

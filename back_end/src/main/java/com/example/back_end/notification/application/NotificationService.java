@@ -88,6 +88,18 @@ public class NotificationService {
         return notificationRepository.countByUser_IdAndIsReadFalse(user.getId());
     }
 
+    public void markSupportConversationRead(String email, Long conversationId) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        notificationRepository.markSupportConversationRead(user.getId(), conversationId);
+    }
+
+    public void deleteSupportConversationNotifications(String email, Long conversationId) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        notificationRepository.deleteSupportConversationNotifications(user.getId(), conversationId);
+    }
+
     public void markRead(Long id, String email) {
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

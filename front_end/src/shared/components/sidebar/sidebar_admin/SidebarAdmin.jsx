@@ -12,9 +12,10 @@ import {
   Tags,
   Ticket,
   Users,
+  Headset,
 } from "lucide-react";
 import logoText from "../../../../assets/logo/LogoText.png";
-import "../sidebar_teacher/TeacherSidebar.css";
+import "../sidebar_teacher/TeacherSidebar";
 import "./SidebarAdmin.css";
 
 const adminNavSections = [
@@ -87,6 +88,12 @@ const adminNavSections = [
         icon: Ticket,
         path: "/learnova/admin/vouchers",
       },
+      {
+        id: "support-chat",
+        label: "Support Chat",
+        icon: Headset,
+        path: "/learnova/admin/support-chat",
+      },
     ],
   },
   {
@@ -103,11 +110,11 @@ const adminNavSections = [
 ];
 
 const adminTranslationKey = (value) =>
-  value.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    value.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
 const SidebarAdmin = ({
-  navSections = adminNavSections,
-}) => {
+                        navSections = adminNavSections,
+                      }) => {
   const { t } = useTranslation();
   const translatedSections = navSections.map((section) => ({
     ...section,
@@ -118,41 +125,41 @@ const SidebarAdmin = ({
     })),
   }));
   const getNavLinkClassName = ({ isActive }) =>
-    `teacher-nav__link ${isActive ? "teacher-nav__link--active" : ""}`;
+      `teacher-nav__link ${isActive ? "teacher-nav__link--active" : ""}`;
 
   return (
-    <aside className="teacher-sidebar adminSidebar" aria-label="Admin dashboard navigation">
-      <div className="teacher-brand">
-        <div>
-          <img src={logoText} alt="LearnOva" />
-        </div>
-      </div>
-
-      <nav className="teacher-nav" aria-label="Sidebar navigation">
-        {translatedSections.map((section) => (
-          <div className="teacher-nav__section" key={section.title}>
-            <p className="teacher-nav__subtitle">{section.title}</p>
-            {section.items.map((item) => {
-              if (!item?.icon || !item?.path) return null;
-
-              const Icon = item.icon;
-
-              return (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  end={item.end === true}
-                  className={getNavLinkClassName}
-                >
-                  <Icon size={20} />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
+      <aside className="teacher-sidebar adminSidebar" aria-label="Admin dashboard navigation">
+        <div className="teacher-brand">
+          <div>
+            <img src={logoText} alt="LearnOva" />
           </div>
-        ))}
-      </nav>
-    </aside>
+        </div>
+
+        <nav className="teacher-nav" aria-label="Sidebar navigation">
+          {translatedSections.map((section) => (
+              <div className="teacher-nav__section" key={section.title}>
+                <p className="teacher-nav__subtitle">{section.title}</p>
+                {section.items.map((item) => {
+                  if (!item?.icon || !item?.path) return null;
+
+                  const Icon = item.icon;
+
+                  return (
+                      <NavLink
+                          key={item.id}
+                          to={item.path}
+                          end={item.end === true}
+                          className={getNavLinkClassName}
+                      >
+                        <Icon size={20} />
+                        <span>{item.label}</span>
+                      </NavLink>
+                  );
+                })}
+              </div>
+          ))}
+        </nav>
+      </aside>
   );
 };
 

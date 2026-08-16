@@ -38,7 +38,8 @@ import InstructorDetail from "../../features/instructor/presentation/user/intruc
 import AboutView from "../../features/home/presentation/about/About";
 import ProfileViewProps from "../../features/profile/presentation/profileView/profile";
 import CoursePage from "../../features/course/presentation/user/CourseNew";
-import CourseDetail from "../../features/home/presentation/courses/courses_detail/CourseDetail";
+import PublicCourseDetail from "../../features/home/presentation/courses/courses_detail/CourseDetail";
+import LearningCourseDetail from "../../features/course/presentation/user/courses_detail/CourseDetail";
 import Cart from "../../features/home/presentation/cart/Cart";
 import OAuth2Success from "../../features/auth/presentation/components/oauth2/OAuth2Success";
 import PaymentSuccess from "../../features/home/presentation/payment/PaymentSuccess";
@@ -47,6 +48,7 @@ import ApplyTeacherPage from "../../features/teacher-application/presentation/Ap
 import TeacherApplicationPage from "../../features/admin/presentation/teacher_application/TeacherApplicationPage";
 import Profile from "../../features/admin/presentation/profile/Profile";
 import Settings from "../../features/admin/presentation/settings/Settings";
+import SupportChatPage from "../../features/admin/presentation/support_chat/SupportChatPage";
 import VerifyCertificatePage from "../../features/certificate/presentation/VerifyCertificatePage";
 
 
@@ -58,8 +60,8 @@ const App = () => {
                 <Route path="/learnova/auth/login" element={<AuthPage/>}/>
                 <Route path="/forgot-password" element={<ForgotPassword/>}/>
                 <Route path="/reset-password" element={<ResetPassword/>}/>
-                <Route path="/learnova/user/courses-detail" element={<CourseDetail/>}/>
-                <Route path="/learnova/user/courses-detail/:courseId" element={<CourseDetail/>}/>
+                <Route path="/learnova/user/courses-detail" element={<RequireRole><LearningCourseDetail/></RequireRole>}/>
+                <Route path="/learnova/user/courses-detail/:courseId" element={<RequireRole><LearningCourseDetail/></RequireRole>}/>
                 <Route path="/oauth2-success" element={<OAuth2Success />}/>
                 <Route path="/payment/success" element={<PaymentSuccess />}/>
                 <Route path="/payment/cancel" element={<PaymentCancel />}/>
@@ -67,6 +69,7 @@ const App = () => {
 
                 <Route element={<HomeLayout/>}>
                     <Route path="/" element={<Home/>}/>
+                    <Route path="/learnova/home" element={<Home/>}/>
                 </Route>
 
                 {/* Admin */}
@@ -84,6 +87,7 @@ const App = () => {
                     <Route path="reports" element={<Reports/>}/>
                     <Route path="vouchers" element={<Vouchers/>}/>
                     <Route path="vouchers/create" element={<VoucherCreate/>}/>
+                    <Route path="support-chat" element={<SupportChatPage/>}/>
                     <Route path="categories" element={<Category/>}/>
                     <Route path="tags" element={<Tag/>}/>
                     <Route path="violation-reports" element={<ViolationReports/>}/>
@@ -113,7 +117,7 @@ const App = () => {
                 <Route element={<UserLayout/>}>
                     <Route path="/learnova/courses" element={<CoursePage/>}/>
                     <Route path="/learnova/cart" element={<Cart/>}/>
-                    <Route path="/learnova/courses/detail/:id" element={<CourseDetail/>}/>
+                    <Route path="/learnova/courses/detail/:id" element={<PublicCourseDetail/>}/>
                     <Route path="/learnova/intructors" element={<InstructorsPage/>}/>
                     <Route path="/learnova/intructorDetail/:instructorId" element={<InstructorDetail/>}/>
                     <Route path="/learnova/intructorDetail/:id" element={<InstructorDetail/>}/>
