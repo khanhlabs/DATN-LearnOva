@@ -1,4 +1,4 @@
-package com.example.back_end.admin.application;
+package com.example.back_end.instructor.application;
 
 import java.text.Normalizer;
 import java.time.Instant;
@@ -10,31 +10,31 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.back_end.admin.adapter.in.web.dto.AdminCourseDropdownResponse;
-import com.example.back_end.admin.adapter.in.web.dto.AdminTagResponse;
-import com.example.back_end.admin.adapter.in.web.dto.AdminTagRequest;
+import com.example.back_end.admin.infrastructure.persistence.AdminCourseRepository;
+import com.example.back_end.admin.infrastructure.persistence.AdminTagRepository;
 import com.example.back_end.course.domain.Course;
 import com.example.back_end.course.domain.CourseTag;
 import com.example.back_end.course.domain.CourseTagId;
 import com.example.back_end.course.domain.Tag;
+import com.example.back_end.course.infrastructure.persistence.CourseTagRepository;
+import com.example.back_end.instructor.adapter.in.web.dto.TeacherCourseDropdownResponse;
+import com.example.back_end.instructor.adapter.in.web.dto.TeacherTagRequest;
+import com.example.back_end.instructor.adapter.in.web.dto.TeacherTagResponse;
 import com.example.back_end.shared.exception.BusinessException;
 import com.example.back_end.shared.exception.ResourceNotFoundException;
-import com.example.back_end.course.infrastructure.persistence.CourseTagRepository;
-import com.example.back_end.admin.infrastructure.persistence.AdminCourseRepository;
-import com.example.back_end.admin.infrastructure.persistence.AdminTagRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AdminTagService {
+public class TeacherTagService {
 
     private final AdminTagRepository tagRepository;
     private final AdminCourseRepository courseRepository;
     private final CourseTagRepository courseTagRepository;
 
-    public List<AdminTagResponse> getAllTags() {
+    public List<TeacherTagResponse> getAllTags() {
         List<Tag> tags = tagRepository.findAllForAdmin();
         Map<Long, Course> tagCourseMap = courseTagRepository.findAllWithCourse()
             .stream()
@@ -48,7 +48,7 @@ public class AdminTagService {
             .collect(Collectors.toList());
     }
 
-    public AdminTagResponse getTagById(Long id) {
+    public TeacherTagResponse getTagById(Long id) {
         Tag tag = tagRepository.findByIdForAdmin(id)
             .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + id));
         List<CourseTag> cts = courseTagRepository.findByTagIdWithCourse(id);
@@ -56,16 +56,16 @@ public class AdminTagService {
         return buildResponse(tag, course);
     }
 
-    public List<AdminCourseDropdownResponse> getCoursesForDropdown() {
+    public List<TeacherCourseDropdownResponse> getCoursesForDropdown() {
         return courseRepository.findAll()
             .stream()
             .filter(c -> !Boolean.TRUE.equals(c.getIsDeleted()))
-            .map(c -> new AdminCourseDropdownResponse(c.getId(), c.getTitle()))
-            .sorted(Comparator.comparing(AdminCourseDropdownResponse::title))
+            .map(c -> new TeacherCourseDropdownResponse(c.getId(), c.getTitle()))
+            .sorted(Comparator.comparing(TeacherCourseDropdownResponse::title))
             .collect(Collectors.toList());
     }
 
-    public AdminTagResponse createTag(AdminTagRequest request) {
+    public TeacherTagResponse createTag(TeacherTagRequest request) {
         String slug = resolveSlug(request.slug(), request.name());
 
         if (tagRepository.countBySlug(slug) > 0) {
@@ -88,7 +88,7 @@ public class AdminTagService {
         return buildResponse(saved, course);
     }
 
-    public AdminTagResponse updateTag(Long id, AdminTagRequest request) {
+    public TeacherTagResponse updateTag(Long id, TeacherTagRequest request) {
         Tag tag = tagRepository.findByIdForAdmin(id)
             .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + id));
 
@@ -108,7 +108,6 @@ public class AdminTagService {
 
         Tag saved = tagRepository.save(tag);
 
-        // Replace course association
         courseTagRepository.deleteByTagId(id);
         Course course = null;
         if (request.courseId() != null) {
@@ -140,8 +139,8 @@ public class AdminTagService {
         return course;
     }
 
-    private AdminTagResponse buildResponse(Tag tag, Course course) {
-        return new AdminTagResponse(
+    private TeacherTagResponse buildResponse(Tag tag, Course course) {
+        return new TeacherTagResponse(
             tag.getId(),
             tag.getName(),
             tag.getSlug(),

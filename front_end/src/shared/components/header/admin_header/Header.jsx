@@ -66,8 +66,6 @@ const Header = () => {
     title = t("admin.courses");
   } else if (normPath === "/learnova/admin/categories") {
     title = t("admin.categories");
-  } else if (normPath === "/learnova/admin/tags") {
-    title = t("admin.tags");
   } else if (normPath.startsWith("/learnova/admin/course-approval")) {
     title = t("admin.courseApproval");
   } else if (normPath.startsWith("/learnova/admin/teacher-applications")) {

@@ -254,6 +254,10 @@
   align-items: start;
 }
 
+.approvalCourseCardTop--without-thumbnail {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 @media (max-width: 680px) {
   .approvalCourseCardTop {
     grid-template-columns: 1fr;

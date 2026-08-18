@@ -340,13 +340,30 @@
 
 .voucher-apply-btn {
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #1d4ed8;
   color: #ffffff;
   cursor: pointer;
   font-weight: 700;
-  min-width: 62px;
-  padding: 7px 10px;
+  font-size: 12.5px;
+  line-height: 1;
+  padding: 0 12px;
+  height: 30px;
+  min-width: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.voucher-apply-btn:hover:not(:disabled) {
+  background: #2563eb;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
 }
 
 .voucher-apply-btn:disabled {
