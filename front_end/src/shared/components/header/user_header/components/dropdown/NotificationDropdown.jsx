@@ -13,11 +13,22 @@ const timeAgo = (dateStr) => {
 
 const NotificationDropdown = () => {
   const navigate = useNavigate();
-  const { notifications, unreadCount, loadNotifications, markRead } = useNotifications();
+  const { notifications, unreadCount, loadNotifications, markRead, clearSupportConversationNotifications } = useNotifications();
 
   const handleClick = async (notification) => {
-    if (!notification.isRead) await markRead(notification.id);
-    if (notification.link) navigate(notification.link);
+    const targetLink = notification.link;
+    if (targetLink) {
+      const url = new URL(targetLink, window.location.origin);
+      const conversationId = url.searchParams.get("supportConversationId");
+      if (conversationId) localStorage.setItem("learnova:pending-support-conversation", conversationId);
+      navigate(targetLink);
+    }
+    if (!notification.isRead) markRead(notification.id).catch(() => {});
+    if (notification.type === "SUPPORT_MESSAGE" && notification.link) {
+      const url = new URL(notification.link, window.location.origin);
+      const conversationId = url.searchParams.get("supportConversationId");
+      if (conversationId) clearSupportConversationNotifications(conversationId).catch(() => {});
+    }
   };
 
   return (

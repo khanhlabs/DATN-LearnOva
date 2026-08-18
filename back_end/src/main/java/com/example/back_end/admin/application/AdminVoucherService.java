@@ -1,27 +1,50 @@
 package com.example.back_end.admin.application;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+// import com.example.back_end.dto.request.admin.AdminVoucherRequest;
+// import com.example.back_end.dto.response.admin.AdminVoucherCampaignStatsResponse;
+// import com.example.back_end.dto.response.admin.AdminVoucherOverviewResponse;
+// import com.example.back_end.dto.response.admin.AdminVoucherResponse;
+// import com.example.back_end.dto.response.admin.AdminVoucherUsageFrequencyResponse;
+// import com.example.back_end.dto.response.admin.AdminVoucherUsageHistoryResponse;
+// import com.example.back_end.entity.User;
+// import com.example.back_end.entity.Voucher;
+// import com.example.back_end.entity.enums.DiscountType;
+// import com.example.back_end.exception.BusinessException;
+// import com.example.back_end.exception.ResourceNotFoundException;
+// import com.example.back_end.repository.admin.AdminUserRepository;
+// import com.example.back_end.repository.admin.AdminVoucherRepository;
+// import com.example.back_end.util.PercentDeltaCalculator;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherRequest;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherCampaignStatsResponse;
+import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherOverviewResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherUsageFrequencyResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherUsageHistoryResponse;
 import com.example.back_end.auth.domain.User;
+import com.example.back_end.auth.infrastructure.persistence.UserRepository;
 import com.example.back_end.commerce.domain.Voucher;
 import com.example.back_end.commerce.domain.enums.DiscountType;
 import com.example.back_end.shared.exception.BusinessException;
 import com.example.back_end.shared.exception.ResourceNotFoundException;
 import com.example.back_end.admin.infrastructure.persistence.AdminUserRepository;
 import com.example.back_end.admin.infrastructure.persistence.AdminVoucherRepository;
+import com.example.back_end.shared.util.PercentDeltaCalculator;
+import com.example.back_end.notification.application.NotificationService;
+import com.example.back_end.notification.domain.enums.NotificationType;
 
 import jakarta.transaction.Transactional;
 
@@ -29,15 +52,60 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class AdminVoucherService {
 
+    private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+
     private final AdminVoucherRepository voucherRepository;
     private final AdminUserRepository adminUserRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public AdminVoucherService(
             AdminVoucherRepository voucherRepository,
-            AdminUserRepository adminUserRepository
+            AdminUserRepository adminUserRepository,
+            UserRepository userRepository,
+            NotificationService notificationService
     ) {
         this.voucherRepository = voucherRepository;
         this.adminUserRepository = adminUserRepository;
+        this.userRepository = userRepository;
+        this.notificationService = notificationService;
+    }
+
+    public AdminVoucherOverviewResponse getOverview() {
+        OffsetDateTime now = OffsetDateTime.now(ZONE);
+        Instant instantNow = Instant.now();
+        Instant monthStart = YearMonth.now(ZONE).atDay(1).atStartOfDay(ZONE).toInstant();
+        Instant prevMonthStart = YearMonth.now(ZONE).minusMonths(1).atDay(1).atStartOfDay(ZONE).toInstant();
+
+        long totalVouchers = voucherRepository.count();
+        long createdThisMonth = voucherRepository.countCreatedBetween(monthStart, instantNow);
+        long createdPrevMonth = voucherRepository.countCreatedBetween(prevMonthStart, monthStart);
+        Double totalVouchersDeltaPercent = PercentDeltaCalculator.percentDelta(
+                BigDecimal.valueOf(createdPrevMonth),
+                BigDecimal.valueOf(createdThisMonth)
+        );
+
+        long activeVouchers = voucherRepository.countActiveVouchers(now);
+        long expiredVouchers = voucherRepository.countExpiredVouchers(now);
+        long appliedUses = voucherRepository.countPaidOrdersWithVoucher();
+        long paidOrders = voucherRepository.countPaidOrders();
+
+        Double conversionRatePercent = null;
+        if (paidOrders > 0) {
+            conversionRatePercent = BigDecimal.valueOf(appliedUses)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(paidOrders), 1, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+
+        return new AdminVoucherOverviewResponse(
+                totalVouchers,
+                totalVouchersDeltaPercent,
+                activeVouchers,
+                expiredVouchers,
+                appliedUses,
+                conversionRatePercent
+        );
     }
 
     public List<AdminVoucherResponse> getAllVouchers() {
@@ -190,6 +258,15 @@ public class AdminVoucherService {
         voucher.setUpdatedAt(Instant.now());
 
         Voucher savedVoucher = voucherRepository.save(voucher);
+
+        notificationService.createForAll(
+                userRepository.findByIsDeletedFalseAndIsActiveTrue(),
+                NotificationType.NEW_VOUCHER,
+                "Voucher mới trên LearnOva",
+                "Mã " + savedVoucher.getCode() + " vừa được phát hành. Hãy mở Voucher của tôi để nhận ưu đãi.",
+                "/learnova/user/profile/vouchers",
+                Map.of("voucherId", savedVoucher.getId(), "code", savedVoucher.getCode())
+        );
 
         return new AdminVoucherResponse(
                 savedVoucher.getId(),

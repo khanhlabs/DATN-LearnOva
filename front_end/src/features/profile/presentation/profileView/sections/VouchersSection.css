@@ -33,6 +33,18 @@
 .voucher-meta { display: flex; justify-content: space-between; gap: 6px; padding: 9px 0; color: #64748b; font-size: 10px; border-bottom: 1px solid #edf2f7; }
 .voucher-card-content > .voucher-claim-button { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; margin-top: 9px; padding: 8px 12px; border: 0; border-radius: 7px; color: #fff; background: #2563eb; font-size: 12px; font-weight: 700; cursor: pointer; }
 .voucher-card-2 .voucher-claim-button { background: #16a34a; } .voucher-claim-button:disabled { color: #15803d; background: #dcfce7; cursor: default; }
+.voucher-tone-low .voucher-discount-panel { background: linear-gradient(170deg, #62c9b2, #159b83); }
+.voucher-tone-medium .voucher-discount-panel { background: linear-gradient(170deg, #8eb5ff, #3979ef); }
+.voucher-tone-high .voucher-discount-panel { background: linear-gradient(170deg, #ffc46b, #ee7d19); }
+.voucher-tone-mega .voucher-discount-panel { background: linear-gradient(170deg, #c084fc, #7c3aed); }
+.voucher-tone-low .voucher-code-row { border-color: #8bd8c8; background: #effcf9; }
+.voucher-tone-low .voucher-code-row span { color: #087f6c; }
+.voucher-tone-high .voucher-code-row { border-color: #f4c27b; background: #fff8ed; }
+.voucher-tone-high .voucher-code-row span { color: #c45b08; }
+.voucher-tone-mega .voucher-code-row { border-color: #d8b4fe; background: #faf5ff; }
+.voucher-tone-mega .voucher-code-row span { color: #6d28d9; }
+.voucher-tone-high .voucher-claim-button:not(:disabled) { background: #ea7a12; }
+.voucher-tone-mega .voucher-claim-button:not(:disabled) { background: #7c3aed; }
 .vouchers-empty { display: grid; place-items: center; min-height: 300px; padding: 30px; border: 1px dashed #bfdbfe; border-radius: 18px; color: #2563eb; text-align: center; background: #f8fbff; } .vouchers-empty h2 { margin: 12px 0 5px; } .vouchers-empty p { margin: 0; color: #64748b; }
 .vouchers-pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 2px; }
 .vouchers-pagination-button { min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid #dbe5f2; border-radius: 9px; color: #2563eb; background: #fff; font-weight: 700; cursor: pointer; }

@@ -1,11 +1,14 @@
 package com.example.back_end.admin.infrastructure.persistence;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.back_end.commerce.domain.Voucher;
@@ -13,6 +16,37 @@ import com.example.back_end.commerce.domain.Voucher;
 @Repository
 public interface AdminVoucherRepository extends JpaRepository<Voucher, Long> {
     Optional<Voucher> findByCode(String code);
+
+    @Query("""
+            select count(v) from Voucher v
+            where v.isActive = true
+              and v.endDate > :now
+              and coalesce(v.usedCount, 0) < v.usageLimit
+            """)
+    long countActiveVouchers(@Param("now") OffsetDateTime now);
+
+    @Query("""
+            select count(v) from Voucher v
+            where v.endDate is not null and v.endDate <= :now
+            """)
+    long countExpiredVouchers(@Param("now") OffsetDateTime now);
+
+    @Query("""
+            select count(v) from Voucher v
+            where v.createdAt >= :from and v.createdAt < :to
+            """)
+    long countCreatedBetween(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(value = "select count(distinct o.order_id) "
+            + "from orders o "
+            + "where o.status = 'PAID' "
+            + "and o.voucher_id is not null", nativeQuery = true)
+    long countPaidOrdersWithVoucher();
+
+    @Query(value = "select count(distinct o.order_id) "
+            + "from orders o "
+            + "where o.status = 'PAID'", nativeQuery = true)
+    long countPaidOrders();
 
     @Query(value = "select "
             + "u.full_name as \"studentName\", "

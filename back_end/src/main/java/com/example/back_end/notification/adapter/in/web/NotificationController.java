@@ -79,4 +79,27 @@ public class NotificationController {
         notificationService.markAllRead(authentication.getName());
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/support/{conversationId}/read")
+    public ResponseEntity<Void> markSupportRead(
+            @PathVariable Long conversationId,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        notificationService.markSupportConversationRead(authentication.getName(), conversationId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/support/{conversationId}")
+    public ResponseEntity<Void> deleteSupportNotifications(
+            @PathVariable Long conversationId,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        notificationService.deleteSupportConversationNotifications(authentication.getName(), conversationId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
