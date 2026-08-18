@@ -18,6 +18,18 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByUser_IdAndIsReadFalse(Long userId);
 
+    @Modifying
+    @Query(value = "UPDATE notifications SET is_read = TRUE "
+            + "WHERE user_id = :userId AND type = 'SUPPORT_MESSAGE' AND is_read = FALSE "
+            + "AND metadata ->> 'conversationId' = CAST(:conversationId AS text)", nativeQuery = true)
+    int markSupportConversationRead(@Param("userId") Long userId, @Param("conversationId") Long conversationId);
+
+    @Modifying
+    @Query(value = "DELETE FROM notifications "
+            + "WHERE user_id = :userId AND type = 'SUPPORT_MESSAGE' "
+            + "AND metadata ->> 'conversationId' = CAST(:conversationId AS text)", nativeQuery = true)
+    int deleteSupportConversationNotifications(@Param("userId") Long userId, @Param("conversationId") Long conversationId);
+
     List<Notification> findByTypeOrderByCreatedAtDesc(NotificationType type);
 
     @Modifying
