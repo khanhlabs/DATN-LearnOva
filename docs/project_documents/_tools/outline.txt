@@ -1,0 +1,618 @@
+0	bookmarkStart	-	
+1	-	IMG=2	
+2	Heading1	HEAD1,IMG=8,NUMPR	TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC
+3	-	-	---🙠🕮🙢---
+4	-	-	
+5	-	-	
+6	-	-	
+7	-	-	
+8	-	-	
+9	-	IMG=1	
+10	-	-	
+11	-	-	
+12	-	-	
+13	-	-	
+14	-	-	
+15	-	-	
+16	-	-	
+17	-	-	
+18	-	-	
+19	-	-	BÁO CÁO DỰ ÁN TỐT NGHIỆP
+20	-	-	Xây dựng ứng dụng học trực tuyến
+21	-	-	
+22	-	-	
+23	-	-	
+24	-	-	
+25	-	-	
+26	-	IMG=2	Giáo viên hướng dẫn:     Nguyễn Ngọc Anh
+27	-	-	Lớp:                                  SD20303
+28	-	-	Sinh viên thực hiện:        Phạm Gia Khanh          PD11662
+29	-	-	Nguyễn Phi Thông       PD11675
+30	-	-	Đoàn Tấn Hiếu             PD11725
+31	-	-	Nguyễn Nhật Minh      PD11884
+32	-	-	
+33	-	-	
+34	-	-	
+35	-	-	
+36	-	-	
+37	-	-	
+38	-	-	
+39	-	-	Đà Nẵng – 08/ 2026
+40	-	-	
+41	-	IMG=16	MỤC LỤC
+42	sdt	-	
+43	-	-	
+44	-	-	
+45	-	-	
+46	-	-	
+47	-	-	
+48	-	-	
+49	-	-	
+50	-	-	
+51	-	-	
+52	-	-	
+53	Heading1	HEAD1	
+54	Heading1	HEAD1	PHẦN I – GIỚI THIỆU ĐỀ TÀI
+55	-	-	
+56	-	-	
+57	-	-	
+58	Heading2	HEAD2	1. Đặt vấn đề
+59	-	-	- Trong bối cảnh cuộc Cách mạng Công nghiệp 4.0 và quá trình chuyển đổi số diễn ra mạnh mẽ trên toàn cầu, công nghệ đã làm thay đổi căn bản cách con người tiếp cận tri thức và kỹ năng. Giáo dục trực tuyến không còn là xu hướng mới mẻ mà đã trở thành một phần tất yếu trong hệ sinh thái học tập hiện đại, đặc biệt sau tác động sâu rộng của đại dịch COVID-19.
+60	-	-	- Theo báo cáo của Grand View Research, thị trường e-learning toàn cầu dự kiến đạt 602,7 tỷ USD vào năm 2030, với tốc độ tăng trưởng kép hàng năm (CAGR) đạt 14%. Tại Việt Nam, đây cũng là một trong những thị trường e-learning tiềm năng nhất khu vực Đông Nam Á, với tốc độ tăng trưởng trên 20%/năm nhờ cơ cấu dân số trẻ và nhu cầu nâng cao kỹ năng ngày càng lớn.
+61	-	-	- Trước cơ hội đó, Công ty Cổ phần Giáo dục LearnOva – một đơn vị có kinh nghiệm trong lĩnh vực đào tạo kỹ năng nghề nghiệp – hiện đang vận hành mô hình đào tạo trực tiếp tại các trung tâm. Tuy nhiên, mô hình này bộc lộ nhiều hạn chế trong việc mở rộng quy mô:
+62	ListParagraph	NUMPR	Phạm vi tiếp cận bị giới hạn về địa lý, bỏ lỡ lượng lớn người học tiềm năng ngoài khu vực;
+63	ListParagraph	NUMPR	Chi phí vận hành cơ sở vật chất cao, tạo áp lực chi phí cố định và hạn chế khả năng tái đầu tư;
+64	ListParagraph	NUMPR	Thiếu công cụ hỗ trợ học viên ngoài giờ học, dẫn đến tỷ lệ ghi nhớ kiến thức thấp và tỷ lệ bỏ học cao;
+65	ListParagraph	NUMPR	Khó theo dõi tiến độ học tập cá nhân hóa trong các lớp học trực tiếp đông người;
+66	ListParagraph	NUMPR	Giảng viên thiếu kênh tương tác chính thức sau giờ lên lớp, việc kết nối phụ thuộc vào các kênh không chính thức, thiếu tính hệ thống.
+67	-	-	- Nhận thức rõ những hạn chế trên, ban lãnh đạo Công ty LearnOva đã quyết định mở rộng mô hình kinh doanh sang nền tảng học trực tuyến (e-learning platform), nhằm tận dụng xu hướng chuyển đổi số, gia tăng doanh thu từ kênh online và mở rộng tệp học viên ra phạm vi toàn quốc.
+68	-	-	- Để thực hiện mục tiêu trên, việc xây dựng một nền tảng đào tạo trực tuyến không chỉ dừng lại ở việc đưa các bài giảng trực tiếp lên môi trường Internet mà cần hình thành một hệ thống có khả năng quản lý toàn bộ quy trình đào tạo. Nền tảng cần hỗ trợ từ khâu xây dựng và quản lý khóa học, cung cấp nội dung học tập, đăng ký khóa học, thanh toán, tổ chức kiểm tra cho đến việc theo dõi tiến độ và đánh giá kết quả học tập của học viên. Đồng thời, hệ thống cũng cần đảm bảo sự thuận tiện cho giảng viên trong quá trình xây dựng nội dung và cho đội ngũ quản trị trong việc quản lý, vận hành nền tảng.
+69	-	-	- Từ yêu cầu thực tế đó, nhóm lựa chọn xây dựng nền tảng đào tạo trực tuyến LearnOva với định hướng tạo ra một môi trường học tập tập trung, giúp kết nối giữa học viên, giảng viên và đơn vị đào tạo trên cùng một hệ thống. Thay vì phải sử dụng nhiều công cụ riêng biệt để xem bài giảng, nhận tài liệu, thực hiện bài kiểm tra hoặc trao đổi thông tin, người học có thể thực hiện các hoạt động học tập chính trực tiếp trên nền tảng LearnOva.
+70	-	-	- Việc xây dựng LearnOva cũng là cơ hội để nhóm vận dụng các kiến thức về phân tích thiết kế hệ thống, phát triển ứng dụng web, cơ sở dữ liệu, bảo mật, điện toán đám mây và triển khai hệ thống vào một sản phẩm có tính thực tiễn. Qua đó, đề tài vừa đáp ứng nhu cầu chuyển đổi mô hình đào tạo của Công ty LearnOva, vừa tạo nền tảng để hệ thống có thể tiếp tục phát triển và mở rộng trong tương lai.
+71	Heading2	HEAD2	2. Mô tả dự án
+72	Heading2	HEAD2	2.1. Tổng quan dự án
+73	-	-	- Đề tài hướng tới xây dựng nền tảng học trực tuyến mang tên LearnOva – một hệ thống web application cho phép:
+74	-	NUMPR	Người học đăng ký tài khoản, duyệt danh mục khóa học, thanh toán và học trực tuyến;
+75	-	NUMPR	Giảng viên (teacher) tạo và quản lý khóa học, bài giảng dạng video, tài liệu đính kèm;
+76	-	NUMPR	ChatBot AI tích hợp để trả lời câu hỏi
+77	-	NUMPR	Admin quản trị toàn bộ nền tảng: người dùng, khóa học, thanh toán, khuyến mãi, báo cáo thống kê;
+78	-	NUMPR	Hệ thống thông báo, đánh giá & nhận xét khóa học, quản lý chứng chỉ hoàn thành.
+79	Heading3	HEAD3	2.2.  Phạm vi đề tài
+80	-	-	- Hệ thống được phát triển dưới dạng web application với kiến trúc client-server, sử dụng RESTful API. Phạm vi đề tài bao gồm thiết kế cơ sở dữ liệu, phân tích yêu cầu, thiết kế use case và lập kế hoạch triển khai từ 12/05/2026 đến 15/08/2026.
+81	Heading3	HEAD3	2.3. Công nghệ sử dụng:
+82	-	-	- Ngôn ngữ lập trình:
+83	-	NUMPR	Java 25: Ngôn ngữ lập trình chính được sử dụng để phát triển hệ thống backend.
+84	-	-	
+85	-	-	
+86	ListParagraph	-	- Backend:
+87	-	NUMPR	Spring Boot 4.0.6: Framework phát triển backend, hỗ trợ xây dựng hệ thống nhanh chóng, dễ mở rộng và bảo trì. Sử dụng Spring Security, Spring Data JPA, Spring Mail, Spring OAuth2 Client.
+88	-	NUMPR	Spring Data JPA / Hibernate: Hỗ trợ thao tác cơ sở dữ liệu theo mô hình ORM. Flyway quản lý migration schema (validate-on-migrate, clean-disabled).
+89	-	-	- Frontend:
+90	-	NUMPR	ReactJS (Vite): Thư viện JavaScript dùng để xây dựng giao diện người dùng theo hướng component-based (Feature-based structure + Hexagonal-like layers), giúp tăng khả năng tái sử dụng và tối ưu trải nghiệm người dùng.
+91	-	NUMPR	Vite: Công cụ build frontend giúp tăng tốc độ khởi động và biên dịch dự án ReactJS.
+92	-	NUMPR	Axios: Thư viện hỗ trợ gửi HTTP Request giữa frontend và backend.
+93	-	NUMPR	Cơ sở dữ liệu
+94	-	NUMPR	PostgreSQL 17: Hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở được sử dụng để lưu trữ và quản lý dữ liệu của hệ thống.
+95	-	-	- Công cụ hỗ trợ:
+96	-	NUMPR	Git & GitHub: Quản lý mã nguồn và hỗ trợ làm việc nhóm. Docker & Docker Compose: Container hóa toàn bộ stack (backend, frontend, PostgreSQL, Elasticsearch, ai-service) cho môi trường local và production (AWS EC2).
+97	-	NUMPR	Postman: Kiểm thử API trong quá trình phát triển backend. AWS S3, CloudFront, MediaConvert, EC2: Hạ tầng đám mây cho video, CDN và triển khai production. PayOS: Cổng thanh toán tích hợp sẵn. Elasticsearch 9: Full-text search cho khóa học.
+98	-	NUMPR	IntelliJ IDEA / Visual Studio Code: Môi trường phát triển tích hợp dùng để lập trình hệ thống.
+99	-	-	
+100	-	-	
+101	-	-	
+102	-	-	
+103	-	-	
+104	-	-	
+105	-	-	
+106	-	-	
+107	Heading1	HEAD1	
+108	-	-	
+109	-	-	
+110	-	-	
+111	Heading1	HEAD1	PHẦN II – PHÂN TÍCH YÊU CẦU
+112	-	-	
+113	-	-	
+114	-	-	
+115	Heading2	HEAD2	1. Tổng quan thị trường e-learning
+116	-	-	-  Hiện nay trên thị trường có nhiều nền tảng e-learning lớn, mỗi nền tảng có thế mạnh và mô hình kinh doanh riêng biệt:
+117	TABLE	TBL	Nền tảng | Mô hình | Tính năng nổi bật | Hạn chế | Thị trường | Udemy
+118	Heading2	HEAD2	
+119	-	-	- Qua khảo sát có thể thấy các nền tảng hiện có đã giải quyết khá tốt nhu cầu tiếp cận nội dung học trực tuyến. Tuy nhiên, mỗi mô hình đều tồn tại những hạn chế nhất định. Với marketplace, số lượng khóa học lớn giúp người học có nhiều lựa chọn nhưng đồng thời cũng làm phát sinh vấn đề về chất lượng và tính đồng nhất của nội dung. Người học có thể gặp khó khăn trong việc xác định khóa học nào thực sự phù hợp với trình độ và mục tiêu của bản thân.
+120	-	-	- Đối với mô hình subscription, người học có thể tiếp cận được nhiều nội dung với một khoản chi phí cố định nhưng lại phụ thuộc vào chính sách của từng nền tảng. Bên cạnh đó, cách tổ chức nội dung thường hướng đến số lượng lớn người dùng nên khả năng cá nhân hóa lộ trình học tập chưa phải lúc nào cũng đáp ứng được nhu cầu riêng của từng người.
+121	-	-	- Từ góc độ giảng viên, mô hình marketplace tạo điều kiện để nhiều cá nhân tham gia xây dựng nội dung và tiếp cận người học. Tuy nhiên, khi số lượng khóa học tăng cao, việc cạnh tranh về giá, lượt đánh giá và khả năng hiển thị khóa học trở thành một yếu tố quan trọng. Điều này có thể khiến giảng viên phải tập trung nhiều vào khả năng thu hút người học thay vì chỉ tập trung vào chất lượng nội dung.
+122	-	-	- Vì vậy, LearnOva được định hướng không đơn thuần là một hệ thống cung cấp khóa học trực tuyến mà hướng đến việc xây dựng một hệ thống học tập có khả năng kết hợp giữa quản lý nội dung, theo dõi tiến độ, đánh giá kết quả và hỗ trợ cá nhân hóa trải nghiệm học tập. Đây là cơ sở để xác định các nhóm chức năng chính của hệ thống ở các phần tiếp theo.
+123	-	-	
+124	Heading2	HEAD2	2. Phân tích tính năng chi tiết
+125	Heading3	HEAD3	2.1. Udemy
+126	-	-	- Udemy là nền tảng marketplace lớn nhất thế giới với khoảng 270.000–290.000 khóa học và hơn 80–84 triệu học viên. Điểm mạnh nổi bật là mô hình mua lẻ linh hoạt (lifetime access), hệ thống đánh giá và review minh bạch, cùng khả năng tiếp cận nội dung thực tế từ hàng chục nghìn giảng viên.
+127	-	-	- Hiện tại Udemy đã tích hợp nhiều tính năng AI (AI Assistant hỗ trợ giải thích khái niệm, Role Play luyện hội thoại, Create with AI hỗ trợ giảng viên tạo nội dung). Tuy nhiên, tương tác trực tiếp giữa học viên và giảng viên vẫn hạn chế (chủ yếu qua Q&A trong khóa học), và chất lượng khóa học không đồng đều do mô hình mở.
+128	Heading3	HEAD3	2.2. Coursera
+129	-	-	- Coursera nổi bật với mô hình hợp tác sâu với hơn 350–400 trường đại học và tổ chức hàng đầu (Stanford, Yale, Google, IBM, Meta…). Nền tảng kết hợp subscription (Coursera Plus khoảng 399 USD/năm hoặc 59 USD/tháng) với mua lẻ khóa học/specialization. Điểm mạnh là cấp chứng chỉ có giá trị cao và một số chương trình bằng cấp chính quy.
+130	-	-	- Điểm yếu lớn tại Việt Nam là mức giá cao, khó tiếp cận đại trà, và phần lớn nội dung vẫn mang tính học thuật, ít linh hoạt về lịch học trực tiếp với giảng viên.
+131	-	-	2.3. Kyna.vn
+132	-	-	- Kyna là một trong những nền tảng e-learning nội địa lớn tại Việt Nam, tập trung mạnh vào nội dung tiếng Việt (kỹ năng mềm, lập trình, thiết kế…) và đặc biệt phát triển mạnh mảng tiếng Anh.
+133	-	-	- Hiện tại Kyna English đã có AI Tutor khá mạnh (luyện phát âm, phản xạ giao tiếp 24/7, lộ trình cá nhân hóa) kết hợp với hình thức học 1 kèm 1 và lớp nhóm với giáo viên. Do đó, nhận định “thiếu tính năng AI hỗ trợ và không có hệ thống đặt lịch tư vấn với giảng viên” không còn chính xác. Điểm hạn chế chủ yếu hiện nay là chất lượng giáo viên chưa hoàn toàn đồng đều và chi phí dài hạn có thể cao nếu học theo lộ trình kéo dài.
+134	Heading2	HEAD2	3. Đặc điểm khác biệt của LearnOva
+135	-	-	- LearnOva tập trung vào 2 điểm khác biệt chính:
+136	ListParagraph	NUMPR	Tăng tỷ lệ chia sẻ doanh thu cho giảng viên
+137	ListParagraph	-	- Hiện nay, các nền tảng marketplace lớn như Udemy đang duy trì tỷ lệ chia sẻ doanh thu cho giảng viên ở mức tương đối thấp (khoảng 37% đối với hình thức bán lẻ và thấp hơn nữa đối với mô hình subscription). Điều này làm giảm động lực của đội ngũ giảng viên trong việc đầu tư vào chất lượng nội dung và quảng bá khóa học.
+138	ListParagraph	-	
+139	ListParagraph	-	
+140	ListParagraph	-	- Do đó, nền tảng sẽ áp dụng chính sách chia sẻ doanh thu cao hơn, hướng tới mức 55–65% cho giảng viên (thậm chí cao hơn khi giảng viên tự mang traffic).
+141	ListParagraph	-	- Việc này giúp:
+142	ListParagraph	NUMPR	Thu hút và giữ chân giảng viên chất lượng cao.
+143	ListParagraph	NUMPR	Tăng động lực tạo nội dung tốt và cập nhật thường xuyên.
+144	ListParagraph	NUMPR	Xây dựng lợi thế cạnh tranh rõ ràng so với các nền tảng quốc tế
+145	ListParagraph	-	
+146	ListParagraph	NUMPR	Cá nhân hóa trải nghiệm học tập (định hướng phát triển)
+147	ListParagraph	-	- Bên cạnh chính sách chia sẻ doanh thu, nền tảng định hướng phát triển các tính năng cá nhân hóa nhằm khắc phục hạn chế lớn của hầu hết các nền tảng hiện nay là tỷ lệ hoàn thành khóa học thấp và thiếu sự đồng hành với người học.
+148	ListParagraph	-	- Cụ thể, trong giai đoạn tiếp theo, hệ thống sẽ từng bước triển khai:
+149	ListParagraph	NUMPR	Lộ trình học tập cá nhân hóa dựa trên mục tiêu, trình độ và thói quen của từng học viên.
+150	ListParagraph	NUMPR	Hệ thống theo dõi tiến độ và nhắc nhở thông minh (accountability).
+151	ListParagraph	NUMPR	Hỗ trợ AI Mentor giúp phân tích điểm mạnh – điểm yếu và đưa ra gợi ý học tập phù hợp.
+152	ListParagraph	-	- Việc kết hợp giữa chính sách đãi ngộ giảng viên tốt hơn và cá nhân hóa trải nghiệm người học được kỳ vọng sẽ tạo ra sự khác biệt bền vững, vừa thu hút nguồn cung nội dung chất lượng, vừa nâng cao hiệu quả và tỷ lệ hoàn thành của người học.
+153	-	-	
+154	Heading1	HEAD1	
+155	Heading1	HEAD1	
+156	Heading1	HEAD1	
+157	Heading1	HEAD1	
+158	Heading1	HEAD1	
+159	Heading1	HEAD1	
+160	Heading1	HEAD1	
+161	Heading1	HEAD1	
+162	-	-	
+163	-	-	
+164	-	-	
+165	-	-	
+166	-	-	
+167	Heading1	HEAD1	
+168	-	-	
+169	-	-	
+170	-	-	
+171	Heading1	HEAD1	PHẦN III – THIẾT KẾ
+172	-	-	
+173	-	-	
+174	-	-	
+175	Heading2	HEAD2	1. Thiết kế Use Cases
+176	-	-	- Hệ thống LearnOva có 4 tác nhân chính:
+177	TABLE	TBL	Actor | Mô tả | Quyền hạn chính | Guest | Người dùng chưa đăng nhập | Xem danh sách khóa học, đăng ký tài khoản
+178	-	-	
+179	Heading2	HEAD2	2. Kiến trúc tổng thể
+180	-	-	- Hệ thống LearnOva được thiết kế theo mô hình kiến trúc Hexagonal kết hợp Bounded Contexts, cung cấp RESTful API qua HTTPS:
+181	-	NUMPR	Frontend Layer: ReactJS + Vite
+182	-	NUMPR	Backend Services: Spring Boot 4.0.6 / Java 25 — Hexagonal Architecture
+183	-	NUMPR	Database: PostgreSQL 17
+184	ListParagraph	NUMPR	AI Service: FastAPI (Python), gọi Gemini API; chatbot dùng Groq API
+185	ListParagraph	NUMPR	Storage & CDN: AWS S3, AWS MediaConvert, CloudFront
+186	-	IMG=1	
+187	Caption	-	Hình 3.1: Sơ đồ tổng quan kiến trúc (local)
+188	-	-	
+189	-	-	Hình 3.2. Sơ đồ tổng quan kiến trúc (prodution)
+190	Heading2	HEAD2	3. Các thành phần chính.
+191	-	-	3.1. Frontend
+192	-	IMG=1	
+193	Caption	-	Hình 3.3: Sơ đồ kiến trúc Fronend
+194	Caption	-	- Frontend của hệ thống LearnOva được phát triển theo mô hình SPA (Single Page Application) bằng ReactJS và Vite. Frontend được tổ chức thành các module chức năng như Authentication, Course Management, Learning, Cart, Payment, ChatBot AI, Profile và Admin Dashboard. Kiến trúc này giúp tăng khả năng tái sử dụng component, tối ưu trải nghiệm người dùng và hỗ trợ mở rộng hệ thống.
+195	Caption	-	- Frontend chịu trách nhiệm:
+196	ListParagraph	NUMPR	Hiển thị giao diện và nội dung cho người dùng.
+197	ListParagraph	NUMPR	Tiếp nhận và xử lý các thao tác từ người dùng.
+198	ListParagraph	NUMPR	Gửi các yêu cầu (Request) đến Backend thông qua RESTful API.
+199	ListParagraph	NUMPR	Nhận dữ liệu từ Backend và hiển thị kết quả lên giao diện.
+200	ListParagraph	NUMPR	Quản lý trạng thái xác thực và JWT Token.
+201	ListParagraph	NUMPR	Điều hướng giữa các trang thông qua Routing.
+202	ListParagraph	NUMPR	Tối ưu trải nghiệm người dùng và khả năng tương tác của giao diện.
+203	-	-	
+204	-	-	
+205	-	-	
+206	-	-	3.2. Backend
+207	-	-	
+208	-	IMG=1	
+209	Caption	-	Hình 3.3: Sơ đồ kiến trúc Backend
+210	NormalWeb	-	- Backend được xây dựng bằng Spring Boot 4.0.6 (Java 25) và cung cấp các RESTful API cho hệ thống LearnOva. Backend được tổ chức theo kiến trúc Hexagonal (Ports & Adapters) với 14 Bounded Context: mỗi context gồm adapter/in/web (controller), application (service), domain (entity/enum) và infrastructure (persistence/payment/storage/elasticsearch). Kiến trúc này đảm bảo tính tách biệt cao, dễ mở rộng và dễ kiểm thử độc lập.
+211	-	-	- Các chức năng chính của Backend bao gồm:
+212	-	NUMPR	Xác thực và phân quyền người dùng theo các vai trò GUEST, USER (học viên), TEACHER (giảng viên) và ADMIN — sử dụng JWT (access token HttpOnly cookie), Spring Security, OAuth2 (Google/Facebook) và cơ chế active_role cho phép người dùng đa vai trò chuyển đổi role đang hoạt động.
+213	-	NUMPR	Xử lý các nghiệp vụ của hệ thống qua 14 Bounded Context: xác thực (auth), khóa học & nội dung (course, instructor), học tập (learning: enrollment, progress, certificate), thương mại (commerce: cart, order, payment PayOS, voucher, wishlist), đánh giá (assessment: quiz, review, Q&A, report), tìm kiếm Elasticsearch (search), media (upload S3, HLS), AI chatbot (ai), thông báo (notification), người dùng (user), lịch trình (scheduler) và admin.
+214	-	NUMPR	Quản lý, truy xuất và cập nhật dữ liệu thông qua Spring Data JPA và cơ sở dữ liệu PostgreSQL.
+215	-	NUMPR	Tiếp nhận và xử lý các yêu cầu liên quan đến tệp do người dùng tải lên như hình ảnh, tài liệu học tập và video bài giảng, đồng thời hỗ trợ lưu trữ tệp trên AWS S3.
+216	-	NUMPR	Xử lý video và hỗ trợ chuyển đổi video sang định dạng HLS phục vụ việc học trực tuyến.
+217	-	NUMPR	Cung cấp các RESTful API cho Frontend thông qua giao thức HTTP/HTTPS, với dữ liệu trao đổi chủ yếu ở định dạng JSON.
+218	-	-	-  Hệ thống sử dụng cơ chế xác thực JWT (JSON Web Token) kết hợp với Spring Security nhằm đảm bảo tính bảo mật và kiểm soát quyền truy cập. Sau khi người dùng đăng nhập thành công, Backend tạo JWT Token; Frontend gửi token trong các yêu cầu tiếp theo và Backend kiểm tra tính hợp lệ của token trước khi cho phép truy cập các chức năng yêu cầu xác thực.
+219	-	-	- Backend hoạt động theo mô hình Stateless, không lưu trạng thái phiên làm việc trên máy chủ. Cách tiếp cận này giúp giảm phụ thuộc vào việc lưu trữ session, hỗ trợ khả năng mở rộng hệ thống và thuận lợi khi triển khai nhiều phiên bản dịch vụ trong tương lai.
+220	NormalWeb	-	3.3. Database
+221	NormalWeb	-	- Dữ liệu của hệ thống LearnOva được lưu trữ trong PostgreSQL, một hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở có hiệu năng cao, độ ổn định tốt và khả năng mở rộng linh hoạt.
+222	NormalWeb	-	- Database đảm nhiệm:
+223	NormalWeb	NUMPR	Lưu trữ thông tin người dùng, bao gồm Student, Teacher và Admin.
+224	NormalWeb	NUMPR	Lưu trữ dữ liệu khóa học, danh mục khóa học, bài học, tài liệu học tập và video bài giảng.
+225	NormalWeb	NUMPR	Quản lý dữ liệu đăng ký khóa học, tiến độ học tập và lịch sử học tập của học viên.
+226	NormalWeb	NUMPR	Lưu trữ dữ liệu giỏ hàng, đơn hàng, giao dịch thanh toán và doanh thu hệ thống.
+227	NormalWeb	NUMPR	Lưu trữ đánh giá, nhận xét và phản hồi của người dùng đối với khóa học.
+228	NormalWeb	NUMPR	Quản lý dữ liệu thông báo, lịch sử hoạt động và lịch sử tương tác với ChatBot AI.
+229	NormalWeb	NUMPR	Đảm bảo tính toàn vẹn, nhất quán và bảo mật dữ liệu thông qua các ràng buộc, khóa chính, khóa ngoại và cơ chế giao dịch của PostgreSQL.
+230	NormalWeb	-	
+231	NormalWeb	-	-  Hệ thống sử dụng Spring Data JPA kết hợp với HikariCP Connection Pool để tối ưu việc truy xuất dữ liệu và quản lý kết nối cơ sở dữ liệu. PostgreSQL đóng vai trò là trung tâm lưu trữ dữ liệu của hệ thống, hỗ trợ Backend xử lý các nghiệp vụ liên quan đến khóa học, học tập trực tuyến, thanh toán và quản trị hệ thống.
+232	NormalWeb	-	- Trong môi trường triển khai thực tế, cơ sở dữ liệu có thể được cấu hình cơ chế Backup và Replication nhằm nâng cao khả năng phục hồi, tính sẵn sàng và đảm bảo an toàn dữ liệu cho toàn bộ hệ thống.
+233	NormalWeb	-	3.4. Hệ thống lưu trữ tệp
+234	NormalWeb	-	- Hệ thống LearnOva hỗ trợ lưu trữ các tệp do người dùng và giảng viên tải lên, bao gồm ảnh đại diện, ảnh khóa học, video bài giảng, tài liệu học tập (PDF, Word, PowerPoint) và các tài nguyên phục vụ quá trình học tập.
+235	NormalWeb	-	- Các tệp được lưu trữ trực tiếp trên AWS S3 thông qua presigned URL — Backend tạo URL upload ký sẵn, client upload thẳng lên S3 mà không cần đi qua backend. CloudFront phân phối video HLS bằng signed URL, MediaConvert chuyển đổi video sang HLS. Backend quản lý metadata (S3 key, HLS status) và kiểm tra quyền truy cập theo từng người dùng.
+236	NormalWeb	-	- Hệ thống lưu trữ tệp giúp:
+237	NormalWeb	NUMPR	Quản lý tập trung các tài nguyên học tập của khóa học.
+238	NormalWeb	NUMPR	Hỗ trợ giảng viên tải lên video bài giảng và tài liệu học tập.
+239	NormalWeb	NUMPR	Cho phép người dùng cập nhật ảnh đại diện và các thông tin cá nhân liên quan.
+240	NormalWeb	NUMPR	Tách biệt dữ liệu tệp với dữ liệu nghiệp vụ trong cơ sở dữ liệu PostgreSQL nhằm nâng cao hiệu năng truy xuất và đơn giản hóa việc quản lý hệ thống.
+241	NormalWeb	-	- Hệ thống đã tích hợp sẵn AWS S3 làm dịch vụ lưu trữ chính, kết hợp AWS MediaConvert để transcode video sang định dạng HLS và CloudFront để phân phối nội dung video tốc độ cao với signed URL. Các tính năng này đã hoàn thiện trong phiên bản hiện tại.
+242	Heading2	HEAD2	4. Luồng giao diện chính
+243	pdq2pgselectionanchorcontainer	-	- Hệ thống LearnOva sử dụng kiến trúc giao tiếp dựa trên RESTful API, trong đó Frontend, Backend, Database và các dịch vụ hỗ trợ phối hợp với nhau để xử lý các yêu cầu của người dùng. Các thành phần được phân tách theo từng chức năng nhằm đảm bảo khả năng bảo trì, bảo mật và mở rộng hệ thống. Kiến trúc tổng thể của hệ thống bao gồm Frontend ReactJS, Backend Spring Boot, cơ sở dữ liệu PostgreSQL, AI Service và hệ thống lưu trữ AWS S3.
+244	Heading3	HEAD3	4.1. Giao tiếp giữa Frontend và Backend
+245	NormalWeb	-	- Frontend được phát triển bằng ReactJS và Vite và giao tiếp với Backend thông qua các RESTful API. Khi người dùng thực hiện các thao tác như đăng ký tài khoản, đăng nhập, tìm kiếm khóa học, mua khóa học, học trực tuyến, quản lý giỏ hàng hoặc sử dụng ChatBot AI, Frontend gửi yêu cầu đến Backend thông qua giao thức HTTP/HTTPS.
+246	NormalWeb	-	- Dữ liệu trao đổi giữa Frontend và Backend chủ yếu sử dụng định dạng JSON, giúp việc truyền nhận và xử lý dữ liệu giữa hai thành phần được thuận tiện và tương thích với nhiều nền tảng. Tài liệu của dự án cũng xác định Frontend giao tiếp với Backend thông qua RESTful API và dữ liệu JSON.
+247	Heading3	HEAD3	4.2. Cơ chế xác thực bằng JWT:
+248	NormalWeb	-	- Hệ thống sử dụng JSON Web Token (JWT) kết hợp với Spring Security để xác thực và phân quyền người dùng.Cơ chế JWT giúp hệ thống giảm phụ thuộc vào việc lưu trữ session trên máy chủ, phù hợp với mô hình Stateless và hỗ trợ khả năng mở rộng hệ thống trong tương lai.
+249	NormalWeb	-	- Quy trình hoạt động như sau:
+250	-	NUMPR	Người dùng đăng nhập vào hệ thống bằng email và mật khẩu.
+251	-	NUMPR	Frontend gửi thông tin đăng nhập đến Backend.
+252	-	NUMPR	Backend kiểm tra thông tin xác thực và tạo JWT Token nếu đăng nhập thành công.
+253	-	NUMPR	Frontend lưu trữ JWT Token và gửi token kèm theo Header của các yêu cầu tiếp theo.
+254	-	NUMPR	Backend kiểm tra tính hợp lệ của JWT Token trước khi cho phép truy cập các chức năng yêu cầu xác thực.
+255	-	NUMPR	Dựa trên thông tin quyền hạn, hệ thống phân quyền người dùng theo các vai trò Student, Instructor và Admin.
+256	Heading3	HEAD3	4.3. Giao tiếp giữa Backend và Database
+257	NormalWeb	-	- Backend được xây dựng bằng Spring Boot và sử dụng Spring Data JPA để tương tác với cơ sở dữ liệu PostgreSQL.
+258	NormalWeb	-	- Khi nhận yêu cầu từ Frontend, Backend thực hiện kiểm tra quyền truy cập, xử lý nghiệp vụ và thực hiện các thao tác truy vấn, thêm, sửa hoặc xóa dữ liệu trong PostgreSQL.
+259	NormalWeb	-	- Các nhóm dữ liệu chính được quản lý trong PostgreSQL bao gồm:
+260	-	NUMPR	Thông tin người dùng và vai trò.
+261	-	NUMPR	Khóa học, danh mục, phần học và bài học.
+262	-	NUMPR	Thông tin đăng ký khóa học và tiến độ học tập.
+263	-	NUMPR	Giỏ hàng, đơn hàng và thanh toán.
+264	-	NUMPR	Đánh giá và nhận xét khóa học.
+265	-	NUMPR	Thông báo và các dữ liệu nghiệp vụ khác của hệ thống.
+266	NormalWeb	-	- Việc tách biệt Backend và Database giúp kiểm soát quyền truy cập dữ liệu, đảm bảo tính toàn vẹn của dữ liệu và tạo điều kiện thuận lợi cho việc bảo trì, mở rộng hệ thống.
+267	Heading2	HEAD2	5. Danh sách Use Case theo vai trò
+268	-	-	
+269	-	NUMPR	Hình 5.1: Usecase tổng quát
+270	-	-	
+271	-	-	
+272	-	IMG=1	
+273	-	-	
+274	-	NUMPR	Hình 5.2: Usecase vai trò Guests
+275	-	-	
+276	-	NUMPR	Hình.5.3: Usecase vai trò Students
+277	-	NUMPR	
+278	-	NUMPR	Hình 5.4: Usecase vai trò Teachers
+279	-	-	
+280	-	NUMPR	Hình 3.5.5: Usecase vai trò Admin
+281	-	-	
+282	-	-	
+283	-	-	
+284	-	-	
+285	-	-	
+286	-	-	
+287	-	-	
+288	Heading2	HEAD2	3.6. Thiết kế Database (ERD)
+289	-	-	Sơ đồ ERD mô tả toàn bộ cấu trúc cơ sở dữ liệu của hệ thống LearnOva, bao gồm các thực thể chính và mối quan hệ giữa chúng. (Xem Hình 3.9 – ERD đính kèm)
+290	-	-	
+291	-	IMG=1	
+292	-	NUMPR	Hình 3.9: Sơ đồ ERD
+293	-	-	
+294	-	-	
+295	-	-	
+296	-	-	
+297	Heading3	HEAD3	3.6.1. Mô tả các thực thể chính
+298	TABLE	TBL	Mã | Thực thể | Mô tả | Thuộc tính chính | E01 | Người dùng (User)
+299	-	-	
+300	Heading3	HEAD3	3.6.2. Danh sách usecase
+301	-	-	
+302	TABLE	TBL	Mã | Use Case | Guest | Student | Instructor | UC01
+303	-	-	
+304	Heading2	HEAD2	3.7. Sơ đồ lớp - Class Diagram
+305	Heading3	HEAD3	3.7.1 Sơ đồ lớp đăng nhập (Login Service)
+306	-	IMG=1	
+307	Caption	-	Hình 3.7.1: Sơ đồ lớp đăng nhập (Login)
+308	-	-	
+309	-	-	
+310	-	-	
+311	-	-	
+312	-	-	
+313	-	-	
+314	-	-	
+315	-	-	
+316	-	-	
+317	-	-	
+318	-	-	
+319	Heading3	HEAD3	3.7.2 Sơ đồ lớp quản lý khóa học
+320	-	IMG=1	
+321	Caption	-	Hình 3.7.2: Sơ đồ lớp quản lý khóa học
+322	Heading3	HEAD3	3.7.3 Sơ đồ lớp quản lý bài học
+323	-	IMG=1	
+324	Caption	-	Hình 3.7.3: Sơ đồ lớp quản lý bài học
+325	Heading3	HEAD3	3.7.4 Sơ đồ lớp Thanh toán
+326	-	IMG=1	
+327	Caption	-	Hình 3.7.4: Sơ đồ lớp thanh toán
+328	Heading2	HEAD2	3.8. Sơ đồ tuần tự (Sequence Diagram)
+329	Heading3	HEAD3	3.8.1 Sơ đồ tuần tự chức năng đăng ký
+330	-	IMG=1	
+331	-	-	Hình 3.8.1. Sơ đồ Sequence Diagram chức năng đăng ký
+332	-	-	
+333	Heading3	HEAD3	3.8.2 Sơ đồ tuần tự chức năng đăng nhập
+334	-	IMG=1	
+335	-	-	Hình 3.8.2. Sơ đồ Sequence Diagram chức năng đăng nhập
+336	Heading3	HEAD3	3.8.3 Sơ đồ tuần tự chức năng mua khóa học
+337	-	IMG=1	
+338	-	-	Hình 3.8.3. Sơ đồ Sequence Diagram chức năng mua khóa học
+339	-	-	
+340	Heading2	HEAD2	3.9. Thiết kế giao diện
+341	Heading3	HEAD3	3.9.1. Tổng quan giao diện
+342	NormalWeb	-	- Hệ thống LearnOva được thiết kế theo phong cách hiện đại, trực quan và thân thiện với người dùng, hướng đến việc mang lại trải nghiệm học tập trực tuyến thuận tiện cho học viên, giảng viên và quản trị viên. Giao diện được xây dựng bằng ReactJS theo mô hình Single Page Application (SPA), giúp tối ưu tốc độ tải trang và tăng tính tương tác trong quá trình sử dụng.
+343	NormalWeb	-	- Giao diện của hệ thống được chia thành ba nhóm chính:
+344	NormalWeb	NUMPR	Giao diện xác thực: Bao gồm các trang Đăng nhập, Đăng ký, Quên mật khẩu và Đặt lại mật khẩu. Các giao diện này được thiết kế đơn giản, dễ sử dụng với các biểu mẫu nhập liệu rõ ràng, hỗ trợ xác thực người dùng và đảm bảo tính bảo mật.
+345	NormalWeb	NUMPR	Giao diện người dùng (Student): Cung cấp các chức năng như tìm kiếm khóa học, xem chi tiết khóa học, thêm vào giỏ hàng, thanh toán, học trực tuyến, theo dõi tiến độ học tập, quản lý hồ sơ cá nhân, đặt lịch meeting với giảng viên và sử dụng ChatBot AI hỗ trợ học tập.
+346	NormalWeb	NUMPR	Giao diện quản lý (Teacher và Admin): Cho phép giảng viên quản lý khóa học, bài học, tài liệu học tập, lịch meeting và theo dõi hoạt động học tập của học viên. Quản trị viên có thể quản lý người dùng, khóa học, danh mục, giao dịch thanh toán, báo cáo thống kê và các chức năng vận hành hệ thống.
+347	NormalWeb	-	- Về màu sắc, hệ thống sử dụng tông màu xanh dương làm màu chủ đạo, kết hợp với nền trắng và các gam màu trung tính nhằm tạo cảm giác chuyên nghiệp, dễ quan sát và phù hợp với môi trường giáo dục trực tuyến. Các thành phần giao diện như nút chức năng, thẻ khóa học, bảng dữ liệu và biểu mẫu được thiết kế đồng nhất nhằm đảm bảo tính nhất quán trong toàn hệ thống.
+348	NormalWeb	-	- Bố cục giao diện được xây dựng theo hướng Responsive Design, cho phép hệ thống hoạt động tốt trên nhiều thiết bị khác nhau như máy tính, máy tính bảng và điện thoại di động. Các thành phần giao diện sẽ tự động điều chỉnh kích thước và vị trí hiển thị để phù hợp với từng độ phân giải màn hình.
+349	NormalWeb	-	- Nhìn chung, giao diện LearnOva hướng tới sự đơn giản, trực quan và dễ sử dụng, giúp người dùng nhanh chóng tiếp cận các chức năng cần thiết, đồng thời hỗ trợ khả năng mở rộng và phát triển thêm các tính năng mới trong tương lai.
+350	Heading3	HEAD3	3.9.2. Thiết kế layout giao diện xác thực
+351	Heading3	HEAD3	3.9.3. Thiết kế layout trang chính
+352	-	IMG=1	
+353	-	-	Hình 3.9.3. Layout trang chính
+354	-	-	
+355	Heading3	HEAD3	3.9.4. Thiết kế layout trang quản trị viên
+356	-	IMG=1	
+357	-	-	Hình 3.9.4. Layout trang quản trị viên
+358	-	-	
+359	-	-	
+360	-	-	
+361	-	-	
+362	-	-	
+363	-	-	
+364	-	-	
+365	-	-	
+366	-	-	
+367	-	-	
+368	-	-	
+369	-	-	
+370	-	-	
+371	-	-	
+372	-	-	
+373	-	-	
+374	Heading3	HEAD3	3.9.5. Thiết kế layout trang giảng viên
+375	-	IMG=1	
+376	-	-	Hình 3.9.5. Layout trang giảng viên
+377	-	-	
+378	-	-	
+379	-	-	
+380	-	-	
+381	-	-	
+382	-	-	
+383	-	-	
+384	-	-	
+385	Heading1	HEAD1	PHẦN 4 – PHÁT TRIỂN/THỰC THI
+386	-	-	
+387	Heading2	HEAD2	4.1. Functional Requirement
+388	-	-	4.1.1. UC01: Đăng ký tài khoản
+389	-	-	
+390	-	-	Use case Description:
+391	TABLE	TBL	Mục | Nội dung | Name | Đăng ký tài khoản | Code | UC01
+392	-	-	
+393	-	-	Activities:
+394	TABLE	TBL	Actor | System | Nhập họ tên, email, mật khẩu và xác nhận mật khẩu | Kiểm tra dữ liệu đầu vào | Nhấn nút Đăng ký | Kiểm tra email đã tồn tại hay chưa
+395	-	-	
+396	-	-	Business rules:
+397	TABLE	TBL	Rule No. | Rule | Description | BR01 | Email phải là duy nhất | Một email chỉ được đăng ký một tài khoản
+398	-	-	
+399	-	-	System messge:
+400	TABLE	TBL	Code | Message | Description | MS01 | Email đã tồn tại trong hệ thống | Không thể tạo tài khoản trùng email
+401	-	-	
+402	-	-	
+403	-	-	
+404	-	-	
+405	-	-	
+406	-	-	
+407	-	-	
+408	-	-	4.1.2. UC02: Đăng nhập/đăng xuất
+409	-	-	
+410	-	-	Use case Description:
+411	TABLE	TBL	Mục | Nội dung | name | Đăng nhập/ đăng xuất | code | UC02
+412	-	-	
+413	-	-	Activities:
+414	TABLE	TBL	Actor | System | Nhập email và mật khẩu | Kiểm tra thông tin đăng nhập | Nhấn nút Đăng nhập | Xác thực tài khoản
+415	-	-	
+416	-	-	Business rules:
+417	TABLE	TBL	Rule No. | Rule | Description | BR01 | Chỉ tài khoản đã kích hoạt được đăng nhập | Email phải được xác thực
+418	-	-	
+419	-	-	System messge:
+420	TABLE	TBL	Code | Message | Description | MS01 | Email hoặc mật khẩu không chính xác | Sai thông tin đăng nhập
+421	-	-	
+422	-	-	
+423	-	-	
+424	-	-	
+425	-	-	
+426	-	-	
+427	-	-	
+428	-	-	
+429	-	-	
+430	-	-	
+431	-	-	
+432	-	-	4.1.3. UC03: Đăng ký/ mua khóa học
+433	-	-	
+434	-	-	Use case Description:
+435	TABLE	TBL	Mục | Nội dung | name | Đăng ký/ mua khóa học | code | UC07
+436	-	-	
+437	-	-	Activities:
+438	TABLE	TBL	Actor | System | Chọn khóa học muốn mua | Hiển thị thông tin khóa học | Thêm khóa học vào giỏ hàng | Cập nhật giỏ hàng
+439	-	-	
+440	-	-	Business rules:
+441	TABLE	TBL	Rule No. | Rule | Description | BR01 | Chỉ học viên đã đăng nhập mới được mua khóa học | Yêu cầu xác thực
+442	-	-	
+443	-	-	System messge:
+444	TABLE	TBL	Code | Message | Description | MS01 | Thanh toán thất bại | Giao dịch không thành công
+445	-	-	
+446	-	-	
+447	-	-	
+448	-	-	
+449	-	-	
+450	-	-	
+451	-	-	
+452	-	-	4.1.4. UC04: Học bài học online
+453	-	-	
+454	-	-	Use case Description:
+455	TABLE	TBL	Mục | Nội dung | name | Học bài học online | code | UC08
+456	-	-	
+457	-	-	Activities:
+458	TABLE	TBL	Actor | System | Chọn khóa học đã đăng ký | Kiểm tra quyền truy cập | Mở bài học | Tải video và tài liệu
+459	-	-	
+460	-	-	Business rules:
+461	TABLE	TBL	Rule No. | Rule | Description | BR01 | Chỉ học viên đã mua khóa học được học | Kiểm tra quyền truy cập
+462	-	-	
+463	-	-	System messge:
+464	TABLE	TBL	Code | Message | Description | MS01 | Bạn chưa đăng ký khóa học này | Không có quyền truy cập
+465	-	-	
+466	-	-	4.1.5. UC05: Chatbot AI hỗ trợ học tập
+467	-	-	Use case Description:
+468	TABLE	TBL	Mục | Nội dung | name | Chatbot AI hỗ trợ học tập | code | UC11
+469	-	-	
+470	-	-	Activities:
+471	TABLE	TBL	Actor | System | Mở cửa sổ ChatBot | Khởi tạo phiên trò chuyện | Nhập câu hỏi | Gửi câu hỏi tới AI Service
+472	-	-	
+473	-	-	Business rules:
+474	TABLE	TBL	Rule No. | Rule | Description | BR01 | Người dùng phải đăng nhập | Đảm bảo xác thực
+475	-	-	
+476	-	-	System messge:
+477	TABLE	TBL	Code | Message | Description | MS01 | Không thể kết nối tới AI Service | Lỗi hệ thống
+478	Heading2	HEAD2	
+479	Heading2	HEAD2	4.2.
+480	-	-	
+481	-	-	
+482	-	-	
+483	-	-	
+484	-	-	
+485	-	-	
+486	-	-	
+487	-	-	
+488	-	-	
+489	-	-	
+490	-	-	
+491	-	-	
+492	-	-	
+493	-	-	
+494	-	-	
+495	-	-	
+496	-	-	
+497	-	-	
+498	-	-	
+499	Heading1	HEAD1	PHẦN 5 – TRIỂN KHAI
+500	-	-	
+501	Heading2	HEAD2	5.1. Thông tin tổng quan dự án
+502	TABLE	TBL	Hạng mục | Thông tin | Tên dự án | LearnOva – Nền tảng học trực tuyến tích hợp AI | Thời gian bắt đầu | 12/05/2026
+503	-	-	
+504	Heading2	HEAD2	5.2. Kế hoạch chi tiết theo Sprint
+505	TABLE	TBL	Sprint | Thời gian | Mục tiêu | Deliverable chính | Sprint 0 (Khởi động) | 12/05 – 25/05/2026
+506	-	-	
+507	-	-	
+508	-	-	Sprint 1: Khởi động & Xây dựng nền tảng (12/05/2025 – 08/06/2025)
+509	TABLE	TBL	STT | Công việc | Người thực hiện | Trạng thái | 1 | Phân tích yêu cầu & thiết kế cơ sở dữ liệu
+510	-	-	Bảng 5.2: Kế hoạch Sprint 1
+511	-	-	
+512	-	-	Sprint 2: Phát triển tính năng cốt lõi (09/06/2025 – 06/07/2025)
+513	TABLE	TBL	STT | Công việc | Người thực hiện | Trạng thái | 1 | Module Course: CRUD khóa học, danh mục, tag
+514	-	-	Bảng 5.3: Kế hoạch Sprint 2
+515	-	-	
+516	-	-	Sprint 3: Thương mại, kiểm tra & Quản trị (07/07/2025 – 03/08/2025)
+517	TABLE	TBL	STT | Công việc | Người thực hiện | Trạng thái | 1 | Module Commerce: Cart, Order, Payment (PayOS)
+518	-	-	Bảng 5.4: Kế hoạch Sprint 3
+519	-	-	
+520	-	-	Sprint 4: Kiểm thử, tích hợp & hoàn thiện tài liệu (04/08/2025 – 20/08/2025)
+521	TABLE	TBL	STT | Công việc | Người thực hiện | Trạng thái | 1 | Kiểm thử tích hợp (Integration Testing) toàn bộ API
+522	-	-	Bảng 5.5: Kế hoạch Sprint 4
+523	-	-	
+524	Heading2	HEAD2	5.3. Phân công nhân sự
+525	-	-	
+526	TABLE	TBL	MSSV | Họ và tên | Vai trò | Phụ trách chính | Đóng góp (%) | PD11662
+527	-	-	Bảng 5.6: Phân công nhân sự
+528	Heading2	HEAD2	
+529	Heading1	HEAD1	
+530	Heading1	HEAD1	
+531	Heading1	HEAD1	
+532	Heading1	HEAD1	
+533	Heading1	HEAD1	
+534	Heading1	HEAD1	
+535	Heading1	HEAD1	
+536	Heading1	HEAD1	
+537	Heading1	HEAD1	
+538	Heading1	HEAD1	
+539	Heading1	HEAD1	
+540	Heading1	HEAD1	
+541	Heading1	HEAD1	
+542	Heading1	HEAD1	
+543	Heading1	HEAD1	
+544	Heading1	HEAD1	
+545	Heading1	HEAD1	
+546	-	-	
+547	-	-	
+548	-	-	
+549	-	-	
+550	Heading1	HEAD1	
+551	Heading1	HEAD1	PHẦN 6 – HƯỚNG PHÁT TRIỂN CỦA ĐỀ TÀI
+552	-	-	
+553	Heading2	HEAD2	6.1. Đánh giá kết quả đạt được
+554	-	-	- Sau quá trình nghiên cứu, phân tích yêu cầu, thiết kế và triển khai hệ thống, nhóm đã xây dựng được nền tảng học trực tuyến LearnOva đáp ứng được các mục tiêu đề ra của đồ án. Hệ thống được phát triển theo kiến trúc Client – Server với Frontend sử dụng ReactJS, Backend sử dụng Spring Boot và cơ sở dữ liệu PostgreSQL. Các thành phần của hệ thống được tổ chức theo mô hình phân lớp (Layered Architecture), giúp việc phát triển, bảo trì và mở rộng trở nên thuận lợi hơn.
+555	-	-	- Về mặt chức năng, hệ thống đã hoàn thành các chức năng cốt lõi như đăng ký, đăng nhập và xác thực người dùng bằng JWT; quản lý người dùng theo các vai trò Student, Instructor và Admin; quản lý khóa học, bài học và danh mục khóa học; đăng ký và thanh toán khóa học; học trực tuyến thông qua video và tài liệu; theo dõi tiến độ học tập; đánh giá khóa học; tích hợp ChatBot AI hỗ trợ học viên;. Các chức năng được xây dựng dưới dạng RESTful API và đảm bảo khả năng giao tiếp giữa Frontend và Backend thông qua dữ liệu JSON.
+556	-	-	- Về mặt kỹ thuật, nhóm đã áp dụng các công nghệ và công cụ hiện đại như Spring Security kết hợp JWT để xác thực và phân quyền, Spring Data JPA để thao tác cơ sở dữ liệu, Git và GitHub để quản lý mã nguồn, Postman để kiểm thử API và phương pháp Agile/Scrum để quản lý tiến độ phát triển dự án.
+557	-	-	- Trong quá trình thực hiện đồ án, các thành viên cũng rèn luyện được kỹ năng phân tích yêu cầu, thiết kế hệ thống, lập trình theo mô hình phân lớp, làm việc nhóm, quản lý mã nguồn và giải quyết các vấn đề phát sinh trong quá trình phát triển phần mềm.
+558	Heading2	HEAD2	6.2. Hạn chế của hệ thống
+559	-	-	- Mặc dù đã hoàn thành các chức năng chính, hệ thống vẫn còn một số hạn chế cần tiếp tục cải thiện trong các phiên bản tiếp theo.
+560	-	NUMPR	ChatBot AI mới chỉ hỗ trợ trả lời các câu hỏi cơ bản và chưa có khả năng ghi nhớ ngữ cảnh hội thoại.
+561	-	NUMPR	Chưa xây dựng hệ thống gợi ý khóa học dựa trên hành vi học tập của người dùng.
+562	-	NUMPR	Chưa triển khai cơ chế Redis Cache nhằm tối ưu tốc độ truy xuất dữ liệu.
+563	-	NUMPR	Chưa áp dụng Docker và CI/CD trong quá trình triển khai hệ thống.
+564	-	-	- Những hạn chế trên không ảnh hưởng đến khả năng vận hành các chức năng chính của hệ thống nhưng là những nội dung cần được cải thiện để nâng cao hiệu năng, khả năng mở rộng và tính ổn định của hệ thống trong tương laiTrong tương lai, nhóm đị
+565	Heading2	HEAD2	6.3. Khả năng ứng dụng thực tế
+566	-	-	- Hệ thống LearnOva được xây dựng nhằm phục vụ hoạt động đào tạo trực tuyến nên có khả năng ứng dụng trong nhiều lĩnh vực khác nhau.
+567	-	-	- Đối với các trung tâm đào tạo, hệ thống hỗ trợ quản lý khóa học, quản lý học viên, tổ chức lớp học trực tuyến và theo dõi tiến độ học tập của từng học viên.
+568	-	-	- Đối với các trường học, hệ thống có thể được sử dụng để quản lý bài giảng, tài liệu học tập, tổ chức các khóa học trực tuyến và hỗ trợ giảng viên trong quá trình giảng dạy.
+569	-	-	- Đối với doanh nghiệp, LearnOva có thể triển khai làm hệ thống đào tạo nội bộ nhằm nâng cao năng lực chuyên môn cho nhân viên, quản lý các khóa đào tạo và đánh giá kết quả học tập.
+570	-	-	- Với kiến trúc mở và khả năng mở rộng linh hoạt, hệ thống có thể tích hợp thêm các dịch vụ AI, thanh toán trực tuyến, lưu trữ đám mây và nhiều công nghệ mới để phát triển thành một nền tảng EdTech hoàn chỉnh trong tương lai.
+571	Heading2	HEAD2	6.4. Bài học kinh nghiệm
+572	-	-	- Trong quá trình thực hiện đồ án, nhóm đã tích lũy được nhiều kiến thức và kinh nghiệm thực tế về quy trình phát triển phần mềm.
+573	-	-	- Về chuyên môn, nhóm đã hiểu rõ hơn quy trình phân tích yêu cầu, thiết kế cơ sở dữ liệu, xây dựng RESTful API bằng Spring Boot, phát triển giao diện bằng ReactJS, triển khai xác thực và phân quyền bằng JWT, cũng như cách kết nối giữa Frontend và Backend trong mô hình Client – Server.
+574	-	-	- Về kỹ năng làm việc nhóm, các thành viên đã rèn luyện khả năng phân chia công việc, quản lý tiến độ theo phương pháp Agile/Scrum, sử dụng GitHub để quản lý mã nguồn, phối hợp giải quyết các vấn đề phát sinh và trao đổi thường xuyên để đảm bảo tiến độ thực hiện dự án.
+575	-	-	- Thông qua đồ án, nhóm cũng nhận thấy tầm quan trọng của việc xây dựng kiến trúc hệ thống ngay từ giai đoạn đầu, viết mã nguồn theo chuẩn, kiểm thử thường xuyên và cập nhật tài liệu đầy đủ trong suốt quá trình phát triển phần mềm. Những kinh nghiệm này sẽ là nền tảng quan trọng để nhóm tiếp tục phát triển các dự án thực tế trong tương lai.
+576	-	-	
+577	-	-	Hệ thống LearnOva có khả năng ứng dụng thực tế trong các trung tâm đào tạo, doanh nghiệp và tổ chức giáo dục có nhu cầu t
+578	-	-	
+579	-	-	
+580	Heading1	HEAD1	KẾT LUẬN
+581	-	-	Đề tài "Xây dựng ứng dụng học trực tuyến LearnOva" được thực hiện với mục tiêu xây dựng một nền tảng học trực tuyến hiện đại, hỗ trợ kết nối giữa học viên, giảng viên và quản trị viên trên cùng một hệ thống. Trong quá trình thực hiện, nhóm đã tiến hành khảo sát yêu cầu, phân tích nghiệp vụ, thiết kế kiến trúc hệ thống, xây dựng cơ sở dữ liệu, phát triển giao diện người dùng và triển khai các chức năng chính của hệ thống.
+582	-	-	Kết quả đạt được cho thấy hệ thống đã đáp ứng được các mục tiêu đề ra ban đầu. Hệ thống hỗ trợ đầy đủ các chức năng cơ bản như đăng ký và đăng nhập người dùng, quản lý khóa học, bài học, danh mục khóa học, đăng ký và thanh toán khóa học, học trực tuyến, theo dõi tiến độ học tập, đánh giá khóa học, đặt lịch Meeting với giảng viên, tích hợp ChatBot AI hỗ trợ học tập và quản trị hệ thống. Việc áp dụng các công nghệ như ReactJS, Spring Boot, PostgreSQL, Spring Security và JWT đã góp phần xây dựng một hệ thống có kiến trúc rõ ràng, dễ bảo trì và có khả năng mở rộng trong tương lai.
+583	-	-	Bên cạnh những kết quả đạt được, nhóm cũng nhận thấy hệ thống vẫn còn một số hạn chế về hiệu năng, khả năng mở rộng và một số tính năng nâng cao chưa được triển khai do giới hạn về thời gian và phạm vi thực hiện đồ án. Đây sẽ là cơ sở để tiếp tục nghiên cứu, hoàn thiện và phát triển hệ thống trong các phiên bản tiếp theo.
+584	-	-	Thông qua quá trình thực hiện đề tài, các thành viên trong nhóm không chỉ củng cố kiến thức chuyên môn về phân tích, thiết kế và phát triển phần mềm mà còn nâng cao kỹ năng làm việc nhóm, quản lý tiến độ, sử dụng Git để quản lý mã nguồn, giải quyết vấn đề và áp dụng quy trình phát triển phần mềm vào dự án thực tế. Những kinh nghiệm này sẽ là nền tảng quan trọng cho quá trình học tập và công việc sau này.
+585	-	-	Nhóm xin chân thành cảm ơn Trường Cao đẳng FPT Polytechnic Đà Nẵng, quý thầy cô trong Bộ môn Công nghệ Thông tin, đặc biệt là giảng viên hướng dẫn Nguyễn Ngọc Anh, đã tận tình hướng dẫn và hỗ trợ trong suốt quá trình thực hiện đồ án. Đồng thời, nhóm cũng xin cảm ơn các thành viên đã luôn phối hợp, hỗ trợ và nỗ lực hoàn thành dự án. Mặc dù đã cố gắng hoàn thiện sản phẩm trong phạm vi thời gian và kiến thức cho phép, báo cáo chắc chắn vẫn còn những thiếu sót. Nhóm rất mong nhận được những ý kiến đóng góp từ quý thầy cô để tiếp tục hoàn thiện đề tài trong tương lai.
+586	-	-	
+587	-	-	
+588	-	-	
+589	-	-	
+590	-	-	
+591	-	-	
+592	-	-	
+593	-	-	
+594	-	-	
+595	-	-	
+596	-	-	
+597	-	-	
+598	-	-	
+599	-	-	
+600	-	-	
+601	-	-	
+602	-	-	
+603	-	-	
+604	-	-	
+605	-	-	
+606	-	-	
+607	-	-	
+608	-	-	
+609	-	-	
+610	-	-	
+611	-	-	
+612	-	-	
+613	-	-	
+614	-	-	
+615	-	-	
+616	-	-	
+617	SECTPR	-	
