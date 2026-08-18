@@ -1,8 +1,8 @@
-package com.example.back_end.admin.adapter.in.web.dto;
+package com.example.back_end.instructor.adapter.in.web.dto;
 
 import java.time.Instant;
 
-public record AdminTagResponse(
+public record TeacherTagResponse(
     Long id,
     String name,
     String slug,

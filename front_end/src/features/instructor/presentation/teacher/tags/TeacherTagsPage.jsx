@@ -2,17 +2,17 @@ import { AlertTriangle, Edit3, Plus, Tag as TagIcon, Trash2, X } from "lucide-re
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { adminNotifySuccess } from "../../../notification/infrastructure/api/NotificationApi";
+import { adminNotifySuccess } from "../../../../notification/infrastructure/api/NotificationApi";
 import {
-  createAdminTagApi,
-  deleteAdminTagApi,
-  getAdminTagCoursesDropdownApi,
-  getAdminTagsApi,
-  updateAdminTagApi,
-} from "../../infrastructure/api/TagApi";
-import AdminHoverSelect from "../shared/AdminHoverSelect";
-import { useAxiosPrivate } from "../../../../shared/hooks/useAxiosPrivate";
-import "./Tag.css";
+  createTeacherTagApi,
+  deleteTeacherTagApi,
+  getTeacherTagCoursesDropdownApi,
+  getTeacherTagsApi,
+  updateTeacherTagApi,
+} from "../../../infrastructure/api/teacher/TeacherTagApi";
+import AdminHoverSelect from "../../../../admin/presentation/shared/AdminHoverSelect";
+import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
+import "./TeacherTagsPage.css";
 
 const pageSize = 8;
 
@@ -49,9 +49,9 @@ const normalizeTag = (tag) => ({
 });
 
 const getTagStats = (tags, t) => {
-  const active = tags.filter((t) => !t.isDeleted).length;
-  const hidden = tags.filter((t) => t.isDeleted).length;
-  const withCourse = tags.filter((t) => t.courseId != null).length;
+  const active = tags.filter((x) => !x.isDeleted).length;
+  const hidden = tags.filter((x) => x.isDeleted).length;
+  const withCourse = tags.filter((x) => x.courseId != null).length;
   return [
     { label: t("tagAdmin.total"), value: tags.length, note: t("tagAdmin.database") },
     { label: t("tagAdmin.active"), value: active, note: t("tagAdmin.visible") },
@@ -74,7 +74,7 @@ const CourseSelect = ({ value, onChange, courses }) => (
   </select>
 );
 
-const Tag = () => {
+const TeacherTagsPage = () => {
   const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const [tags, setTags] = useState([]);
@@ -94,8 +94,8 @@ const Tag = () => {
         setIsLoading(true);
         setError("");
         const [tagsRes, coursesRes] = await Promise.all([
-          getAdminTagsApi(axiosPrivate),
-          getAdminTagCoursesDropdownApi(axiosPrivate),
+          getTeacherTagsApi(axiosPrivate),
+          getTeacherTagCoursesDropdownApi(axiosPrivate),
         ]);
         if (isMounted) {
           setTags(Array.isArray(tagsRes) ? tagsRes.map(normalizeTag) : []);
@@ -174,7 +174,7 @@ const Tag = () => {
     setCreateError("");
     try {
       if (editingTag) {
-        const updated = await updateAdminTagApi(
+        const updated = await updateTeacherTagApi(
           editingTag.id,
           {
             name: createForm.name.trim(),
@@ -185,10 +185,10 @@ const Tag = () => {
           axiosPrivate,
         );
         setTags((current) =>
-          current.map((t) => (t.id === editingTag.id ? normalizeTag(updated) : t)),
+          current.map((item) => (item.id === editingTag.id ? normalizeTag(updated) : item)),
         );
       } else {
-        const newTag = await createAdminTagApi(
+        const newTag = await createTeacherTagApi(
           {
             name: createForm.name.trim(),
             slug: toSlug(createForm.name.trim()),
@@ -216,7 +216,7 @@ const Tag = () => {
     if (!confirmDeleteTag) return;
     setIsDeleting(true);
     try {
-      await deleteAdminTagApi(confirmDeleteTag.id, axiosPrivate);
+      await deleteTeacherTagApi(confirmDeleteTag.id, axiosPrivate);
       setTags((current) =>
         current.map((item) =>
           item.id === confirmDeleteTag.id ? { ...item, isDeleted: true, status: "Hidden" } : item,
@@ -465,4 +465,4 @@ const Tag = () => {
   );
 };
 
-export default Tag;
+export default TeacherTagsPage;

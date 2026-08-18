@@ -18,7 +18,6 @@ import Reports from "../../features/admin/presentation/reports/Reports";
 import Vouchers from "../../features/admin/presentation/vouchers/Vouchers";
 import VoucherCreate from "../../features/admin/presentation/vouchers/voucher_create/VoucherCreate";
 import Category from "../../features/admin/presentation/category/Category";
-import Tag from "../../features/admin/presentation/tag/Tag";
 import ViolationReports from "../../features/admin/presentation/violation_reports/ViolationReports";
 import TeacherLayout from "../layouts/teacher/TeacherLayout";
 import OverviewPage from "../../features/instructor/presentation/teacher/overview/OverviewPage";
@@ -32,6 +31,7 @@ import QAInboxPage from "../../features/instructor/presentation/teacher/qa/QAInb
 import RevenuePage from "../../features/instructor/presentation/teacher/revenue/RevenuePage";
 import AnalyticsPage from "../../features/instructor/presentation/teacher/analytics/AnalyticsPage";
 import ProfilePage from "../../features/instructor/presentation/teacher/profile/ProfilePage";
+import TeacherTagsPage from "../../features/instructor/presentation/teacher/tags/TeacherTagsPage";
 import UserLayout from "../layouts/user/UserLayout";
 import InstructorsPage from "../../features/user/presentation/intructor";
 import InstructorDetail from "../../features/instructor/presentation/user/intructorDetail/intructorDetail";
@@ -89,7 +89,6 @@ const App = () => {
                     <Route path="vouchers/create" element={<VoucherCreate/>}/>
                     <Route path="support-chat" element={<SupportChatPage/>}/>
                     <Route path="categories" element={<Category/>}/>
-                    <Route path="tags" element={<Tag/>}/>
                     <Route path="violation-reports" element={<ViolationReports/>}/>
                     <Route path="teacher-applications" element={<TeacherApplicationPage/>}/>
                     <Route path="teacher-applications/:applicationId" element={<TeacherApplicationPage/>}/>
@@ -101,6 +100,7 @@ const App = () => {
                 <Route path="/learnova/teacher" element={<RequireRole role="ROLE_TEACHER"><TeacherLayout/></RequireRole>}>
                     <Route index element={<OverviewPage/>}/>
                     <Route path="courses" element={<CoursesPage/>}/>
+                    <Route path="tags" element={<TeacherTagsPage/>}/>
                     <Route path="courses/create" element={<CourseCreationPage/>}/>
                     <Route path="courses/edit/:courseId" element={<CourseCreationPage/>}/>
                     <Route path="promotions" element={<PromotionsPage/>}/>
