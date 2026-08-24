@@ -250,11 +250,6 @@ export default function CourseDetail() {
     const handleAddToCart = async () => {
         if (authLoading || !course) return;
 
-        if (!isAuthenticated) {
-            toast.error(t("publicCourseDetail.loginToCart"));
-            return;
-        }
-
         if (enrolled) {
             toast.info(t("publicCourseDetail.alreadyOwned"));
             return;
