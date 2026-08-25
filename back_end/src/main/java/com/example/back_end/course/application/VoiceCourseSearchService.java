@@ -1,4 +1,5 @@
 package com.example.back_end.course.application;
+
 import com.example.back_end.course.adapter.in.web.dto.VoiceCourseSearchRequest;
 import com.example.back_end.course.adapter.in.web.dto.CategoryOptionResponse;
 import com.example.back_end.course.adapter.in.web.dto.PublicCourseResponse;
