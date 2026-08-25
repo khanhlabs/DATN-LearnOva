@@ -6,9 +6,13 @@ import com.example.back_end.course.adapter.in.web.dto.FeaturedCourseResponse;
 import com.example.back_end.media.adapter.in.web.dto.GetFileUrlResponse;
 import com.example.back_end.course.adapter.in.web.dto.PublicCourseResponse;
 import com.example.back_end.course.adapter.in.web.dto.TopCategoryResponse;
+import com.example.back_end.course.adapter.in.web.dto.VoiceCourseSearchRequest;
+import com.example.back_end.course.adapter.in.web.dto.VoiceCourseSearchResponse;
 import com.example.back_end.course.application.CourseService;
+import com.example.back_end.course.application.VoiceCourseSearchService;
 import com.example.back_end.media.infrastructure.storage.S3Service;
 import com.example.back_end.admin.application.AdminCategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -25,6 +29,7 @@ public class CourseController {
     private final CourseService courseService;
     private final S3Service s3Service;
     private final AdminCategoryService categoryService;
+    private final VoiceCourseSearchService voiceCourseSearchService;
 
     @GetMapping("/video-url")
     public GetFileUrlResponse getVideoUrl(
@@ -66,6 +71,11 @@ public class CourseController {
     @GetMapping("/public")
     public List<PublicCourseResponse> getPublishedCourses() {
         return courseService.getPublishedCourses();
+    }
+
+    @PostMapping("/voice-search")
+    public VoiceCourseSearchResponse voiceSearch(@RequestBody @Valid VoiceCourseSearchRequest request) {
+        return voiceCourseSearchService.search(request);
     }
 
     @GetMapping("/public/{courseId}")

@@ -1,4 +1,4 @@
-import {BrowserRouter, Routes, Route, Outlet} from "react-router-dom";
+import {BrowserRouter, Routes, Route, Outlet, Navigate} from "react-router-dom";
 import RequireRole from "./RequireRole";
 import AuthPage from "../../features/auth/presentation/AuthPage";
 import ForgotPassword from "../../features/auth/presentation/components/forgot_password/ForgotPassword";
@@ -69,7 +69,7 @@ const App = () => {
 
                 <Route element={<HomeLayout/>}>
                     <Route path="/" element={<Home/>}/>
-                    <Route path="/learnova/home" element={<Home/>}/>
+                    <Route path="/learnova/home" element={<Navigate to="/" replace/>}/>
                 </Route>
 
                 {/* Admin */}
