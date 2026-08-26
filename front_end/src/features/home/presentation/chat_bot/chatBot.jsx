@@ -298,6 +298,7 @@ function LearnovaAI() {
 
     useEffect(() => {
         const queryConversationId = new URLSearchParams(window.location.search).get("supportConversationId");
+
         const stateConversationId = location.state?.openSupportConversation
             ? location.state.supportConversationId
             : null;
@@ -321,6 +322,7 @@ function LearnovaAI() {
                 }
             }
 
+
             setSupportConversation(conversation);
             setSupportMode(true);
             setIsOpen(true);
@@ -332,6 +334,7 @@ function LearnovaAI() {
             setShowConnectedNotice(recentlyAnswered);
             setSupportTimedOut(false);
             setSupportStatusDismissed(false);
+
             setSupportMessages(messagesLoadedDirectly || []);
             supportSeenMessageIdsRef.current = new Set();
             supportBaselineReadyRef.current = false;
@@ -345,6 +348,7 @@ function LearnovaAI() {
             window.history.replaceState({}, "", window.location.pathname);
         }).catch(() => {});
     }, [isAuthenticated, location.pathname, location.search, location.key, location.state]);
+
 
     const handleStartSupportChat = async (botMessage) => {
         if (!isAuthenticated) {
@@ -405,6 +409,8 @@ function LearnovaAI() {
             setSupportFilePreview("");
             supportForceScrollRef.current = true;
             supportScrollPendingRef.current = !supportUserScrolledUpRef.current;
+            supportScrollPendingRef.current = !supportUserScrolledUpRef.current;
+
             setSupportMessages((currentMessages) => !sentMessage || currentMessages.some((item) => item.id === sentMessage.id)
                 ? currentMessages
                 : [...currentMessages, sentMessage]);
@@ -660,6 +666,7 @@ function LearnovaAI() {
                                 {supportTimedOut && !supportConnected && (
                                     <div className="support-timeout-box">
                                         <strong>Hiện tại nhân viên của chúng tôi chưa sẵn sàng.</strong>
+
                                         <p>Bạn có thể liên hệ để được hỗ trợ:</p>
                                         <a href={`tel:${SUPPORT_HOTLINE}`}><Phone size={14} /> {SUPPORT_HOTLINE}</a>
                                         <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
@@ -673,8 +680,10 @@ function LearnovaAI() {
                             {supportMode ? (
                                 <>
                                     {supportMessages.map((item) => (
+
                                         <div key={item.id} className={`support-live-message ${item.senderType === "ADMIN" ? "admin" : "user"} ${item.attachmentUrl ? "has-attachment" : ""}`}>
                                             <div className={`support-live-bubble ${item.attachmentUrl ? "has-attachment" : ""}`}>
+
                                                 {item.content && <p>{item.content}</p>}
                                                 {item.attachmentUrl && (
                                                     <a href={item.attachmentUrl} target="_blank" rel="noreferrer">
@@ -685,7 +694,9 @@ function LearnovaAI() {
                                             </div>
                                         </div>
                                     ))}
+
                                     <div ref={supportMessagesEndRef} aria-hidden="true" />
+
                                     {supportError && <p className="support-live-error">{supportError}</p>}
                                 </>
                             ) : (
@@ -693,7 +704,10 @@ function LearnovaAI() {
                                     {messages.map((msg) => (
                                         <div key={msg.id} className="message-block">
                                             <div className={`message ${msg.sender}`}>
+
                                                 {renderChatText(msg.text)}
+                                                {msg.text}
+
                                             </div>
 
                                             {msg.sender === "bot" && (
@@ -770,8 +784,70 @@ function LearnovaAI() {
                                                             <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
                                                         </div>
                                                     )}
+
                                                 </div>
                                             )}
+
+                                            {msg.sender === "bot" && feedbackByMessageId[msg.id] === "dislike" && (
+                                                <div className="support-box">
+                                                    <p className="support-box-title">{t("chatbot.issuePrompt")}</p>
+
+                                                    <div className="support-faq-list">
+                                                        {supportFaqQuestions.map((item, index) => {
+                                                            const isOpen = openFaqIndexByMessageId[msg.id] === index;
+
+                                                            return (
+                                                                <div key={index} className="support-faq-item">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="support-faq-question"
+                                                                        onClick={() => toggleFaqItem(msg.id, index)}
+                                                                    >
+                                                                        <span>{item.q}</span>
+                                                                        {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                                                    </button>
+
+                                                                    {isOpen && (
+                                                                        <p className="support-faq-answer">{item.a}</p>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+
+                                                    <button
+                                                        type="button"
+                                                        className="support-chat-trigger"
+                                                        onClick={() => handleStartSupportChat(msg.text)}
+                                                        disabled={supportLoading}
+                                                    >
+                                                        <MessageCircle size={15} />
+                                                        {isAuthenticated ? "Chat với nhân viên tư vấn" : "Đăng nhập để chat với nhân viên"}
+                                                    </button>
+
+                                                    {!showHotlineByMessageId[msg.id] ? (
+                                                        <button
+                                                            type="button"
+                                                            className="support-hotline-trigger"
+                                                            onClick={() => handleShowHotline(msg.id)}
+                                                        >
+                                                            {t("chatbot.stillNeedHelp")}
+                                                        </button>
+                                                    ) : (
+                                                        <div className="support-hotline-box">
+                                                            <Phone size={14} />
+                                                            <span>{t("chatbot.hotlineIntro")}</span>
+                                                            <a href={`tel:${SUPPORT_HOTLINE}`}>{SUPPORT_HOTLINE}</a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    {isSending && !hasReceivedFirstChunk && (
+                                        <div className="message bot typing-indicator">
+                                            Đang trả lời...
                                         </div>
                                     ))}
 

@@ -8,14 +8,13 @@ import {
   GraduationCap,
   LayoutDashboard,
   UserPlus,
-  Tag,
   Tags,
   Ticket,
   Users,
   Headset,
 } from "lucide-react";
 import logoText from "../../../../assets/logo/LogoText.png";
-import "../sidebar_teacher/TeacherSidebar.css";
+import "../sidebar_teacher/TeacherSidebar";
 import "./SidebarAdmin.css";
 
 const adminNavSections = [
@@ -64,12 +63,6 @@ const adminNavSections = [
         label: "Categories",
         icon: Tags,
         path: "/learnova/admin/categories",
-      },
-      {
-        id: "tags",
-        label: "Tags",
-        icon: Tag,
-        path: "/learnova/admin/tags",
       },
     ],
   },

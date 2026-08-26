@@ -6,6 +6,7 @@ import {
     markNotificationReadApi,
     deleteSupportConversationNotificationsApi,
     deleteNotificationApi,
+
 } from "../../features/notification/infrastructure/api/NotificationApi";
 import { useAxiosPrivate } from "./useAxiosPrivate";
 import { useAuth } from "./useAuth";
@@ -134,6 +135,7 @@ export const useNotifications = () => {
                     }
                     browserNotification.close();
                 };
+
             }
         }
     }, [isAdmin, loadNotifications]);
@@ -149,6 +151,7 @@ export const useNotifications = () => {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         setUnreadCount(0);
     }, [axiosClient]);
+
 
     const deleteNotification = useCallback(async (id) => {
         await deleteNotificationApi(id, axiosClient);

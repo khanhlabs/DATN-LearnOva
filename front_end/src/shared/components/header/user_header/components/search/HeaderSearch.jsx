@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
 import { Mic, MicOff, Search, Waves, X } from "lucide-react";
+import "../VoiceSearch.css";
+
 import { searchCourses } from "../../../../../../features/course/infrastructure/api/SearchApi";
 import "../dropdown/VoiceSearch.css";
 
@@ -220,18 +223,22 @@ const HeaderSearch = ({ variant = "logged" }) => {
 
       {isVoiceOpen && createPortal(
         <div className="voice-search-modal-overlay" role="presentation" onMouseDown={closeVoiceSearch}>
+
           <section className="voice-search-modal" role="dialog" aria-modal="true" aria-labelledby="voice-search-title" onMouseDown={(event) => event.stopPropagation()}>
             <button type="button" className="voice-search-close" onClick={closeVoiceSearch} aria-label={t("header.closeVoiceSearch")}>
               <X size={22} />
             </button>
             <div className="voice-search-modal-icon"><Waves size={24} /></div>
             <h2 id="voice-search-title">{isListening ? t("header.voiceSearchListening") : t("header.voiceSearchDone")}</h2>
+
             <p>{isListening ? t("header.voiceSearchHint") : t("header.voiceSearchProcessing")}</p>
             <div className={`voice-search-visualizer ${isListening ? "is-active" : ""}`} aria-hidden="true">
               {[1, 2, 3, 4, 5].map((bar) => <span key={bar} />)}
             </div>
+
             <div className="voice-search-transcript">{voiceText || t("header.voiceSearchSpeakNow")}</div>
             <button type="button" className={`voice-search-mic ${isListening ? "is-listening" : ""}`} onClick={isListening ? stopListening : startVoiceSearch}>
+
               {isListening ? <MicOff size={30} /> : <Mic size={30} />}
             </button>
             <small>{isListening ? t("header.voiceSearchStop") : t("header.voiceSearchStart")}</small>

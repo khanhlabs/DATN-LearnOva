@@ -17,3 +17,13 @@ output "github_actions_role_arn" {
   description = "Set as AWS_ROLE_ARN in the GitHub Actions workflow / repo secret"
   value       = aws_iam_role.github_actions_deploy.arn
 }
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution serving private video content"
+  value       = aws_cloudfront_distribution.video.id
+}
+
+output "cloudfront_domain_name" {
+  description = "CloudFront domain used by the backend to create signed URLs"
+  value       = aws_cloudfront_distribution.video.domain_name
+}

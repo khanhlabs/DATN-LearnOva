@@ -34,7 +34,7 @@ const savePendingConversation = (conversationId) => {
 };
 
 const NotificationDropdown = () => {
-  const navigate = useNavigate();
+
   const { notifications, unreadCount, loadNotifications, markRead, deleteNotification, clearSupportConversationNotifications } = useNotifications();
 
   const handleClick = async (notification) => {
@@ -63,6 +63,7 @@ const NotificationDropdown = () => {
       clearSupportConversationNotifications(conversationId).catch(() => {});
     } else {
       deleteNotification(notification.id).catch(() => {});
+
     }
   };
 

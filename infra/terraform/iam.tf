@@ -27,6 +27,70 @@ data "aws_kms_alias" "ssm" {
 
 data "aws_caller_identity" "current" {}
 
+# MediaConvert uses this role to read source media and write transcoded output
+# in the private video bucket. It was originally created in the AWS Console.
+resource "aws_iam_role" "mediaconvert" {
+  name                 = "MediaConvertRole"
+  description          = "Allows MediaConvert service to call S3 APIs and API Gateway on your behalf."
+  max_session_duration = 3600
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "mediaconvert.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "mediaconvert_video_bucket" {
+  name = "MediaConvertS3AccessPolicy"
+  role = aws_iam_role.mediaconvert.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "s3:GetObject",
+        "s3:PutObject",
+      ]
+      Resource = "arn:aws:s3:::datn-video-bucket/*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "mediaconvert_api_gateway_invoke" {
+  role       = aws_iam_role.mediaconvert.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "mediaconvert_s3_full_access" {
+  role       = aws_iam_role.mediaconvert.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+import {
+  to = aws_iam_role.mediaconvert
+  id = "MediaConvertRole"
+}
+
+import {
+  to = aws_iam_role_policy.mediaconvert_video_bucket
+  id = "MediaConvertRole:MediaConvertS3AccessPolicy"
+}
+
+import {
+  to = aws_iam_role_policy_attachment.mediaconvert_api_gateway_invoke
+  id = "MediaConvertRole/arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
+}
+
+import {
+  to = aws_iam_role_policy_attachment.mediaconvert_s3_full_access
+  id = "MediaConvertRole/arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
 resource "aws_iam_role_policy" "ec2_read_deploy_params" {
   name = "learnova-ec2-read-deploy-params"
   role = aws_iam_role.ec2_ssm.name
@@ -44,6 +108,35 @@ resource "aws_iam_role_policy" "ec2_read_deploy_params" {
         Action   = "kms:Decrypt"
         Resource = data.aws_kms_alias.ssm.target_key_arn
       }
+    ]
+  })
+}
+
+# Lets the application running on EC2 manage the private media objects used by
+# uploads, HLS output, avatars, and certificates.
+resource "aws_iam_role_policy" "ec2_video_bucket_access" {
+  name = "LearnOvaVideoBucketAccess"
+  role = aws_iam_role.ec2_ssm.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "BucketAccess"
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = "arn:aws:s3:::datn-video-bucket"
+      },
+      {
+        Sid    = "ObjectAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+        ]
+        Resource = "arn:aws:s3:::datn-video-bucket/*"
+      },
     ]
   })
 }

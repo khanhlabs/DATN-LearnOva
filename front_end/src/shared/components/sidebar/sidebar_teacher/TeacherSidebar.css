@@ -4,6 +4,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   gap: 28px;
   padding: 20px 10px 24px;
   background: #ffffff;
@@ -55,8 +56,19 @@
 }
 
 .teacher-nav {
+  flex: 1;
+  min-height: 0;
   display: grid;
+  align-content: start;
   gap: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.teacher-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .teacher-nav__section {
@@ -164,6 +176,7 @@
   justify-content: center;
   gap: 12px;
   margin-top: auto;
+  flex-shrink: 0;
   border-radius: 8px;
   background: #386cff;
   color: #ffffff;

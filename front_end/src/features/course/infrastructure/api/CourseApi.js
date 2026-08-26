@@ -5,6 +5,11 @@ export const getPublicCoursesApi = async () => {
   return response.data;
 };
 
+export const voiceSearchCoursesApi = async (query) => {
+  const response = await axiosClient.post("/courses/voice-search", { query });
+  return response.data;
+};
+
 export const getPublicCourseByIdApi = async (courseId) => {
   const response = await axiosClient.get(`/courses/public/${courseId}`);
   return response.data;

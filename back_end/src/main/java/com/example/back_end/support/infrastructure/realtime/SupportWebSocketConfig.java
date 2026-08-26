@@ -17,5 +17,6 @@ public class SupportWebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(handler, "/ws/support")
                 .addInterceptors(interceptor);
+
     }
 }

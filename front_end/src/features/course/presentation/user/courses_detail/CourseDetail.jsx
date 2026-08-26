@@ -3,7 +3,7 @@ import { FaClipboardCheck, FaPlay, FaPlayCircle, FaClock, FaCheckCircle, FaStar,
 import { ChevronDown } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Footer from "../../../../../shared/components/footer/footer";
+import Footer from "../../../../../shared/components/footer/Footer";
 import CourseVideoPlayer from "./components/tabs/video/VideoPlayer";
 import OverviewTab from "./components/tabs/overview/OverviewTab";
 import SummaryTab from "./components/tabs/summary/SummayTab";

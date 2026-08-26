@@ -12,6 +12,7 @@ import { useAuth } from "../../../../shared/hooks/useAuth";
 import { addCourseToCart } from "../../../../shared/utils/cartStorage";
 import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../infrastructure/api/CourseApi";
 import { getActiveCategories, getFileUrl } from "../../../../shared/api/public/CoursesApi";
+import { getFileUrl } from "../../../../shared/api/public/CoursesApi";
 import {
   addWishlistApi,
   removeWishlistApi,
@@ -129,6 +130,9 @@ function CoursesPage() {
     return () => { mounted = false; };
   }, []);
 
+  const [isVoiceSearching, setIsVoiceSearching] = useState(false);
+
+
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
     setCurrentPage(1);
@@ -243,6 +247,8 @@ function CoursesPage() {
       setCurrentPage(1);
     } catch (error) {
       toast.error(error.response?.data?.message || t("coursesPage.voiceSearchFailed"));
+    } finally {
+      setIsVoiceSearching(false);
     }
   };
 
@@ -491,14 +497,54 @@ function CoursesPage() {
                   “{voiceFilters.interpretedQuery}”
                 </strong>
               )}
+              {voiceFilters.keyword && <strong>{t("coursesPage.keywordLabel")}: {voiceFilters.keyword}</strong>}
+              {voiceFilters.instructor && <strong>{t("coursesPage.instructorLabel")}: {voiceFilters.instructor}</strong>}
+              {voiceFilters.category && <strong>{t("coursesPage.categoryLabel")}: {voiceFilters.category}</strong>}
+              {voiceFilters.courseType && (
+                <strong>
+                  {t("coursesPage.typeLabel")}:{" "}
+                  {voiceFilters.courseType === "free"
+                    ? t("coursesPage.freeCourses")
+                    : t("coursesPage.paidCourses")}
+                </strong>
+              )}
+              {voiceFilters.level && <strong>{t("coursesPage.levelLabel")}: {voiceFilters.level}</strong>}
+              {voiceFilters.minPrice != null && <strong>{t("coursesPage.priceLabel")}: ≥ ${voiceFilters.minPrice}</strong>}
+              {voiceFilters.maxPrice != null && <strong>{t("coursesPage.priceLabel")}: ≤ ${voiceFilters.maxPrice}</strong>}
+              {voiceFilters.minRating != null && <strong>{t("coursesPage.ratingLabel")}: ★ {voiceFilters.minRating}+</strong>}
+              {voiceFilters.minDurationMinutes != null && <strong>≥ {voiceFilters.minDurationMinutes}m</strong>}
+              {voiceFilters.maxDurationMinutes != null && <strong>≤ {voiceFilters.maxDurationMinutes}m</strong>}
+              {voiceFilters.minStudents != null && (
+                <strong>≥ {voiceFilters.minStudents} {t("coursesPage.students")}</strong>
+              )}
+              {!voiceFilters.keyword &&
+                !voiceFilters.instructor &&
+                !voiceFilters.category &&
+                !voiceFilters.courseType &&
+                !voiceFilters.level &&
+                voiceFilters.minPrice == null &&
+                voiceFilters.maxPrice == null &&
+                voiceFilters.minRating == null &&
+                voiceFilters.minDurationMinutes == null &&
+                voiceFilters.maxDurationMinutes == null &&
+                voiceFilters.minStudents == null && (
+                  <strong>{t("coursesPage.requestLabel")}: {voiceFilters.interpretedQuery}</strong>
+                )}
               <button type="button" onClick={clearVoiceSearch}>
                 {t("coursesPage.clearVoiceSearch")}
               </button>
             </div>
           )}
 
-          {isLoading ? (
-            <div className="courses-empty-state">{t("coursesPage.loading")}</div>
+
+          {isLoading || isVoiceSearching ? (
+            <div className="voice-results-loading" role="status" aria-live="polite">
+              <div className="voice-results-spinner" />
+              <strong>
+                {isVoiceSearching ? t("coursesPage.voiceSearchLoading") : t("coursesPage.loading")}
+              </strong>
+              <span>{isVoiceSearching ? t("coursesPage.voiceSearchLoadingHint") : ""}</span>
+            </div>
           ) : visibleCourses.length === 0 ? (
             <div className="courses-empty-state">
               {t("coursesPage.noCourses")}

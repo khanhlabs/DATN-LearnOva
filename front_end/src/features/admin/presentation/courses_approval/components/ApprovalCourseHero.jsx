@@ -79,6 +79,8 @@ const formatDate = (value) => {
 const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onReject }) => {
   const isPending = course.status === "PENDING_REVIEW";
   const thumbnailUrl = useCourseThumbnail(course.thumbnailKey);
+  const [failedThumbnailUrl, setFailedThumbnailUrl] = useState(null);
+  const hasThumbnail = Boolean(thumbnailUrl) && failedThumbnailUrl !== thumbnailUrl;
 
   const metaItems = [
     ["Instructor", course.instructorName],
@@ -91,19 +93,17 @@ const ApprovalCourseHero = ({ course, isSubmitting, onApprove, onReject }) => {
 
   return (
     <section className="approvalCourseCard">
-      <div className="approvalCourseCardTop">
-        {thumbnailUrl ? (
+      <div
+        className={`approvalCourseCardTop${hasThumbnail ? "" : " approvalCourseCardTop--without-thumbnail"}`}
+      >
+        {hasThumbnail ? (
           <img
             className="approvalCourseThumbnail"
             src={thumbnailUrl}
             alt={course.title}
-            onError={(event) => {
-              event.currentTarget.style.display = "none";
-            }}
+            onError={() => setFailedThumbnailUrl(thumbnailUrl)}
           />
-        ) : (
-          <div className="approvalCourseThumbnail approvalCourseThumbnail--empty" aria-hidden="true" />
-        )}
+        ) : null}
 
         <div className="approvalCourseInfo">
           <div className="approvalCourseInfoTop">
