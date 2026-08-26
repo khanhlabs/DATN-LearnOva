@@ -135,6 +135,7 @@
 
 .chat-body {
     padding: 20px;
+    padding-bottom: 35px;
 
     height: 335px;
 
@@ -195,10 +196,23 @@
 .support-live-message { display: flex; margin-bottom: 10px; }
 .support-live-message.admin { justify-content: flex-start; }
 .support-live-message.user { justify-content: flex-end; }
+
+.support-live-message.user.has-attachment { justify-content: flex-end; }
+
 .support-live-bubble { max-width: 85%; padding: 9px 11px; border-radius: 13px; background: #f0f4fa; color: #30415e; font-size: 13px; line-height: 1.45; }
 .support-live-message.user .support-live-bubble { background: #2864e8; color: #fff; }
 .support-live-bubble p { margin: 0; white-space: pre-wrap; }
 .support-live-bubble img { display: block; max-width: 180px; max-height: 150px; margin-top: 7px; border-radius: 8px; object-fit: cover; }
+
+.support-live-message.user .support-live-bubble.has-attachment,
+.support-live-message.admin .support-live-bubble.has-attachment {
+    padding: 0;
+    background: transparent;
+    color: #30415e;
+}
+.support-live-bubble.has-attachment img { margin-top: 0; border-radius: 10px; }
+.support-live-bubble.has-attachment small { padding: 0 4px; }
+
 .support-live-bubble small { display: block; margin-top: 4px; opacity: .7; font-size: 10px; }
 .support-live-error { margin: 8px 0; color: #d83a3a; font-size: 12px; text-align: center; }
 .support-file-preview { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; padding: 6px 9px; border-radius: 8px; background: #eef4ff; color: #36527f; font-size: 11px; }
@@ -505,6 +519,7 @@
     width: fit-content;
 
     word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Tin nhắn chat_bot */
@@ -549,6 +564,43 @@
     margin-left: auto;
     margin-top: 10px;
     font-size: 12px;
+}
+
+.chat-text-line {
+    display: block;
+    line-height: 1.55;
+}
+
+.chat-course-list {
+    display: block;
+    margin-top: 10px;
+}
+
+.chat-course-card {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 8px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    line-height: 1.45;
+}
+
+.chat-course-title {
+    margin-bottom: 2px;
+    color: #fff;
+    font-size: 13px;
+}
+
+.chat-course-card b {
+    font-weight: 600;
+}
+
+.chat-course-price {
+    color: #fff;
+    font-weight: 700;
 }
 .message.user::after {
     content: "";

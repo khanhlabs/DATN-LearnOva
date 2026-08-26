@@ -29,6 +29,7 @@ import { getCourseDetailApi } from "../../../../../course/infrastructure/api/Cou
 import { getCourseReviewsApi, createReviewApi, updateReviewApi, deleteReviewApi } from "../../../../../course/infrastructure/api/ReviewApi";
 import { checkEnrollment } from "../../../../../course/infrastructure/api/EnrollmentApi";
 import { removeWishlistApi } from "../../../../../course/infrastructure/api/WishlistApi";
+import { getFileUrl } from "../../../../../../shared/api/public/CoursesApi";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../../../shared/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -53,6 +54,8 @@ const FavoriteCourseDetailSection = ({ course, onBack, onStartCourse }) => {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [detail, setDetail] = useState(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
   const [reviewsList, setReviewsList] = useState([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -68,6 +71,28 @@ const FavoriteCourseDetailSection = ({ course, onBack, onStartCourse }) => {
     const courseId = course.courseId || course.id;
 
     navigate(`/learnova/user/courses-detail/${courseId}`);
+  };
+
+  const handleBuyNow = () => {
+    const courseId = course.courseId || course.id;
+    navigate(`/learnova/courses/detail/${courseId}`);
+  };
+
+  const handlePreview = async () => {
+    const previewLesson = (detail?.sections || [])
+      .flatMap((section) => section.lessons || [])
+      .find((lesson) => lesson.isPreview && lesson.videoKey);
+
+    if (!previewLesson) {
+      toast.info("Khóa học này chưa có bài học xem trước.");
+      return;
+    }
+
+    try {
+      setPreviewUrl(await getFileUrl(previewLesson.videoKey));
+    } catch {
+      toast.error("Không thể tải video xem trước.");
+    }
   };
   
   // Review form state
@@ -89,6 +114,9 @@ const FavoriteCourseDetailSection = ({ course, onBack, onStartCourse }) => {
         setLoading(true);
         const data = await getCourseDetailApi(course.courseId || course.id);
         setDetail(data);
+        if (data.thumbnailKey) {
+          getFileUrl(data.thumbnailKey).then(setThumbnailUrl).catch(() => setThumbnailUrl(""));
+        }
 
         try {
           const enrolled = await checkEnrollment(course.courseId || course.id);
@@ -381,8 +409,8 @@ const FavoriteCourseDetailSection = ({ course, onBack, onStartCourse }) => {
       )}
       <section className="favorite-flow-hero">
         <div className="favorite-flow-preview">
-          <img src={detail.thumbnailKey || course.image} alt={detail.title} />
-          <button type="button" aria-label={t("profile.favoriteDetail.previewAria")}>
+          <img src={thumbnailUrl || course.image} alt={detail.title} />
+          <button type="button" aria-label={t("profile.favoriteDetail.previewAria")} onClick={handlePreview}>
             <Play size={30} fill="currentColor" />
           </button>
           <span>
@@ -443,7 +471,7 @@ const FavoriteCourseDetailSection = ({ course, onBack, onStartCourse }) => {
                 <strong className="orange-text">${detail.basePrice}</strong>
                 {detail.originalPrice && <del>${detail.originalPrice}</del>}
                 <div>
-                  <button className="favorite-flow-cart" type="button">
+                  <button className="favorite-flow-cart" type="button" onClick={handleBuyNow}>
                     <ShoppingCart size={15} />
                     {t("profile.favoriteDetail.buyNow")}
                   </button>
@@ -529,6 +557,14 @@ const FavoriteCourseDetailSection = ({ course, onBack, onStartCourse }) => {
           </section>
         </aside>
       </div>
+      {previewUrl && (
+        <div className="favorite-flow-preview-modal" role="dialog" aria-modal="true">
+          <div className="favorite-flow-preview-dialog">
+            <button type="button" onClick={() => setPreviewUrl("")} aria-label="Đóng">×</button>
+            <video src={previewUrl} controls autoPlay />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
