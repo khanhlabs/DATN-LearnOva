@@ -12,7 +12,6 @@ import { useAuth } from "../../../../shared/hooks/useAuth";
 import { addCourseToCart } from "../../../../shared/utils/cartStorage";
 import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../infrastructure/api/CourseApi";
 import { getActiveCategories, getFileUrl } from "../../../../shared/api/public/CoursesApi";
-import { getFileUrl } from "../../../../shared/api/public/CoursesApi";
 import {
   addWishlistApi,
   removeWishlistApi,
