@@ -1750,6 +1750,27 @@ a.course-title:hover h3 {
   font-weight: 600;
 }
 
+.category-options-course {
+  max-height: min(42vh, 360px);
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.category-options-course::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-options-course::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.category-options-course .filter-item-course:first-child .filter-name-course {
+  white-space: nowrap;
+}
+
 .filter-item-course {
   display: flex;
   justify-content: space-between;

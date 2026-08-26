@@ -39,7 +39,7 @@ public class VoiceCourseSearchService {
     @Value("${groq.api-key:}")
     private String apiKey;
 
-    @Value("${groq.model:llama-3.3-70b-versatile}")
+    @Value("${groq.model:openai/gpt-oss-20b}")
     private String model;
 
     public VoiceCourseSearchResponse search(VoiceCourseSearchRequest request) {
@@ -146,6 +146,10 @@ public class VoiceCourseSearchService {
         String keyword = textOrNull(node, "keyword");
         String instructor = matchKnownName(textOrNull(node, "instructor"), instructors);
         if (instructor == null) instructor = findMentionedName(fallbackKeyword, instructors);
+        if (instructor != null && keyword != null
+                && normalize(keyword).contains(normalize(instructor))) {
+            keyword = null;
+        }
         String category = matchKnownName(textOrNull(node, "category"), categories);
         if (category == null) category = findMentionedName(fallbackKeyword, categories);
         String courseType = matchIgnoreCase(textOrNull(node, "courseType"), List.of("free", "paid"));
@@ -323,7 +327,9 @@ public class VoiceCourseSearchService {
                 : normalized.contains("có phí") || normalized.contains("co phi") || normalized.contains("paid") ? "paid" : null;
         String category = findMentionedName(query, categories.stream().map(CategoryOptionResponse::name).toList());
         String instructor = findMentionedName(query, instructors);
-        return new SearchFilters(sort.equals("popular") ? query : null, instructor, category, courseType,
+        String keyword = sort.equals("popular") && instructor == null && category == null && courseType == null
+                ? query : null;
+        return new SearchFilters(keyword, instructor, category, courseType,
                 null, null, null, null, null, null, null, sort);
     }
 }

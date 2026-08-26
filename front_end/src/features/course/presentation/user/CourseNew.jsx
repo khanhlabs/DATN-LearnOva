@@ -10,9 +10,8 @@ import "react-toastify/dist/ReactToastify.css";
 import LearnovaAI from "../../../home/presentation/chat_bot/chatBot";
 import { useAuth } from "../../../../shared/hooks/useAuth";
 import { addCourseToCart } from "../../../../shared/utils/cartStorage";
-import { getPublicCoursesApi } from "../../infrastructure/api/CourseApi";
-import { getFileUrl } from "../../../../shared/api/public/CoursesApi";
-import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../../api/CourseApi.js";
+import { getPublicCoursesApi, voiceSearchCoursesApi } from "../../infrastructure/api/CourseApi";
+import { getActiveCategories, getFileUrl } from "../../../../shared/api/public/CoursesApi";
 import {
   addWishlistApi,
   removeWishlistApi,
@@ -37,16 +36,6 @@ const FALLBACK_THUMBS = [
   "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
   "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
   "linear-gradient(135deg, #10b981 0%, #047857 100%)",
-];
-
-const categories = [
-  { id: "all", name: "All Categories", count: 120 },
-  { id: "tech", name: "Technology", count: 136 },
-  { id: "business", name: "Business", count: 96 },
-  { id: "design", name: "Design", count: 72 },
-  { id: "marketing", name: "Marketing", count: 86 },
-  { id: "language", name: "Languages", count: 64 },
-  { id: "skills", name: "Soft Skills", count: 58 },
 ];
 
 const levels = [
@@ -114,6 +103,7 @@ function CoursesPage() {
   const [wishlist, setWishlist] = useState([]);
   const [viewMode, setViewMode] = useState("grid");
 
+  const [categories, setCategories] = useState([{ id: "all", name: "All Categories" }]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLevels, setSelectedLevels] = useState([]);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
@@ -121,6 +111,23 @@ function CoursesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [voiceCourseIds, setVoiceCourseIds] = useState(null);
   const [voiceFilters, setVoiceFilters] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    getActiveCategories()
+      .then((data) => {
+        if (!mounted || !Array.isArray(data)) return;
+        setCategories([
+          { id: "all", name: "All Categories" },
+          ...data.map((category) => ({
+            id: String(category.id),
+            name: category.name,
+          })),
+        ]);
+      })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
@@ -221,13 +228,15 @@ function CoursesPage() {
     }
 
     return result;
-  }, [dbCourses, selectedCategories, selectedLevels, searchTerm, voiceCourseIds]);
+  }, [categories, dbCourses, selectedCategories, selectedLevels, searchTerm, voiceCourseIds]);
 
   const runVoiceSearch = async (query) => {
     try {
       const data = await voiceSearchCoursesApi(query);
       setVoiceCourseIds((data.courses || []).map((course) => course.courseId));
-      setVoiceFilters(data.filters || null);
+      setVoiceFilters(data.filters
+        ? { ...data.filters, interpretedQuery: data.interpretedQuery || query }
+        : { interpretedQuery: data.interpretedQuery || query });
       setSearchTerm(data.filters?.keyword || "");
       setSelectedCategories([]);
       setSelectedLevels([]);
@@ -418,18 +427,20 @@ function CoursesPage() {
                 <div className="filter-title-course">
                   <span>{t("coursesPage.categories")}</span>
                 </div>
-                {categories.map((cat) => (
-                  <label key={cat.id} className="filter-item-course">
-                    <div className="left-course">
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(cat.id)}
-                        onChange={() => toggleCategory(cat.id)}
-                      />
-                      <span className="filter-name-course">{cat.name}</span>
-                    </div>
-                  </label>
-                ))}
+                <div className="category-options-course">
+                  {categories.map((cat) => (
+                    <label key={cat.id} className="filter-item-course">
+                      <div className="left-course">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat.id)}
+                          onChange={() => toggleCategory(cat.id)}
+                        />
+                        <span className="filter-name-course">{cat.name}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="filter-group-course">
@@ -475,17 +486,11 @@ function CoursesPage() {
           {voiceFilters && (
             <div className="voice-search-summary">
               <span>{t("coursesPage.voiceSearchUnderstood")}</span>
-              {voiceFilters.keyword && <strong>{voiceFilters.keyword}</strong>}
-              {voiceFilters.instructor && <strong>{voiceFilters.instructor}</strong>}
-              {voiceFilters.category && <strong>{voiceFilters.category}</strong>}
-              {voiceFilters.courseType && <strong>{voiceFilters.courseType === "free" ? t("coursesPage.freeCourses") : t("coursesPage.paidCourses")}</strong>}
-              {voiceFilters.level && <strong>{voiceFilters.level}</strong>}
-              {voiceFilters.minPrice != null && <strong>≥ ${voiceFilters.minPrice}</strong>}
-              {voiceFilters.maxPrice != null && <strong>≤ ${voiceFilters.maxPrice}</strong>}
-              {voiceFilters.minRating != null && <strong>★ {voiceFilters.minRating}+</strong>}
-              {voiceFilters.minDurationMinutes != null && <strong>≥ {voiceFilters.minDurationMinutes}m</strong>}
-              {voiceFilters.maxDurationMinutes != null && <strong>≤ {voiceFilters.maxDurationMinutes}m</strong>}
-              {voiceFilters.minStudents != null && <strong>≥ {voiceFilters.minStudents} {t("coursesPage.students")}</strong>}
+              {voiceFilters.interpretedQuery && (
+                <strong className="voice-search-query">
+                  “{voiceFilters.interpretedQuery}”
+                </strong>
+              )}
               <button type="button" onClick={clearVoiceSearch}>
                 {t("coursesPage.clearVoiceSearch")}
               </button>

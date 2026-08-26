@@ -57,7 +57,11 @@ const FavoritesSection = ({ onOpenCourse }) => {
             response.data.map(async (item) => ({
               id: item.courseId,
               title: item.courseTitle,
-              image: item.thumbnail,
+              image: !item.thumbnail
+                  ? ""
+                  : item.thumbnail.startsWith?.("http")
+                    ? item.thumbnail
+                    : await getFileUrl(item.thumbnail).catch(() => ""),
 
               instructor: {
                 name: item.instructor,

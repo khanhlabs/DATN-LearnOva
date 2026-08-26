@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { createPortal } from "react-dom";
 import { Mic, MicOff, Search, Waves, X } from "lucide-react";
 import { searchCourses } from "../../../../../../features/course/infrastructure/api/SearchApi";
 import "../dropdown/VoiceSearch.css";
@@ -217,7 +218,7 @@ const HeaderSearch = ({ variant = "logged" }) => {
         </div>
       )}
 
-      {isVoiceOpen && (
+      {isVoiceOpen && createPortal(
         <div className="voice-search-modal-overlay" role="presentation" onMouseDown={closeVoiceSearch}>
           <section className="voice-search-modal" role="dialog" aria-modal="true" aria-labelledby="voice-search-title" onMouseDown={(event) => event.stopPropagation()}>
             <button type="button" className="voice-search-close" onClick={closeVoiceSearch} aria-label={t("header.closeVoiceSearch")}>
@@ -235,7 +236,8 @@ const HeaderSearch = ({ variant = "logged" }) => {
             </button>
             <small>{isListening ? t("header.voiceSearchStop") : t("header.voiceSearchStart")}</small>
           </section>
-        </div>
+        </div>,
+        document.body,
       )}
     </form>
   );

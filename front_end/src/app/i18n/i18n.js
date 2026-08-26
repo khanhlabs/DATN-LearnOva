@@ -14,12 +14,17 @@ const voucherOpsSupplement = {
     }
 };
 
+const adminSupplement = {
+    vi: { supportChat: "Hỗ trợ khách hàng" },
+    en: { supportChat: "Support Chat" },
+};
+
 const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
 i18n.use(initReactI18next).init({
     resources: {
-        vi: { translation: { ...vi, opsAdmin: { ...vi.opsAdmin, ...voucherOpsSupplement.vi } } },
-        en: { translation: { ...en, opsAdmin: { ...en.opsAdmin, ...voucherOpsSupplement.en } } },
+        vi: { translation: { ...vi, admin: { ...vi.admin, ...adminSupplement.vi }, opsAdmin: { ...vi.opsAdmin, ...voucherOpsSupplement.vi } } },
+        en: { translation: { ...en, admin: { ...en.admin, ...adminSupplement.en }, opsAdmin: { ...en.opsAdmin, ...voucherOpsSupplement.en } } },
     },
     lng: storedLanguage || "vi",
     fallbackLng: "vi",

@@ -104,7 +104,7 @@ export default function Course() {
                         <span className="section-eyebrow">{t('home.course.eyebrow')}</span>
                         <h2 id="cs-heading" className="cs__title">{t('home.course.title')}</h2>
                     </div>
-                    <a href="/courses" className="cs__link">{t('home.course.browseAll')}</a>
+                    <Link to="/learnova/courses" className="cs__link">{t('home.course.browseAll')}</Link>
                 </div>
 
                 {categoryFilters.length > 1 && (
