@@ -1,9 +1,10 @@
-package com.example.back_end.course.application;
+package com.example.back_end.commerce.application;
 
 import com.example.back_end.course.adapter.in.web.dto.VoiceCourseSearchRequest;
 import com.example.back_end.course.adapter.in.web.dto.CategoryOptionResponse;
 import com.example.back_end.course.adapter.in.web.dto.PublicCourseResponse;
 import com.example.back_end.course.adapter.in.web.dto.VoiceCourseSearchResponse;
+import com.example.back_end.course.application.CourseService;
 import com.example.back_end.admin.application.AdminCategoryService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

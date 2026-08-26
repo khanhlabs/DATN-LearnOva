@@ -1,4 +1,4 @@
-package com.example.back_end.course.adapter.in.web.dto;
+package com.example.back_end.auth.adapter.in.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

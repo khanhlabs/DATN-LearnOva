@@ -849,7 +849,7 @@ function LearnovaAI() {
                                         <div className="message bot typing-indicator">
                                             Đang trả lời...
                                         </div>
-                                    ))}
+                                    )}
 
                                     {isSending && !hasReceivedFirstChunk && (
                                         <div className="message bot typing-indicator">
@@ -883,7 +883,6 @@ function LearnovaAI() {
                                 type="text"
                                 placeholder={supportMode ? "Nhắn tin cho nhân viên..." : "Nhập câu hỏi của bạn..."}
                                 value={supportMode ? supportMessage : message}
-                                ref={supportMode ? supportInputRef : undefined}
                                 ref={supportMode ? supportInputRef : undefined}
                                 disabled={isSending || supportLoading}
                                 onChange={(e) => supportMode ? setSupportMessage(e.target.value) : setMessage(e.target.value)}
