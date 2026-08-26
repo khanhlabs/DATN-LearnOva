@@ -405,7 +405,6 @@ function LearnovaAI() {
             setSupportFilePreview("");
             supportForceScrollRef.current = true;
             supportScrollPendingRef.current = !supportUserScrolledUpRef.current;
-            supportScrollPendingRef.current = !supportUserScrolledUpRef.current;
             setSupportMessages((currentMessages) => !sentMessage || currentMessages.some((item) => item.id === sentMessage.id)
                 ? currentMessages
                 : [...currentMessages, sentMessage]);
