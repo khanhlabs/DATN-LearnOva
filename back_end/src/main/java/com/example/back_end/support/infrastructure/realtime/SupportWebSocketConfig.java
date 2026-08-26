@@ -16,7 +16,6 @@ public class SupportWebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(handler, "/ws/support")
-                .addInterceptors(interceptor)
-                .setAllowedOriginPatterns("*");
+                .addInterceptors(interceptor);
     }
 }
