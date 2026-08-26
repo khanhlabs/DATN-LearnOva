@@ -160,10 +160,14 @@ export const useNotifications = () => {
         await deleteSupportConversationNotificationsApi(conversationId, axiosClient);
         setNotifications((prev) => prev.filter((notification) => {
             if (notification.type !== "SUPPORT_MESSAGE" || !notification.link) return true;
-            const url = new URL(notification.link, window.location.origin);
-            const linkedConversationId = url.searchParams.get("supportConversationId")
-                || url.searchParams.get("conversationId");
-            return String(linkedConversationId) !== String(conversationId);
+            try {
+                const url = new URL(notification.link, window.location.origin);
+                const linkedConversationId = url.searchParams.get("supportConversationId")
+                    || url.searchParams.get("conversationId");
+                return String(linkedConversationId) !== String(conversationId);
+            } catch {
+                return true;
+            }
         }));
         await refreshUnreadCount();
     }, [axiosClient, refreshUnreadCount]);
