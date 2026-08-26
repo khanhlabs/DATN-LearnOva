@@ -158,8 +158,9 @@ const ProfileView = ({
 
     getMyEnrolledCoursesApi(axiosPrivate, accessToken)
         .then(async (data) => {
-          console.log("API:", data);
-          console.log("First course:", JSON.stringify(data[0], null, 2));
+          if (import.meta.env.DEV) {
+            console.debug("Enrolled courses:", data);
+          }
 
           if (mounted) {
             const mappedCourses = Array.isArray(data)
