@@ -11,23 +11,59 @@ const timeAgo = (dateStr) => {
   return `${Math.floor(diff / 86400)}d ago`;
 };
 
+const getSupportConversationId = (notification) => {
+  const metadataId = notification?.metadata?.conversationId;
+  if (metadataId != null) return String(metadataId);
+
+  if (!notification?.link) return null;
+  try {
+    const url = new URL(notification.link, window.location.origin);
+    return url.searchParams.get("supportConversationId")
+      || url.searchParams.get("conversationId");
+  } catch {
+    return null;
+  }
+};
+
+const savePendingConversation = (conversationId) => {
+  try {
+    localStorage.setItem("learnova:pending-support-conversation", conversationId);
+  } catch {
+    // Không để localStorage đầy làm hỏng thao tác mở cuộc trò chuyện.
+  }
+};
+
 const NotificationDropdown = () => {
-  const navigate = useNavigate();
-  const { notifications, unreadCount, loadNotifications, markRead, clearSupportConversationNotifications } = useNotifications();
+
+  const { notifications, unreadCount, loadNotifications, markRead, deleteNotification, clearSupportConversationNotifications } = useNotifications();
 
   const handleClick = async (notification) => {
-    const targetLink = notification.link;
-    if (targetLink) {
-      const url = new URL(targetLink, window.location.origin);
-      const conversationId = url.searchParams.get("supportConversationId");
-      if (conversationId) localStorage.setItem("learnova:pending-support-conversation", conversationId);
-      navigate(targetLink);
+    const conversationId = notification.type === "SUPPORT_MESSAGE"
+      ? getSupportConversationId(notification)
+      : null;
+    const targetLink = conversationId
+      ? `/learnova/home?supportConversationId=${encodeURIComponent(conversationId)}`
+      : notification.link;
+
+    if (conversationId) {
+      savePendingConversation(conversationId);
     }
+    if (targetLink) {
+      if (conversationId) {
+        navigate("/learnova/home", {
+          state: { supportConversationId: conversationId, openSupportConversation: true },
+        });
+      } else {
+        navigate(targetLink);
+      }
+    }
+
     if (!notification.isRead) markRead(notification.id).catch(() => {});
-    if (notification.type === "SUPPORT_MESSAGE" && notification.link) {
-      const url = new URL(notification.link, window.location.origin);
-      const conversationId = url.searchParams.get("supportConversationId");
-      if (conversationId) clearSupportConversationNotifications(conversationId).catch(() => {});
+    if (conversationId) {
+      clearSupportConversationNotifications(conversationId).catch(() => {});
+    } else {
+      deleteNotification(notification.id).catch(() => {});
+
     }
   };
 

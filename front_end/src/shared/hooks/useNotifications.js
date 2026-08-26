@@ -5,11 +5,37 @@ import {
     markAllNotificationsReadApi,
     markNotificationReadApi,
     deleteSupportConversationNotificationsApi,
+    deleteNotificationApi,
+
 } from "../../features/notification/infrastructure/api/NotificationApi";
 import { useAxiosPrivate } from "./useAxiosPrivate";
 import { useAuth } from "./useAuth";
 
+
 const POLL_INTERVAL_MS = 45000;
+const PLAYED_NOTIFICATION_KEY = "learnova:played-notification-ids";
+
+const wasNotificationSoundPlayed = (notificationId) => {
+    if (notificationId == null) return true;
+    try {
+        const ids = JSON.parse(sessionStorage.getItem(PLAYED_NOTIFICATION_KEY) || "[]");
+        return ids.includes(String(notificationId));
+    } catch {
+        return false;
+    }
+};
+
+const rememberNotificationSound = (notificationId) => {
+    if (notificationId == null) return;
+    try {
+        const ids = JSON.parse(sessionStorage.getItem(PLAYED_NOTIFICATION_KEY) || "[]");
+        const nextIds = [...new Set([...ids, String(notificationId)])].slice(-100);
+        sessionStorage.setItem(PLAYED_NOTIFICATION_KEY, JSON.stringify(nextIds));
+    } catch {
+        // Không để lỗi bộ nhớ trình duyệt ảnh hưởng thông báo.
+    }
+};
+
 
 export const useNotifications = () => {
     const axiosClient = useAxiosPrivate();
@@ -52,8 +78,11 @@ export const useNotifications = () => {
         const latestNotifications = skipLoad ? [] : await loadNotifications();
         const latest = latestNotifications.find((notification) => !notification.isRead)
             || latestNotifications[0];
+        const shouldPlaySound = latest?.type === "SUPPORT_MESSAGE"
+            && !wasNotificationSoundPlayed(latest.id);
+        if (shouldPlaySound) rememberNotificationSound(latest.id);
 
-        try {
+        if (shouldPlaySound) try {
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             if (AudioContextClass) {
                 const audioContext = new AudioContextClass();
@@ -81,10 +110,32 @@ export const useNotifications = () => {
                 await Notification.requestPermission();
             }
             if (Notification.permission === "granted") {
-                new Notification(latest.title || "LearnOva", {
+                const browserNotification = new Notification(latest.title || "LearnOva", {
                     body: latest.content || "Bạn có thông báo mới.",
                     tag: `learnova-notification-${latest.id}`,
                 });
+                browserNotification.onclick = () => {
+                    window.focus();
+
+                    if (latest.type === "SUPPORT_MESSAGE" && latest.link) {
+                        const url = new URL(latest.link, window.location.origin);
+                        const conversationId = url.searchParams.get("supportConversationId")
+                            || url.searchParams.get("conversationId");
+                        if (conversationId) {
+                            try {
+                                localStorage.setItem("learnova:pending-support-conversation", conversationId);
+                            } catch {
+                                // Không để localStorage đầy chặn việc mở chat.
+                            }
+                        }
+                    }
+
+                    if (latest.link) {
+                        window.location.assign(latest.link);
+                    }
+                    browserNotification.close();
+                };
+
             }
         }
     }, [isAdmin, loadNotifications]);
@@ -101,14 +152,25 @@ export const useNotifications = () => {
         setUnreadCount(0);
     }, [axiosClient]);
 
+
+    const deleteNotification = useCallback(async (id) => {
+        await deleteNotificationApi(id, axiosClient);
+        setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+        await refreshUnreadCount();
+    }, [axiosClient, refreshUnreadCount]);
+
     const clearSupportConversationNotifications = useCallback(async (conversationId) => {
         await deleteSupportConversationNotificationsApi(conversationId, axiosClient);
         setNotifications((prev) => prev.filter((notification) => {
             if (notification.type !== "SUPPORT_MESSAGE" || !notification.link) return true;
-            const url = new URL(notification.link, window.location.origin);
-            const linkedConversationId = url.searchParams.get("supportConversationId")
-                || url.searchParams.get("conversationId");
-            return String(linkedConversationId) !== String(conversationId);
+            try {
+                const url = new URL(notification.link, window.location.origin);
+                const linkedConversationId = url.searchParams.get("supportConversationId")
+                    || url.searchParams.get("conversationId");
+                return String(linkedConversationId) !== String(conversationId);
+            } catch {
+                return true;
+            }
         }));
         await refreshUnreadCount();
     }, [axiosClient, refreshUnreadCount]);
@@ -187,6 +249,7 @@ export const useNotifications = () => {
         loadNotifications,
         markRead,
         markAllRead,
+        deleteNotification,
         clearSupportConversationNotifications,
     };
 };
