@@ -849,7 +849,7 @@ function LearnovaAI() {
                                         <div className="message bot typing-indicator">
                                             Đang trả lời...
                                         </div>
-                                    ))}
+                                    )}}
 
                                     {isSending && !hasReceivedFirstChunk && (
                                         <div className="message bot typing-indicator">
