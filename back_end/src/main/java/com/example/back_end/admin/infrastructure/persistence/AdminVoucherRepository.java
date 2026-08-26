@@ -22,6 +22,7 @@ public interface AdminVoucherRepository extends JpaRepository<Voucher, Long> {
             where v.isActive = true
               and (v.endDate is null or v.endDate > :now)
               and (v.usageLimit is null or v.usageLimit <= 0 or coalesce(v.usedCount, 0) < v.usageLimit)
+           """)
             
     long countActiveVouchers(@Param("now") OffsetDateTime now);
 
