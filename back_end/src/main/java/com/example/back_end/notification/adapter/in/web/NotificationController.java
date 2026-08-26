@@ -80,6 +80,17 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        notificationService.delete(id, authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/support/{conversationId}/read")
     public ResponseEntity<Void> markSupportRead(
             @PathVariable Long conversationId,

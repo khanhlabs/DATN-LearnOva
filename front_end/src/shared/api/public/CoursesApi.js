@@ -6,6 +6,9 @@ export const getFeaturedCourses = () =>
 export const getTopCategories = () =>
     axiosClient.get("/courses/top-categories").then((r) => r.data);
 
+export const getActiveCategories = () =>
+    axiosClient.get("/courses/categories").then((r) => r.data);
+
 export const getPlatformStats = () =>
     axiosClient.get("/courses/stats").then((r) => r.data);
 

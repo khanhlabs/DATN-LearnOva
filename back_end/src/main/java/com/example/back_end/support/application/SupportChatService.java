@@ -75,7 +75,7 @@ public class SupportChatService {
                 .map(conversation -> toConversationResponse(conversation, true));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<SupportMessageResponse> listMessages(Long conversationId, String email, boolean admin) {
         SupportConversation conversation = getConversation(conversationId);
         ensureAccess(conversation, email, admin);

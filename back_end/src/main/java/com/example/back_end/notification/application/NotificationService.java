@@ -115,6 +115,20 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    public void delete(Long id, String email) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+
+        if (!notification.getUser().getId().equals(user.getId())) {
+            throw new BusinessException("You don't have permission to delete this notification");
+        }
+
+        notificationRepository.delete(notification);
+    }
+
     public void markAllRead(String email) {
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -142,6 +156,7 @@ public class NotificationService {
                 notification.getContent(),
                 notification.getIsRead(),
                 notification.getLink(),
+                notification.getMetadata(),
                 notification.getCreatedAt()
         );
     }
