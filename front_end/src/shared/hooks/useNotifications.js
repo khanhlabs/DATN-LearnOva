@@ -11,7 +11,7 @@ import { useAxiosPrivate } from "./useAxiosPrivate";
 import { useAuth } from "./useAuth";
 
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 45000;
 const PLAYED_NOTIFICATION_KEY = "learnova:played-notification-ids";
 
 const wasNotificationSoundPlayed = (notificationId) => {
