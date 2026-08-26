@@ -252,7 +252,9 @@ const SupportChatPage = () => {
           </div>
           <div className="support-chat-list__items">
             {visibleConversations.map((conversation) => (
-              <button key={conversation.id} type="button" className={`support-chat-preview ${conversation.id === selectedId ? "is-selected" : ""}`} onClick={() => setSelectedId(conversation.id)}>
+
+              <button key={conversation.id} type="button" className={`support-chat-preview ${conversation.id === selectedId ? "is-selected" : ""} ${conversation.unread ? "is-unread" : ""}`} onClick={() => setSelectedId(conversation.id)}>
+
                 <span className="support-chat-avatar">{conversation.name.charAt(0)}</span>
                 <span className="support-chat-preview__body">
                   <span className="support-chat-preview__line"><strong>{conversation.name}</strong><small>{conversation.time}</small></span>

@@ -40,10 +40,6 @@ export const CONTACT_ROWS = [
     profileKey: "phone",
     fallback: "+1 (123) 456-7890",
   },
-  {
-    id: "changeContact",
-    label: "Change Email or Phone Number",
-  },
 ];
 
 export const SECURITY_ACTIONS = [

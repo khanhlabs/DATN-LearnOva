@@ -30,6 +30,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             + "AND metadata ->> 'conversationId' = CAST(:conversationId AS text)", nativeQuery = true)
     int deleteSupportConversationNotifications(@Param("userId") Long userId, @Param("conversationId") Long conversationId);
 
+    @Modifying
+    @Query("DELETE FROM Notification n WHERE n.user.id = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
+
     List<Notification> findByTypeOrderByCreatedAtDesc(NotificationType type);
 
     @Modifying
