@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ProfileView.css";
 import AvatarModal from "./components/AvatarModal";
 import {
@@ -25,6 +26,7 @@ import { uploadFileToS3 } from "../../../../shared/services/UploadService";
 import { getUserStatsApi } from "../../../../shared/api/public/UserStatsApi";
 import { getFileUrl } from "../../../../shared/api/public/CoursesApi";
 import { toast } from "react-toastify";
+import { restartCourseApi } from "../../../course/infrastructure/api/ProgressApi";
 
 const EMPTY_STATS = { totalStudyHours: 0, streakDays: 0, enrolledCourseCount: 0, completedCourseCount: 0, points: 0 };
 
@@ -47,6 +49,7 @@ const ProfileView = ({
   onBack,
   initialTab = "profile",
 }) => {
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const axiosPrivate = useAxiosPrivate();
   // const { accessToken, loading: authLoading } = useAuth();
@@ -338,6 +341,29 @@ const ProfileView = ({
     scrollToPageTop();
   };
 
+  const handleStartCourse = (course) => {
+    if (course?.courseId) navigate(`/learnova/user/courses-detail/${course.courseId}`);
+  };
+
+  const handleRestartCourse = async (course) => {
+    if (!course?.courseId) return;
+    if (!window.confirm("Restart this course from the beginning? Your certificate will be kept.")) return;
+
+    try {
+      await restartCourseApi(course.courseId);
+      setOwnedCourses((previous) => previous.map((item) => (
+        item.courseId === course.courseId
+          ? { ...item, progress: 0, lessonsDone: 0, completedAt: null, remaining: "Not started yet" }
+          : item
+      )));
+      setSelectedCourse(null);
+      toast.success("Course restarted. You can begin from the first lesson.");
+      navigate(`/learnova/user/courses-detail/${course.courseId}`);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Could not restart this course.");
+    }
+  };
+
   const handleCloseCourseDetail = () => {
     setSelectedCourse(null);
     scrollToPageTop();
@@ -350,6 +376,7 @@ const ProfileView = ({
           <LearningCourseDetailSection
             course={selectedCourse}
             onBack={handleCloseCourseDetail}
+            onRestartCourse={handleRestartCourse}
           />
         );
       }
@@ -360,8 +387,9 @@ const ProfileView = ({
           purchasedCourses={ownedCourses}
           isLoading={isLoadingCourses}
           error={coursesError}
-          onStartCourse={onStartCourse}
           onOpenCourse={handleOpenCourse}
+          onStartCourse={handleStartCourse}
+          onRestartCourse={handleRestartCourse}
           onBack={onBack}
         />
       );

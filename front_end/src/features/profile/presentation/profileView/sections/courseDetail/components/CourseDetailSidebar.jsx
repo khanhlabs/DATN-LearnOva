@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => {
+const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate, onRestartCourse }) => {
   const { t } = useTranslation();
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
@@ -66,7 +66,11 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
 
         {course.progress === 100 ? (
             <>
-              <button className="learning-primary-button completed" type="button">
+              <button
+                className="learning-primary-button completed"
+                type="button"
+                onClick={() => navigate(`/learnova/user/courses-detail/${course.courseId}`)}
+              >
                 <Play size={16} fill="white" />
                 {t("profile.learningDetail.courseCompletedBtn")}
               </button>
@@ -94,7 +98,11 @@ const CourseDetailSidebar = ({ course, certificate, onDownloadCertificate }) => 
             </button>
         )}
 
-        <button className="learning-secondary-button" type="button">
+        <button
+          className="learning-secondary-button"
+          type="button"
+          onClick={() => onRestartCourse?.(course)}
+        >
           <RotateCcw size={16} />
           {t("profile.learningDetail.restartCourse")}
         </button>

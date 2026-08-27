@@ -95,6 +95,22 @@ public class LessonProgressService {
         return result;
     }
 
+    @Transactional
+    public CourseProgressResponse restartCourse(Long userId, Long courseId) {
+        var enrollment = enrollmentRepository.findByUser_IdAndCourse_Id(userId, courseId)
+                .orElseThrow(() -> new BusinessException("Bạn chưa đăng ký khóa học này!"));
+
+        lessonProgressRepository.resetProgressByUserIdAndCourseId(userId, courseId);
+
+        // Explicitly reset the enrollment too. This also covers completed courses
+        // with no lesson-progress rows and keeps the completion history consistent.
+        enrollment.setProgressPercent(0);
+        enrollment.setCompletedAt(null);
+        enrollmentRepository.save(enrollment);
+
+        return getCourseProgress(userId, courseId);
+    }
+
     public CourseProgressResponse getCourseProgress(Long userId, Long courseId) {
         List<Lesson> lessons = lessonRepository.findBySectionCourseId(courseId);
         List<LessonProgress> progressList = lessonProgressRepository.findByUserIdAndCourseId(userId, courseId);

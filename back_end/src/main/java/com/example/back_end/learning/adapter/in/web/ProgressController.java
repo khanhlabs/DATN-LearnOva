@@ -29,6 +29,17 @@ public class ProgressController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/course/{courseId}/restart")
+    public ResponseEntity<CourseProgressResponse> restartCourse(
+            Authentication authentication,
+            @PathVariable Long courseId
+    ) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(lessonProgressService.restartCourse(userDetails.getId(), courseId));
+    }
+
     @GetMapping("/course/{courseId}")
     public ResponseEntity<CourseProgressResponse> getCourseProgress(
             Authentication authentication,
