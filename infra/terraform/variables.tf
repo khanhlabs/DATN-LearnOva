@@ -34,10 +34,10 @@ variable "ssh_allowed_cidr" {
   default     = []
 }
 
-variable "github_repo" {
-  description = "GitHub repo allowed to assume the deploy role via OIDC, format: org/repo"
+variable "github_oidc_subject" {
+  description = "Exact GitHub OIDC sub claim permitted to assume the deploy role"
   type        = string
-  default     = "khanhlabs/DATN-LearnOva"
+  default     = "repo:khanhlabs@208806632/DATN-LearnOva@1216524587:ref:refs/heads/main"
 }
 
 variable "key_pair_name" {
