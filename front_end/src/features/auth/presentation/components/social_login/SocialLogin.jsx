@@ -15,10 +15,14 @@ const SocialLogin = () => {
         window.location.href = "/oauth2/authorization/google";
     };
 
+    // const handleFacebookLogin = () => {
+    //     const apiUrl = import.meta.env.VITE_API_URL || "/api/learnova";
+    //     const apiOrigin = apiUrl.replace(/\/api\/learnova\/?$/, "");
+    //     window.location.href = `${apiOrigin}/oauth2/authorization/facebook`;
+    // };
+
     const handleFacebookLogin = () => {
-        const apiUrl = import.meta.env.VITE_API_URL || "/api/learnova";
-        const apiOrigin = apiUrl.replace(/\/api\/learnova\/?$/, "");
-        window.location.href = `${apiOrigin}/oauth2/authorization/facebook`;
+        window.location.href = "/oauth2/authorization/facebook";
     };
 
     return (
