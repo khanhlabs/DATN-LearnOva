@@ -49,7 +49,7 @@ variable "key_pair_name" {
 variable "git_repo_url" {
   description = "Repo URL the instance clones into /app on first boot"
   type        = string
-  default     = "https://github.com/khanh030106/DATN-LearnOva.git"
+  default     = "https://github.com/khanhlabs/DATN-LearnOva.git"
 }
 
 variable "nightly_shutdown_hour" {
