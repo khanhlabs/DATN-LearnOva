@@ -69,7 +69,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters '{
               "commands": [
-                "set -euo pipefail",
+                "set -eu",
                 "if [ ! -d /app/.git ]; then git clone https://github.com/${{ github.repository }}.git /app; fi",
                 "cd /app",
                 "git fetch origin",
