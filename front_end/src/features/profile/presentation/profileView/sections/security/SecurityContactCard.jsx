@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 const ROW_LABEL_KEYS = {
   email: "profile.security.contactEmail",
   phone: "profile.security.contactPhone",
-  changeContact: "profile.security.contactChange",
 };
 
 const SecurityContactCard = ({ rows }) => {

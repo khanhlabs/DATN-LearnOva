@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,6 +37,8 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class GroqChatService {
+
+    private static final Logger log = LoggerFactory.getLogger(GroqChatService.class);
 
     private static final int RATE_LIMIT_MAX_MESSAGES = 30;
     private static final Duration RATE_LIMIT_WINDOW = Duration.ofMinutes(5);
@@ -86,6 +90,7 @@ public class GroqChatService {
                     httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
+                log.error("Groq chat request failed: status={}, model={}", response.statusCode(), model);
                 throw new BusinessException(
                         "Không thể kết nối tới trợ lý AI lúc này. Vui lòng thử lại sau.");
             }
@@ -140,6 +145,7 @@ public class GroqChatService {
                     httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
 
             if (response.statusCode() != 200) {
+                log.error("Groq streaming request failed: status={}, model={}", response.statusCode(), model);
                 emitter.send(SseEmitter.event().name("error")
                         .data("Không thể kết nối tới trợ lý AI lúc này. Vui lòng thử lại sau."));
                 emitter.complete();
@@ -285,6 +291,7 @@ public class GroqChatService {
                 + "hướng dẫn cách sử dụng các tính năng của web. "
                 + "Chỉ được nhắc tới khóa học/giảng viên/danh mục có trong danh sách dưới đây, không bịa ra thứ không tồn tại. "
                 + "Nếu không chắc hoặc không có thông tin để trả lời chính xác, hãy nói thẳng là chưa có thông tin và đề nghị người dùng liên hệ bộ phận hỗ trợ, "
+                + "có thể liên hệ số 0867884965 hoặc email nguyenphithong167@gmail.com. "
                 + "tuyệt đối không tự bịa ra chính sách/quy trình không có thật. "
                 + "Trả lời bằng tiếng Việt trừ khi người dùng hỏi bằng ngôn ngữ khác. Trả lời ngắn gọn, dễ hiểu.\n\n"
 

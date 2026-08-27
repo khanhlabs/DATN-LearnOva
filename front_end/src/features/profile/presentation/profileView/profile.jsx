@@ -23,6 +23,7 @@ import { getUserProfileApi,updateUserProfileApi,uploadAvatarApi } from "../../in
 import { generateUploadUrl } from "../../../../shared/api/upload/UploadApi";
 import { uploadFileToS3 } from "../../../../shared/services/UploadService";
 import { getUserStatsApi } from "../../../../shared/api/public/UserStatsApi";
+import { getFileUrl } from "../../../../shared/api/public/CoursesApi";
 import { toast } from "react-toastify";
 
 const EMPTY_STATS = { totalStudyHours: 0, streakDays: 0, enrolledCourseCount: 0, completedCourseCount: 0, points: 0 };
@@ -156,12 +157,24 @@ const ProfileView = ({
     setCoursesError("");
 
     getMyEnrolledCoursesApi(axiosPrivate, accessToken)
-        .then((data) => {
-          console.log("API:", data);
-          console.log("First course:", JSON.stringify(data[0], null, 2));
+        .then(async (data) => {
+          if (import.meta.env.DEV) {
+            console.debug("Enrolled courses:", data);
+          }
 
           if (mounted) {
-            setOwnedCourses(Array.isArray(data) ? data.map(mapEnrolledCourse) : []);
+            const mappedCourses = Array.isArray(data)
+              ? await Promise.all(data.map(async (item) => {
+                const mapped = mapEnrolledCourse(item);
+                if (!item.thumbnailKey || String(item.thumbnailKey).startsWith("http")) return mapped;
+                try {
+                  return { ...mapped, image: await getFileUrl(item.thumbnailKey) };
+                } catch {
+                  return mapped;
+                }
+              }))
+              : [];
+            setOwnedCourses(mappedCourses);
           }
         })
       .catch((err) => {
