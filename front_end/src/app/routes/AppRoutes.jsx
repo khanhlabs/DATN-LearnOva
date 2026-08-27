@@ -69,7 +69,7 @@ const App = () => {
 
                 <Route element={<HomeLayout/>}>
                     <Route path="/" element={<Home/>}/>
-                    <Route path="/learnova/home" element={<Navigate to="/" replace/>}/>
+                    <Route path="/learnova/home" element={<Home/>}/>
                 </Route>
 
                 {/* Admin */}

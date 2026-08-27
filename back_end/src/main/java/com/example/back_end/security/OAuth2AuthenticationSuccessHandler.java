@@ -7,6 +7,7 @@ import com.example.back_end.auth.infrastructure.persistence.RoleRepository;
 import com.example.back_end.auth.infrastructure.persistence.UserRepository;
 import com.example.back_end.auth.application.CookieService;
 import com.example.back_end.auth.application.VerificationTokenService;
+import com.example.back_end.notification.infrastructure.persistence.NotificationRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -33,11 +35,13 @@ public class OAuth2AuthenticationSuccessHandler
     private final JwtService jwtService;
     private final VerificationTokenService verificationTokenService;
     private final CookieService cookieService;
+    private final NotificationRepository notificationRepository;
 
     @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
 
     @Override
+    @Transactional
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -65,7 +69,7 @@ public class OAuth2AuthenticationSuccessHandler
 
             String facebookId = oauthUser.getAttribute("id");
 
-            email = "fb_" + facebookId + "@facebook.local";
+            email = "fb_" + facebookId + "@facebook.prod";
 
             name = oauthUser.getAttribute("name");
 
@@ -100,6 +104,24 @@ public class OAuth2AuthenticationSuccessHandler
             user.setRoles(Set.of(userRole));
 
             user = userRepository.save(user);
+        } else if ("facebook".equals(registrationId)) {
+            // Facebook accounts are learner accounts. If this social email
+            // already existed with an admin role, do not reuse that elevated
+            // role for the Facebook login.
+            boolean wasAdmin = user.getRoles().stream()
+                    .anyMatch(role -> role.getRoleName() == RoleName.ROLE_ADMIN);
+
+            Role userRole = roleRepository
+                    .findByRoleName(RoleName.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
+            user.setRoles(Set.of(userRole));
+            user = userRepository.save(user);
+
+            // Remove notifications that were accumulated while this account
+            // was an administrator. They must not leak into the learner UI.
+            if (wasAdmin) {
+                notificationRepository.deleteAllByUserId(user.getId());
+            }
         }
 
         UserDetails userDetails =

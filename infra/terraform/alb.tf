@@ -41,6 +41,16 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
+import {
+  to = aws_lb.app[0]
+  id = "arn:aws:elasticloadbalancing:ap-southeast-1:490939613726:loadbalancer/app/learnova-alb/da02b1bd725df215"
+}
+
+import {
+  to = aws_lb_target_group.app[0]
+  id = "arn:aws:elasticloadbalancing:ap-southeast-1:490939613726:targetgroup/learnova-tg/c93600a3873b8398"
+}
+
 resource "aws_lb_target_group_attachment" "app" {
   count = var.alb_enabled ? 1 : 0
 
@@ -65,6 +75,11 @@ resource "aws_lb_listener" "http_redirect" {
       status_code = "HTTP_301"
     }
   }
+}
+
+import {
+  to = aws_lb_listener.http_redirect[0]
+  id = "arn:aws:elasticloadbalancing:ap-southeast-1:490939613726:listener/app/learnova-alb/da02b1bd725df215/8d1ea962fb8f2487"
 }
 
 resource "aws_lb_listener" "https" {
