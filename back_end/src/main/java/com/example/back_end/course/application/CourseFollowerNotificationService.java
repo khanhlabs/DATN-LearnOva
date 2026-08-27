@@ -9,6 +9,7 @@ import com.example.back_end.user.infrastructure.persistence.InstructorFollowRepo
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -31,7 +32,7 @@ public class CourseFollowerNotificationService {
      * Fires only after the publishing transaction succeeds, preventing notifications or email for a rolled-back approval.
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyFollowers(CoursePublishedEvent event) {
         List<User> followers = instructorFollowRepository.findActiveFollowersByInstructorId(event.instructorId());
         if (followers.isEmpty()) {
