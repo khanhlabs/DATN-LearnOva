@@ -70,6 +70,7 @@ jobs:
             --parameters '{
               "commands": [
                 "set -eu",
+                "if [ ! -d /app/.git ] && [ -d /app ]; then rmdir /app/back_end 2>/dev/null || true; rmdir /app; fi",
                 "if [ ! -d /app/.git ]; then git clone https://github.com/${{ github.repository }}.git /app; fi",
                 "cd /app",
                 "git fetch origin",
