@@ -70,13 +70,13 @@ public class LessonProgressService {
                 : 0;
 
         boolean currentlyCompleted = Boolean.TRUE.equals(progress.getIsCompleted());
-        if (!currentlyCompleted && duration > 0) {
+        if (!currentlyCompleted && Boolean.TRUE.equals(request.getCompleted())) {
+            progress.setIsCompleted(true);
+        } else if (!currentlyCompleted && duration > 0) {
             double percent = ((double) newWatched / duration) * 100.0;
             if (percent >= 95.0) {
                 progress.setIsCompleted(true);
             }
-        } else if (!currentlyCompleted && duration == 0) {
-            progress.setIsCompleted(true);
         }
 
         progress.setUpdatedAt(java.time.Instant.now());
@@ -93,6 +93,22 @@ public class LessonProgressService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public CourseProgressResponse restartCourse(Long userId, Long courseId) {
+        var enrollment = enrollmentRepository.findByUser_IdAndCourse_Id(userId, courseId)
+                .orElseThrow(() -> new BusinessException("Bạn chưa đăng ký khóa học này!"));
+
+        lessonProgressRepository.resetProgressByUserIdAndCourseId(userId, courseId);
+
+        // Explicitly reset the enrollment too. This also covers completed courses
+        // with no lesson-progress rows and keeps the completion history consistent.
+        enrollment.setProgressPercent(0);
+        enrollment.setCompletedAt(null);
+        enrollmentRepository.save(enrollment);
+
+        return getCourseProgress(userId, courseId);
     }
 
     public CourseProgressResponse getCourseProgress(Long userId, Long courseId) {

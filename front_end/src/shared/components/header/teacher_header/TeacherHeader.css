@@ -115,6 +115,29 @@
   font-weight: 700;
 }
 
+.teacher-notification-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-notification-mark-all-read {
+  padding: 0;
+  border: 0;
+  color: #2563eb;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-notification-mark-all-read:disabled {
+  color: #64748b;
+  cursor: default;
+  opacity: 1;
+}
+
 .teacher-notification-list {
   display: grid;
   gap: 6px;

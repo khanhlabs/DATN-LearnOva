@@ -1,8 +1,9 @@
-import { CheckCircle2, Heart, Play, Star } from "lucide-react";
+import { Heart, Play, RotateCcw, Star } from "lucide-react";
 
 const CourseCardGrid = ({
   courses = [],
   onOpenCourse,
+  onRestartCourse,
   onRemoveFavorite,
   variant = "mine",
 }) => {
@@ -14,17 +15,20 @@ const CourseCardGrid = ({
         const progress = Number(course.progress) || 0;
         const isCompleted = !isFavorite && progress >= 100;
         const rating = Number(course.rating);
+        // Clicking a card opens its learning-detail page. That page owns the
+        // explicit "Continue Learning" action which takes the user to the player.
+        const openCourse = () => onOpenCourse?.(course);
 
         return (
           <article
             key={course.id ?? `${course.title}-${index}`}
             className="profile-course-card"
-            onClick={() => onOpenCourse?.(course)}
+            onClick={openCourse}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                onOpenCourse?.(course);
+                openCourse();
               }
             }}
           >
@@ -100,11 +104,12 @@ const CourseCardGrid = ({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onOpenCourse?.(course);
+                  if (isCompleted) onRestartCourse?.(course);
+                  else onOpenCourse?.(course);
                 }}
               >
                 {isCompleted ? (
-                  <CheckCircle2 size={13} />
+                  <RotateCcw size={13} />
                 ) : (
                   <Play size={13} />
                 )}
@@ -112,7 +117,7 @@ const CourseCardGrid = ({
                 {isFavorite
                   ? "View Course"
                   : isCompleted
-                    ? "Course Completed"
+                    ? "Restart Course"
                     : "Continue Learning"}
               </button>
             </div>

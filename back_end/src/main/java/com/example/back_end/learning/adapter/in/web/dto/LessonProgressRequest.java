@@ -10,4 +10,7 @@ public class LessonProgressRequest {
 
     @NotNull
     private Integer watchedSeconds;
+
+    /** Set only when the video player reaches the end. */
+    private Boolean completed;
 }

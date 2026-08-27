@@ -5,6 +5,7 @@
 set -euo pipefail
 
 REGION="ap-southeast-1"
+INSTANCE_ID="i-074bf4c6e39e3dfeb"
 case "${BASH_SOURCE[0]}" in
   */*) SCRIPT_DIR="${BASH_SOURCE[0]%/*}" ;;
   *)   SCRIPT_DIR="." ;;
@@ -15,21 +16,11 @@ TF_DIR="$SCRIPT_DIR/../infra/terraform"
 echo "==> Tearing down ALB..."
 (cd "$TF_DIR" && terraform apply -auto-approve -var="alb_enabled=false")
 
-echo "==> Looking up instance..."
-IID=$(aws ec2 describe-instances --region "$REGION" \
-  --filters "Name=tag:Name,Values=learnova-app" "Name=instance-state-name,Values=running,stopped" \
-  --query "Reservations[0].Instances[0].InstanceId" --output text)
-
-if [ "$IID" = "None" ] || [ -z "$IID" ]; then
-  echo "No instance found with tag Name=learnova-app in $REGION" >&2
-  exit 1
-fi
-
-STATE=$(aws ec2 describe-instances --instance-ids "$IID" --region "$REGION" \
+STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --region "$REGION" \
   --query "Reservations[0].Instances[0].State.Name" --output text)
 if [ "$STATE" = "running" ]; then
-  echo "==> Stopping EC2 ($IID)..."
-  aws ec2 stop-instances --instance-ids "$IID" --region "$REGION" >/dev/null
+  echo "==> Stopping EC2 ($INSTANCE_ID)..."
+  aws ec2 stop-instances --instance-ids "$INSTANCE_ID" --region "$REGION" >/dev/null
 else
   echo "==> EC2 already $STATE."
 fi

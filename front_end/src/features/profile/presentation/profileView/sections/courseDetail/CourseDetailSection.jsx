@@ -25,7 +25,7 @@ import { useAxiosPrivate } from "../../../../../../shared/hooks/useAxiosPrivate"
 
 
 
-const CourseDetailSection = ({ course, onBack }) => {
+const CourseDetailSection = ({ course, onBack, onRestartCourse }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("curriculum");
   const axiosPrivate = useAxiosPrivate();
@@ -160,6 +160,7 @@ const CourseDetailSection = ({ course, onBack }) => {
         course={courseDetail}
         certificate={certificate}
         onDownloadCertificate={handleDownloadCertificate}
+        onRestartCourse={onRestartCourse}
       />
     </div>
   );

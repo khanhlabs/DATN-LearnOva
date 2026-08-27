@@ -12,11 +12,6 @@ resource "aws_iam_role" "ec2_ssm" {
   })
 }
 
-import {
-  to = aws_iam_role.ec2_ssm
-  id = "learnova-ec2-ssm-role"
-}
-
 resource "aws_iam_role_policy_attachment" "ec2_ssm_core" {
   role       = aws_iam_role.ec2_ssm.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
@@ -139,16 +134,6 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
-import {
-  to = aws_iam_instance_profile.ec2
-  id = "learnova-ec2-instance-profile"
-}
-
-import {
-  to = aws_iam_openid_connect_provider.github
-  id = "arn:aws:iam::490939613726:oidc-provider/token.actions.githubusercontent.com"
-}
-
 resource "aws_iam_role" "github_actions_deploy" {
   name = "learnova-github-actions-deploy"
 
@@ -170,11 +155,6 @@ resource "aws_iam_role" "github_actions_deploy" {
       }
     }]
   })
-}
-
-import {
-  to = aws_iam_role.github_actions_deploy
-  id = "learnova-github-actions-deploy"
 }
 
 resource "aws_iam_role_policy" "github_actions_deploy" {

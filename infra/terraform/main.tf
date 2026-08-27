@@ -20,8 +20,3 @@ resource "aws_instance" "app" {
     Name = "learnova-app"
   }
 }
-
-import {
-  to = aws_instance.app
-  id = "i-074bf4c6e39e3dfeb"
-}

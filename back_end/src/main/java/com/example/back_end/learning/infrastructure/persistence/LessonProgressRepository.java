@@ -3,6 +3,7 @@ package com.example.back_end.learning.infrastructure.persistence;
 import com.example.back_end.learning.domain.LessonProgress;
 import com.example.back_end.learning.domain.LessonProgressId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,6 +17,14 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
 
     @Query("SELECT lp FROM LessonProgress lp WHERE lp.user.id = :userId AND lp.lesson.section.course.id = :courseId")
     List<LessonProgress> findByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+    @Modifying
+    @Query("""
+            UPDATE LessonProgress lp
+            SET lp.isCompleted = false, lp.watchedSeconds = 0, lp.updatedAt = CURRENT_TIMESTAMP
+            WHERE lp.user.id = :userId AND lp.lesson.section.course.id = :courseId
+            """)
+    int resetProgressByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
     @Query("SELECT COUNT(lp) FROM LessonProgress lp WHERE lp.user.id = :userId AND lp.lesson.section.course.id = :courseId AND lp.isCompleted = true")
     long countCompletedLessonsByUserAndCourse(@Param("userId") Long userId, @Param("courseId") Long courseId);

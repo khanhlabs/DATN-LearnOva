@@ -12,6 +12,7 @@ import com.example.back_end.admin.adapter.in.web.dto.AdminCourseResponse;
 import com.example.back_end.course.domain.Course;
 import com.example.back_end.auth.domain.User;
 import com.example.back_end.course.domain.enums.CourseStatus;
+import com.example.back_end.course.application.event.CoursePublishedEvent;
 import com.example.back_end.notification.domain.enums.NotificationType;
 import com.example.back_end.shared.exception.BusinessException;
 import com.example.back_end.shared.exception.ResourceNotFoundException;
@@ -24,6 +25,7 @@ import com.example.back_end.media.infrastructure.storage.S3Service;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Map;
 
@@ -38,19 +40,22 @@ public class AdminCourseService {
     private final EmailService emailService;
     private final S3Service s3Service;
     private final CourseIndexService courseIndexService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AdminCourseService(
             AdminCourseRepository courseRepository,
             NotificationService notificationService,
             EmailService emailService,
             S3Service s3Service,
-            CourseIndexService courseIndexService
+            CourseIndexService courseIndexService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.courseRepository = courseRepository;
         this.notificationService = notificationService;
         this.emailService = emailService;
         this.s3Service = s3Service;
         this.courseIndexService = courseIndexService;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<AdminCourseResponse> getAllCourses() {
@@ -97,6 +102,12 @@ public class AdminCourseService {
                 () -> emailService.sendCourseApprovedEmail(
                         course.getInstructor().getEmail(), course.getInstructor().getFullName(), course.getTitle())
         );
+        eventPublisher.publishEvent(new CoursePublishedEvent(
+                course.getId(),
+                course.getInstructor().getId(),
+                course.getTitle(),
+                course.getInstructor().getFullName()
+        ));
 
         return toDetailResponse(course);
     }

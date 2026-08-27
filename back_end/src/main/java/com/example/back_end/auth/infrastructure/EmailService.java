@@ -468,6 +468,56 @@ public class EmailService {
     public record AnnouncementRecipient(String email, String fullName) {
     }
 
+    public record CourseReleaseRecipient(String email, String fullName) {
+    }
+
+    public void sendNewInstructorCourseEmail(
+            String toEmail,
+            String fullName,
+            String instructorName,
+            String courseTitle,
+            String courseUrl
+    ) {
+        String subject = instructorName + " vừa ra khóa học mới trên LearnOva";
+        String content = """
+                <div style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+                  <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;padding:30px;">
+                    <h2 style="color:#2563eb;text-align:center;">🎓 Khóa học mới</h2>
+                    <p>Xin chào %s,</p>
+                    <p>Giảng viên <b>%s</b> mà bạn đang theo dõi vừa xuất bản khóa học mới:</p>
+                    <p style="background:#eff6ff;border-left:3px solid #2563eb;padding:14px 18px;color:#1e3a8a;"><b>%s</b></p>
+                    <p style="text-align:center;margin:30px 0;">
+                      <a href="%s" style="background:#2563eb;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;display:inline-block;">Xem khóa học</a>
+                    </p>
+                    <p>Trân trọng,<br><b>LearnOva Team</b></p>
+                  </div>
+                </div>
+                """.formatted(
+                fullName == null || fullName.isBlank() ? "bạn" : fullName,
+                instructorName,
+                courseTitle,
+                courseUrl
+        );
+        sendHtmlEmail(toEmail, subject, content);
+    }
+
+    @Async
+    public void sendNewInstructorCourseEmailsAsync(
+            List<CourseReleaseRecipient> recipients,
+            String instructorName,
+            String courseTitle,
+            String courseUrl
+    ) {
+        for (CourseReleaseRecipient recipient : recipients) {
+            try {
+                sendNewInstructorCourseEmail(
+                        recipient.email(), recipient.fullName(), instructorName, courseTitle, courseUrl);
+            } catch (Exception e) {
+                log.error("Failed to send new-course email to {} for course \"{}\"", recipient.email(), courseTitle, e);
+            }
+        }
+    }
+
     /**
      * Sends the announcement email to every recipient in the background, so the HTTP request that
      * triggered this doesn't block on dozens of sequential SMTP sends. One recipient's failure is

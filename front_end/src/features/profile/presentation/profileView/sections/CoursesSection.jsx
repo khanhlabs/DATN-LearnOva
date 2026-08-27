@@ -12,16 +12,16 @@ const CoursesSection = ({
   error = "",
   onBack,
   onOpenCourse,
+  onRestartCourse,
 }) => {
   // The URL's ?tab= param is the source of truth for which tab is active, so a
   // notification link (or any navigation) to this same route always lands on the
   // right tab, even when the component doesn't remount.
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const [filterTab, setFilterTab] = useState("in_progress");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const statusFilter = searchParams.get("tab") === "completed" ? "completed" : "inProgress";
+  const filterTab = searchParams.get("tab") === "completed" ? "completed" : "in_progress";
 
   const selectTab = (tab) => {
     setSearchParams(tab === "completed" ? { tab: "completed" } : {});
@@ -99,14 +99,14 @@ const CoursesSection = ({
             <button
               className={`course-tab ${filterTab === "in_progress" ? "active" : ""}`}
               type="button"
-              onClick={() => { setFilterTab("in_progress"); setCurrentPage(1); }}
+              onClick={() => selectTab("in_progress")}
             >
               {t("profile.myLearning.tabInProgress")}
             </button>
             <button
               className={`course-tab ${filterTab === "completed" ? "active" : ""}`}
               type="button"
-              onClick={() => { setFilterTab("completed"); setCurrentPage(1); }}
+              onClick={() => selectTab("completed")}
             >
               {t("profile.myLearning.tabCompleted")}
             </button>
@@ -149,6 +149,7 @@ const CoursesSection = ({
           <CourseCardGrid
             courses={paginatedCourses}
             onOpenCourse={onOpenCourse}
+            onRestartCourse={onRestartCourse}
             variant="mine"
           />
 
@@ -192,12 +193,12 @@ const CoursesSection = ({
       ) : courses.length > 0 ? (
         <div className="empty-state">
           <h4>
-            {statusFilter === "completed"
+            {filterTab === "completed"
               ? "No completed courses yet"
               : "No courses in progress"}
           </h4>
           <p>
-            {statusFilter === "completed"
+            {filterTab === "completed"
               ? "Finish all lessons in a course to see it here."
               : "All your enrolled courses are completed — check the Completed tab."}
           </p>
