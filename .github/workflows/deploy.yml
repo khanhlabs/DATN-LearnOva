@@ -22,6 +22,28 @@ jobs:
           echo "repository=${{ github.repository }}"
           echo "ref=${{ github.ref }}"
           echo "event=${{ github.event_name }}"
+
+      # Diagnose only: decodes the public claims used by AWS to evaluate the
+      # OIDC trust policy. The signed JWT itself is never written to logs.
+      - name: Show OIDC claims
+        shell: bash
+        run: |
+          TOKEN=$(curl -fsSL \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r .value)
+          export TOKEN
+          python - <<'PY'
+          import base64
+          import json
+          import os
+
+          payload = os.environ["TOKEN"].split(".")[1]
+          payload += "=" * (-len(payload) % 4)
+          claims = json.loads(base64.urlsafe_b64decode(payload))
+          fields = ("aud", "sub", "repository", "ref", "job_workflow_ref")
+          print(json.dumps({field: claims.get(field) for field in fields}))
+          PY
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
