@@ -12,7 +12,6 @@ const CoursesSection = ({
   error = "",
   onBack,
   onOpenCourse,
-  onStartCourse,
   onRestartCourse,
 }) => {
   // The URL's ?tab= param is the source of truth for which tab is active, so a
@@ -150,7 +149,6 @@ const CoursesSection = ({
           <CourseCardGrid
             courses={paginatedCourses}
             onOpenCourse={onOpenCourse}
-            onStartCourse={onStartCourse}
             onRestartCourse={onRestartCourse}
             variant="mine"
           />

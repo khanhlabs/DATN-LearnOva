@@ -341,10 +341,6 @@ const ProfileView = ({
     scrollToPageTop();
   };
 
-  const handleStartCourse = (course) => {
-    if (course?.courseId) navigate(`/learnova/user/courses-detail/${course.courseId}`);
-  };
-
   const handleRestartCourse = async (course) => {
     if (!course?.courseId) return;
     if (!window.confirm("Restart this course from the beginning? Your certificate will be kept.")) return;
@@ -388,7 +384,6 @@ const ProfileView = ({
           isLoading={isLoadingCourses}
           error={coursesError}
           onOpenCourse={handleOpenCourse}
-          onStartCourse={handleStartCourse}
           onRestartCourse={handleRestartCourse}
           onBack={onBack}
         />

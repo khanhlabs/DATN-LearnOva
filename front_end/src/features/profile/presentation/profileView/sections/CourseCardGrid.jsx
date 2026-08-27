@@ -3,7 +3,6 @@ import { Heart, Play, RotateCcw, Star } from "lucide-react";
 const CourseCardGrid = ({
   courses = [],
   onOpenCourse,
-  onStartCourse,
   onRestartCourse,
   onRemoveFavorite,
   variant = "mine",
@@ -16,13 +15,9 @@ const CourseCardGrid = ({
         const progress = Number(course.progress) || 0;
         const isCompleted = !isFavorite && progress >= 100;
         const rating = Number(course.rating);
-        const openCourse = () => {
-          if (isCompleted) {
-            onStartCourse?.(course);
-            return;
-          }
-          onOpenCourse?.(course);
-        };
+        // Clicking a card opens its learning-detail page. That page owns the
+        // explicit "Continue Learning" action which takes the user to the player.
+        const openCourse = () => onOpenCourse?.(course);
 
         return (
           <article
