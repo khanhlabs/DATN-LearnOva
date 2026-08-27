@@ -643,6 +643,21 @@
   overflow-y: auto;
 }
 
+.user-logged-notification-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.user-logged-notification-heading span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .user-logged-notification-heading-actions {
   display: flex;
   align-items: center;
@@ -661,8 +676,9 @@
 }
 
 .user-logged-notification-mark-all-read:disabled {
-  color: #94a3b8;
+  color: #64748b;
   cursor: default;
+  opacity: 1;
 }
 
 .user-logged-notification-list li {

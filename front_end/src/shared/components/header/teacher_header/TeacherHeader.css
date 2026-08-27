@@ -133,8 +133,9 @@
 }
 
 .teacher-notification-mark-all-read:disabled {
-  color: #94a3b8;
+  color: #64748b;
   cursor: default;
+  opacity: 1;
 }
 
 .teacher-notification-list {
