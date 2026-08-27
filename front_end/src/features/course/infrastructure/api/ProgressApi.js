@@ -1,9 +1,10 @@
 import axiosClient from "../../../../shared/api-client/AxiosClient";
 
-export const updateLessonProgressApi = async (lessonId, watchedSeconds) => {
+export const updateLessonProgressApi = async (lessonId, watchedSeconds, completed = false) => {
     const response = await axiosClient.post("/progress/update", {
         lessonId,
         watchedSeconds,
+        completed,
     });
     return response.data;
 };

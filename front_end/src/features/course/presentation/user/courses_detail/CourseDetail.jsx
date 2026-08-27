@@ -197,10 +197,10 @@ function CourseDetail() {
         hasReviewed
     ]);
 
-    const handleVideoProgressUpdate = useCallback(async (currentTime) => {
+    const handleVideoProgressUpdate = useCallback(async (currentTime, completed = false) => {
         if (!activeLesson || !currentUserId) return;
         try {
-            const res = await updateLessonProgressApi(activeLesson.lessonId, currentTime);
+            const res = await updateLessonProgressApi(activeLesson.lessonId, currentTime, completed);
             setCourseProgress(res);
             const isCompleted = res?.isCourseCompleted || res?.courseCompleted || Math.round(res?.courseProgressPercent || 0) === 100;
             if (isCompleted && !hasReviewed && !hasAutoPromptedReview.current) {

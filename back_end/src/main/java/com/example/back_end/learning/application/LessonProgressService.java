@@ -70,13 +70,13 @@ public class LessonProgressService {
                 : 0;
 
         boolean currentlyCompleted = Boolean.TRUE.equals(progress.getIsCompleted());
-        if (!currentlyCompleted && duration > 0) {
+        if (!currentlyCompleted && Boolean.TRUE.equals(request.getCompleted())) {
+            progress.setIsCompleted(true);
+        } else if (!currentlyCompleted && duration > 0) {
             double percent = ((double) newWatched / duration) * 100.0;
             if (percent >= 95.0) {
                 progress.setIsCompleted(true);
             }
-        } else if (!currentlyCompleted && duration == 0) {
-            progress.setIsCompleted(true);
         }
 
         progress.setUpdatedAt(java.time.Instant.now());
