@@ -19,6 +19,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long countByUser_IdAndIsReadFalse(Long userId);
 
     @Modifying
+    @Query("UPDATE Notification n SET n.isRead = true WHERE n.user.id = :userId AND n.isRead = false")
+    int markAllReadByUserId(@Param("userId") Long userId);
+
+    @Modifying
     @Query(value = "UPDATE notifications SET is_read = TRUE "
             + "WHERE user_id = :userId AND type = 'SUPPORT_MESSAGE' AND is_read = FALSE "
             + "AND metadata ->> 'conversationId' = CAST(:conversationId AS text)", nativeQuery = true)

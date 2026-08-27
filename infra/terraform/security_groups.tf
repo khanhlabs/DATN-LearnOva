@@ -30,11 +30,6 @@ resource "aws_security_group" "alb" {
   tags = { Name = "learnova-alb-sg" }
 }
 
-import {
-  to = aws_security_group.alb
-  id = "sg-08339b8f13d5d12b3"
-}
-
 # EC2 SG — only reachable from the ALB, plus optional SSH from a fixed CIDR.
 resource "aws_security_group" "ec2" {
   name        = "learnova-ec2-sg"
@@ -68,9 +63,4 @@ resource "aws_security_group" "ec2" {
   }
 
   tags = { Name = "learnova-ec2-sg" }
-}
-
-import {
-  to = aws_security_group.ec2
-  id = "sg-0698c81eef7474b55"
 }

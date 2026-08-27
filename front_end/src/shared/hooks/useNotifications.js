@@ -4,8 +4,7 @@ import {
     getUnreadCountApi,
     markAllNotificationsReadApi,
     markNotificationReadApi,
-    deleteSupportConversationNotificationsApi,
-    deleteNotificationApi,
+    markSupportConversationReadApi,
 
 } from "../../features/notification/infrastructure/api/NotificationApi";
 import { useAxiosPrivate } from "./useAxiosPrivate";
@@ -114,8 +113,25 @@ export const useNotifications = () => {
                     body: latest.content || "Bạn có thông báo mới.",
                     tag: `learnova-notification-${latest.id}`,
                 });
-                browserNotification.onclick = () => {
+                browserNotification.onclick = async () => {
                     window.focus();
+
+                    if (!latest.isRead) {
+                        try {
+                            await markNotificationReadApi(latest.id, axiosClient);
+                            setUnreadCount((previous) => Math.max(0, previous - 1));
+                        } catch {
+                            // Navigation remains available when the read request fails.
+                        }
+                    }
+
+                    if (latest.type === "SUPPORT_MESSAGE" && latest.metadata?.conversationId != null) {
+                        try {
+                            await markSupportConversationReadApi(latest.metadata.conversationId, axiosClient);
+                        } catch {
+                            // Opening the support conversation is still allowed on a transient API failure.
+                        }
+                    }
 
                     if (latest.type === "SUPPORT_MESSAGE" && latest.link) {
                         const url = new URL(latest.link, window.location.origin);
@@ -138,7 +154,7 @@ export const useNotifications = () => {
 
             }
         }
-    }, [isAdmin, loadNotifications]);
+    }, [axiosClient, isAdmin, loadNotifications]);
 
     const markRead = useCallback(async (id) => {
         await markNotificationReadApi(id, axiosClient);
@@ -153,24 +169,13 @@ export const useNotifications = () => {
     }, [axiosClient]);
 
 
-    const deleteNotification = useCallback(async (id) => {
-        await deleteNotificationApi(id, axiosClient);
-        setNotifications((prev) => prev.filter((notification) => notification.id !== id));
-        await refreshUnreadCount();
-    }, [axiosClient, refreshUnreadCount]);
-
-    const clearSupportConversationNotifications = useCallback(async (conversationId) => {
-        await deleteSupportConversationNotificationsApi(conversationId, axiosClient);
-        setNotifications((prev) => prev.filter((notification) => {
-            if (notification.type !== "SUPPORT_MESSAGE" || !notification.link) return true;
-            try {
-                const url = new URL(notification.link, window.location.origin);
-                const linkedConversationId = url.searchParams.get("supportConversationId")
-                    || url.searchParams.get("conversationId");
-                return String(linkedConversationId) !== String(conversationId);
-            } catch {
-                return true;
-            }
+    const markSupportConversationRead = useCallback(async (conversationId) => {
+        await markSupportConversationReadApi(conversationId, axiosClient);
+        setNotifications((prev) => prev.map((notification) => {
+            if (notification.type !== "SUPPORT_MESSAGE") return notification;
+            return String(notification.metadata?.conversationId) === String(conversationId)
+                ? { ...notification, isRead: true }
+                : notification;
         }));
         await refreshUnreadCount();
     }, [axiosClient, refreshUnreadCount]);
@@ -249,7 +254,6 @@ export const useNotifications = () => {
         loadNotifications,
         markRead,
         markAllRead,
-        deleteNotification,
-        clearSupportConversationNotifications,
+        markSupportConversationRead,
     };
 };

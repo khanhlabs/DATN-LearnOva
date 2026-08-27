@@ -132,15 +132,7 @@ public class NotificationService {
     public void markAllRead(String email) {
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        List<Notification> unread = notificationRepository
-                .findByUser_IdOrderByCreatedAtDesc(user.getId(), Pageable.unpaged())
-                .stream()
-                .filter(n -> !Boolean.TRUE.equals(n.getIsRead()))
-                .toList();
-
-        unread.forEach(n -> n.setIsRead(true));
-        notificationRepository.saveAll(unread);
+        notificationRepository.markAllReadByUserId(user.getId());
     }
 
     public int deleteReadOlderThan(int days) {

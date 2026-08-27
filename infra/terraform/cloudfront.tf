@@ -188,18 +188,3 @@ removed {
     destroy = false
   }
 }
-
-import {
-  to = aws_cloudfront_origin_access_control.video
-  id = "E2CL8OFSW4K19B"
-}
-
-import {
-  to = aws_wafv2_web_acl.cloudfront
-  id = "07af7f3f-4773-407e-8c81-39f08cedfd3a/CreatedByCloudFront-82309d5c/CLOUDFRONT"
-}
-
-import {
-  to = aws_cloudfront_distribution.video
-  id = "E73YNWZQUGSU2"
-}

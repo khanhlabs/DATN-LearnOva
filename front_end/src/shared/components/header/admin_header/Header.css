@@ -136,6 +136,28 @@
   font-weight: 700;
 }
 
+.admin-notification-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-notification-mark-all-read {
+  padding: 0;
+  border: 0;
+  color: #2563eb;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-notification-mark-all-read:disabled {
+  color: #94a3b8;
+  cursor: default;
+}
+
 .admin-notification-list {
   display: grid;
   gap: 6px;

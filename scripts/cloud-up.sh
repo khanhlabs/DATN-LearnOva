@@ -4,6 +4,7 @@
 set -euo pipefail
 
 REGION="ap-southeast-1"
+INSTANCE_ID="i-074bf4c6e39e3dfeb"
 case "${BASH_SOURCE[0]}" in
   */*) SCRIPT_DIR="${BASH_SOURCE[0]%/*}" ;;
   *)   SCRIPT_DIR="." ;;
@@ -11,25 +12,16 @@ esac
 SCRIPT_DIR="$(cd -- "$SCRIPT_DIR" && pwd)"
 TF_DIR="$SCRIPT_DIR/../infra/terraform"
 
-echo "==> Looking up instance..."
-IID=$(aws ec2 describe-instances --region "$REGION" \
-  --filters "Name=tag:Name,Values=learnova-app" "Name=instance-state-name,Values=running,stopped" \
-  --query "Reservations[0].Instances[0].InstanceId" --output text)
+echo "==> Instance: $INSTANCE_ID"
 
-if [ "$IID" = "None" ] || [ -z "$IID" ]; then
-  echo "No instance found with tag Name=learnova-app in $REGION" >&2
-  exit 1
-fi
-echo "==> Instance: $IID"
-
-STATE=$(aws ec2 describe-instances --instance-ids "$IID" --region "$REGION" \
+STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --region "$REGION" \
   --query "Reservations[0].Instances[0].State.Name" --output text)
 if [ "$STATE" != "running" ]; then
   echo "==> Starting EC2 (currently $STATE)..."
-  aws ec2 start-instances --instance-ids "$IID" --region "$REGION" >/dev/null
+  aws ec2 start-instances --instance-ids "$INSTANCE_ID" --region "$REGION" >/dev/null
 fi
-aws ec2 wait instance-running --instance-ids "$IID" --region "$REGION"
-aws ec2 wait instance-status-ok --instance-ids "$IID" --region "$REGION"
+aws ec2 wait instance-running --instance-ids "$INSTANCE_ID" --region "$REGION"
+aws ec2 wait instance-status-ok --instance-ids "$INSTANCE_ID" --region "$REGION"
 echo "==> EC2 running."
 
 echo "==> Bringing ALB back up..."
