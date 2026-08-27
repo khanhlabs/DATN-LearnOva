@@ -12,15 +12,18 @@ resource "aws_iam_role" "ec2_ssm" {
   })
 }
 
+import {
+  to = aws_iam_role.ec2_ssm
+  id = "learnova-ec2-ssm-role"
+}
+
 resource "aws_iam_role_policy_attachment" "ec2_ssm_core" {
   role       = aws_iam_role.ec2_ssm.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# One-off secret handoff: lets the instance pull the deploy .env files from
-# Parameter Store (SecureString — value never appears in CloudTrail/RunCommand
-# history, unlike embedding it directly in an SSM command). Scoped to just the
-# /learnova/deploy/* path; those parameters get deleted right after use.
+# Lets the instance retrieve the production deploy secrets from Parameter
+# Store. The paths match the SSM deploy workflow exactly.
 data "aws_kms_alias" "ssm" {
   name = "alias/aws/ssm"
 }
@@ -71,26 +74,6 @@ resource "aws_iam_role_policy_attachment" "mediaconvert_s3_full_access" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
-import {
-  to = aws_iam_role.mediaconvert
-  id = "MediaConvertRole"
-}
-
-import {
-  to = aws_iam_role_policy.mediaconvert_video_bucket
-  id = "MediaConvertRole:MediaConvertS3AccessPolicy"
-}
-
-import {
-  to = aws_iam_role_policy_attachment.mediaconvert_api_gateway_invoke
-  id = "MediaConvertRole/arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
-}
-
-import {
-  to = aws_iam_role_policy_attachment.mediaconvert_s3_full_access
-  id = "MediaConvertRole/arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
 resource "aws_iam_role_policy" "ec2_read_deploy_params" {
   name = "learnova-ec2-read-deploy-params"
   role = aws_iam_role.ec2_ssm.name
@@ -101,7 +84,10 @@ resource "aws_iam_role_policy" "ec2_read_deploy_params" {
       {
         Effect   = "Allow"
         Action   = "ssm:GetParameter"
-        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/learnova/deploy/*"
+        Resource = [
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/learnova/prod/env",
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/learnova/cloudfront/private-key",
+        ]
       },
       {
         Effect   = "Allow"
@@ -153,6 +139,16 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
+import {
+  to = aws_iam_instance_profile.ec2
+  id = "learnova-ec2-instance-profile"
+}
+
+import {
+  to = aws_iam_openid_connect_provider.github
+  id = "arn:aws:iam::490939613726:oidc-provider/token.actions.githubusercontent.com"
+}
+
 resource "aws_iam_role" "github_actions_deploy" {
   name = "learnova-github-actions-deploy"
 
@@ -172,6 +168,11 @@ resource "aws_iam_role" "github_actions_deploy" {
       }
     }]
   })
+}
+
+import {
+  to = aws_iam_role.github_actions_deploy
+  id = "learnova-github-actions-deploy"
 }
 
 resource "aws_iam_role_policy" "github_actions_deploy" {

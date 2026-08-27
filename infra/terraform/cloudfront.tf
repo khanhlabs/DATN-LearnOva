@@ -1,32 +1,13 @@
 // CloudFront video delivery stack imported from the AWS Console.
-// The import blocks below make this configuration reproducible from an empty
-// state; after the first apply Terraform manages the existing resources.
+// The signing public key and key group remain managed in CloudFront itself;
+// Terraform only references the existing key group.
+
+locals {
+  existing_video_signing_key_group_id = "b5b0face-c36e-4069-99e8-e5d6f111723c"
+}
 
 data "aws_s3_bucket" "video" {
   bucket = "datn-video-bucket"
-}
-
-resource "aws_cloudfront_public_key" "video_signing" {
-  name    = "datn_public_key"
-  comment = "nah"
-
-  encoded_key = <<-PEM
-    -----BEGIN PUBLIC KEY-----
-    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnUatnGH91Q1V2RgW2O2x
-    0Qmmp+mgleWyvlb+/1wTYdilF9irneCszjr10r8+Hp4e76QJW7pk6pjN9WIsZDoH
-    2/iPpiCrDbm5Z7SqUJcoX1OukPgmeJR4ay5kRnwRUc1vhxsWJs9UumAdWCel//up
-    cXieuJP6TwjQ/N2G3cqw8EO4mMYp5XZIUYHG6lR4eXTLp/1SZjVekdrHOXoz5mfG
-    YuPAuk324wsEyGaDzIhrck7QWF1snrQK/Tq+9Yf4KYpeffgOumwwqjxf2/bFejB7
-    yFZZUO55mNZm79tutYEmOoguB3NcnovnBz3qTDSpUmlhqU7Y/oOk33AQdVMwAN6d
-    gwIDAQAB
-    -----END PUBLIC KEY-----
-  PEM
-}
-
-resource "aws_cloudfront_key_group" "video_signing" {
-  name    = "datn_key_group"
-  comment = "nah"
-  items   = [aws_cloudfront_public_key.video_signing.id]
 }
 
 resource "aws_cloudfront_origin_access_control" "video" {
@@ -129,6 +110,12 @@ resource "aws_cloudfront_distribution" "video" {
   http_version        = "http2"
   wait_for_deployment = true
 
+  # This distribution is a live delivery endpoint. Never let a configuration
+  # change or a targeted destroy delete it inadvertently.
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = {
     Name = "datn_cloudfront"
   }
@@ -149,7 +136,7 @@ resource "aws_cloudfront_distribution" "video" {
     cached_methods         = ["GET", "HEAD"]
     compress               = true
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" // Managed-CachingOptimized
-    trusted_key_groups     = [aws_cloudfront_key_group.video_signing.id]
+    trusted_key_groups     = [local.existing_video_signing_key_group_id]
   }
 
   restrictions {
@@ -184,14 +171,22 @@ resource "aws_s3_bucket_policy" "video_cloudfront_read" {
   })
 }
 
-import {
-  to = aws_cloudfront_public_key.video_signing
-  id = "K296WVT8GUK8LY"
+// Stop tracking the legacy Console-managed signing resources without
+// destroying them. This is a state-only change when applied.
+removed {
+  from = aws_cloudfront_public_key.video_signing
+
+  lifecycle {
+    destroy = false
+  }
 }
 
-import {
-  to = aws_cloudfront_key_group.video_signing
-  id = "b5b0face-c36e-4069-99e8-e5d6f111723c"
+removed {
+  from = aws_cloudfront_key_group.video_signing
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 import {
@@ -207,9 +202,4 @@ import {
 import {
   to = aws_cloudfront_distribution.video
   id = "E73YNWZQUGSU2"
-}
-
-import {
-  to = aws_s3_bucket_policy.video_cloudfront_read
-  id = "datn-video-bucket"
 }
