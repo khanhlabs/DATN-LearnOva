@@ -28,7 +28,7 @@ const RevenueTransactions = () => {
       } catch {
         if (!mounted) return;
         setInsights(null);
-        setError("Unable to load transaction insights.");
+        setError(t("revenueDetails.insightsLoadError"));
       }
     };
 
@@ -36,7 +36,7 @@ const RevenueTransactions = () => {
     return () => {
       mounted = false;
     };
-  }, [axiosPrivate]);
+  }, [axiosPrivate, t]);
 
   return (
     <div className="revenuePage">

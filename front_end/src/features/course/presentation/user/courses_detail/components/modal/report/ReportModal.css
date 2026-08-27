@@ -11,7 +11,7 @@
 
 .report-course-modal-content {
   position: relative;
-  width: min(520px, 100%);
+  width: min(820px, 100%);
   max-height: min(90vh, 720px);
   overflow-y: auto;
   background: #fff;
@@ -37,6 +37,7 @@
   align-items: center;
   gap: 0.65rem;
   margin-bottom: 0.5rem;
+  padding-right: 1.75rem;
 }
 
 .report-course-modal-icon {
@@ -63,27 +64,45 @@
   line-height: 1.45;
 }
 
+.report-course-reasons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  align-items: start;
+}
+
 .report-course-reasons {
-  border: none;
-  margin: 0 0 1rem;
-  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin: 0;
+  padding: 0.85rem 0.9rem 0.65rem;
+  min-width: 0;
+  background: #fafafa;
 }
 
 .report-course-reasons legend {
   font-size: 0.85rem;
   font-weight: 600;
   color: #374151;
-  margin-bottom: 0.5rem;
+  padding: 0 0.25rem;
+  margin-bottom: 0.35rem;
 }
 
 .report-course-reason-option {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.55rem;
-  padding: 0.45rem 0;
+  padding: 0.4rem 0;
   cursor: pointer;
   color: #1f2937;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.report-course-reason-option input {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
 }
 
 .report-course-desc-label {
@@ -102,6 +121,7 @@
   font: inherit;
   resize: vertical;
   min-height: 96px;
+  box-sizing: border-box;
 }
 
 .report-course-textarea:focus {
@@ -154,4 +174,14 @@
 .report-course-btn-submit:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .report-course-modal-content {
+    width: min(520px, 100%);
+  }
+
+  .report-course-reasons-grid {
+    grid-template-columns: 1fr;
+  }
 }

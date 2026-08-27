@@ -22,7 +22,11 @@ const formatCompactMoney = (value) => {
   if (amount >= 1_000) {
     return `$${(amount / 1_000).toFixed(1)}K`;
   }
-  return `$${amount.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  const fractionDigits = Number.isInteger(amount) ? 0 : 2;
+  return `$${amount.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: 2,
+  })}`;
 };
 
 
@@ -32,7 +36,13 @@ const RevenueDonut = ({ items = [] }) => {
   const chartRef = useRef(null);
 
   const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const labels = items.map((item) => item.categoryName || "Uncategorized");
+  const labels = items.map((item) => {
+    const name = item.categoryName;
+    if (!name || name === "Uncategorized") {
+      return t("revenueAdmin.uncategorized");
+    }
+    return name;
+  });
   const values = items.map((item) => Number(item.amount || 0));
   const colors = labels.map((_, index) => DONUT_COLORS[index % DONUT_COLORS.length]);
 
@@ -46,14 +56,27 @@ const RevenueDonut = ({ items = [] }) => {
       chartRef.current = null;
     }
 
+    const chartLabels = items.map((item) => {
+      const name = item.categoryName;
+      if (!name || name === "Uncategorized") {
+        return t("revenueAdmin.uncategorized");
+      }
+      return name;
+    });
+    const chartValues = items.map((item) => Number(item.amount || 0));
+    const chartColors = chartLabels.map(
+      (_, index) => DONUT_COLORS[index % DONUT_COLORS.length]
+    );
+    const chartTotal = chartValues.reduce((sum, value) => sum + value, 0);
+
     chartRef.current = new Chart(donutRef.current, {
       type: "doughnut",
       data: {
-        labels: labels.length ? labels : ["No data"],
+        labels: chartLabels.length ? chartLabels : [t("revenueAdmin.noData")],
         datasets: [
           {
-            data: values.length ? values : [1],
-            backgroundColor: values.length ? colors : ["#e2e8f0"],
+            data: chartValues.length ? chartValues : [1],
+            backgroundColor: chartValues.length ? chartColors : ["#e2e8f0"],
             borderColor: "#f8fafc",
             borderWidth: 4,
             hoverOffset: 4,
@@ -80,11 +103,12 @@ const RevenueDonut = ({ items = [] }) => {
             cornerRadius: 6,
             callbacks: {
               label(context) {
-                if (!values.length) {
-                  return "No paid revenue by category yet";
+                if (!chartValues.length) {
+                  return t("revenueAdmin.noCategoryRevenue");
                 }
                 const amount = Number(context.parsed || 0);
-                const share = total > 0 ? ((amount / total) * 100).toFixed(1) : "0.0";
+                const share =
+                  chartTotal > 0 ? ((amount / chartTotal) * 100).toFixed(1) : "0.0";
                 return `${context.label}: ${formatCompactMoney(amount)} (${share}%)`;
               },
             },
@@ -99,7 +123,7 @@ const RevenueDonut = ({ items = [] }) => {
         chartRef.current = null;
       }
     };
-  }, [items]);
+  }, [items, t]);
 
   return (
     <section className="revenueDonutCard" aria-label="Revenue source breakdown">
@@ -107,7 +131,7 @@ const RevenueDonut = ({ items = [] }) => {
         <div>
           <h2 className="revenueDonutTitle">{t("revenueAdmin.source")}</h2>
           <p className="revenueDonutSubtitle">
-            Paid course revenue allocated by training category.
+            {t("revenueAdmin.sourceSubtitle")}
           </p>
         </div>
       </div>
@@ -117,9 +141,11 @@ const RevenueDonut = ({ items = [] }) => {
           <canvas ref={donutRef} aria-label="Revenue composition donut chart" />
           <div className="revenueDonutCenter">
             <div className="revenueDonutCenterValue">{formatCompactMoney(total)}</div>
-            <div className="revenueDonutCenterLabel">TOTAL BREAKDOWN</div>
+            <div className="revenueDonutCenterLabel">{t("revenueAdmin.breakdown")}</div>
             <div className="revenueDonutCenterPercent">
-              {items.length ? "100% Revenue" : "No data"}
+              {items.length
+                ? `100% ${t("revenueAdmin.revenueLabel")}`
+                : t("revenueAdmin.noData")}
             </div>
           </div>
         </div>
@@ -127,7 +153,7 @@ const RevenueDonut = ({ items = [] }) => {
         <div className="revenueDonutLegend">
           {labels.length === 0 ? (
             <div className="revenueDonutLegendItem">
-              <span className="revenueDonutLegendText">No category revenue yet</span>
+              <span className="revenueDonutLegendText">{t("revenueAdmin.noCategoryRevenue")}</span>
             </div>
           ) : (
             labels.map((label, index) => (

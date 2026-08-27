@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
-import { getAdminVouchersApi } from "../../../infrastructure/api/VoucherApi";
+import { getAdminVoucherUsageFrequencyApi } from "../../../infrastructure/api/VoucherApi";
 import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
 import "./VoucherChart.css";
 
@@ -30,15 +30,17 @@ const buildYearMonths = (year) =>
     return `${year}-${String(monthNumber).padStart(2, "0")}`;
   });
 
-const buildVoucherChartData = (voucherItems, year = getCurrentYear()) => {
-  const activationsByMonth =
-    voucherItems
-      .map((item) => String(item.endDate || "").slice(0, 7))
-      .filter((month) => month.startsWith(`${year}-`))
-      .reduce((months, month) => {
-        months.set(month, (months.get(month) || 0) + 1);
-        return months;
-      }, new Map());
+const buildVoucherChartData = (frequencyItems, year = getCurrentYear()) => {
+  const activationsByMonth = (Array.isArray(frequencyItems) ? frequencyItems : []).reduce(
+    (months, item) => {
+      const month = String(item.month || "");
+      if (month.startsWith(`${year}-`)) {
+        months.set(month, Number(item.activations || 0));
+      }
+      return months;
+    },
+    new Map()
+  );
   const yearMonths = buildYearMonths(year);
 
   return {
@@ -56,24 +58,24 @@ const VoucherChart = ({ refreshKey }) => {
   const { t } = useTranslation();
   const axiosPrivate = useAxiosPrivate();
   const canvasRef = useRef(null);
-  const [vouchers, setVouchers] = useState([]);
+  const [frequency, setFrequency] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
 
-    const fetchVouchers = async () => {
+    const fetchFrequency = async () => {
       try {
         setIsLoading(true);
         setError("");
-        const data = await getAdminVouchersApi(axiosPrivate);
+        const data = await getAdminVoucherUsageFrequencyApi(axiosPrivate);
         if (mounted) {
-          setVouchers(Array.isArray(data) ? data : []);
+          setFrequency(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         if (mounted) {
-          setVouchers([]);
+          setFrequency([]);
           setError(
             err?.response?.data?.message || "Failed to load voucher data."
           );
@@ -83,7 +85,7 @@ const VoucherChart = ({ refreshKey }) => {
       }
     };
 
-    fetchVouchers();
+    fetchFrequency();
 
     return () => {
       mounted = false;
@@ -92,8 +94,8 @@ const VoucherChart = ({ refreshKey }) => {
 
   const chartYear = useMemo(() => getCurrentYear(), []);
   const voucherChartData = useMemo(
-    () => buildVoucherChartData(vouchers, chartYear),
-    [chartYear, vouchers]
+    () => buildVoucherChartData(frequency, chartYear),
+    [chartYear, frequency]
   );
   const hasCurrentYearData = voucherChartData.series.some((series) =>
     series.values.some((value) => value > 0)

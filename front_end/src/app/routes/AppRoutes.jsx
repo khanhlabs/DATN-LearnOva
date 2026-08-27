@@ -29,6 +29,7 @@ import StudentsPage from "../../features/instructor/presentation/teacher/student
 import ReviewsPage from "../../features/instructor/presentation/teacher/reviews/ReviewsPage";
 import QAInboxPage from "../../features/instructor/presentation/teacher/qa/QAInboxPage";
 import RevenuePage from "../../features/instructor/presentation/teacher/revenue/RevenuePage";
+import EarningsPage from "../../features/instructor/presentation/teacher/earnings/EarningsPage";
 import AnalyticsPage from "../../features/instructor/presentation/teacher/analytics/AnalyticsPage";
 import ProfilePage from "../../features/instructor/presentation/teacher/profile/ProfilePage";
 import TeacherTagsPage from "../../features/instructor/presentation/teacher/tags/TeacherTagsPage";
@@ -109,6 +110,7 @@ const App = () => {
                     <Route path="reviews" element={<ReviewsPage/>}/>
                     <Route path="qna" element={<QAInboxPage/>}/>
                     <Route path="revenue" element={<RevenuePage/>}/>
+                    <Route path="earnings" element={<EarningsPage/>}/>
                     <Route path="analytics" element={<AnalyticsPage/>}/>
                     <Route path="profile" element={<ProfilePage/>}/>
                 </Route>

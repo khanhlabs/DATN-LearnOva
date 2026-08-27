@@ -1,24 +1,65 @@
 import { Calendar, TrendingUp } from "lucide-react";
 import "./RevenueRecords.css";
+import { useTranslation } from "react-i18next";
 
-const formatMoney = (value) =>
-  `$ ${Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 0,
+const formatMoney = (value) => {
+  const amount = Number(value || 0);
+  const fractionDigits = Number.isInteger(amount) ? 0 : 2;
+  return `$ ${amount.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: 2,
   })}`;
-
-const formatGrowth = (value) => {
-  if (value == null || Number.isNaN(Number(value))) {
-    return "No prior month baseline";
-  }
-  const numeric = Number(value);
-  const sign = numeric > 0 ? "+" : "";
-  return `${sign}${numeric.toFixed(1)}% growth`;
 };
 
 const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language?.startsWith("vi") ? "vi-VN" : "en-US";
+
+  const formatPeakDay = (label) => {
+    if (!label) return "—";
+    if (/^\d{4}-\d{2}-\d{2}/.test(label)) {
+      const date = new Date(`${label.slice(0, 10)}T00:00:00`);
+      if (!Number.isNaN(date.getTime())) {
+        return date.toLocaleDateString(locale, {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      }
+    }
+    return label;
+  };
+
+  const formatPeakMonth = (label) => {
+    if (!label) return "—";
+    if (/^\d{4}-\d{2}/.test(label)) {
+      const date = new Date(`${label.slice(0, 7)}-01T00:00:00`);
+      if (!Number.isNaN(date.getTime())) {
+        return date.toLocaleDateString(locale, {
+          month: "short",
+          year: "numeric",
+        });
+      }
+    }
+    return label;
+  };
+
+  const formatGrowth = (value) => {
+    if (value == null || Number.isNaN(Number(value))) {
+      return t("revenueDetails.noPriorMonth");
+    }
+    const numeric = Number(value);
+    const sign = numeric > 0 ? "+" : "";
+    return `${sign}${numeric.toFixed(1)}% ${t("revenueDetails.growthSuffix")}`;
+  };
+
   return (
-    <section className="revenueRecordsSection" aria-label="System revenue records">
-      <h4 className="recordsTitle">System Revenue Records</h4>
+    <section
+      className="revenueRecordsSection"
+      aria-label={t("revenueDetails.systemRecords")}
+    >
+      <h4 className="recordsTitle">{t("revenueDetails.systemRecords")}</h4>
 
       <div className="revenueRecordsCard">
         <div className="recordsDivider" />
@@ -29,11 +70,11 @@ const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
               <Calendar size={20} />
             </div>
             <div className="recordContent">
-              <div className="recordLabel">PEAK DATE RANGE</div>
-              <div className="recordMain">{peakDay?.label || "—"}</div>
+              <div className="recordLabel">{t("revenueDetails.peakDateRange")}</div>
+              <div className="recordMain">{formatPeakDay(peakDay?.label)}</div>
               <div className="recordMeta">
-                Rate:{" "}
-                <span className="metaHighlight">Highest paid revenue day</span>
+                {t("revenueDetails.ratePrefix")}{" "}
+                <span className="metaHighlight">{t("revenueDetails.highestPaidDay")}</span>
               </div>
             </div>
             <div className="recordValue">
@@ -46,10 +87,10 @@ const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
               <TrendingUp size={20} />
             </div>
             <div className="recordContent">
-              <div className="recordLabel">HIGHEST MONTHLY PERFORMANCE</div>
-              <div className="recordMain">{peakMonth?.label || "—"}</div>
+              <div className="recordLabel">{t("revenueDetails.highestMonthly")}</div>
+              <div className="recordMain">{formatPeakMonth(peakMonth?.label)}</div>
               <div className="recordMeta">
-                Momentum:{" "}
+                {t("revenueDetails.momentumPrefix")}{" "}
                 <span className="metaBoost">
                   {formatGrowth(peakMonth?.growthPercent)}
                 </span>
@@ -66,4 +107,3 @@ const RevenueRecords = ({ peakDay = null, peakMonth = null }) => {
 };
 
 export default RevenueRecords;
-

@@ -38,7 +38,7 @@ const Vouchers = () => {
 
   return (
     <section className="vouchersPage">
-      <VoucherCards />
+      <VoucherCards refreshKey={refreshKey} />
       <div className="voucherChartsRow">
         <div className="voucherChartColumn">
           <VoucherChart refreshKey={refreshKey} />

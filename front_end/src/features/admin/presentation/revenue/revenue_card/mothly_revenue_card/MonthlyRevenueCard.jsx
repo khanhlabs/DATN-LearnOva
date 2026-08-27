@@ -1,6 +1,11 @@
 import "./MonthlyRevenueCard.css";
 
 const MonthlyRevenueCard = ({ title, value, delta, subtitle, icon: Icon }) => {
+  const deltaTone =
+    typeof delta === "string" && delta.trim().startsWith("-")
+      ? "negative"
+      : "positive";
+
   return (
     <article className="monthlyRevenueCard">
       <header className="monthlyRevenueCardHeader">
@@ -11,7 +16,7 @@ const MonthlyRevenueCard = ({ title, value, delta, subtitle, icon: Icon }) => {
       <div className="monthlyRevenueCardBody">
         <p className="monthlyRevenueCardValue">{value}</p>
         <div className="monthlyRevenueCardFooter">
-          <span className="revenueDelta positive">{delta}</span>
+          <span className={`revenueDelta ${deltaTone}`}>{delta}</span>
           <span className="monthlyRevenueCardSubtitle">{subtitle}</span>
         </div>
       </div>

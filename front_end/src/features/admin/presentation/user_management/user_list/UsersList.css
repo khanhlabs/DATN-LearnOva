@@ -79,17 +79,27 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  width: auto;
+  width: 100%;
   margin: 0;
-}
-
-.userManagementUsersTableHeader > span {
-  display: inline-flex;
+  box-sizing: border-box;
   align-items: center;
 }
 
+.userManagementUsersTableHeader > span,
+.userManagementUsersColumn {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.userManagementUsersColumn--user {
+  justify-content: flex-start;
+  text-align: left;
+}
+
 .userManagementUsersColumn--actions {
-  justify-self: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -97,7 +107,7 @@
 .userManagementUsersColumn--phone,
 .userManagementUsersColumn--visibility,
 .userManagementUsersColumn--joinedAt {
-  justify-self: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -177,15 +187,19 @@
 .userManagementUserPhoneWrap,
 .userManagementUserVisibilityWrap,
 .userManagementUserJoinedWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   min-width: 0;
 }
 
-.userManagementUserRoleWrap,
-.userManagementUserPhoneWrap,
-.userManagementUserVisibilityWrap,
-.userManagementUserJoinedWrap {
+.userManagementUserActions {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .userManagementUserRole,
@@ -259,12 +273,6 @@
 .userManagementUserVisibility--deleted {
   background: #fee2e2;
   color: #dc2626;
-}
-
-.userManagementUserActions {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
 }
 
 .userManagementUserActionButton {

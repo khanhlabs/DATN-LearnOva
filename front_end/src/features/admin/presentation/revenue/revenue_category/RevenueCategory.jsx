@@ -1,4 +1,5 @@
 import "./RevenueCategory.css";
+import { useTranslation } from "react-i18next";
 
 const BAR_COLORS = [
   "#1f2937",
@@ -9,33 +10,43 @@ const BAR_COLORS = [
   "#cbd5e1",
 ];
 
-const formatMoney = (value) =>
-  `$ ${Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 0,
+const formatMoney = (value) => {
+  const amount = Number(value || 0);
+  const fractionDigits = Number.isInteger(amount) ? 0 : 2;
+  return `$ ${amount.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: 2,
   })}`;
+};
 
 const RevenueCategory = ({ categories = [] }) => {
+  const { t } = useTranslation();
+
   return (
     <section
       className="revenueCategorySection"
-      aria-label="Revenue Category Metrics"
+      aria-label={t("revenueDetails.categoryMetrics")}
     >
       <div className="revenueCategoryHeader">
-        <h3>Revenue Category Metrics</h3>
-        <span className="revenueCategoryBadge">Percentage Share</span>
+        <h3>{t("revenueDetails.categoryMetrics")}</h3>
+        <span className="revenueCategoryBadge">{t("revenueDetails.percentageShare")}</span>
       </div>
 
       <div className="revenueCategoryCard">
         <div className="revenueCategoryList">
           {categories.length === 0 ? (
-            <p className="revenueCategoryEmpty">No category revenue yet.</p>
+            <p className="revenueCategoryEmpty">{t("revenueDetails.noCategoryRevenue")}</p>
           ) : null}
           {categories.map((item, index) => {
             const percent = Number(item.sharePercent || 0);
             return (
               <div key={item.categoryId || item.categoryName} className="revenueCategoryItem">
                 <div className="revenueCategoryLabel">
-                  <span>{item.categoryName}</span>
+                  <span>
+                    {!item.categoryName || item.categoryName === "Uncategorized"
+                      ? t("revenueAdmin.uncategorized")
+                      : item.categoryName}
+                  </span>
                   <strong>{percent.toFixed(0)}%</strong>
                 </div>
 

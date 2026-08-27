@@ -107,6 +107,9 @@ public class AdminRevenueService {
 
         Double growthRate = PercentDeltaCalculator.percentDelta(prevQuarterRevenue, thisQuarterRevenue);
 
+        BigDecimal pendingPayoutAmount = nullToZero(adminRevenueRepository.sumPendingPayoutAmount());
+        long pendingPayoutCount = adminRevenueRepository.countPendingPayoutTeachers();
+
         return new AdminRevenueOverviewResponse(
                 new AdminRevenueOverviewResponse.Kpis(
                         totalRevenue,
@@ -117,9 +120,11 @@ public class AdminRevenueService {
                         txDelta,
                         refundCount,
                         refundDelta,
-                        growthRate
+                        growthRate,
+                        pendingPayoutAmount,
+                        pendingPayoutCount
                 ),
-                buildCategoryBreakdown()
+                buildCategoryBreakdown(monthStart, now)
         );
     }
 
@@ -198,8 +203,9 @@ public class AdminRevenueService {
 
         AdminRevenueTransactionInsightsResponse.PeakDayRecord peakDayRecord = null;
         if (peakDay != null && peakDay.getDay() != null) {
+            // ISO date so FE can localize display without hardcoding English labels.
             peakDayRecord = new AdminRevenueTransactionInsightsResponse.PeakDayRecord(
-                    peakDay.getDay().format(DateTimeFormatter.ofPattern("EEE, dd MMM yyyy", Locale.ENGLISH)),
+                    peakDay.getDay().toString(),
                     nullToZero(peakDay.getAmount())
             );
         }
@@ -211,8 +217,9 @@ public class AdminRevenueService {
             Instant prevFrom = monthStart.minusMonths(1).atStartOfDay(ZONE).toInstant();
             BigDecimal prevAmount = nullToZero(adminRevenueRepository.sumPaidItemRevenueBetween(prevFrom, from));
             Double growth = PercentDeltaCalculator.percentDelta(prevAmount, nullToZero(peakMonth.getAmount()));
+            // yyyy-MM so FE can localize month label.
             peakMonthRecord = new AdminRevenueTransactionInsightsResponse.PeakMonthRecord(
-                    monthStart.format(MONTH_LABEL),
+                    monthStart.format(DateTimeFormatter.ofPattern("yyyy-MM")),
                     nullToZero(peakMonth.getAmount()),
                     growth
             );
@@ -222,7 +229,17 @@ public class AdminRevenueService {
     }
 
     private List<AdminRevenueOverviewResponse.CategoryBreakdownItem> buildCategoryBreakdown() {
-        List<AdminRevenueRepository.CategoryRevenueProjection> rows = adminRevenueRepository.findRevenueByCategory();
+        return buildCategoryBreakdown(null, null);
+    }
+
+    private List<AdminRevenueOverviewResponse.CategoryBreakdownItem> buildCategoryBreakdown(
+            Instant fromTs,
+            Instant toTs
+    ) {
+        List<AdminRevenueRepository.CategoryRevenueProjection> rows =
+                fromTs == null || toTs == null
+                        ? adminRevenueRepository.findRevenueByCategory()
+                        : adminRevenueRepository.findRevenueByCategoryBetween(fromTs, toTs);
         BigDecimal total = rows.stream()
                 .map(row -> nullToZero(row.getAmount()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

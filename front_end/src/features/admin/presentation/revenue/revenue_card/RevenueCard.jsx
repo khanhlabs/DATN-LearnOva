@@ -3,22 +3,24 @@ import {
   Clock,
   CreditCard,
   DollarSign,
-  RefreshCcw,
   TrendingUp,
 } from "lucide-react";
 import TotalRevenueCard from "./total_revenue_card/TotalRevenueCard";
 import MonthlyRevenueCard from "./mothly_revenue_card/MonthlyRevenueCard";
 import TransactionsCard from "./transactions_card/TransactionsCard";
 import PendingPaymentCard from "./pending_payment_card/PendingPaymentCard";
-import RefundRequestCard from "./refund_request_card/RefundRequestCard";
 import GrowthRateCard from "./growth_rate_card/GrowthRateCard";
 import "./RevenueCard.css";
 import { useTranslation } from "react-i18next";
 
-const formatMoney = (value) =>
-  `$ ${Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 0,
+const formatMoney = (value) => {
+  const amount = Number(value || 0);
+  const fractionDigits = Number.isInteger(amount) ? 0 : 2;
+  return `$ ${amount.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: 2,
   })}`;
+};
 
 const formatDelta = (value) => {
   if (value == null || Number.isNaN(Number(value))) {
@@ -38,67 +40,55 @@ const RevenueCard = ({ kpis = null }) => {
     monthlyRevenue: t("revenueAdmin.monthly"),
     transactions: t("revenueAdmin.transactions"),
     pendingPayment: t("revenueAdmin.pending"),
-    refundRequest: t("revenueAdmin.refunds"),
     growthRate: t("revenueAdmin.growth"),
   };
   const revenueBlocks = [
     {
       id: "totalRevenue",
       component: TotalRevenueCard,
-      title: "TOTAL REVENUE",
+      title: labels.totalRevenue,
       value: formatMoney(kpis?.totalRevenue),
       delta: formatDelta(kpis?.totalRevenueDeltaPercent),
-      subtitle: "This Quarter",
+      subtitle: t("revenueAdmin.quarter"),
       icon: DollarSign,
     },
     {
       id: "monthlyRevenue",
       component: MonthlyRevenueCard,
-      title: "MONTHLY REVENUE",
+      title: labels.monthlyRevenue,
       value: formatMoney(kpis?.monthlyRevenue),
       delta: formatDelta(kpis?.monthlyRevenueDeltaPercent),
-      subtitle: "Since Month Start",
+      subtitle: t("revenueAdmin.monthStart"),
       icon: Calendar,
     },
     {
       id: "transactions",
       component: TransactionsCard,
-      title: "TOTAL TRANSACTIONS",
+      title: labels.transactions,
       value: formatCount(kpis?.totalTransactions),
       delta: formatDelta(kpis?.totalTransactionsDeltaPercent),
-      subtitle: "Compared to Previous Period",
+      subtitle: t("revenueAdmin.previous"),
       icon: CreditCard,
     },
     {
       id: "pendingPayment",
       component: PendingPaymentCard,
-      title: "PENDING PAYMENTS",
+      title: labels.pendingPayment,
       value: formatMoney(kpis?.pendingPayoutAmount),
-      note: `${formatCount(kpis?.pendingPayoutCount)} Instructors Awaiting Settlement`,
+      note: `${formatCount(kpis?.pendingPayoutCount ?? 0)} ${t("revenueAdmin.settlement")}`,
       icon: Clock,
-    },
-    {
-      id: "refundRequest",
-      component: RefundRequestCard,
-      title: "REFUND REQUESTS",
-      value: formatCount(kpis?.refundCount),
-      delta: formatDelta(kpis?.refundDeltaPercent),
-      label: "Refunded payments",
-      icon: RefreshCcw,
-      deltaTone:
-        Number(kpis?.refundDeltaPercent) > 0 ? "negative" : "positive",
     },
     {
       id: "growthRate",
       component: GrowthRateCard,
-      title: "GROWTH RATE",
+      title: labels.growthRate,
       value: formatDelta(kpis?.growthRatePercent),
       detail:
         kpis?.growthRatePercent == null
-          ? "No prior quarter baseline"
+          ? "—"
           : Number(kpis.growthRatePercent) >= 0
-            ? "Quarter-over-quarter growth"
-            : "Quarter-over-quarter decline",
+            ? t("revenueAdmin.quarter")
+            : t("revenueAdmin.quarter"),
       icon: TrendingUp,
     },
   ];
@@ -109,7 +99,7 @@ const RevenueCard = ({ kpis = null }) => {
         <div className="revenueGrid">
           {revenueBlocks.map((block) => {
             const { id, component: BlockComponent, ...cardProps } = block;
-            return <BlockComponent key={id} {...cardProps} title={labels[id]} subtitle={id === "totalRevenue" ? t("revenueAdmin.quarter") : id === "monthlyRevenue" ? t("revenueAdmin.monthStart") : id === "transactions" ? t("revenueAdmin.previous") : cardProps.subtitle} note={id === "pendingPayment" ? `0 ${t("revenueAdmin.settlement")}` : cardProps.note} label={id === "refundRequest" ? t("revenueAdmin.lowRate") : cardProps.label} detail={id === "growthRate" ? t("revenueAdmin.target") : cardProps.detail} />;
+            return <BlockComponent key={id} {...cardProps} />;
           })}
         </div>
       </div>
