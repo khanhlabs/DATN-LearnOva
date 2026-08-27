@@ -135,6 +135,9 @@ function LearnovaAI() {
     const nextIdRef = useRef(messages.length);
 
     const [isSending, setIsSending] = useState(false);
+    // State cập nhật bất đồng bộ; ref chặn hai thao tác gửi xảy ra trong cùng
+    // một lượt render (ví dụ click và Enter liên tiếp).
+    const isSendingRef = useRef(false);
     // Chỉ hiện "Đang trả lời..." trước khi token đầu tiên của stream về tới —
     // sau đó nội dung đang chạy chữ dần đã đủ báo hiệu bot đang trả lời.
     const [hasReceivedFirstChunk, setHasReceivedFirstChunk] = useState(false);
@@ -543,7 +546,9 @@ function LearnovaAI() {
     }, [supportMessages, supportMode]);
 
     const handleSend = async () => {
-        if (!message.trim() || isSending) return;
+        if (!message.trim() || isSendingRef.current) return;
+
+        isSendingRef.current = true;
 
         const userMessage = { sender: "user", text: message, id: nextIdRef.current++ };
         const nextMessages = [...messages, userMessage];
@@ -566,12 +571,13 @@ function LearnovaAI() {
         // Ghi vào localStorage ngay tại mỗi bước (không qua effect) để tin nhắn
         // không bị mất nếu widget bị unmount do người dùng chuyển trang giữa chừng.
         const upsertBotMessage = (text) => {
+            botMessageStarted = true;
             setMessages((prev) => {
-                const updated = botMessageStarted
+                // Dựa trên id có trong state thay vì biến cờ bị thay đổi bên
+                // trong state updater (React StrictMode có thể gọi updater lại).
+                const updated = prev.some((m) => m.id === botMessageId)
                     ? prev.map((m) => (m.id === botMessageId ? { ...m, text } : m))
                     : [...prev, { sender: "bot", text, id: botMessageId }];
-
-                botMessageStarted = true;
                 persistMessages(updated);
                 return updated;
             });
@@ -597,6 +603,7 @@ function LearnovaAI() {
                 upsertBotMessage("Xin lỗi, mình đang gặp sự cố kết nối. Bạn thử lại sau nhé.");
             }
         } finally {
+            isSendingRef.current = false;
             setIsSending(false);
         }
     };
@@ -706,7 +713,6 @@ function LearnovaAI() {
                                             <div className={`message ${msg.sender}`}>
 
                                                 {renderChatText(msg.text)}
-                                                {msg.text}
 
                                             </div>
 
@@ -788,68 +794,8 @@ function LearnovaAI() {
                                                 </div>
                                             )}
 
-                                            {msg.sender === "bot" && feedbackByMessageId[msg.id] === "dislike" && (
-                                                <div className="support-box">
-                                                    <p className="support-box-title">{t("chatbot.issuePrompt")}</p>
-
-                                                    <div className="support-faq-list">
-                                                        {supportFaqQuestions.map((item, index) => {
-                                                            const isOpen = openFaqIndexByMessageId[msg.id] === index;
-
-                                                            return (
-                                                                <div key={index} className="support-faq-item">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="support-faq-question"
-                                                                        onClick={() => toggleFaqItem(msg.id, index)}
-                                                                    >
-                                                                        <span>{item.q}</span>
-                                                                        {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                                                                    </button>
-
-                                                                    {isOpen && (
-                                                                        <p className="support-faq-answer">{item.a}</p>
-                                                                    )}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-
-                                                    <button
-                                                        type="button"
-                                                        className="support-chat-trigger"
-                                                        onClick={() => handleStartSupportChat(msg.text)}
-                                                        disabled={supportLoading}
-                                                    >
-                                                        <MessageCircle size={15} />
-                                                        {isAuthenticated ? "Chat với nhân viên tư vấn" : "Đăng nhập để chat với nhân viên"}
-                                                    </button>
-
-                                                    {!showHotlineByMessageId[msg.id] ? (
-                                                        <button
-                                                            type="button"
-                                                            className="support-hotline-trigger"
-                                                            onClick={() => handleShowHotline(msg.id)}
-                                                        >
-                                                            {t("chatbot.stillNeedHelp")}
-                                                        </button>
-                                                    ) : (
-                                                        <div className="support-hotline-box">
-                                                            <Phone size={14} />
-                                                            <span>{t("chatbot.hotlineIntro")}</span>
-                                                            <a href={`tel:${SUPPORT_HOTLINE}`}>{SUPPORT_HOTLINE}</a>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
                                         </div>
                                     ))}
-
-                                    {isSending && !hasReceivedFirstChunk && (
-                                        <div className="message bot typing-indicator">
-                                            Đang trả lời...
-                                        </div>
-                                    )}
 
                                     {isSending && !hasReceivedFirstChunk && (
                                         <div className="message bot typing-indicator">
