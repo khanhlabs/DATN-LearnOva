@@ -67,15 +67,16 @@ public class OAuth2AuthenticationSuccessHandler
 
         } else if ("facebook".equals(registrationId)) {
 
-                email = oauthUser.getAttribute("email");
-                name = oauthUser.getAttribute("name");
+            String facebookId = oauthUser.getAttribute("id");
 
-                String facebookId = oauthUser.getAttribute("id");
+            email = "fb_" + facebookId + "@facebook.local";
 
-                picture =
-                        "https://graph.facebook.com/"
-                                + facebookId
-                                + "/picture?type=large";
+            name = oauthUser.getAttribute("name");
+
+            picture =
+                    "https://graph.facebook.com/"
+                            + facebookId
+                            + "/picture?type=large";
 
         } else {
             throw new RuntimeException("Unsupported provider");

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../../shared/hooks/useAuth";
 
+
 const OAuth2Success = () => {
     const navigate = useNavigate();
     const { refreshAccessToken, fetchCurrentUser } = useAuth();
