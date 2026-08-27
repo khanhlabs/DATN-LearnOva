@@ -14,6 +14,10 @@ export const getSupportConversationId = (notification) => {
 };
 
 export const getNotificationDestination = (notification, role) => {
+  if (notification?.type === "INSTRUCTOR_NEW_COURSE" && notification.metadata?.courseId != null) {
+    return { path: `/learnova/courses/detail/${encodeURIComponent(notification.metadata.courseId)}` };
+  }
+
   if (notification?.type !== SUPPORT_TYPE) {
     return notification?.link ? { path: notification.link } : null;
   }

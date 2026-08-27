@@ -7,6 +7,14 @@ describe("notification navigation", () => {
       .toEqual({ path: "/learnova/teacher/reviews" });
   });
 
+  it("opens a followed instructor's new course through the public course route", () => {
+    expect(getNotificationDestination({
+      type: "INSTRUCTOR_NEW_COURSE",
+      link: "/learnova/user/CoursesDetail/42",
+      metadata: { courseId: 42 },
+    }, "user")).toEqual({ path: "/learnova/courses/detail/42" });
+  });
+
   it("uses support metadata rather than a legacy link for a learner", () => {
     const notification = { type: "SUPPORT_MESSAGE", metadata: { conversationId: 42 } };
 

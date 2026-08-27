@@ -39,7 +39,7 @@ public class CourseFollowerNotificationService {
             return;
         }
 
-        String coursePath = "/learnova/user/CoursesDetail/" + event.courseId();
+        String coursePath = "/learnova/courses/detail/" + event.courseId();
         String instructorName = event.instructorName() == null || event.instructorName().isBlank()
                 ? "Giảng viên bạn theo dõi"
                 : event.instructorName();
