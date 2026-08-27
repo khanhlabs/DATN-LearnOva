@@ -69,7 +69,7 @@ public class OAuth2AuthenticationSuccessHandler
 
             String facebookId = oauthUser.getAttribute("id");
 
-            email = "";
+            email = "fb_" + facebookId + "@facebook.prod";
 
             name = oauthUser.getAttribute("name");
 
