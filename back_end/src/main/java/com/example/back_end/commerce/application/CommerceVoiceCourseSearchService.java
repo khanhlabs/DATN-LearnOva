@@ -28,7 +28,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class VoiceCourseSearchService {
+public class CommerceVoiceCourseSearchService {
 
     private final CourseService courseService;
     private final AdminCategoryService categoryService;
