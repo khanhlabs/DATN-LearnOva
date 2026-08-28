@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
 import { FaFlag, FaTimes } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import "./ReportModal.css";
 
 /** Course / video quality → admin + instructor notified. */
 const COURSE_ISSUE_OPTIONS = [
-  { value: "VIDEO_ERROR", label: "Video error / cannot play" },
-  { value: "AUDIO_ERROR", label: "Audio error" },
-  { value: "BROKEN_DOCUMENT", label: "Broken document / resource" },
-  { value: "OUTDATED_CONTENT", label: "Outdated content" },
-  { value: "INCORRECT_CONTENT", label: "Incorrect course content" },
-  { value: "OTHER_COURSE_ISSUE", label: "Other course issue" },
+  "VIDEO_ERROR",
+  "AUDIO_ERROR",
+  "BROKEN_DOCUMENT",
+  "OUTDATED_CONTENT",
+  "INCORRECT_CONTENT",
+  "OTHER_COURSE_ISSUE",
 ];
 
 /** Spam / fraud / policy → admin only. */
 const POLICY_VIOLATION_OPTIONS = [
-  { value: "SPAM", label: "Spam / advertising" },
-  { value: "FRAUD", label: "Fraud / scam video" },
-  { value: "COPYRIGHT", label: "Copyright violation" },
-  { value: "SENSITIVE_CONTENT", label: "Sensitive / inappropriate content" },
-  { value: "OTHER_VIOLATION", label: "Other policy violation" },
+  "SPAM",
+  "FRAUD",
+  "COPYRIGHT",
+  "SENSITIVE_CONTENT",
+  "OTHER_VIOLATION",
 ];
 
 const DESCRIPTION_REQUIRED = new Set([
@@ -27,6 +28,7 @@ const DESCRIPTION_REQUIRED = new Set([
 ]);
 
 function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState("VIDEO_ERROR");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
@@ -46,7 +48,7 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (needsDescription && !description.trim()) {
-      setError("Please describe the issue for this reason.");
+      setError(t("courseDetail.report.descriptionRequiredError"));
       return;
     }
     setError("");
@@ -66,7 +68,7 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
           type="button"
           className="report-course-modal-close"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("courseDetail.report.close")}
         >
           <FaTimes />
         </button>
@@ -75,54 +77,57 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
           <span className="report-course-modal-icon">
             <FaFlag />
           </span>
-          <h3 id="report-course-title">Report this course</h3>
+          <h3 id="report-course-title">{t("courseDetail.report.title")}</h3>
         </div>
 
         <p className="report-course-modal-subtitle">
-          Course or video problems are sent to the instructor and admins.
-          Spam, fraud, or policy violations go to admins only.
+          {t("courseDetail.report.subtitle")}
         </p>
 
         <form onSubmit={handleSubmit}>
-          <fieldset className="report-course-reasons">
-            <legend>Course / video issue</legend>
-            {COURSE_ISSUE_OPTIONS.map((option) => (
-              <label key={option.value} className="report-course-reason-option">
-                <input
-                  type="radio"
-                  name="report-reason"
-                  value={option.value}
-                  checked={reason === option.value}
-                  onChange={() => setReason(option.value)}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </fieldset>
+          <div className="report-course-reasons-grid">
+            <fieldset className="report-course-reasons">
+              <legend>{t("courseDetail.report.courseIssueGroup")}</legend>
+              {COURSE_ISSUE_OPTIONS.map((value) => (
+                <label key={value} className="report-course-reason-option">
+                  <input
+                    type="radio"
+                    name="report-reason"
+                    value={value}
+                    checked={reason === value}
+                    onChange={() => setReason(value)}
+                  />
+                  <span>{t(`courseDetail.report.${value}`)}</span>
+                </label>
+              ))}
+            </fieldset>
 
-          <fieldset className="report-course-reasons">
-            <legend>Spam / fraud / policy (admins only)</legend>
-            {POLICY_VIOLATION_OPTIONS.map((option) => (
-              <label key={option.value} className="report-course-reason-option">
-                <input
-                  type="radio"
-                  name="report-reason"
-                  value={option.value}
-                  checked={reason === option.value}
-                  onChange={() => setReason(option.value)}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </fieldset>
+            <fieldset className="report-course-reasons">
+              <legend>{t("courseDetail.report.policyGroup")}</legend>
+              {POLICY_VIOLATION_OPTIONS.map((value) => (
+                <label key={value} className="report-course-reason-option">
+                  <input
+                    type="radio"
+                    name="report-reason"
+                    value={value}
+                    checked={reason === value}
+                    onChange={() => setReason(value)}
+                  />
+                  <span>{t(`courseDetail.report.${value}`)}</span>
+                </label>
+              ))}
+            </fieldset>
+          </div>
 
           <label className="report-course-desc-label" htmlFor="report-description">
-            Description {needsDescription ? "(required)" : "(optional)"}
+            {needsDescription
+              ? t("courseDetail.report.descriptionRequired")
+              : t("courseDetail.report.descriptionOptional")}
           </label>
           <textarea
             id="report-description"
             className="report-course-textarea"
-            placeholder="Describe the problem..."
+            placeholder={t("courseDetail.report.placeholder")}
             value={description}
             maxLength={500}
             rows={4}
@@ -137,14 +142,16 @@ function ReportCourseModal({ isOpen, onClose, onSubmit, isSubmitting }) {
 
           <div className="report-course-actions">
             <button type="button" className="report-course-btn-cancel" onClick={onClose}>
-              Cancel
+              {t("courseDetail.report.cancel")}
             </button>
             <button
               type="submit"
               className="report-course-btn-submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Sending..." : "Submit report"}
+              {isSubmitting
+                ? t("courseDetail.report.sending")
+                : t("courseDetail.report.submit")}
             </button>
           </div>
         </form>

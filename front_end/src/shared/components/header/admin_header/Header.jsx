@@ -75,7 +75,7 @@ const Header = () => {
   } else if (normPath === "/learnova/admin/vouchers") {
     title = t("admin.vouchers");
   } else if (normPath === "/learnova/admin/violation-reports") {
-    title = t("admin.violation_reports");
+    title = t("admin.violationReports");
   } else if (normPath === "/learnova/admin/settings") {
     title = t("admin.settings");
   } else if (normPath.startsWith("/learnova/admin/profile")) {

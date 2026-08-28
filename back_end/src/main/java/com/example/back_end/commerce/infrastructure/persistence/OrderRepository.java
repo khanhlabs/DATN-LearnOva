@@ -170,4 +170,86 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("instructorId") Long instructorId,
             @Param("limit") int limit
     );
+
+    interface InstructorEarningProjection {
+        Long getOrderItemId();
+        Long getOrderId();
+        Long getPaymentId();
+        String getTransactionId();
+        String getStudentName();
+        String getCourseTitle();
+        BigDecimal getPaidAmount();
+        Instant getPaidAt();
+        String getPaymentStatus();
+    }
+
+    /**
+     * One row per order item for this instructor (SUCCESS payment + PAID order).
+     * DISTINCT ON order_item_id avoids duplicate rows if multiple SUCCESS payments exist.
+     * paidAmount is the line share of payments.amount (VND), proportional to oi.price.
+     */
+    @Query(value = """
+            SELECT DISTINCT ON (oi.order_item_id)
+                oi.order_item_id AS "orderItemId",
+                o.order_id AS "orderId",
+                p.payment_id AS "paymentId",
+                CONCAT('PAY-', p.payment_id) AS "transactionId",
+                u.full_name AS "studentName",
+                c.title AS "courseTitle",
+                COALESCE(
+                    ROUND(
+                        p.amount * oi.price / NULLIF((
+                            SELECT SUM(oi2.price)
+                            FROM order_items oi2
+                            WHERE oi2.order_id = o.order_id
+                        ), 0)
+                    , 0),
+                    p.amount
+                ) AS "paidAmount",
+                COALESCE(p.paid_at, o.created_at) AS "paidAt",
+                p.status AS "paymentStatus"
+            FROM order_items oi
+            JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+            JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+            JOIN users u ON u.user_id = o.user_id
+            JOIN payments p ON p.order_id = o.order_id AND p.status = 'SUCCESS'
+            WHERE c.instructor_id = :instructorId
+            ORDER BY oi.order_item_id, COALESCE(p.paid_at, o.created_at) DESC
+            """, nativeQuery = true)
+    List<InstructorEarningProjection> findEarningsByInstructor(@Param("instructorId") Long instructorId);
+
+    @Query(value = """
+            SELECT
+                oi.order_item_id AS "orderItemId",
+                o.order_id AS "orderId",
+                p.payment_id AS "paymentId",
+                CONCAT('PAY-', p.payment_id) AS "transactionId",
+                u.full_name AS "studentName",
+                c.title AS "courseTitle",
+                COALESCE(
+                    ROUND(
+                        p.amount * oi.price / NULLIF((
+                            SELECT SUM(oi2.price)
+                            FROM order_items oi2
+                            WHERE oi2.order_id = o.order_id
+                        ), 0)
+                    , 0),
+                    p.amount
+                ) AS "paidAmount",
+                COALESCE(p.paid_at, o.created_at) AS "paidAt",
+                p.status AS "paymentStatus"
+            FROM order_items oi
+            JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+            JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+            JOIN users u ON u.user_id = o.user_id
+            JOIN payments p ON p.order_id = o.order_id AND p.status = 'SUCCESS'
+            WHERE c.instructor_id = :instructorId
+              AND oi.order_item_id = :orderItemId
+            ORDER BY COALESCE(p.paid_at, o.created_at) DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    InstructorEarningProjection findEarningByInstructorAndOrderItem(
+            @Param("instructorId") Long instructorId,
+            @Param("orderItemId") Long orderItemId
+    );
 }

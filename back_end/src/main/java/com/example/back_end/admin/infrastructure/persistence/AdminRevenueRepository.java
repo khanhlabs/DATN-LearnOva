@@ -302,13 +302,13 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
     @Query(value = """
             SELECT
                 cate.category_id AS "categoryId",
-                cate.name AS "categoryName",
+                COALESCE(cate.name, 'Uncategorized') AS "categoryName",
                 COALESCE(SUM(oi.price), 0) AS amount
             FROM order_items oi
             JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
             JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
-            JOIN course_categories cc ON cc.course_id = c.course_id
-            JOIN categories cate ON cate.category_id = cc.category_id AND cate.is_deleted = FALSE
+            LEFT JOIN course_categories cc ON cc.course_id = c.course_id
+            LEFT JOIN categories cate ON cate.category_id = cc.category_id AND cate.is_deleted = FALSE
             WHERE EXISTS (
                     SELECT 1
                     FROM payments p
@@ -319,6 +319,32 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
             ORDER BY amount DESC
             """, nativeQuery = true)
     List<CategoryRevenueProjection> findRevenueByCategory();
+
+    @Query(value = """
+            SELECT
+                cate.category_id AS "categoryId",
+                COALESCE(cate.name, 'Uncategorized') AS "categoryName",
+                COALESCE(SUM(oi.price), 0) AS amount
+            FROM order_items oi
+            JOIN orders o ON o.order_id = oi.order_id AND o.status = 'PAID'
+            JOIN courses c ON c.course_id = oi.course_id AND c.is_deleted = FALSE
+            LEFT JOIN course_categories cc ON cc.course_id = c.course_id
+            LEFT JOIN categories cate ON cate.category_id = cc.category_id AND cate.is_deleted = FALSE
+            WHERE o.created_at >= :fromTs
+              AND o.created_at < :toTs
+              AND EXISTS (
+                    SELECT 1
+                    FROM payments p
+                    WHERE p.order_id = o.order_id
+                      AND p.status = 'SUCCESS'
+              )
+            GROUP BY cate.category_id, cate.name
+            ORDER BY amount DESC
+            """, nativeQuery = true)
+    List<CategoryRevenueProjection> findRevenueByCategoryBetween(
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
 
     @Query(value = """
             SELECT
@@ -487,4 +513,18 @@ public interface AdminRevenueRepository extends JpaRepository<OrderItem, Long> {
             LIMIT 1
             """, nativeQuery = true)
     PeakMonthProjection findPeakRevenueMonth();
+
+    @Query(value = """
+            SELECT COALESCE(SUM(pr.amount), 0)
+            FROM payout_requests pr
+            WHERE pr.status = 'PENDING'
+            """, nativeQuery = true)
+    BigDecimal sumPendingPayoutAmount();
+
+    @Query(value = """
+            SELECT COUNT(DISTINCT pr.teacher_id)
+            FROM payout_requests pr
+            WHERE pr.status = 'PENDING'
+            """, nativeQuery = true)
+    long countPendingPayoutTeachers();
 }

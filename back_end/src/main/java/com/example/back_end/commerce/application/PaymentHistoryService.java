@@ -108,7 +108,10 @@ public class PaymentHistoryService {
         }
     }
 
-    /** Users may only access their own orders; admins may access any order. */
+    /**
+     * Users may only access their own orders; admins may access any order;
+     * instructors may access orders that include at least one of their courses.
+     */
     private Order resolveOrderAccess(Long orderId) {
         User user = getCurrentUser();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -119,6 +122,11 @@ public class PaymentHistoryService {
             return orderRepository.findById(orderId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
         }
+        if (orderItemRepository.existsByOrder_IdAndCourse_Instructor_Id(orderId, user.getId())) {
+            return orderRepository.findById(orderId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        }
+        
         return getOwnedOrder(orderId, user.getId());
     }
 

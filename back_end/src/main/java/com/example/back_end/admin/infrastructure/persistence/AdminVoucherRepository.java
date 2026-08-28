@@ -49,6 +49,19 @@ public interface AdminVoucherRepository extends JpaRepository<Voucher, Long> {
             + "where o.status = 'PAID'", nativeQuery = true)
     long countPaidOrders();
 
+    @Query(value = """
+            SELECT COALESCE(SUM(o.discount_amount), 0)
+            FROM orders o
+            WHERE o.status = 'PAID'
+              AND o.voucher_id IS NOT NULL
+              AND o.created_at >= :fromTs
+              AND o.created_at < :toTs
+            """, nativeQuery = true)
+    BigDecimal sumDiscountAmountBetween(
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
     @Query(value = "select "
             + "u.full_name as \"studentName\", "
             + "c.title as \"registeredCourse\", "

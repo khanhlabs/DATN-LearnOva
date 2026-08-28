@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   BarChart3,
   BookOpen,
+  CircleDollarSign,
   Gift,
    Home,
   Megaphone,
@@ -34,6 +35,7 @@ const teacherNavSections = [
       { label: "Promotions", path: "/learnova/teacher/promotions", icon: Gift },
       { label: "Announcements", path: "/learnova/teacher/announcements", icon: Megaphone },
       { label: "Revenue", path: "/learnova/teacher/revenue", icon: WalletCards },
+      { label: "Earnings", path: "/learnova/teacher/earnings", icon: CircleDollarSign },
       { label: "Analytics", path: "/learnova/teacher/analytics", icon: BarChart3 },
     ],
   },

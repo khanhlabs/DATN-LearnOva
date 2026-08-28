@@ -8,14 +8,15 @@
   vertical-align: middle;
 }
 
-.violationReportsTable th:nth-child(1),
-.violationReportsTable td:nth-child(1) {
-  width: 20%;
-}
-
 .violationReportsTable th:nth-child(2),
 .violationReportsTable td:nth-child(2) {
   width: 32%;
+  text-align: left;
+}
+
+.violationReportsTable th:nth-child(1),
+.violationReportsTable td:nth-child(1) {
+  width: 20%;
 }
 
 .violationReportsTable th:nth-child(3),
@@ -155,7 +156,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  align-items: center;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .violation-report-target small {
@@ -277,4 +279,3 @@
   justify-content: flex-end;
   gap: 0.55rem;
 }
-

@@ -16,8 +16,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.apache.catalina.connector.ClientAbortException;
+
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -105,15 +109,49 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(message));
     }
 
+    /**
+     * Browser/client closed the connection while the server was still writing the response
+     * (refresh, navigate away, abort). Not an application failure — do not treat as 500 noise.
+     */
+    @ExceptionHandler({
+            ClientAbortException.class,
+            AsyncRequestNotUsableException.class
+    })
+    public ResponseEntity<Void> handleClientAbort(Exception ex) {
+        log.debug("Client aborted response: {}", ex.getMessage());
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         if (ex instanceof ResponseStatusException responseStatusException) {
             return handleResponseStatus(responseStatusException);
+        }
+        if (isClientAbort(ex)) {
+            log.debug("Client aborted response: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
         log.error("Unhandled exception", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorResponse("An unexpected error occurred. Please try again later."));
+    }
+    
+    private static boolean isClientAbort(Throwable ex) {
+        Throwable current = ex;
+        while (current != null) {
+            if (current instanceof ClientAbortException
+                    || current instanceof AsyncRequestNotUsableException) {
+                return true;
+            }
+            if (current instanceof IOException
+                    && current.getMessage() != null
+                    && current.getMessage().contains("An established connection was aborted")) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
