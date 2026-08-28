@@ -21,22 +21,6 @@ const statusClasses = {
   Refunded: "statusRefunded",
 };
 
-const GATEWAY_OPTIONS = [
-  { value: "ALL", label: "All Payment Gateways" },
-  { value: "VNPAY", label: "VNPay" },
-  { value: "MOMO", label: "Momo" },
-  { value: "PAYOS", label: "PayOS" },
-  { value: "PAYPAL", label: "PayPal" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "ALL", label: "All Statuses" },
-  { value: "SUCCESS", label: "Successful" },
-  { value: "PENDING", label: "Pending" },
-  { value: "FAILED", label: "Failed" },
-  { value: "REFUNDED", label: "Refunded" },
-];
-
 const PAGE_SIZE = 7;
 
 const formatMoney = (value) =>
@@ -74,6 +58,38 @@ const TransactionLog = () => {
   const [selectedDisplayCode, setSelectedDisplayCode] = useState("");
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const gatewayOptions = useMemo(
+    () => [
+      { value: "ALL", label: t("revenueDetails.allGateways") },
+      { value: "VNPAY", label: "VNPay" },
+      { value: "MOMO", label: "Momo" },
+      { value: "PAYOS", label: "PayOS" },
+      { value: "PAYPAL", label: "PayPal" },
+    ],
+    [t]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "ALL", label: t("revenueDetails.allStatuses") },
+      { value: "SUCCESS", label: t("revenueDetails.statusSuccessful") },
+      { value: "PENDING", label: t("revenueDetails.statusPending") },
+      { value: "FAILED", label: t("revenueDetails.statusFailed") },
+      { value: "REFUNDED", label: t("revenueDetails.statusRefunded") },
+    ],
+    [t]
+  );
+
+  const statusLabel = (status) => {
+    const map = {
+      Successful: t("revenueDetails.statusSuccessful"),
+      Pending: t("revenueDetails.statusPending"),
+      Failed: t("revenueDetails.statusFailed"),
+      Refunded: t("revenueDetails.statusRefunded"),
+    };
+    return map[status] || status || "—";
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -128,7 +144,7 @@ const TransactionLog = () => {
         if (!mounted) return;
         setTransactions([]);
         setTotalPages(0);
-        setError("Unable to load transactions.");
+        setError(t("revenueDetails.transactionsLoadError"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -145,17 +161,18 @@ const TransactionLog = () => {
     selectedCategory,
     selectedGateway,
     selectedStatus,
+    t,
   ]);
 
   const categoryOptions = useMemo(
     () => [
-      { value: "ALL", label: "All Categories" },
+      { value: "ALL", label: t("revenueDetails.allCategories") },
       ...categories.map((category) => ({
         value: String(category.id),
         label: category.name,
       })),
     ],
-    [categories]
+    [categories, t]
   );
 
   const handlePageChange = (page) => {
@@ -257,21 +274,21 @@ const TransactionLog = () => {
               options={categoryOptions}
               value={selectedCategory}
               onChange={handleFilterChange(setSelectedCategory)}
-              ariaLabel="Filter transactions by category"
+              ariaLabel={t("revenueDetails.allCategories")}
             />
             <AdminHoverSelect
               className="transactionFilterSelect transactionFilterSelectWide"
-              options={GATEWAY_OPTIONS}
+              options={gatewayOptions}
               value={selectedGateway}
               onChange={handleFilterChange(setSelectedGateway)}
-              ariaLabel="Filter transactions by payment gateway"
+              ariaLabel={t("revenueDetails.allGateways")}
             />
             <AdminHoverSelect
               className="transactionFilterSelect"
-              options={STATUS_OPTIONS}
+              options={statusOptions}
               value={selectedStatus}
               onChange={handleFilterChange(setSelectedStatus)}
-              ariaLabel="Filter transactions by status"
+              ariaLabel={t("revenueDetails.allStatuses")}
             />
           </div>
         </div>
@@ -289,14 +306,14 @@ const TransactionLog = () => {
               {loading && transactions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="transactionLogEmpty">
-                    Loading transactions…
+                    {t("revenueDetails.loadingTransactions")}
                   </td>
                 </tr>
               ) : null}
               {!loading && transactions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="transactionLogEmpty">
-                    No transactions found.
+                    {t("revenueDetails.noTransactions")}
                   </td>
                 </tr>
               ) : null}
@@ -311,7 +328,7 @@ const TransactionLog = () => {
                     <span
                       className={`transactionStatus ${statusClasses[transaction.status] || ""}`}
                     >
-                      {transaction.status}
+                      {statusLabel(transaction.status)}
                     </span>
                   </td>
                   <td className="textCenter">
@@ -340,7 +357,7 @@ const TransactionLog = () => {
               disabled={currentPage === 1}
               onClick={() => handlePageChange(currentPage - 1)}
             >
-              Previous
+              {t("revenueDetails.previous")}
             </button>
             {Array.from({ length: totalPages }, (_, index) => (
               <button
@@ -360,7 +377,7 @@ const TransactionLog = () => {
               disabled={currentPage === totalPages}
               onClick={() => handlePageChange(currentPage + 1)}
             >
-              Next
+              {t("revenueDetails.next")}
             </button>
           </div>
         ) : null}

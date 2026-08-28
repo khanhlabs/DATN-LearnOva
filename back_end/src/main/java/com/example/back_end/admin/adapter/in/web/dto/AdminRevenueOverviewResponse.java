@@ -16,7 +16,9 @@ public record AdminRevenueOverviewResponse(
             Double totalTransactionsDeltaPercent,
             long refundCount,
             Double refundDeltaPercent,
-            Double growthRatePercent
+            Double growthRatePercent,
+            BigDecimal pendingPayoutAmount,
+            long pendingPayoutCount
     ) {}
 
     public record CategoryBreakdownItem(

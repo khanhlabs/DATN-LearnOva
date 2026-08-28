@@ -89,6 +89,9 @@ public class AdminVoucherService {
         long expiredVouchers = voucherRepository.countExpiredVouchers(now);
         long appliedUses = voucherRepository.countPaidOrdersWithVoucher();
         long paidOrders = voucherRepository.countPaidOrders();
+        BigDecimal totalDiscountedAmount = nullToZero(
+                voucherRepository.sumDiscountAmountBetween(monthStart, instantNow)
+        );
 
         Double conversionRatePercent = null;
         if (paidOrders > 0) {
@@ -104,6 +107,7 @@ public class AdminVoucherService {
                 activeVouchers,
                 expiredVouchers,
                 appliedUses,
+                totalDiscountedAmount,
                 conversionRatePercent
         );
     }
@@ -406,5 +410,9 @@ public class AdminVoucherService {
         Integer usageLimit = voucher.getUsageLimit();
         if (usageLimit == null || usageLimit <= 0) return true;
         return (voucher.getUsedCount() == null ? 0 : voucher.getUsedCount()) >= usageLimit;
+    }
+
+    private BigDecimal nullToZero(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
     }
 }

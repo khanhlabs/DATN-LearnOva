@@ -16,6 +16,7 @@ import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherUsageFrequencyResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherUsageHistoryResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherCampaignStatsResponse;
+import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherOverviewResponse;
 import com.example.back_end.admin.adapter.in.web.dto.AdminVoucherRequest;
 import com.example.back_end.admin.application.AdminVoucherService;
 
@@ -34,6 +35,11 @@ public class AdminVoucherController {
         return voucherService.getAllVouchers();
     }
 
+    @GetMapping("/overview")
+    public AdminVoucherOverviewResponse getOverview() {
+        return voucherService.getOverview();
+    }
+    
     @GetMapping("/usage-history")
     public List<AdminVoucherUsageHistoryResponse> getVoucherUsageHistories() {
         return voucherService.getVoucherUsageHistories();

@@ -57,6 +57,8 @@ const TeacherHeader = () => {
     title = "Announcements";
   }else if (pathname === "/learnova/teacher/revenue") {
     title = "Revenue management";
+  }else if (pathname === "/learnova/teacher/earnings") {
+    title = "Course earnings";
   } else if (pathname === "/learnova/teacher/analytics") {
     title = "Analytics";
   } else if (pathname === "/learnova/teacher/profile") {

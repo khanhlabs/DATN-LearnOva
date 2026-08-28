@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FiTag,
   FiShield,
@@ -14,57 +15,8 @@ import ExpiredVoucherCard from "./expired_voucher_card/ExpiredVoucherCard";
 import AppliedVoucherCard from "./applied_voucher_card/AppliedVoucherCard";
 import ReducedAmountVoucherCard from "./reduced_amount_voucher_card/ReducedAmountVoucherCard";
 import ConversionRateVoucherCard from "./conversation_rate_voucher_card/ConversionRateVoucherCard";
-
-const voucherCards = [
-  {
-    id: "total",
-    title: "Total Vouchers",
-    value: "8",
-    note: "compared to last month",
-    icon: FiTag,
-    accent: "gold",
-  },
-  {
-    id: "activated",
-    title: "Activated Vouchers",
-    value: "6",
-    note: "currently active",
-    icon: FiShield,
-    accent: "green",
-  },
-  {
-    id: "expired",
-    title: "Expired Vouchers",
-    value: "1",
-    note: "no longer valid",
-    icon: FiClock,
-    accent: "red",
-  },
-  {
-    id: "applied",
-    title: "Applied (uses)",
-    value: "1,634",
-    note: "actual coupon usage",
-    icon: FiShoppingBag,
-    accent: "blue",
-  },
-  {
-    id: "reduced",
-    title: "Total Discounted Amount",
-    value: "$322.8",
-    note: "total monthly discount",
-    icon: FiDollarSign,
-    accent: "purple",
-  },
-  {
-    id: "conversion",
-    title: "Conversion Rate",
-    value: "68.1%",
-    note: "user performance after coupon",
-    icon: FiPercent,
-    accent: "orange",
-  },
-];
+import { getAdminVoucherOverviewApi } from "../../../infrastructure/api/VoucherApi";
+import { useAxiosPrivate } from "../../../../../shared/hooks/useAxiosPrivate";
 
 const cardComponents = {
   total: TotalVoucherCard,
@@ -75,36 +27,115 @@ const cardComponents = {
   conversion: ConversionRateVoucherCard,
 };
 
-const VoucherCards = () => {
-  const { t } = useTranslation();
+const formatCount = (value) => Number(value || 0).toLocaleString("en-US");
 
-  const translatedCards = voucherCards.map((card) => ({
-    ...card,
-    title: t(`opsAdmin.${
-      {
-        total: "totalVouchers",
-        activated: "activated",
-        expired: "expired",
-        applied: "applied",
-        reduced: "discounted",
-        conversion: "conversion",
-      }[card.id]
-    }`),
-    note: t(`opsAdmin.${
-      {
-        total: "lastMonth",
-        activated: "currentlyActive",
-        expired: "noLongerValid",
-        applied: "couponUsage",
-        reduced: "monthlyDiscount",
-        conversion: "couponPerformance",
-      }[card.id]
-    }`),
-  }));
+const formatMoney = (value) => {
+  const amount = Number(value || 0);
+  const fractionDigits = Number.isInteger(amount) ? 0 : 1;
+  return `$${amount.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: 2,
+  })}`;
+};
+
+const formatPercent = (value) => {
+  if (value == null || Number.isNaN(Number(value))) {
+    return "—";
+  }
+  return `${Number(value).toFixed(1)}%`;
+};
+
+const formatDeltaNote = (delta, baseNote) => {
+  if (delta == null || Number.isNaN(Number(delta))) {
+    return baseNote;
+  }
+  const numeric = Number(delta);
+  const sign = numeric > 0 ? "+" : "";
+  return `${sign}${numeric.toFixed(1)}% ${baseNote}`;
+};
+
+const VoucherCards = ({ refreshKey = 0 }) => {
+  const { t } = useTranslation();
+  const axiosPrivate = useAxiosPrivate();
+  const [overview, setOverview] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        const data = await getAdminVoucherOverviewApi(axiosPrivate);
+        if (!mounted) return;
+        setOverview(data);
+      } catch {
+        if (!mounted) return;
+        setOverview(null);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [axiosPrivate, refreshKey]);
+
+  const cards = [
+    {
+      id: "total",
+      title: t("opsAdmin.totalVouchers"),
+      value: formatCount(overview?.totalVouchers),
+      note: formatDeltaNote(
+        overview?.totalVouchersDeltaPercent,
+        t("opsAdmin.lastMonth")
+      ),
+      icon: FiTag,
+      accent: "accentGold",
+    },
+    {
+      id: "activated",
+      title: t("opsAdmin.activated"),
+      value: formatCount(overview?.activeVouchers),
+      note: t("opsAdmin.currentlyActive"),
+      icon: FiShield,
+      accent: "accentGreen",
+    },
+    {
+      id: "expired",
+      title: t("opsAdmin.expired"),
+      value: formatCount(overview?.expiredVouchers),
+      note: t("opsAdmin.noLongerValid"),
+      icon: FiClock,
+      accent: "accentRed",
+    },
+    {
+      id: "applied",
+      title: t("opsAdmin.applied"),
+      value: formatCount(overview?.appliedUses),
+      note: t("opsAdmin.couponUsage"),
+      icon: FiShoppingBag,
+      accent: "accentBlue",
+    },
+    {
+      id: "reduced",
+      title: t("opsAdmin.discounted"),
+      value: formatMoney(overview?.totalDiscountedAmount),
+      note: t("opsAdmin.monthlyDiscount"),
+      icon: FiDollarSign,
+      accent: "accentPurple",
+    },
+    {
+      id: "conversion",
+      title: t("opsAdmin.conversion"),
+      value: formatPercent(overview?.conversionRatePercent),
+      note: t("opsAdmin.couponPerformance"),
+      icon: FiPercent,
+      accent: "accentOrange",
+    },
+  ];
 
   return (
     <div className="voucherCardsRow">
-      {translatedCards.map((card) => {
+      {cards.map((card) => {
         const Card = cardComponents[card.id];
         return <Card key={card.id} {...card} />;
       })}

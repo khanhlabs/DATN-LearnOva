@@ -5,6 +5,11 @@ export const getAdminVouchersApi = async (client = axiosClient) => {
   return response.data;
 };
 
+export const getAdminVoucherOverviewApi = async (client = axiosClient) => {
+  const response = await client.get("/admin/vouchers/overview");
+  return response.data;
+};
+
 export const getAdminVoucherUsageHistoriesApi = async (client = axiosClient) => {
   const response = await client.get("/admin/vouchers/usage-history");
   return response.data;
