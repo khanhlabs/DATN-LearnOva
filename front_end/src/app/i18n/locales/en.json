@@ -674,7 +674,16 @@
     },
     "quiz": {
       "summarize": "Summarize knowledge",
-      "generate": "Generate quiz"
+      "generate": "Generate quiz",
+      "regenerate": "Generate a new quiz"
+    },
+    "summary": {
+      "title": "Lesson summary",
+      "selectLesson": "Please select a lesson before viewing its summary.",
+      "loading": "Loading summary...",
+      "empty": "No summary has been generated for this lesson yet.",
+      "loadError": "Unable to load the lesson summary.",
+      "generateError": "Unable to generate the lesson summary. Please try again."
     }
   },
   "instructorDetailPage": {

@@ -671,7 +671,16 @@
     },
     "quiz": {
       "summarize": "Tóm tắt kiến thức",
-      "generate": "Tạo trắc nghiệm"
+      "generate": "Tạo trắc nghiệm",
+      "regenerate": "Tạo bộ câu hỏi mới"
+    },
+    "summary": {
+      "title": "Tóm tắt bài học",
+      "selectLesson": "Vui lòng chọn bài học trước khi xem phần tóm tắt.",
+      "loading": "Đang tải phần tóm tắt...",
+      "empty": "Bài học này chưa có phần tóm tắt.",
+      "loadError": "Không thể tải phần tóm tắt bài học.",
+      "generateError": "Không thể tạo phần tóm tắt bài học. Vui lòng thử lại."
     }
   },
   "instructorDetailPage": {

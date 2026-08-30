@@ -10,6 +10,11 @@ export const generateQuizApi = async (lessonId) => {
     return res.data;
 };
 
+export const regenerateQuizApi = async (lessonId) => {
+    const res = await axiosClient.post(`/lessons/${lessonId}/quiz/regenerate`);
+    return res.data;
+};
+
 export const submitQuizApi = async (lessonId, answers) => {
     const res = await axiosClient.post(`/lessons/${lessonId}/quiz/submit`, { answers });
     return res.data;

@@ -28,6 +28,11 @@ public class QuizController {
         return ResponseEntity.ok(quizService.generateQuiz(lessonId));
     }
 
+    @PostMapping("/{lessonId}/quiz/regenerate")
+    public ResponseEntity<QuizResponse> regenerateQuiz(@PathVariable Long lessonId) {
+        return ResponseEntity.ok(quizService.regenerateQuiz(lessonId));
+    }
+
     @PostMapping("/{lessonId}/quiz/submit")
     public ResponseEntity<QuizResultResponse> submitQuiz(
             Authentication authentication,

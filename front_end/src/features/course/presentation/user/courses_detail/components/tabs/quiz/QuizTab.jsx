@@ -5,6 +5,7 @@ import { FaCheck } from "react-icons/fa";
 import {
     generateQuizApi,
     getQuizApi,
+    regenerateQuizApi,
     submitQuizApi,
 } from "../../../../../../infrastructure/api/QuizApi";
 
@@ -50,7 +51,7 @@ function QuizPage({ lessonId }) {
         setError("");
     }, []);
 
-    const handleGenerate = useCallback(async () => {
+    const handleGenerate = useCallback(async (forceRegenerate = false) => {
         if (!lessonId) {
             setError(
                 translate(
@@ -65,7 +66,9 @@ function QuizPage({ lessonId }) {
         setError("");
 
         try {
-            const data = await generateQuizApi(lessonId);
+            const data = forceRegenerate
+                ? await regenerateQuizApi(lessonId)
+                : await generateQuizApi(lessonId);
 
             if (!data) {
                 throw new Error("Quiz API returned empty data.");
@@ -92,15 +95,15 @@ function QuizPage({ lessonId }) {
 
     useEffect(() => {
         if (!lessonId) {
-            setQuiz(null);
-            resetQuizState();
-            setLoading(false);
             return undefined;
         }
 
         let mounted = true;
 
         const loadOrGenerateQuiz = async () => {
+            await Promise.resolve();
+            if (!mounted) return;
+
             setLoading(true);
             setQuiz(null);
             resetQuizState();
@@ -386,6 +389,19 @@ function QuizPage({ lessonId }) {
                                 "Retake quiz",
                             )}
                         </button>
+
+                        <button
+                            className="btn-prev"
+                            type="button"
+                            style={{ marginTop: "12px" }}
+                            onClick={() => handleGenerate(true)}
+                            disabled={loading}
+                        >
+                            {translate(
+                                "courseDetail.quiz.regenerate",
+                                "Generate a new quiz",
+                            )}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -457,6 +473,23 @@ function QuizPage({ lessonId }) {
                             />
                         </div>
                     </div>
+
+                    <button
+                        className="quiz-regenerate-btn"
+                        type="button"
+                        onClick={() => handleGenerate(true)}
+                        disabled={loading || submitting}
+                    >
+                        {loading
+                            ? translate(
+                                  "courseDetail.quiz.generating",
+                                  "Generating...",
+                              )
+                            : translate(
+                                  "courseDetail.quiz.regenerate",
+                                  "Generate a new quiz",
+                              )}
+                    </button>
                 </div>
 
                 <div className="quiz-question">

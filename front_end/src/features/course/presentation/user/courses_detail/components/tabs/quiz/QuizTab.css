@@ -32,6 +32,23 @@
     margin-bottom: 35px;
 }
 
+.quiz-regenerate-btn {
+    flex: none;
+    border: 1px solid #ae81f4;
+    border-radius: 10px;
+    padding: 9px 14px;
+    background: #fff;
+    color: #8b5cc8;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.quiz-regenerate-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .quiz-progress {
     flex: 1;
 }

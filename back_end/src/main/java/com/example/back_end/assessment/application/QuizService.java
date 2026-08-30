@@ -51,16 +51,30 @@ public class QuizService {
 
     @Transactional
     public QuizResponse generateQuiz(Long lessonId) {
+        return createQuiz(lessonId, false);
+    }
+
+    @Transactional
+    public QuizResponse regenerateQuiz(Long lessonId) {
+        return createQuiz(lessonId, true);
+    }
+
+    private QuizResponse createQuiz(Long lessonId, boolean replaceExisting) {
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found: " + lessonId));
 
         var existing = quizRepo.findByLessonId(lessonId);
-        if (existing.isPresent()) {
+        if (existing.isPresent() && !replaceExisting) {
             return toResponse(existing.get());
         }
 
         if (lesson.getVideoKey() == null) {
             throw new BusinessException("This lesson has no video uploaded yet.");
+        }
+
+        if (existing.isPresent()) {
+            quizRepo.delete(existing.get());
+            quizRepo.flush();
         }
 
         byte[] videoBytes = s3Service.readObjectBytes(lesson.getVideoKey());
