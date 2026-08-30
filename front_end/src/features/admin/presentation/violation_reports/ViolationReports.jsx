@@ -12,27 +12,8 @@ import AdminHoverSelect from "../shared/AdminHoverSelect";
 import ModerationActionModal from "./modal/ModerationActionModal";
 import "./ViolationReports.css";
 
-const ALL_STATUSES = "All statuses";
-const ALL_COUNTS = "Report count";
-
-const REASON_LABELS = {
-  VIDEO_ERROR: "Video error / cannot play",
-  AUDIO_ERROR: "Audio error",
-  BROKEN_DOCUMENT: "Broken document / resource",
-  OUTDATED_CONTENT: "Outdated content",
-  INCORRECT_CONTENT: "Incorrect content",
-  OTHER_COURSE_ISSUE: "Other course issue",
-  MISLEADING_CONTENT: "Misleading content",
-  SENSITIVE_CONTENT: "Sensitive / inappropriate content",
-  SPAM: "Spam / advertising",
-  FRAUD: "Fraud / scam",
-  COPYRIGHT: "Copyright violation",
-  HARASSMENT: "Harassment / abuse",
-  PROHIBITED_CONTENT: "Prohibited content",
-  INSTRUCTOR_BEHAVIOR: "Instructor behavior",
-  OTHER_VIOLATION: "Other policy violation",
-  OTHER: "Other",
-};
+const ALL_STATUSES = "__ALL_STATUSES__";
+const ALL_COUNTS = "__ALL_COUNTS__";
 
 const POLICY_REASONS = new Set([
   "SPAM",
@@ -45,17 +26,24 @@ const POLICY_REASONS = new Set([
   "OTHER_VIOLATION",
 ]);
 
-const categoryLabel = (reason) =>
-  POLICY_REASONS.has(reason) ? "Policy violation" : "Course issue";
+const reasonLabel = (t, reason) => {
+  if (!reason) return "—";
+  const key = `opsAdmin.vrReason_${reason}`;
+  const translated = t(key);
+  return translated === key ? reason : translated;
+};
 
-const formatStatus = (status) => {
+const categoryLabel = (t, reason) =>
+  POLICY_REASONS.has(reason) ? t("opsAdmin.vrPolicyViolation") : t("opsAdmin.vrCourseIssue");
+
+const formatStatus = (t, status) => {
   const map = {
-    PENDING: "Pending",
-    REVIEWING: "Reviewing",
-    RESOLVED: "Resolved",
-    DISMISSED: "Dismissed",
+    PENDING: t("opsAdmin.vrPending"),
+    REVIEWING: t("opsAdmin.vrReviewing"),
+    RESOLVED: t("opsAdmin.vrResolved"),
+    DISMISSED: t("opsAdmin.vrDismissed"),
   };
-  if (!status) return "Pending";
+  if (!status) return t("opsAdmin.vrPending");
   return map[status] || status.charAt(0) + status.slice(1).toLowerCase();
 };
 
@@ -192,24 +180,32 @@ const ViolationReports = () => {
     if (fresh) setSelectedReport(fresh);
   }, [reports, selectedReport?.id]);
 
-  const statusOptions = useMemo(
-    () => [ALL_STATUSES, ...new Set(reports.map((row) => formatStatus(row.status)))],
-    [reports],
-  );
+  const statusOptions = useMemo(() => {
+    const statuses = [...new Set(reports.map((row) => row.status || "PENDING"))];
+    return [
+      { value: ALL_STATUSES, label: t("opsAdmin.vrAllStatuses") },
+      ...statuses.map((status) => ({
+        value: status,
+        label: formatStatus(t, status),
+      })),
+    ];
+  }, [reports, t]);
 
   const countOptions = useMemo(() => {
     const counts = [...new Set(reports.map((row) => Number(row.reportCount) || 0))]
       .filter((n) => n > 0)
       .sort((a, b) => b - a);
-    return [ALL_COUNTS, ...counts.map((n) => String(n))];
-  }, [reports]);
+    return [
+      { value: ALL_COUNTS, label: t("opsAdmin.vrReportCount") },
+      ...counts.map((n) => ({ value: String(n), label: String(n) })),
+    ];
+  }, [reports, t]);
 
   const filteredReports = useMemo(() => {
     const q = search.trim().toLowerCase();
     let rows = reports.filter((row) => {
-      const statusLabel = formatStatus(row.status);
       const matchesStatus =
-        selectedStatus === ALL_STATUSES || statusLabel === selectedStatus;
+        selectedStatus === ALL_STATUSES || (row.status || "PENDING") === selectedStatus;
       const matchesCount =
         selectedCount === ALL_COUNTS || String(row.reportCount) === selectedCount;
       const haystack = [
@@ -218,7 +214,8 @@ const ViolationReports = () => {
         row.lessonTitle,
         row.reporterName,
         row.reason,
-        REASON_LABELS[row.reason],
+        reasonLabel(t, row.reason),
+        categoryLabel(t, row.reason),
         row.description,
       ]
         .filter(Boolean)
@@ -232,7 +229,7 @@ const ViolationReports = () => {
       rows = [...rows].sort((a, b) => (b.reportCount || 0) - (a.reportCount || 0));
     }
     return rows;
-  }, [reports, search, selectedStatus, selectedCount]);
+  }, [reports, search, selectedStatus, selectedCount, t]);
 
   const statCards = [
     { label: t("opsAdmin.open"), value: stats.openReports, note: t("opsAdmin.awaiting"), icon: Flag },
@@ -310,7 +307,7 @@ const ViolationReports = () => {
   };
 
   const reportDescription = normalizeReportText(selectedReport?.description);
-  const reportReason = REASON_LABELS[selectedReport?.reason] || selectedReport?.reason || "—";
+  const reportReason = reasonLabel(t, selectedReport?.reason);
   const instructorWarned = Boolean(selectedReport?.instructorWarned);
   const canHideCourse = instructorWarned && !selectedReport?.courseHidden;
   const moderationHint = selectedReport?.courseHidden
@@ -325,8 +322,8 @@ const ViolationReports = () => {
         <div className="violation-report-panel__info">
           <strong>{selectedReport.reportCode || `RPT-${selectedReport.id}`}</strong>
           <span>
-            Type: {categoryLabel(selectedReport.reason)} · Reason: {reportReason}
-            {selectedReport.severity === "HIGH" ? " · High severity" : ""}
+            Type: {categoryLabel(t, selectedReport.reason)} · Reason: {reportReason}
+            {selectedReport.severity === "HIGH" ? ` · ${t("opsAdmin.vrHighSeverity")}` : ""}
           </span>
           {selectedReport.reporterName ? (
             <span>Reporter: {selectedReport.reporterName}</span>
@@ -338,7 +335,7 @@ const ViolationReports = () => {
             <span>Reported lesson: {selectedReport.lessonTitle}</span>
           ) : null}
           <span>
-            Status: {formatStatus(selectedReport.status)}
+            Status: {formatStatus(t, selectedReport.status)}
             {instructorWarned ? " · Instructor reminded" : ""}
             {selectedReport.courseHidden ? " · Course hidden" : ""}
           </span>
@@ -444,17 +441,17 @@ const ViolationReports = () => {
           <table className="adminDataTable violationReportsTable">
             <thead>
               <tr>
-                <th>Report code</th>
-                <th>Target</th>
-                <th>Count</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{t("opsAdmin.vrReportCode")}</th>
+                <th>{t("opsAdmin.vrTarget")}</th>
+                <th>{t("opsAdmin.vrCount")}</th>
+                <th>{t("opsAdmin.vrStatus")}</th>
+                <th>{t("opsAdmin.vrActions")}</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5}>Loading reports…</td>
+                  <td colSpan={5}>{t("opsAdmin.vrLoading")}</td>
                 </tr>
               )}
               {!loading && filteredReports.length === 0 && (
@@ -464,7 +461,7 @@ const ViolationReports = () => {
               )}
               {!loading &&
                 filteredReports.map((row) => {
-                  const statusLabel = formatStatus(row.status);
+                  const statusLabel = formatStatus(t, row.status);
                   const target = row.lessonTitle
                     ? `${row.courseTitle} · ${row.lessonTitle}`
                     : row.courseTitle;
@@ -474,10 +471,10 @@ const ViolationReports = () => {
                       <td>
                         <div className="violation-report-target">
                           <span>{target}</span>
-                          <small>{categoryLabel(row.reason)}</small>
-                          <small>{REASON_LABELS[row.reason] || row.reason}</small>
+                          <small>{categoryLabel(t, row.reason)}</small>
+                          <small>{reasonLabel(t, row.reason)}</small>
                           {row.severity === "HIGH" ? (
-                            <small className="violation-report-severity">High severity</small>
+                            <small className="violation-report-severity">{t("opsAdmin.vrHighSeverity")}</small>
                           ) : null}
                         </div>
                       </td>
