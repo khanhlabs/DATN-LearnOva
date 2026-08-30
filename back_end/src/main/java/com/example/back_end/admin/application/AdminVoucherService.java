@@ -250,7 +250,7 @@ public class AdminVoucherService {
         voucher.setDiscountValue(voucherRequest.discountValue());
         voucher.setMinimumOrder(BigDecimal.ZERO);
         voucher.setMaximumDiscountAmount(
-                discountType == DiscountType.Percent ? new BigDecimal("999999999") : BigDecimal.ZERO
+                discountType == DiscountType.Percent ? voucherRequest.maximumDiscountAmount() : BigDecimal.ZERO
         );
         voucher.setUsageLimit(voucherRequest.usageLimit());
         voucher.setUsedCount(0);
