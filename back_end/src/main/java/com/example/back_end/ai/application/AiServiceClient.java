@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.List;
 
@@ -37,6 +38,8 @@ public class AiServiceClient {
                 throw new BusinessException("AI service returned an empty summary.");
             }
             return response.summary();
+        } catch (RestClientResponseException e) {
+            throw new BusinessException("AI service failed: " + aiServiceError(e));
         } catch (RestClientException e) {
             throw new BusinessException("Failed to reach AI service: " + e.getMessage());
         }
@@ -55,9 +58,18 @@ public class AiServiceClient {
                 throw new BusinessException("AI service returned no quiz questions.");
             }
             return response.questions();
+        } catch (RestClientResponseException e) {
+            throw new BusinessException("AI service failed: " + aiServiceError(e));
         } catch (RestClientException e) {
             throw new BusinessException("Failed to reach AI service: " + e.getMessage());
         }
+    }
+
+    private String aiServiceError(RestClientResponseException exception) {
+        String responseBody = exception.getResponseBodyAsString();
+        return responseBody == null || responseBody.isBlank()
+                ? "HTTP " + exception.getStatusCode().value()
+                : responseBody;
     }
 
     private MultiValueMap<String, HttpEntity<?>> videoMultipartBody(byte[] videoBytes, String fileName, String contentType) {

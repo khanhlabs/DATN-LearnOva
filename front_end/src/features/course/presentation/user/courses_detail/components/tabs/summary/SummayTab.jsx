@@ -7,6 +7,17 @@ import {
 } from "../../../../../../infrastructure/api/SummaryApi";
 import "./SummaryTab.css";
 
+const getErrorMessage = (requestError, fallbackMessage) => {
+    const payload = requestError.response?.data;
+
+    if (typeof payload === "string" && payload.trim()) return payload;
+    if (payload?.message) return payload.message;
+    if (payload?.detail) return payload.detail;
+    if (payload?.error) return payload.error;
+
+    return requestError.message || fallbackMessage;
+};
+
 function SummaryTab({ lessonId }) {
     const { t } = useTranslation();
     const [summary, setSummary] = useState(null);
@@ -33,13 +44,13 @@ function SummaryTab({ lessonId }) {
                 if (mounted) setSummary(data);
             } catch (loadError) {
                 if (mounted && loadError.response?.status !== 404) {
-                    setError(
-                        loadError.response?.data?.message ||
-                            t(
-                                "courseDetail.summary.loadError",
-                                "Unable to load the lesson summary.",
-                            ),
-                    );
+                    setError(getErrorMessage(
+                        loadError,
+                        t(
+                            "courseDetail.summary.loadError",
+                            "Unable to load the lesson summary.",
+                        ),
+                    ));
                 }
             } finally {
                 if (mounted) setLoading(false);
@@ -61,13 +72,13 @@ function SummaryTab({ lessonId }) {
         try {
             setSummary(await generateLessonSummaryApi(lessonId));
         } catch (generateError) {
-            setError(
-                generateError.response?.data?.message ||
-                    t(
-                        "courseDetail.summary.generateError",
-                        "Unable to generate the lesson summary. Please try again.",
-                    ),
-            );
+            setError(getErrorMessage(
+                generateError,
+                t(
+                    "courseDetail.summary.generateError",
+                    "Unable to generate the lesson summary. Please try again.",
+                ),
+            ));
         } finally {
             setLoading(false);
         }
