@@ -1,6 +1,7 @@
 package com.example.back_end.instructor.application;
 
 import com.example.back_end.media.infrastructure.video.MediaConvertService;
+import com.example.back_end.ai.application.AiGenerationQueueService;
 
 import com.example.back_end.instructor.adapter.in.web.dto.CreateLessonRequest;
 import com.example.back_end.instructor.adapter.in.web.dto.UpdateLessonRequest;
@@ -31,6 +32,7 @@ public class LessonService {
     private final SectionRepository sectionRepository;
     private final MediaConvertService mediaConvertService;
     private final UserRepository userRepository;
+    private final AiGenerationQueueService aiGenerationQueueService;
 
     @Transactional
     public Long createLesson(
@@ -125,6 +127,7 @@ public class LessonService {
         }
 
         lessonRepository.save(lesson);
+        aiGenerationQueueService.queueForVideo(lessonId, request.videoKey());
     }
 
 }

@@ -8,6 +8,7 @@ import {
     regenerateQuizApi,
     submitQuizApi,
 } from "../../../../../../infrastructure/api/QuizApi";
+import { getAiGenerationStatusApi } from "../../../../../../infrastructure/api/AiGenerationApi";
 
 import "./QuizTab.css";
 
@@ -34,6 +35,10 @@ function QuizPage({ lessonId }) {
     const [submitting, setSubmitting] = useState(false);
 
     const [error, setError] = useState("");
+
+    const [generationStatus, setGenerationStatus] = useState(null);
+
+    const [generationRefresh, setGenerationRefresh] = useState(0);
 
     const translate = useCallback(
         (key, defaultValue, options = {}) =>
@@ -113,27 +118,24 @@ function QuizPage({ lessonId }) {
 
                 if (mounted) {
                     setQuiz(data);
+                    setGenerationStatus(null);
                 }
             } catch (loadError) {
                 if (loadError.response?.status === 404) {
                     try {
-                        const generatedQuiz = await generateQuizApi(lessonId);
-
+                        const jobs = await getAiGenerationStatusApi(lessonId);
+                        const quizJob = jobs.find((job) => job.type === "QUIZ");
                         if (mounted) {
-                            setQuiz(generatedQuiz);
+                            setGenerationStatus(quizJob?.status || "QUEUED");
                         }
-                    } catch (generateError) {
-                        console.error(
-                            "Failed to automatically generate quiz:",
-                            generateError,
-                        );
-
+                    } catch (statusError) {
+                        console.error("Failed to load quiz generation status:", statusError);
                         if (mounted) {
                             setError(
-                                generateError.response?.data?.message ||
+                                statusError.response?.data?.message ||
                                     translate(
-                                        "courseDetail.quiz.generateError",
-                                        "Failed to generate quiz. Please try again.",
+                                        "courseDetail.quiz.statusError",
+                                        "Quiz preparation status is unavailable.",
                                     ),
                             );
                         }
@@ -165,7 +167,19 @@ function QuizPage({ lessonId }) {
         return () => {
             mounted = false;
         };
-    }, [lessonId, resetQuizState, translate]);
+    }, [lessonId, resetQuizState, translate, generationRefresh]);
+
+    useEffect(() => {
+        if (!["QUEUED", "PROCESSING"].includes(generationStatus)) {
+            return undefined;
+        }
+
+        const timer = window.setTimeout(
+            () => setGenerationRefresh((value) => value + 1),
+            5000,
+        );
+        return () => window.clearTimeout(timer);
+    }, [generationStatus]);
 
     const handleSelectAnswer = (questionId, optionId) => {
         if (submitting) {
@@ -283,22 +297,17 @@ function QuizPage({ lessonId }) {
                         </p>
                     )}
 
-                    <button
-                        className="btn-next button-quiz"
-                        type="button"
-                        onClick={handleGenerate}
-                        disabled={loading}
-                    >
-                        {loading
+                    <p className="quiz-subtitle">
+                        {generationStatus === "FAILED"
                             ? translate(
-                                  "courseDetail.quiz.generating",
-                                  "Generating...",
+                                  "courseDetail.quiz.unavailable",
+                                  "Quiz is temporarily unavailable.",
                               )
                             : translate(
-                                  "courseDetail.quiz.generate",
-                                  "Generate quiz",
+                                  "courseDetail.quiz.preparing",
+                                  "Quiz is being prepared automatically.",
                               )}
-                    </button>
+                    </p>
                 </div>
             </div>
         );

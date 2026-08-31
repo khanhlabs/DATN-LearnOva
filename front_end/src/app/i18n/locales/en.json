@@ -1114,7 +1114,10 @@
     "quiz": {
       "summarize": "Summarize knowledge",
       "generate": "Generate quiz",
-      "regenerate": "Generate a new quiz"
+      "regenerate": "Generate a new quiz",
+      "preparing": "Quiz is being prepared automatically.",
+      "unavailable": "Quiz is temporarily unavailable.",
+      "statusError": "Quiz preparation status is unavailable."
     },
     "summary": {
       "title": "Lesson summary",
@@ -1123,6 +1126,8 @@
       "empty": "No summary has been generated for this lesson yet.",
       "loadError": "Unable to load the lesson summary.",
       "generateError": "Unable to generate the lesson summary. Please try again."
+      ,"preparing": "The summary is being prepared automatically."
+      ,"unavailable": "The summary is temporarily unavailable."
     }
   },
   "instructorDetailPage": {

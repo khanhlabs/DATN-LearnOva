@@ -38,7 +38,7 @@ services:
     
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY:?GEMINI_API_KEY is required}
-    mem_limit: 256m
+    mem_limit: 512m
     restart: unless-stopped
 
   backend:

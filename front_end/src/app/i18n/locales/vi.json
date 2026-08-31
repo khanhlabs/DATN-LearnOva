@@ -1111,7 +1111,10 @@
     "quiz": {
       "summarize": "Tóm tắt kiến thức",
       "generate": "Tạo trắc nghiệm",
-      "regenerate": "Tạo bộ câu hỏi mới"
+      "regenerate": "Tạo bộ câu hỏi mới",
+      "preparing": "Bộ câu hỏi đang được chuẩn bị tự động.",
+      "unavailable": "Bộ câu hỏi hiện tạm thời chưa khả dụng.",
+      "statusError": "Không thể tải trạng thái chuẩn bị bộ câu hỏi."
     },
     "summary": {
       "title": "Tóm tắt bài học",
@@ -1120,6 +1123,8 @@
       "empty": "Bài học này chưa có phần tóm tắt.",
       "loadError": "Không thể tải phần tóm tắt bài học.",
       "generateError": "Không thể tạo phần tóm tắt bài học. Vui lòng thử lại."
+      ,"preparing": "Phần tóm tắt đang được chuẩn bị tự động."
+      ,"unavailable": "Phần tóm tắt hiện tạm thời chưa khả dụng."
     }
   },
   "instructorDetailPage": {

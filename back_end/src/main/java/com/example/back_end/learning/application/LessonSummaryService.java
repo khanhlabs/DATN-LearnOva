@@ -33,6 +33,15 @@ public class LessonSummaryService {
 
     @Transactional
     public LessonSummaryResponse generateSummary(Long lessonId) {
+        return createSummary(lessonId, false);
+    }
+
+    @Transactional
+    public LessonSummaryResponse regenerateSummary(Long lessonId) {
+        return createSummary(lessonId, true);
+    }
+
+    private LessonSummaryResponse createSummary(Long lessonId, boolean replaceExisting) {
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found: " + lessonId));
 
@@ -41,7 +50,7 @@ public class LessonSummaryService {
         }
 
         LessonSummary summary = summaryRepo.findByLessonId(lessonId).orElseGet(LessonSummary::new);
-        if (summary.getId() != null) {
+        if (summary.getId() != null && !replaceExisting) {
             return toResponse(summary);
         }
 

@@ -4,6 +4,11 @@ import time
 
 from google import genai
 from google.genai import types
+from services.gemini_file_utils import (
+    delete_file_safely,
+    retry_transient,
+    wait_for_file_ready,
+)
 
 _client = None
 
@@ -53,25 +58,21 @@ def _get_client():
 
 def generate_quiz(file_path: str) -> dict:
     client = _get_client()
-
-    uploaded_file = client.files.upload(file=file_path)
-
-    while uploaded_file.state.name == "PROCESSING":
-        time.sleep(2)
-        uploaded_file = client.files.get(name=uploaded_file.name)
-
-    if uploaded_file.state.name == "FAILED":
-        raise RuntimeError(f"Gemini file processing failed: {uploaded_file.state}")
+    uploaded_file = None
 
     try:
-        response = client.models.generate_content(
-            model="gemini-flash-latest",
-            contents=[uploaded_file, QUIZ_PROMPT],
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=QUIZ_SCHEMA,
-            ),
+        uploaded_file = retry_transient(lambda: client.files.upload(file=file_path))
+        uploaded_file = wait_for_file_ready(client, uploaded_file)
+        response = retry_transient(
+            lambda: client.models.generate_content(
+                model="gemini-flash-latest",
+                contents=[uploaded_file, QUIZ_PROMPT],
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=QUIZ_SCHEMA,
+                ),
+            )
         )
         return json.loads(response.text)
     finally:
-        client.files.delete(name=uploaded_file.name)
+        delete_file_safely(client, uploaded_file)

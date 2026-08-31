@@ -2,6 +2,11 @@ import os
 import time
 
 from google import genai
+from services.gemini_file_utils import (
+    delete_file_safely,
+    retry_transient,
+    wait_for_file_ready,
+)
 
 _client = None
 
@@ -29,21 +34,19 @@ Yêu cầu:
 
 def summarize_video(file_path: str) -> str:
     client = _get_client()
-
-    uploaded_file = client.files.upload(file=file_path)
-
-    while uploaded_file.state.name == "PROCESSING":
-        time.sleep(2)
-        uploaded_file = client.files.get(name=uploaded_file.name)
-
-    if uploaded_file.state.name == "FAILED":
-        raise RuntimeError(f"Gemini file processing failed: {uploaded_file.state}")
+    uploaded_file = None
 
     try:
-        response = client.models.generate_content(
-            model="gemini-flash-latest",
-            contents=[uploaded_file, SUMMARY_PROMPT],
+        uploaded_file = retry_transient(lambda: client.files.upload(file=file_path))
+        uploaded_file = wait_for_file_ready(client, uploaded_file)
+        response = retry_transient(
+            lambda: client.models.generate_content(
+                model="gemini-flash-latest",
+                contents=[uploaded_file, SUMMARY_PROMPT],
+            )
         )
-        return response.text
+        if not response.text or not response.text.strip():
+            raise RuntimeError("Gemini returned an empty summary")
+        return response.text.strip()
     finally:
-        client.files.delete(name=uploaded_file.name)
+        delete_file_safely(client, uploaded_file)

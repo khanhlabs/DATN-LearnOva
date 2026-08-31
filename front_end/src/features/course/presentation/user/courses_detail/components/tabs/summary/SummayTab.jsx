@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
-    generateLessonSummaryApi,
     getLessonSummaryApi,
 } from "../../../../../../infrastructure/api/SummaryApi";
+import { getAiGenerationStatusApi } from "../../../../../../infrastructure/api/AiGenerationApi";
 import "./SummaryTab.css";
 
 const getErrorMessage = (requestError, fallbackMessage) => {
@@ -23,6 +23,8 @@ function SummaryTab({ lessonId }) {
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [generationStatus, setGenerationStatus] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         if (!lessonId) {
@@ -43,7 +45,17 @@ function SummaryTab({ lessonId }) {
                 const data = await getLessonSummaryApi(lessonId);
                 if (mounted) setSummary(data);
             } catch (loadError) {
-                if (mounted && loadError.response?.status !== 404) {
+                if (mounted && loadError.response?.status === 404) {
+                    try {
+                        const jobs = await getAiGenerationStatusApi(lessonId);
+                        const summaryJob = jobs.find((job) => job.type === "SUMMARY");
+                        if (mounted) setGenerationStatus(summaryJob?.status || "QUEUED");
+                    } catch {
+                        if (mounted) setGenerationStatus("QUEUED");
+                    }
+                    return;
+                }
+                if (mounted) {
                     setError(getErrorMessage(
                         loadError,
                         t(
@@ -62,27 +74,13 @@ function SummaryTab({ lessonId }) {
         return () => {
             mounted = false;
         };
-    }, [lessonId, t]);
+    }, [lessonId, t, refreshKey]);
 
-    const generateSummary = async () => {
-        if (!lessonId || loading) return;
-
-        setLoading(true);
-        setError("");
-        try {
-            setSummary(await generateLessonSummaryApi(lessonId));
-        } catch (generateError) {
-            setError(getErrorMessage(
-                generateError,
-                t(
-                    "courseDetail.summary.generateError",
-                    "Unable to generate the lesson summary. Please try again.",
-                ),
-            ));
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        if (!["QUEUED", "PROCESSING"].includes(generationStatus)) return undefined;
+        const timer = window.setTimeout(() => setRefreshKey((value) => value + 1), 5000);
+        return () => window.clearTimeout(timer);
+    }, [generationStatus]);
 
     if (!lessonId) {
         return (
@@ -109,20 +107,11 @@ function SummaryTab({ lessonId }) {
         return (
             <div className="summary-content summary-empty">
                 <p>
-                    {t(
-                        "courseDetail.summary.empty",
-                        "No summary has been generated for this lesson yet.",
-                    )}
+                    {generationStatus === "FAILED"
+                        ? t("courseDetail.summary.unavailable", "The summary is temporarily unavailable.")
+                        : t("courseDetail.summary.preparing", "The summary is being prepared automatically.")}
                 </p>
                 {error && <p className="summary-error">{error}</p>}
-                <button
-                    className="summary-generate-btn"
-                    type="button"
-                    onClick={generateSummary}
-                    disabled={loading}
-                >
-                    {t("courseDetail.quiz.summarize", "Summarize knowledge")}
-                </button>
             </div>
         );
     }
