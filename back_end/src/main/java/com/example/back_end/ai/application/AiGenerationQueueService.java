@@ -111,6 +111,16 @@ public class AiGenerationQueueService {
             job.setErrorMessage("Worker restarted while processing; queued again.");
             job.setUpdatedAt(Instant.now());
         }
+
+        // A transient Gemini/S3 failure must not require a learner or teacher to
+        // press a button. Retry terminal failures after a cooling-off period.
+        Instant retryBefore = Instant.now().minusSeconds(5 * 60);
+        for (AiGenerationJob job : jobRepository.findByStatusAndUpdatedAtBefore(AiGenerationStatus.FAILED, retryBefore)) {
+            job.setStatus(AiGenerationStatus.QUEUED);
+            job.setErrorMessage("Retrying automatically after a previous failure.");
+            job.setUpdatedAt(Instant.now());
+            job.setCompletedAt(null);
+        }
     }
 
     private boolean createIfAbsent(Lesson lesson, AiGenerationType type, String videoKey) {

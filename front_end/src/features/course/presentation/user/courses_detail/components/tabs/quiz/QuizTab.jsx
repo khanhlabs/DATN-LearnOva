@@ -126,7 +126,7 @@ function QuizPage({ lessonId }) {
     }, [lessonId, resetQuizState, translate, generationRefresh]);
 
     useEffect(() => {
-        if (!["QUEUED", "PROCESSING"].includes(generationStatus)) {
+        if (!["QUEUED", "PROCESSING", "FAILED"].includes(generationStatus)) {
             return undefined;
         }
 
@@ -254,15 +254,10 @@ function QuizPage({ lessonId }) {
                     )}
 
                     <p className="quiz-subtitle">
-                        {generationStatus === "FAILED"
-                            ? translate(
-                                  "courseDetail.quiz.unavailable",
-                                  "Quiz is temporarily unavailable.",
-                              )
-                            : translate(
-                                  "courseDetail.quiz.preparing",
-                                  "Quiz is being prepared automatically.",
-                              )}
+                        {translate(
+                            "courseDetail.quiz.preparing",
+                            "Quiz is being prepared automatically.",
+                        )}
                     </p>
                 </div>
             </div>

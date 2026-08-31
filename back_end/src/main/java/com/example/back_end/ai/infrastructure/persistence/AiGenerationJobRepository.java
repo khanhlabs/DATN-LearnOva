@@ -22,4 +22,6 @@ public interface AiGenerationJobRepository extends JpaRepository<AiGenerationJob
             Long lessonId, AiGenerationType generationType);
 
     List<AiGenerationJob> findByStatusAndStartedAtBefore(AiGenerationStatus status, Instant startedBefore);
+
+    List<AiGenerationJob> findByStatusAndUpdatedAtBefore(AiGenerationStatus status, Instant updatedBefore);
 }

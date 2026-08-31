@@ -77,7 +77,7 @@ function SummaryTab({ lessonId }) {
     }, [lessonId, t, refreshKey]);
 
     useEffect(() => {
-        if (!["QUEUED", "PROCESSING"].includes(generationStatus)) return undefined;
+        if (!["QUEUED", "PROCESSING", "FAILED"].includes(generationStatus)) return undefined;
         const timer = window.setTimeout(() => setRefreshKey((value) => value + 1), 5000);
         return () => window.clearTimeout(timer);
     }, [generationStatus]);
@@ -107,9 +107,7 @@ function SummaryTab({ lessonId }) {
         return (
             <div className="summary-content summary-empty">
                 <p>
-                    {generationStatus === "FAILED"
-                        ? t("courseDetail.summary.unavailable", "The summary is temporarily unavailable.")
-                        : t("courseDetail.summary.preparing", "The summary is being prepared automatically.")}
+                    {t("courseDetail.summary.preparing", "The summary is being prepared automatically.")}
                 </p>
                 {error && <p className="summary-error">{error}</p>}
             </div>
