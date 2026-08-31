@@ -13,6 +13,7 @@ import com.example.back_end.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -32,6 +33,23 @@ public class AiGenerationQueueService {
         Lesson lesson = lessonRepository.getReferenceById(lessonId);
         Arrays.stream(AiGenerationType.values())
                 .forEach(type -> createIfAbsent(lesson, type, videoKey));
+    }
+
+    /** Queues legacy lessons in small batches so Gemini is never flooded. */
+    @Transactional
+    public int queueMissingLegacyLessons(int batchSize) {
+        int created = 0;
+        List<Lesson> lessons = lessonRepository.findLessonsMissingAiContent(
+                PageRequest.of(0, batchSize));
+        for (Lesson lesson : lessons) {
+            if (summaryRepository.findByLessonId(lesson.getId()).isEmpty()) {
+                created += createIfAbsent(lesson, AiGenerationType.SUMMARY, lesson.getVideoKey()) ? 1 : 0;
+            }
+            if (quizRepository.findByLessonId(lesson.getId()).isEmpty()) {
+                created += createIfAbsent(lesson, AiGenerationType.QUIZ, lesson.getVideoKey()) ? 1 : 0;
+            }
+        }
+        return created;
     }
 
     @Transactional
@@ -95,8 +113,8 @@ public class AiGenerationQueueService {
         }
     }
 
-    private void createIfAbsent(Lesson lesson, AiGenerationType type, String videoKey) {
-        if (jobRepository.findByLessonIdAndGenerationTypeAndVideoKey(lesson.getId(), type, videoKey).isPresent()) return;
+    private boolean createIfAbsent(Lesson lesson, AiGenerationType type, String videoKey) {
+        if (jobRepository.findByLessonIdAndGenerationTypeAndVideoKey(lesson.getId(), type, videoKey).isPresent()) return false;
         Instant now = Instant.now();
         AiGenerationJob job = new AiGenerationJob();
         job.setLesson(lesson);
@@ -107,6 +125,7 @@ public class AiGenerationQueueService {
         job.setRequestedAt(now);
         job.setUpdatedAt(now);
         jobRepository.save(job);
+        return true;
     }
 
     private void updateTerminalStatus(Long jobId, AiGenerationStatus status, String error) {

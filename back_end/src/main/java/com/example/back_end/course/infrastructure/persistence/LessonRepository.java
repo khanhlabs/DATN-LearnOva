@@ -5,6 +5,7 @@ import com.example.back_end.media.domain.enums.HlsStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +20,14 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     Optional<Lesson> findByVideoKey(String videoKey);
     List<Lesson> findByHlsStatusIn(List<HlsStatus> statuses);
     List<Lesson> findByVideoKeyIsNotNullAndHlsStatusIsNull();
+
+    @Query("""
+            SELECT l FROM Lesson l
+            WHERE l.videoKey IS NOT NULL
+              AND l.isDeleted = false
+              AND (NOT EXISTS (SELECT s FROM LessonSummary s WHERE s.lesson.id = l.id)
+                   OR NOT EXISTS (SELECT q FROM Quiz q WHERE q.lesson.id = l.id))
+            ORDER BY l.createdAt ASC
+            """)
+    List<Lesson> findLessonsMissingAiContent(Pageable pageable);
 }

@@ -18,8 +18,4 @@ public class SummaryController {
         return ResponseEntity.ok(lessonSummaryService.getSummary(lessonId));
     }
 
-    @PostMapping("/{lessonId}/summary")
-    public ResponseEntity<LessonSummaryResponse> generateSummary(@PathVariable Long lessonId) {
-        return ResponseEntity.ok(lessonSummaryService.generateSummary(lessonId));
-    }
 }

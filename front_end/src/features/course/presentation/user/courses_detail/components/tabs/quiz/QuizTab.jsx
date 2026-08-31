@@ -3,9 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FaCheck } from "react-icons/fa";
 
 import {
-    generateQuizApi,
     getQuizApi,
-    regenerateQuizApi,
     submitQuizApi,
 } from "../../../../../../infrastructure/api/QuizApi";
 import { getAiGenerationStatusApi } from "../../../../../../infrastructure/api/AiGenerationApi";
@@ -55,48 +53,6 @@ function QuizPage({ lessonId }) {
         setCurrentQuestion(0);
         setError("");
     }, []);
-
-    const handleGenerate = useCallback(async (forceRegenerate = false) => {
-        if (!lessonId) {
-            setError(
-                translate(
-                    "courseDetail.quiz.lessonNotFound",
-                    "Lesson information was not found.",
-                ),
-            );
-            return;
-        }
-
-        setLoading(true);
-        setError("");
-
-        try {
-            const data = forceRegenerate
-                ? await regenerateQuizApi(lessonId)
-                : await generateQuizApi(lessonId);
-
-            if (!data) {
-                throw new Error("Quiz API returned empty data.");
-            }
-
-            setQuiz(data);
-            setCurrentQuestion(0);
-            setSelectedAnswers({});
-            setResult(null);
-        } catch (generateError) {
-            console.error("Failed to generate quiz:", generateError);
-
-            setError(
-                generateError.response?.data?.message ||
-                    translate(
-                        "courseDetail.quiz.generateError",
-                        "Failed to generate quiz. Please try again.",
-                    ),
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, [lessonId, translate]);
 
     useEffect(() => {
         if (!lessonId) {
@@ -332,22 +288,12 @@ function QuizPage({ lessonId }) {
                         )}
                     </p>
 
-                    <button
-                        className="btn-next button-quiz"
-                        type="button"
-                        onClick={handleGenerate}
-                        disabled={loading}
-                    >
-                        {loading
-                            ? translate(
-                                  "courseDetail.quiz.generating",
-                                  "Generating...",
-                              )
-                            : translate(
-                                  "courseDetail.quiz.generateAgain",
-                                  "Generate again",
-                              )}
-                    </button>
+                    <p className="quiz-subtitle">
+                        {translate(
+                            "courseDetail.quiz.preparing",
+                            "Quiz is being prepared automatically.",
+                        )}
+                    </p>
                 </div>
             </div>
         );
@@ -399,18 +345,6 @@ function QuizPage({ lessonId }) {
                             )}
                         </button>
 
-                        <button
-                            className="btn-prev"
-                            type="button"
-                            style={{ marginTop: "12px" }}
-                            onClick={() => handleGenerate(true)}
-                            disabled={loading}
-                        >
-                            {translate(
-                                "courseDetail.quiz.regenerate",
-                                "Generate a new quiz",
-                            )}
-                        </button>
                     </div>
                 </div>
             </div>
@@ -483,22 +417,6 @@ function QuizPage({ lessonId }) {
                         </div>
                     </div>
 
-                    <button
-                        className="quiz-regenerate-btn"
-                        type="button"
-                        onClick={() => handleGenerate(true)}
-                        disabled={loading || submitting}
-                    >
-                        {loading
-                            ? translate(
-                                  "courseDetail.quiz.generating",
-                                  "Generating...",
-                              )
-                            : translate(
-                                  "courseDetail.quiz.regenerate",
-                                  "Generate a new quiz",
-                              )}
-                    </button>
                 </div>
 
                 <div className="quiz-question">

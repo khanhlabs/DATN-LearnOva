@@ -50,24 +50,15 @@ public class QuizService {
     }
 
     @Transactional
-    public QuizResponse generateQuiz(Long lessonId) {
-        return createQuiz(lessonId, false);
-    }
-
-    @Transactional
     public QuizResponse regenerateQuiz(Long lessonId) {
-        return createQuiz(lessonId, true);
+        return createQuiz(lessonId);
     }
 
-    private QuizResponse createQuiz(Long lessonId, boolean replaceExisting) {
+    private QuizResponse createQuiz(Long lessonId) {
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found: " + lessonId));
 
         var existing = quizRepo.findByLessonId(lessonId);
-        if (existing.isPresent() && !replaceExisting) {
-            return toResponse(existing.get());
-        }
-
         if (lesson.getVideoKey() == null) {
             throw new BusinessException("This lesson has no video uploaded yet.");
         }
