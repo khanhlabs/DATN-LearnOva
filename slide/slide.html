@@ -1,0 +1,2173 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LearnOva | Báo cáo DATN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+  --ink: #0b192c;
+  --ink-light: #1e3e62;
+  --blue: #0265dc;
+  --blue-light: #38bdf8;
+  --cyan: #00d2d3;
+  --orange: #ff6b00;
+  --orange-light: #ffa14a;
+  --muted: #536b82;
+  --line: #d3e2f0;
+  --line-bold: #b0c9e2;
+  --paper: #f4f8fc;
+  --card: #ffffff;
+  --card-glass: rgba(255, 255, 255, 0.88);
+  --soft: #eaf3ff;
+  --orange-soft: #fff1e5;
+  --green: #059669;
+  --green-soft: #ecfdf5;
+  --purple: #7c3aed;
+  --purple-soft: #f5f3ff;
+  --dark-bg: #07111e;
+  --dark-card: rgba(14, 28, 48, 0.88);
+  --dark-line: rgba(56, 189, 248, 0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  font-size: 16px;
+}
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Slide Base & Rich Tech Background Decoration System
+   ========================================================================== */
+.slide {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  padding: 56px clamp(24px, 6.5vw, 115px) 72px;
+  position: relative;
+  overflow: hidden;
+  background-color: #f5f9fd;
+  /* Dual-tier technical grid */
+  background-image: 
+    radial-gradient(rgba(2, 101, 220, 0.15) 1.2px, transparent 1.2px),
+    linear-gradient(to right, rgba(2, 101, 220, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(2, 101, 220, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px, 56px 56px, 56px 56px;
+}
+
+/* Atmospheric Glow Orbs */
+.slide::before {
+  content: "";
+  position: absolute;
+  width: 55vw;
+  height: 55vw;
+  max-width: 750px;
+  max-height: 750px;
+  border-radius: 50%;
+  right: -12vw;
+  top: -18vw;
+  background: radial-gradient(circle, rgba(2, 101, 220, 0.12) 0%, rgba(0, 210, 211, 0.05) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.slide::after {
+  content: "";
+  position: absolute;
+  width: 45vw;
+  height: 45vw;
+  max-width: 600px;
+  max-height: 600px;
+  border-radius: 50%;
+  left: -10vw;
+  bottom: -15vw;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.08) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   Visible Background Decorative Elements (Circuit, Radar, Dot Matrix, HUD)
+   ========================================================================== */
+.bg-deco-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Tech Concentric Orbital Rings */
+.bg-deco-layer .orbit-ring-1 {
+  position: absolute;
+  right: -70px;
+  bottom: -90px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  border: 2px dashed rgba(2, 101, 220, 0.22);
+  box-shadow: 0 0 0 28px rgba(255, 107, 0, 0.04), 0 0 0 65px rgba(2, 101, 220, 0.025);
+}
+.bg-deco-layer .orbit-ring-2 {
+  position: absolute;
+  right: -30px;
+  bottom: -50px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 107, 0, 0.25);
+}
+.bg-deco-layer .orbit-ring-3 {
+  position: absolute;
+  right: 25px;
+  bottom: 5px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  border: 20px solid rgba(255, 107, 0, 0.06);
+}
+
+/* Tech Dot Grid Matrix in Header Area */
+.bg-deco-layer .dot-matrix {
+  position: absolute;
+  right: 8%;
+  top: 12%;
+  width: 220px;
+  height: 130px;
+  opacity: 0.55;
+  background-image: radial-gradient(var(--orange) 1.8px, transparent 1.8px);
+  background-size: 16px 16px;
+  transform: rotate(-10deg);
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 107, 0, 0.2);
+}
+
+/* Left Tech Circuit Traces */
+.bg-deco-layer .circuit-trace {
+  position: absolute;
+  left: 20px;
+  top: 25%;
+  width: 160px;
+  height: 280px;
+  opacity: 0.45;
+  background: 
+    linear-gradient(90deg, rgba(2, 101, 220, 0.18) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(0deg, rgba(2, 101, 220, 0.18) 1px, transparent 1px) 0 0 / 20px 20px;
+  border-left: 2px solid rgba(2, 101, 220, 0.4);
+  border-bottom: 2px solid rgba(2, 101, 220, 0.4);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* Precision HUD Corner Brackets & Crosshairs */
+.tech-hud-corners {
+  position: absolute;
+  inset: 22px;
+  pointer-events: none;
+  z-index: 2;
+}
+.tech-hud-corners::before {
+  content: "+ [SYS.READY]";
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--blue);
+  opacity: 0.5;
+  letter-spacing: 0.1em;
+}
+.tech-hud-corners::after {
+  content: "[DATN // 2026] +";
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--orange);
+  opacity: 0.5;
+  letter-spacing: 0.1em;
+}
+
+/* Tech Watermark Monospace Sidebar */
+.tech-watermark {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: right center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: rgba(83, 107, 130, 0.3);
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.inner {
+  width: min(1180px, 100%);
+  margin: auto;
+  position: relative;
+  z-index: 5;
+  transform: translateY(-22px);
+}
+
+/* ==========================================================================
+   Header, Progress & Navigation UI
+   ========================================================================== */
+.logo {
+  position: fixed;
+  z-index: 50;
+  top: 18px;
+  left: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 8px 14px 7px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(176, 201, 226, 0.9);
+  box-shadow: 0 4px 18px rgba(11, 25, 44, 0.06);
+  backdrop-filter: blur(12px);
+}
+.logo img {
+  max-width: 150px;
+  max-height: 34px;
+  object-fit: contain;
+}
+.logo-fallback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-fallback b {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--orange), #ff8800);
+  color: #fff;
+  font: 800 0.72rem "JetBrains Mono";
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35);
+}
+.logo-fallback span {
+  font-size: 0.62rem;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+.logo.has-image .logo-fallback { display: none; }
+
+.progress {
+  height: 4px;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  background: linear-gradient(90deg, var(--blue), var(--cyan), var(--orange));
+  width: 0%;
+  box-shadow: 0 0 12px rgba(2, 101, 220, 0.6);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.counter {
+  position: fixed;
+  right: 28px;
+  bottom: 20px;
+  z-index: 50;
+  font: 700 0.72rem "JetBrains Mono";
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(176, 201, 226, 0.95);
+  box-shadow: 0 4px 16px rgba(11, 25, 44, 0.08);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.counter::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.counter strong { color: var(--blue); font-weight: 800; font-size: 0.82rem; }
+
+.dots {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 8px 6px;
+  border-radius: 20px;
+  border: 1px solid rgba(176, 201, 226, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgba(11, 25, 44, 0.06);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border: 0;
+  border-radius: 50%;
+  background: #b9cbdc;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.dot:hover {
+  background: var(--blue);
+  transform: scale(1.3);
+}
+.dot.active {
+  background: linear-gradient(135deg, var(--orange), #ff8800);
+  height: 16px;
+  border-radius: 6px;
+  transform: scale(1);
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
+}
+
+.footer {
+  position: absolute;
+  bottom: 22px;
+  left: clamp(24px, 6.5vw, 115px);
+  right: 120px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-top: 1px dashed rgba(176, 201, 226, 0.8);
+  padding-top: 10px;
+  z-index: 5;
+}
+.footer span:first-child::before {
+  content: "SYS::";
+  color: var(--blue);
+  opacity: 0.75;
+}
+
+/* ==========================================================================
+   Typography & Modern Tech Headings
+   ========================================================================== */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  background: var(--soft);
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(2, 101, 220, 0.18);
+  box-shadow: 0 2px 6px rgba(2, 101, 220, 0.06);
+}
+.eyebrow::before {
+  content: "//";
+  color: var(--orange);
+  font-weight: 900;
+}
+
+.bar {
+  width: 50px;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--orange), #ff9f30);
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+}
+
+h1 {
+  font-size: clamp(2.6rem, 5.2vw, 4.6rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+h2 {
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.orange {
+  background: linear-gradient(135deg, var(--orange), #e65100);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 800;
+}
+
+.lead {
+  max-width: 820px;
+  font-size: clamp(0.92rem, 1.25vw, 1.08rem);
+  color: #334d66;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.header {
+  margin-bottom: clamp(20px, 3vh, 32px);
+  position: relative;
+}
+
+/* ==========================================================================
+   Grids & High-Tech Cards (Glassmorphism & High Contrast)
+   ========================================================================== */
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.card {
+  background: var(--card-glass);
+  border: 1px solid rgba(176, 201, 226, 0.95);
+  border-radius: 16px;
+  padding: clamp(18px, 2.2vw, 24px);
+  box-shadow: 0 10px 25px -5px rgba(11, 25, 44, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  backdrop-filter: blur(14px);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 36px -8px rgba(2, 101, 220, 0.14), 0 0 0 1px rgba(2, 101, 220, 0.2) inset;
+  border-color: rgba(2, 101, 220, 0.35);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.card:hover::before { opacity: 1; }
+
+.card p {
+  font-size: 0.86rem;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  padding: 4px 9px;
+  background: var(--soft);
+  color: var(--blue);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(2, 101, 220, 0.18);
+}
+.tag.o { background: var(--orange-soft); color: #c44d00; border-color: rgba(255, 107, 0, 0.22); }
+.tag.g { background: var(--green-soft); color: #047857; border-color: rgba(5, 150, 105, 0.22); }
+.tag.p { background: var(--purple-soft); color: var(--purple); border-color: rgba(124, 58, 237, 0.22); }
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--soft), #ddeeff);
+  color: var(--blue);
+  margin-bottom: 14px;
+  border: 1px solid rgba(2, 101, 220, 0.2);
+  box-shadow: 0 4px 12px rgba(2, 101, 220, 0.1);
+}
+.icon.o {
+  background: linear-gradient(135deg, var(--orange-soft), #ffdcc0);
+  color: var(--orange);
+  border-color: rgba(255, 107, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.12);
+}
+.icon.g {
+  background: linear-gradient(135deg, var(--green-soft), #c7f9e5);
+  color: var(--green);
+  border-color: rgba(5, 150, 105, 0.25);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
+}
+.icon.p {
+  background: linear-gradient(135deg, var(--purple-soft), #e9e4fe);
+  color: var(--purple);
+  border-color: rgba(124, 58, 237, 0.25);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+}
+
+.number {
+  font: 700 0.72rem "JetBrains Mono";
+  color: var(--blue);
+  margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(2, 101, 220, 0.08);
+  padding: 3px 8px;
+  border-radius: 5px;
+  border-left: 3px solid var(--orange);
+}
+
+/* ==========================================================================
+   Tech Flow Pipelines
+   ========================================================================== */
+.flow {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  position: relative;
+}
+.node {
+  flex: 1;
+  text-align: center;
+  border: 1px solid rgba(176, 201, 226, 0.95);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 12px;
+  box-shadow: 0 6px 18px rgba(11, 25, 44, 0.05);
+  position: relative;
+  transition: transform 0.2s;
+}
+.node:hover { transform: translateY(-2px); }
+.node strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.node span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 5px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.node.blue { background: linear-gradient(135deg, #f0f7ff, #ffffff); border-color: rgba(2, 101, 220, 0.3); }
+.node.blue strong { color: var(--blue); }
+.node.o { background: linear-gradient(135deg, #fff7ef, #ffffff); border-color: rgba(255, 107, 0, 0.3); }
+.node.o strong { color: #d95a00; }
+.node.g { background: linear-gradient(135deg, #f0fdf4, #ffffff); border-color: rgba(5, 150, 105, 0.3); }
+.node.g strong { color: var(--green); }
+.node.p { background: linear-gradient(135deg, #faf5ff, #ffffff); border-color: rgba(124, 58, 237, 0.3); }
+.node.p strong { color: var(--purple); }
+
+.arrow {
+  align-self: center;
+  flex: none;
+  color: var(--orange);
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 2px 4px rgba(255, 107, 0, 0.25));
+}
+
+/* ==========================================================================
+   Title Slide Specifics (Aligned with Cyber Dark Section Openers)
+   ========================================================================== */
+.title-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.75fr);
+  gap: clamp(30px, 5vw, 70px);
+  align-items: center;
+  text-align: left;
+}
+.title.divider .inner.title-layout {
+  max-width: 1180px;
+  text-align: left;
+}
+.title h1 {
+  font-size: clamp(2.5rem, 4.8vw, 4.4rem);
+  letter-spacing: -0.04em;
+  text-align: left;
+}
+.title.divider .lead {
+  margin: 18px 0 0 0;
+  text-align: left;
+}
+
+.title-panel {
+  position: relative;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(14, 28, 48, 0.88);
+  backdrop-filter: blur(16px);
+  border-radius: 20px;
+  padding: 24px 26px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(56, 189, 248, 0.15) inset;
+  text-align: left;
+}
+.title-panel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 24px;
+  bottom: 24px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, var(--orange), #38bdf8);
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.5);
+}
+.panel-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #38bdf8;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-label::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 8px var(--orange);
+}
+.title-panel dl {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.title-panel dl > div {
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+.title-panel dl > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.title-panel dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #8bb5dc;
+}
+.title-panel dd {
+  margin: 3px 0 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+.title-panel dd.small {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  font-weight: 600;
+  color: #e2f0fc;
+}
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 8px 0 2px 0;
+  width: 100%;
+}
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 12px;
+  gap: 12px;
+  background: rgba(2, 101, 220, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 7px;
+  box-sizing: border-box;
+  overflow: visible;
+  transition: all 0.2s ease;
+}
+.member-item:hover {
+  background: rgba(2, 101, 220, 0.22);
+  border-color: rgba(56, 189, 248, 0.55);
+}
+.member-name {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+.member-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.04em;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   Divider & Closing Slides (High-Contrast Cyber Dark Theme)
+   ========================================================================== */
+.divider, .closing {
+  background-color: var(--dark-bg);
+  background-image: 
+    radial-gradient(rgba(56, 189, 248, 0.2) 1.2px, transparent 1.2px),
+    linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 85% 20%, rgba(0, 210, 211, 0.18), transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(255, 107, 0, 0.16), transparent 45%),
+    linear-gradient(135deg, #07111e 0%, #0c1a2c 60%, #0f243d 100%);
+  background-size: 28px 28px, 56px 56px, 56px 56px, 100% 100%, 100% 100%, 100% 100%;
+  color: #ffffff;
+  text-align: center;
+}
+.divider::before, .closing::before {
+  right: auto;
+  top: auto;
+  left: -10vw;
+  bottom: -15vw;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.25) 0%, transparent 65%);
+}
+.divider::after, .closing::after {
+  content: "";
+  position: absolute;
+  right: -10vw;
+  top: -15vw;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(2, 101, 220, 0.3) 0%, transparent 65%);
+}
+
+.divider .inner { max-width: 920px; }
+
+/* CRISP CONTRAST TYPOGRAPHY ON DARK SLIDES */
+.divider h1, .closing h1,
+.divider h2, .closing h2,
+.divider h3, .closing h3 {
+  color: #ffffff !important;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+.divider .eyebrow, .closing .eyebrow {
+  color: #ffa14a;
+  background: rgba(255, 107, 0, 0.18);
+  border-color: rgba(255, 107, 0, 0.4);
+  box-shadow: 0 0 12px rgba(255, 107, 0, 0.2);
+}
+.divider .lead, .closing .lead {
+  margin: 16px auto 0;
+  color: #c7dcee !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.closing .bar { margin-left: auto; margin-right: auto; }
+
+.closing .card {
+  background: rgba(14, 28, 48, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(56, 189, 248, 0.1) inset;
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+}
+.closing .card h3 { color: #ffffff !important; }
+.closing .card p { color: #a4c4e2 !important; }
+.closing .card:hover {
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.closing .tech-watermark, .divider .tech-watermark {
+  color: rgba(164, 196, 226, 0.25);
+}
+.closing .tech-hud-corners::before, .divider .tech-hud-corners::before {
+  color: #38bdf8;
+  opacity: 0.7;
+}
+.closing .tech-hud-corners::after, .divider .tech-hud-corners::after {
+  color: #ffaa4a;
+  opacity: 0.7;
+}
+
+.divider .footer, .closing .footer {
+  color: #a4c4e2;
+  border-top: 1px dashed rgba(56, 189, 248, 0.35);
+}
+.divider .footer span:first-child::before, .closing .footer span:first-child::before {
+  color: #38bdf8;
+}
+
+/* ==========================================================================
+   Use Case Hub Diagram
+   ========================================================================== */
+.usecase {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  align-items: center;
+  gap: 20px;
+}
+.side { display: grid; gap: 14px; }
+.pill {
+  padding: 12px 14px;
+  border: 1px solid rgba(176, 201, 226, 0.95);
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(11, 25, 44, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.pill:hover {
+  transform: scale(1.02);
+  border-color: var(--blue);
+}
+.core {
+  min-height: 310px;
+  border: 2px solid rgba(2, 101, 220, 0.35);
+  border-radius: 28px;
+  background: linear-gradient(145deg, #f0f7ff 0%, #ffffff 100%);
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 26px;
+  box-shadow: 0 16px 36px rgba(2, 101, 220, 0.12), 0 0 0 8px rgba(2, 101, 220, 0.03);
+  position: relative;
+}
+.core::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, var(--blue), var(--orange));
+  z-index: -1;
+  opacity: 0.25;
+}
+.core h3 {
+  font-size: 1.6rem;
+  color: var(--blue);
+  margin: 10px 0;
+}
+.core p {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   Product Mockup / Tech Showcase Frames
+   ========================================================================== */
+.shot {
+  height: 200px;
+  border: 1px solid rgba(176, 201, 226, 0.95);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f2f8ff);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(11, 25, 44, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+.shot::before {
+  content: "● ● ●";
+  display: block;
+  font-size: 8px;
+  letter-spacing: 4px;
+  color: #94a3b8;
+  padding: 8px 14px;
+  background: #eef4fb;
+  border-bottom: 1px solid rgba(176, 201, 226, 0.8);
+  font-family: monospace;
+}
+.shot-body {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 14px;
+  color: var(--muted);
+}
+.shot i {
+  color: var(--blue);
+  margin: 0 auto 8px;
+  width: 28px;
+  height: 28px;
+}
+.shot strong {
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+.shot small {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   ERD Dark Cyber Board
+   ========================================================================== */
+.erd {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  background: var(--dark-bg);
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid var(--dark-line);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+.erd::before {
+  content: "POSTGRESQL_17 // RELATIONAL_SCHEMA";
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(56, 189, 248, 0.6);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.entity {
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(14, 28, 48, 0.92);
+  backdrop-filter: blur(8px);
+}
+.entity h3 {
+  padding: 8px 12px;
+  background: linear-gradient(90deg, #d95a00, var(--orange));
+  font-size: 0.76rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff !important;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.entity h3::after {
+  content: "TABLE";
+  font-size: 0.55rem;
+  opacity: 0.85;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.entity p {
+  padding: 10px 12px;
+  color: #d1e5f8;
+  font: 500 0.66rem/1.65 "JetBrains Mono", monospace;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Sequence Steps
+   ========================================================================== */
+.sequence {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.steps {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.step {
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: var(--soft);
+  font-size: 0.74rem;
+  font-weight: 500;
+  border: 1px solid rgba(2, 101, 220, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.step::before {
+  content: "→";
+  color: var(--blue);
+  font-weight: 700;
+  font-family: monospace;
+}
+.step:nth-child(even) {
+  background: var(--orange-soft);
+  border-color: rgba(255, 107, 0, 0.18);
+}
+.step:nth-child(even)::before { color: var(--orange); }
+.step:nth-child(3n) {
+  background: var(--green-soft);
+  border-color: rgba(5, 150, 105, 0.18);
+}
+.step:nth-child(3n)::before { color: var(--green); }
+
+/* ==========================================================================
+   Security & Metrics
+   ========================================================================== */
+.security {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.security .card {
+  text-align: center;
+  padding: 18px 10px;
+}
+.security i {
+  width: 24px;
+  height: 24px;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+.security h3 { font-size: 0.78rem; margin-bottom: 4px; }
+.security p { font-size: 0.68rem; margin-top: 0; font-family: 'JetBrains Mono', monospace; }
+
+.metric {
+  text-align: center;
+  padding: 20px 14px;
+}
+.metric strong {
+  display: block;
+  font: 800 2.1rem "JetBrains Mono", monospace;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.metric span {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 860px) {
+  .slide { padding: 68px 20px 60px; }
+  .inner { transform: translateY(-6px); }
+  .g2, .g3, .g4, .sequence { grid-template-columns: 1fr; }
+  .flow { flex-wrap: wrap; }
+  .arrow { transform: rotate(90deg); }
+  .usecase { grid-template-columns: 1fr; }
+  .side { grid-template-columns: repeat(2, 1fr); }
+  .core { order: -1; min-height: 220px; }
+  .erd { grid-template-columns: 1fr; }
+  .security { grid-template-columns: repeat(2, 1fr); }
+  .dots { display: none; }
+  .logo { left: 16px; top: 14px; }
+  .footer { left: 20px; right: 20px; }
+  .title-layout { grid-template-columns: 1fr; gap: 24px; }
+  .title-panel { max-width: 520px; }
+}
+</style>
+</head>
+<body>
+
+<div class="logo" id="school-logo">
+  <img src="assets/fpt-polytechnic-logo.png" alt="FPT Polytechnic" onload="this.parentElement.classList.add('has-image')" onerror="this.remove()">
+  <div class="logo-fallback">
+    <b>FPT</b>
+    <span>FPT POLYTECHNIC<br>ĐÀ NẴNG</span>
+  </div>
+</div>
+
+<div class="progress" id="progress"></div>
+<nav class="dots" id="dots"></nav>
+<div class="counter" id="counter"><strong>01</strong> / 23</div>
+
+<!-- SLIDE 1 -->
+<section class="slide divider title">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1" style="border-color:rgba(56,189,248,0.3)"></div>
+    <div class="orbit-ring-2" style="border-color:rgba(255,107,0,0.3)"></div>
+    <div class="orbit-ring-3" style="border-color:rgba(0,210,211,0.2)"></div>
+    <div class="dot-matrix" style="opacity:0.4"></div>
+    <div class="circuit-trace" style="opacity:0.25"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">CAPSTONE_PROJECT // SD20303 // LEARNOVA</div>
+  <div class="inner title-layout">
+    <div>
+      <div class="bar"></div>
+      <div class="eyebrow">Báo cáo dự án tốt nghiệp · SD20303</div>
+      <h1>Xây dựng ứng dụng học trực tuyến <span style="color:#ffa14a">LearnOva</span></h1>
+      <p class="lead" style="margin-top:18px">Nền tảng kết nối người học, giảng viên và quản trị viên trong một hành trình học tập trực tuyến thống nhất.</p>
+    </div>
+    <aside class="title-panel">
+      <div class="panel-label">Thông tin đề tài</div>
+      <dl>
+        <div>
+          <dt>Giáo viên hướng dẫn</dt>
+          <dd>Nguyễn Ngọc Anh</dd>
+        </div>
+        <div>
+          <dt>Lớp · Nhóm</dt>
+          <dd>SD20303 · Nhóm 2</dd>
+        </div>
+        <div>
+          <dt>Thành viên thực hiện</dt>
+          <dd class="member-list">
+            <div class="member-item"><span class="member-name">Phạm Gia Khanh</span><span class="member-id">PD11662</span></div>
+            <div class="member-item"><span class="member-name">Nguyễn Phi Thông</span><span class="member-id">PD11675</span></div>
+            <div class="member-item"><span class="member-name">Đoàn Tấn Hiếu</span><span class="member-id">PD11725</span></div>
+            <div class="member-item"><span class="member-name">Nguyễn Nhật Minh</span><span class="member-id">PD11884</span></div>
+          </dd>
+        </div>
+        <div>
+          <dt>Thời gian báo cáo</dt>
+          <dd>Ngày 03/09/2026</dd>
+        </div>
+      </dl>
+    </aside>
+  </div>
+  <div class="footer" style="color:#a4c4e2"><span>LearnOva · Dự án tốt nghiệp</span><span>01</span></div>
+</section>
+
+<!-- SLIDE 2 -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PROBLEM_STATEMENT // PLATFORM_GOALS</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Bài toán &amp; mục tiêu</div>
+      <h2>Đưa hành trình học từ <span class="orange">rời rạc</span> về một nền tảng</h2>
+    </div>
+    <div class="flow">
+      <div class="node">
+        <strong>Đào tạo trực tiếp</strong>
+        <span>Giới hạn không gian và thời gian</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node">
+        <strong>Nhiều công cụ</strong>
+        <span>Video · tài liệu · trao đổi · thanh toán</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node o">
+        <strong>LearnOva</strong>
+        <span>Một nền tảng học tập tập trung</span>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:20px">
+      <article class="card">
+        <span class="tag o">Người học</span>
+        <h3 style="margin-top:11px">Theo dõi tiến độ</h3>
+        <p>Học video, tài liệu, quiz và nhận hỗ trợ trong ngữ cảnh.</p>
+      </article>
+      <article class="card">
+        <span class="tag g">Giảng viên</span>
+        <h3 style="margin-top:11px">Quản lý nội dung</h3>
+        <p>Tổ chức bài giảng, tương tác và theo dõi người học.</p>
+      </article>
+      <article class="card">
+        <span class="tag p">Tổ chức</span>
+        <h3 style="margin-top:11px">Vận hành có dữ liệu</h3>
+        <p>Quản trị người dùng, khóa học, đơn hàng và doanh thu.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Bài toán &amp; mục tiêu</span><span>02</span></div>
+</section>
+
+<!-- SLIDE 3 -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PRODUCT_SHOWCASE // UI_UX_EXPERIENCE</div>
+  <div class="inner" style="transform:translateY(-10px);width:min(1240px,100%);">
+    <div class="header" style="margin-bottom:8px">
+      <div class="eyebrow" style="margin-bottom:3px">Tổng quan sản phẩm</div>
+      <h2 style="margin-bottom:2px">Một trải nghiệm <span class="orange">xuyên suốt</span> trên web</h2>
+      <p class="lead" style="font-size:0.86rem;line-height:1.3">Giao diện hiện đại kết nối ba vai trò: Người học, Giảng viên và Quản trị viên trong một thể thống nhất.</p>
+    </div>
+    <div class="product-shots" aria-label="Các giao diện của LearnOva" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:1220px;margin:0 auto;height:clamp(420px,64vh,570px);">
+      <div style="background:#ffffff;border:1px solid rgba(176,201,226,0.95);border-radius:10px;box-shadow:0 6px 18px rgba(11,25,44,0.08);overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+        <div style="background:#edf3fa;padding:4px 10px;border-bottom:1px solid rgba(176,201,226,0.8);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span style="font-size:7px;letter-spacing:3px;color:#94a3b8;font-family:monospace;line-height:1">● ● ●</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:700;color:var(--muted);letter-spacing:0.02em;">Trang chủ &amp; Khám phá khóa học</span>
+        </div>
+        <div style="background:#0b192c;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0;">
+          <img src="assets/home.png" alt="Trang chủ và khám phá khóa học" style="width:100%;height:100%;object-fit:contain;display:block;">
+        </div>
+      </div>
+
+      <div style="background:#ffffff;border:1px solid rgba(176,201,226,0.95);border-radius:10px;box-shadow:0 6px 18px rgba(11,25,44,0.08);overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+        <div style="background:#edf3fa;padding:4px 10px;border-bottom:1px solid rgba(176,201,226,0.8);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span style="font-size:7px;letter-spacing:3px;color:#94a3b8;font-family:monospace;line-height:1">● ● ●</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:700;color:var(--muted);letter-spacing:0.02em;">Không gian học trực tuyến</span>
+        </div>
+        <div style="background:#0b192c;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0;">
+          <img src="assets/learning_player.png" alt="Không gian học trực tuyến" style="width:100%;height:100%;object-fit:contain;display:block;">
+        </div>
+      </div>
+
+      <div style="background:#ffffff;border:1px solid rgba(176,201,226,0.95);border-radius:10px;box-shadow:0 6px 18px rgba(11,25,44,0.08);overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+        <div style="background:#edf3fa;padding:4px 10px;border-bottom:1px solid rgba(176,201,226,0.8);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span style="font-size:7px;letter-spacing:3px;color:#94a3b8;font-family:monospace;line-height:1">● ● ●</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:700;color:var(--muted);letter-spacing:0.02em;">Cổng thông tin giảng viên</span>
+        </div>
+        <div style="background:#0b192c;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0;">
+          <img src="assets/teacher.png" alt="Cổng thông tin giảng viên" style="width:100%;height:100%;object-fit:contain;display:block;">
+        </div>
+      </div>
+
+      <div style="background:#ffffff;border:1px solid rgba(176,201,226,0.95);border-radius:10px;box-shadow:0 6px 18px rgba(11,25,44,0.08);overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+        <div style="background:#edf3fa;padding:4px 10px;border-bottom:1px solid rgba(176,201,226,0.8);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span style="font-size:7px;letter-spacing:3px;color:#94a3b8;font-family:monospace;line-height:1">● ● ●</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:700;color:var(--muted);letter-spacing:0.02em;">Không gian quản trị viên</span>
+        </div>
+        <div style="background:#0b192c;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0;">
+          <img src="assets/admin.png" alt="Không gian quản trị viên" style="width:100%;height:100%;object-fit:contain;display:block;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Tổng quan sản phẩm</span><span>03</span></div>
+</section>
+
+<!-- SLIDE 4 -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">TEAM_MODULE_OWNERSHIP // ARCHITECTURE</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Nhóm thực hiện</div>
+      <h2>Thành viên &amp; <span class="orange">phân công</span></h2>
+      <p class="lead">Mỗi thành viên phụ trách một miền nghiệp vụ xuyên suốt; kiến trúc, chuẩn mực và chất lượng được chia sẻ chung.</p>
+    </div>
+    <div class="grid g4">
+      <article class="card">
+        <div class="number">01 · KHANH</div>
+        <div class="icon o"><i data-lucide="layers-3"></i></div>
+        <h3>Core &amp; tech</h3>
+        <p>Tech stack, course creation, database, search, auto-deploy, CI/CD.</p>
+      </article>
+      <article class="card">
+        <div class="number">02 · HIẾU</div>
+        <div class="icon g"><i data-lucide="landmark"></i></div>
+        <h3>Admin &amp; commerce</h3>
+        <p>Admin workspace, payment, voucher, lịch sử giao dịch.</p>
+      </article>
+      <article class="card">
+        <div class="number">03 · THÔNG</div>
+        <div class="icon p"><i data-lucide="users-round"></i></div>
+        <h3>User experience</h3>
+        <p>User functions, AI, quiz, chat, hồ sơ và trải nghiệm học.</p>
+      </article>
+      <article class="card">
+        <div class="number">04 · MINH</div>
+        <div class="icon"><i data-lucide="graduation-cap"></i></div>
+        <h3>Teacher portal</h3>
+        <p>Nghiệp vụ giảng viên, quản lý bài giảng, lớp học và học viên.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Thành viên &amp; phân công</span><span>04</span></div>
+</section>
+
+<!-- SLIDE 5 · PART I / THONG -->
+<section class="slide divider">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1" style="border-color:rgba(56,189,248,0.3)"></div>
+    <div class="orbit-ring-2" style="border-color:rgba(255,107,0,0.3)"></div>
+    <div class="dot-matrix" style="opacity:0.4"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PART_I // USER_EXPERIENCE // THONG</div>
+  <div class="inner">
+    <div class="eyebrow">Phần I · Nguyễn Phi Thông</div>
+    <h2>Trải nghiệm người dùng &amp; <span style="color:#ffa14a">không gian học tập</span></h2>
+    <p class="lead">Nghiệp vụ người học, tính năng tương tác thông minh và thiết kế trải nghiệm học tập xuyên suốt.</p>
+  </div>
+  <div class="footer" style="color:#a4c4e2"><span>Phần I · User experience · Thông</span><span>05</span></div>
+</section>
+
+<!-- SLIDE 6 · THONG -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">USE_CASE_USER // LEARNER_CAPABILITIES</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Use Case · Thông</div>
+      <h2>Use Case <span class="orange">người dùng</span></h2>
+      <p class="lead">Tổng hợp các nhóm nghiệp vụ và chức năng chính dành cho người học trên hệ thống.</p>
+    </div>
+    <div class="usecase">
+      <div class="side">
+        <div class="pill"><i data-lucide="search" style="width:16px;height:16px;color:var(--blue)"></i> Tìm kiếm khóa học</div>
+        <div class="pill"><i data-lucide="shopping-cart" style="width:16px;height:16px;color:var(--orange)"></i> Mua &amp; thanh toán</div>
+        <div class="pill"><i data-lucide="play" style="width:16px;height:16px;color:var(--green)"></i> Học bài giảng video</div>
+        <div class="pill"><i data-lucide="clipboard-check" style="width:16px;height:16px;color:var(--purple)"></i> Làm quiz</div>
+      </div>
+      <div class="core">
+        <i data-lucide="user-check" style="width:42px;height:42px;color:var(--blue);margin:0 auto 10px"></i>
+        <h3>Người học</h3>
+        <p>Trung tâm của mọi tính năng trải nghiệm trên LearnOva</p>
+      </div>
+      <div class="side">
+        <div class="pill"><i data-lucide="bot" style="width:16px;height:16px;color:var(--blue)"></i> Trợ lý AI hỗ trợ</div>
+        <div class="pill"><i data-lucide="message-square" style="width:16px;height:16px;color:var(--orange)"></i> Hỏi đáp &amp; bình luận</div>
+        <div class="pill"><i data-lucide="trending-up" style="width:16px;height:16px;color:var(--green)"></i> Theo dõi tiến độ</div>
+        <div class="pill"><i data-lucide="user-cog" style="width:16px;height:16px;color:var(--purple)"></i> Cá nhân hoá hồ sơ</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần I · User experience · Thông</span><span>06</span></div>
+</section>
+
+<!-- SLIDE 7 · THONG -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">LEARNING_JOURNEY // END_TO_END_FLOW</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Hành trình học tập · Thông</div>
+      <h2>Hành trình học tập <span class="orange">end-to-end</span></h2>
+      <p class="lead">Từ lần đầu khám phá đến khi hoàn thành khoá học — từng điểm chạm được tối ưu liền mạch.</p>
+    </div>
+    <div class="flow">
+      <div class="node blue">
+        <strong>Khám phá</strong>
+        <span>Tìm kiếm · xem chi tiết</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node o">
+        <strong>Đăng ký</strong>
+        <span>Thêm giỏ · thanh toán</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node p">
+        <strong>Học tập</strong>
+        <span>Video · ghi chú · quiz</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node g">
+        <strong>Hoàn thành</strong>
+        <span>Đạt mục tiêu · chứng nhận</span>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:22px">
+      <article class="card">
+        <div class="icon"><i data-lucide="compass"></i></div>
+        <h3>Khám phá thông minh</h3>
+        <p>Bộ lọc đa tiêu chí, xem trước bài giảng, đánh giá và cấu trúc chương trình học rõ ràng.</p>
+      </article>
+      <article class="card">
+        <div class="icon p"><i data-lucide="tv-2"></i></div>
+        <h3>Không gian học tập</h3>
+        <p>Trình phát video HLS mượt mà, lưu vị trí phát, tự động đánh dấu tiến độ và ghi chú nhanh.</p>
+      </article>
+      <article class="card">
+        <div class="icon g"><i data-lucide="award"></i></div>
+        <h3>Đánh giá &amp; tiến độ</h3>
+        <p>Làm quiz kiểm tra sau từng bài, biểu đồ tiến độ học tập và theo dõi tỷ lệ hoàn thành.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Phần I · User experience · Thông</span><span>07</span></div>
+</section>
+
+<!-- SLIDE 8 · THONG -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">AI_INTERACTION // SMART_LEARNER_SPACE</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Tương tác thông minh · Thông</div>
+      <h2>AI &amp; tương tác <span class="orange">người học</span></h2>
+      <p class="lead">Kết hợp trợ lý AI thông minh và các kênh tương tác xã hội trong từng bài giảng.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card" style="background:linear-gradient(145deg, #0c1a2c, #132a48); color:#fff; border:1px solid rgba(56,189,248,0.3)">
+        <span class="tag o">AI Assistant</span>
+        <h3 style="font-size:1.55rem;margin:14px 0 8px;color:#fff !important">Hỗ trợ học tập theo ngữ cảnh</h3>
+        <p style="color:#b5d4f0">Trợ lý AI sẵn sàng giải đáp thắc mắc ngay trong màn hình bài học, tóm tắt nội dung và giải thích thuật ngữ chuyên sâu.</p>
+        <div class="flow" style="margin-top:20px">
+          <div class="node" style="background:#ffffff"><strong style="color:var(--ink)">Đặt câu hỏi</strong><span>Ngay tại bài học</span></div>
+          <div class="node" style="background:#ffffff"><strong style="color:var(--ink)">Ngữ cảnh hóa</strong><span>Theo nội dung lesson</span></div>
+          <div class="node" style="background:#ffffff"><strong style="color:var(--ink)">Phản hồi</strong><span>Giải thích chi tiết</span></div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="icon p"><i data-lucide="help-circle"></i></div>
+          <h3>Quiz &amp; kiểm tra kiến thức</h3><p>Bộ câu hỏi trắc nghiệm sau bài học, chấm điểm tức thì và giải thích đáp án.</p>
+        </div>
+        <div class="card">
+          <div class="icon o"><i data-lucide="message-square-text"></i></div>
+          <h3>Thảo luận &amp; Q&amp;A</h3><p>Kênh hỏi đáp trực tiếp theo từng section, kết nối người học và giảng viên.</p>
+        </div>
+        <div class="card">
+          <div class="icon g"><i data-lucide="bell"></i></div>
+          <h3>Thông báo &amp; phản hồi</h3><p>Nhắc nhở học tập cá nhân, cập nhật mới từ khoá học và tin tức lớp học.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần I · User experience · Thông</span><span>08</span></div>
+</section>
+
+<!-- SLIDE 9 · THONG -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">ACCOUNT_PROFILE // PERSONALIZATION</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Cá nhân hoá · Thông</div>
+      <h2>Tài khoản &amp; <span class="orange">cá nhân hoá</span></h2>
+      <p class="lead">Cung cấp không gian quản lý danh tính, khoá học đã đăng ký và tuỳ biến trải nghiệm người dùng.</p>
+    </div>
+    <div class="flow">
+      <div class="node blue">
+        <strong>Xác thực đa kênh</strong>
+        <span>Email/Password · Google OAuth2</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node p">
+        <strong>Hồ sơ người dùng</strong>
+        <span>Thông tin · bảo mật · avatar</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node o">
+        <strong>My Courses</strong>
+        <span>Quản lý khoá học đang theo dõi</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node g">
+        <strong>Wishlist &amp; Lịch sử</strong>
+        <span>Khoá học yêu thích · đơn hàng</span>
+      </div>
+    </div>
+    <div class="grid g4" style="margin-top:20px">
+      <div class="card">
+        <div class="icon"><i data-lucide="shield-check"></i></div>
+        <h3>Bảo mật tài khoản</h3>
+        <p>JWT Token, HttpOnly Cookie an toàn, đổi mật khẩu và khôi phục tài khoản.</p>
+      </div>
+      <div class="card">
+        <div class="icon p"><i data-lucide="user-pen"></i></div>
+        <h3>Quản lý hồ sơ</h3>
+        <p>Cập nhật thông tin cá nhân, ảnh đại diện và thông tin liên hệ.</p>
+      </div>
+      <div class="card">
+        <div class="icon o"><i data-lucide="book-marked"></i></div>
+        <h3>Khóa học của tôi</h3>
+        <p>Theo dõi tiến độ, tiếp tục bài học gần nhất và truy cập tài liệu nhanh.</p>
+      </div>
+      <div class="card">
+        <div class="icon g"><i data-lucide="heart"></i></div>
+        <h3>Danh sách yêu thích</h3>
+        <p>Lưu trữ các khoá học quan tâm để so sánh và đăng ký khi có ưu đãi.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần I · User experience · Thông</span><span>09</span></div>
+</section>
+
+<!-- SLIDE 10 · PART II / MINH -->
+<section class="slide divider">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1" style="border-color:rgba(56,189,248,0.3)"></div>
+    <div class="orbit-ring-2" style="border-color:rgba(255,107,0,0.3)"></div>
+    <div class="dot-matrix" style="opacity:0.4"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PART_II // TEACHER_PORTAL // MINH</div>
+  <div class="inner">
+    <div class="eyebrow">Phần II · Nguyễn Nhật Minh</div>
+    <h2>Teacher Portal &amp; <span style="color:#ffa14a">nghiệp vụ giảng dạy</span></h2>
+    <p class="lead">Không gian làm việc của giảng viên, quản lý bài giảng, tài liệu và quy trình đồng hành cùng học viên.</p>
+  </div>
+  <div class="footer" style="color:#a4c4e2"><span>Phần II · Teacher portal · Minh</span><span>10</span></div>
+</section>
+
+<!-- SLIDE 11 · MINH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">TEACHER_WORKFLOW // STUDENT_ENGAGEMENT</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Quy trình giảng dạy · Minh</div>
+      <h2>Quy trình giảng dạy và <span class="orange">quản lý học viên</span></h2>
+      <p class="lead">Vòng lặp tương tác giúp giảng viên duy trì chất lượng bài giảng và hỗ trợ học viên kịp thời.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card" style="background:linear-gradient(145deg, #0c1a2c, #132a48); color:#fff; border:1px solid rgba(56,189,248,0.3)">
+        <span class="tag o">Teaching flow</span>
+        <h3 style="font-size:1.65rem;margin:14px 0 8px;color:#fff !important">Vòng lặp giảng dạy chuẩn hoá</h3>
+        <p style="color:#b5d4f0">Giảng viên quản lý nội dung xuất bản, đồng hành hỗ trợ người học và tiếp thu phản hồi để liên tục nâng cao chất lượng.</p>
+        <div class="flow" style="margin-top:22px">
+          <div class="node" style="background:#ffffff"><strong style="color:var(--ink)">Nội dung</strong><span>Lesson &amp; resource</span></div>
+          <div class="node" style="background:#ffffff"><strong style="color:var(--ink)">Lớp học</strong><span>Learners &amp; Q&amp;A</span></div>
+          <div class="node" style="background:#ffffff"><strong style="color:var(--ink)">Cải tiến</strong><span>Feedback &amp; report</span></div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="icon"><i data-lucide="users"></i></div>
+          <h3>Quản lý học viên</h3><p>Theo dõi danh sách đăng ký, tiến độ học tập và tỉ lệ tham gia bài học.</p>
+        </div>
+        <div class="card">
+          <div class="icon g"><i data-lucide="star"></i></div>
+          <h3>Đánh giá &amp; phản hồi</h3><p>Tiếp nhận xếp hạng đánh giá, giải đáp thắc mắc trong mục Q&amp;A.</p>
+        </div>
+        <div class="card">
+          <div class="icon p"><i data-lucide="megaphone"></i></div>
+          <h3>Thông báo lớp học</h3><p>Gửi thông báo cập nhật nội dung, lịch học và tài liệu mới tới người học.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần II · Teacher portal · Minh</span><span>11</span></div>
+</section>
+
+<!-- SLIDE 12 · MINH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">UI_UX_SYSTEM // ROLE_BASED_EXPERIENCE</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Giao diện &amp; trải nghiệm · Minh</div>
+      <h2>Một hệ giao diện <span class="orange">thống nhất</span> cho mọi vai trò</h2>
+      <p class="lead">Giao diện được tổ chức theo vai trò và tác vụ, giúp người dùng tiếp cận đúng thông tin và thao tác cần thiết trong từng ngữ cảnh.</p>
+    </div>
+    <div class="grid g3">
+      <article class="card">
+        <div class="icon"><i data-lucide="panels-top-left"></i></div>
+        <h3>Điều hướng rõ ràng</h3>
+        <p>Sidebar, trang tổng quan và các màn hình chức năng tạo một luồng thao tác nhất quán trên toàn hệ thống.</p>
+      </article>
+      <article class="card">
+        <div class="icon p"><i data-lucide="users-round"></i></div>
+        <h3>Trải nghiệm theo vai trò</h3>
+        <p>Người học, giảng viên và quản trị viên nhìn thấy không gian làm việc phù hợp với trách nhiệm của mình.</p>
+      </article>
+      <article class="card">
+        <div class="icon g"><i data-lucide="smartphone"></i></div>
+        <h3>Responsive &amp; dễ tiếp cận</h3>
+        <p>Bố cục thích ứng với nhiều kích thước màn hình, ưu tiên khả năng đọc và thao tác liên tục.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Phần II · Teacher portal &amp; UI/UX · Minh</span><span>12</span></div>
+</section>
+
+<!-- SLIDE 13 · MINH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">TEACHER_WORKSPACE // CLASSROOM_INSIGHTS</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Teacher workspace · Minh</div>
+      <h2>Giảng viên theo sát <span class="orange">lớp học và học viên</span></h2>
+      <p class="lead">Teacher Portal tập trung vào hoạt động giảng dạy và tương tác với học viên; nghiệp vụ CRUD khóa học được tách thành domain riêng.</p>
+    </div>
+    <div class="grid g3">
+      <article class="card">
+        <div class="icon"><i data-lucide="layout-dashboard"></i></div>
+        <h3>Bảng điều khiển giảng viên</h3>
+        <p>Tổng hợp lớp học, số lượng học viên, mức độ tham gia và các việc cần xử lý trong một điểm truy cập.</p>
+      </article>
+      <article class="card">
+        <div class="icon g"><i data-lucide="chart-no-axes-combined"></i></div>
+        <h3>Theo dõi tiến độ</h3>
+        <p>Quan sát tỷ lệ hoàn thành bài học và tiến độ trung bình để kịp thời nhận diện học viên cần hỗ trợ.</p>
+      </article>
+      <article class="card">
+        <div class="icon p"><i data-lucide="messages-square"></i></div>
+        <h3>Trao đổi đúng ngữ cảnh</h3>
+        <p>Thông báo, phản hồi và trao đổi học tập được đặt trong ngữ cảnh lớp học để duy trì kết nối liên tục.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Phần II · Teacher portal &amp; UI/UX · Minh</span><span>13</span></div>
+</section>
+
+<!-- SLIDE 14 · PART III / HIEU -->
+<section class="slide divider">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1" style="border-color:rgba(56,189,248,0.3)"></div>
+    <div class="orbit-ring-2" style="border-color:rgba(255,107,0,0.3)"></div>
+    <div class="dot-matrix" style="opacity:0.4"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PART_III // ADMIN_COMMERCE // HIEU</div>
+  <div class="inner">
+    <div class="eyebrow">Phần III · Đoàn Tấn Hiếu</div>
+    <h2>Admin Workspace &amp; <span style="color:#ffa14a">quản trị thương mại</span></h2>
+    <p class="lead">Quản lý toàn bộ vận hành hệ thống, kiểm soát người dùng, danh mục khóa học và quy trình giao dịch thanh toán.</p>
+  </div>
+  <div class="footer" style="color:#a4c4e2"><span>Phần III · Admin &amp; commerce · Hiếu</span><span>14</span></div>
+</section>
+
+<!-- SLIDE 15 · HIEU -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PAYMENT_FLOW // PAYOS_WEBHOOK</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Cổng thanh toán · Hiếu</div>
+      <h2>Thanh toán <span class="orange">PayOS / Webhook</span></h2>
+      <p class="lead">Quy trình xử lý giao dịch tự động, chỉ cấp quyền truy cập khóa học khi webhook xác thực thành công.</p>
+    </div>
+    <div class="flow">
+      <div class="node blue">
+        <strong>Giỏ hàng &amp; Voucher</strong><span>Kiểm tra áp dụng mã giảm giá</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node p">
+        <strong>Tạo Order</strong><span>Khởi tạo đơn và mã thanh toán</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node o">
+        <strong>Cổng PayOS</strong><span>Quét mã VietQR chuyển khoản</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node g">
+        <strong>Xác minh Webhook</strong><span>Kích hoạt quyền học (Enrollment)</span>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="card">
+        <div class="icon o"><i data-lucide="qr-code"></i></div>
+        <h3>Tích hợp PayOS VietQR</h3>
+        <p>Tạo mã QR thanh toán động kèm mã đơn hàng, tương thích với tất cả ngân hàng tại Việt Nam.</p>
+      </div>
+      <div class="card">
+        <div class="icon g"><i data-lucide="shield-check"></i></div>
+        <h3>Webhook bảo mật</h3>
+        <p>Xác thực chữ ký HMAC để đảm bảo tính toàn vẹn dữ liệu, chống giả mạo trạng thái thanh toán.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần III · Admin &amp; commerce · Hiếu</span><span>15</span></div>
+</section>
+
+<!-- SLIDE 16 · HIEU -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">VOUCHER_HISTORY // ADMIN_COMMERCE</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Thương mại &amp; giao dịch · Hiếu</div>
+      <h2>Voucher, đơn hàng và <span class="orange">lịch sử giao dịch</span></h2>
+      <p class="lead">Quản lý chính sách khuyến mãi, kiểm soát đơn hàng và minh bạch lịch sử thanh toán.</p>
+    </div>
+    <div class="flow">
+      <div class="node blue">
+        <strong>Quản lý Voucher</strong><span>Cấu hình hạn mức, số lượng &amp; hạn dùng</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node o">
+        <strong>Theo dõi Đơn hàng</strong><span>Trạng thái PENDING, COMPLETED, CANCELLED</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node g">
+        <strong>Lịch sử giao dịch</strong><span>Tra cứu biên lai cho cả User và Admin</span>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:22px">
+      <article class="card">
+        <span class="tag">01 · Voucher</span>
+        <h3 style="margin-top:10px">Khuyến mãi linh hoạt</h3>
+        <p>Kiểm tra điều kiện đơn hàng, ngày áp dụng và số lượt sử dụng tối đa trước khi giảm trừ.</p>
+      </article>
+      <article class="card">
+        <span class="tag o">02 · Đơn hàng</span>
+        <h3 style="margin-top:10px">Đối soát minh bạch</h3>
+        <p>Lưu vết chi tiết từng giao dịch, mã tham chiếu PayOS và thời gian thanh toán chính xác.</p>
+      </article>
+      <article class="card">
+        <span class="tag g">03 · Doanh thu</span>
+        <h3 style="margin-top:10px">Báo cáo thương mại</h3>
+        <p>Cung cấp số liệu tổng quan về dòng tiền, khóa học bán chạy và hiệu quả các chiến dịch.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Phần III · Admin &amp; commerce · Hiếu</span><span>16</span></div>
+</section>
+
+<!-- SLIDE 17 · HIEU -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">ADMIN_OPERATIONS // PLATFORM_CONTROL</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Vận hành hệ thống · Hiếu</div>
+      <h2>Admin Workspace kiểm soát <span class="orange">toàn bộ vận hành</span></h2>
+      <p class="lead">Không gian quản trị tập trung các tác vụ quản lý người dùng, kiểm duyệt nội dung và theo dõi hoạt động của nền tảng.</p>
+    </div>
+    <div class="grid g3">
+      <article class="card">
+        <div class="icon"><i data-lucide="users-cog"></i></div>
+        <h3>Quản lý người dùng</h3>
+        <p>Tra cứu, kích hoạt và quản lý tài khoản theo vai trò để bảo đảm vận hành đúng quy trình.</p>
+      </article>
+      <article class="card">
+        <div class="icon o"><i data-lucide="badge-check"></i></div>
+        <h3>Kiểm duyệt khóa học</h3>
+        <p>Rà soát trạng thái và phê duyệt nội dung trước khi công khai trên hệ thống, tách biệt với nghiệp vụ CRUD Course.</p>
+      </article>
+      <article class="card">
+        <div class="icon g"><i data-lucide="chart-no-axes-column-increasing"></i></div>
+        <h3>Theo dõi vận hành</h3>
+        <p>Tổng hợp tín hiệu về người dùng, khóa học và giao dịch để hỗ trợ quản trị viên ra quyết định.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Phần III · Admin &amp; commerce · Hiếu</span><span>17</span></div>
+</section>
+
+<!-- SLIDE 18 · PART IV / KHANH -->
+<section class="slide divider">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1" style="border-color:rgba(56,189,248,0.3)"></div>
+    <div class="orbit-ring-2" style="border-color:rgba(255,107,0,0.3)"></div>
+    <div class="dot-matrix" style="opacity:0.4"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">PART_IV // CORE_ENGINEERING // KHANH</div>
+  <div class="inner">
+    <div class="eyebrow">Phần IV · Phạm Gia Khanh</div>
+    <h2>Core Engineering, dữ liệu &amp; <span style="color:#ffa14a">hạ tầng triển khai</span></h2>
+    <p class="lead">Nền tảng kỹ thuật kết nối các domain nghiệp vụ và đảm bảo hệ thống vận hành bền bỉ, an toàn, có khả năng mở rộng cao.</p>
+  </div>
+  <div class="footer" style="color:#a4c4e2"><span>Phần IV · Core engineering · Khanh</span><span>18</span></div>
+</section>
+
+<!-- SLIDE 19 · KHANH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">SYSTEM_ARCHITECTURE // REST_SERVICES</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Kiến trúc hệ thống · Khanh</div>
+      <h2>Kiến trúc hệ thống qua <span class="orange">REST API</span></h2>
+      <p class="lead">Mô hình kiến trúc phân lớp rõ ràng giữa giao diện SPA và hệ thống backend dạng Hexagonal/DDD.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <div class="icon"><i data-lucide="monitor-smartphone"></i></div>
+        <h3>React + Vite Frontend</h3>
+        <p>SPA hiện đại với kiến trúc Feature-based, quản lý state nhất quán và tối ưu hoá bundle.</p>
+        <div class="steps">
+          <div class="step">User Interaction &amp; Routing</div>
+          <div class="step">Axios Client &amp; Interceptors</div>
+          <div class="step">UI State Management</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon p"><i data-lucide="server"></i></div>
+        <h3>Spring Boot + PostgreSQL Backend</h3>
+        <p>Kiến trúc phân tầng Hexagonal, xử lý logic domain chặt chẽ, tối ưu truy vấn và transaction.</p>
+        <div class="steps">
+          <div class="step">Controller &amp; DTO Validation</div>
+          <div class="step">Application Service &amp; Domain Core</div>
+          <div class="step">JPA Repository &amp; Adapters</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần IV · Core engineering · Khanh</span><span>19</span></div>
+</section>
+
+<!-- SLIDE 20 · KHANH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">DATABASE_DOMAINS // CORE_PLATFORM</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Mô hình dữ liệu · Khanh</div>
+      <h2>Dữ liệu kết nối các <span class="orange">domain cốt lõi</span></h2>
+    </div>
+    <div class="security">
+      <article class="card">
+        <i data-lucide="users-round"></i>
+        <h3>User &amp; Role</h3><p>Tài khoản, hồ sơ và vai trò</p>
+      </article>
+      <article class="card">
+        <i data-lucide="book-open-check"></i>
+        <h3>Course Structure</h3><p>Course, Section, Lesson</p>
+      </article>
+      <article class="card">
+        <i data-lucide="graduation-cap"></i>
+        <h3>Learning</h3><p>Enrollment, Progress, Certificate</p>
+      </article>
+      <article class="card">
+        <i data-lucide="receipt-text"></i>
+        <h3>Commerce</h3><p>Order, Payment, Voucher</p>
+      </article>
+      <article class="card">
+        <i data-lucide="message-square-text"></i>
+        <h3>Engagement</h3><p>Review, Q&amp;A, Notification</p>
+      </article>
+    </div>
+    <div class="card" style="margin-top:22px;border-left:4px solid var(--green)">
+      <p><strong style="color:var(--ink)">Nguyên tắc thiết kế dữ liệu:</strong> Mỗi domain sở hữu dữ liệu nghiệp vụ riêng nhưng liên kết qua các thực thể dùng chung, giúp truy vết hành trình từ khóa học, đăng ký học đến giao dịch và tiến độ.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Phần IV · Core engineering · Khanh</span><span>20</span></div>
+</section>
+
+<!-- SLIDE 21 · KHANH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">COURSE_MEDIA_SEARCH // PLATFORM_SERVICES</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">Course, media &amp; search · Khanh</div>
+      <h2>Course, media &amp; <span class="orange">search platform</span></h2>
+      <p class="lead">Chu trình xuất bản khoá học, xử lý video thích ứng HLS và tìm kiếm toàn văn tốc độ cao.</p>
+    </div>
+    <div class="flow">
+      <div class="node">
+        <strong>Tạo khóa học</strong><span>Thông tin, section, lesson &amp; giá</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node blue">
+        <strong>Upload video</strong><span>S3 Presigned URL trực tiếp</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node p">
+        <strong>Media pipeline</strong><span>MediaConvert chuyển đổi HLS</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node g">
+        <strong>Tìm kiếm</strong><span>Elasticsearch Full-text search</span>
+      </div>
+    </div>
+    <div class="grid g4" style="margin-top:24px">
+      <div class="card metric">
+        <strong>S3</strong><span>Lưu trữ video gốc an toàn</span>
+      </div>
+      <div class="card metric">
+        <strong>HLS</strong><span>Phát video thích ứng đa độ phân giải</span>
+      </div>
+      <div class="card metric">
+        <strong>CDN</strong><span>CloudFront tăng tốc truyền tải toàn cầu</span>
+      </div>
+      <div class="card metric">
+        <strong>ES</strong><span>Tìm kiếm full-text khoá học đa tiêu chí</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Phần IV · Core engineering · Khanh</span><span>21</span></div>
+</section>
+
+<!-- SLIDE 22 · KHANH -->
+<section class="slide">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="dot-matrix"></div>
+    <div class="circuit-trace"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">DEVOPS_PIPELINE // AWS_CLOUD_INFRASTRUCTURE</div>
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow">CI/CD &amp; AWS · Khanh</div>
+      <h2>CI/CD &amp; hạ tầng <span class="orange">AWS Cloud</span></h2>
+      <p class="lead">Quy trình tự động hóa triển khai từ Source code đến môi trường Production trên hạ tầng AWS.</p>
+    </div>
+    <div class="flow">
+      <div class="node">
+        <strong>GitHub Actions</strong>
+        <span>Test · Build · Package container</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node blue">
+        <strong>OIDC + AWS SSM</strong>
+        <span>Deploy an toàn không cần Secret tĩnh</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node o">
+        <strong>EC2 + Docker</strong>
+        <span>Vận hành Frontend, Backend, Database</span>
+      </div>
+      <i class="arrow" data-lucide="arrow-right"></i>
+      <div class="node g">
+        <strong>ALB + Nginx</strong>
+        <span>HTTPS SSL · datn.khanh.engineer</span>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:23px">
+      <article class="card">
+        <span class="tag">Infrastructure</span>
+        <h3 style="margin-top:10px">Terraform</h3>
+        <p>Quản lý hạ tầng dưới dạng code (IaC): ALB, EC2, Route 53, ACM và IAM Roles.</p>
+      </article>
+      <article class="card">
+        <span class="tag o">Containerization</span>
+        <h3 style="margin-top:10px">Docker Compose</h3>
+        <p>Đóng gói các services nhất quán giữa môi trường phát triển và Production.</p>
+      </article>
+      <article class="card">
+        <span class="tag g">Secrets</span>
+        <h3 style="margin-top:10px">Parameter Store</h3>
+        <p>Cung cấp cấu hình và biến môi trường Production an toàn khi deploy.</p>
+      </article>
+    </div>
+  </div>
+  <div class="footer"><span>Phần IV · Core engineering · Khanh</span><span>22</span></div>
+</section>
+
+<!-- SLIDE 23 -->
+<section class="slide closing">
+  <div class="bg-deco-layer">
+    <div class="orbit-ring-1" style="border-color:rgba(56,189,248,0.35)"></div>
+    <div class="orbit-ring-2" style="border-color:rgba(255,107,0,0.35)"></div>
+    <div class="dot-matrix" style="opacity:0.45"></div>
+  </div>
+  <div class="tech-hud-corners"></div>
+  <div class="tech-watermark">CONCLUSION // FUTURE_ROADMAP</div>
+  <div class="inner">
+    <div class="bar"></div>
+    <div class="eyebrow">Kết luận</div>
+    <h2>LearnOva cho một hành trình học tập <span style="color:#ffa14a">liền mạch</span></h2>
+    <p class="lead">Từ khám phá khóa học, thanh toán, học video đến quản trị nội dung và vận hành hạ tầng — các thành phần được thiết kế để tiếp tục mở rộng.</p>
+    <div class="grid g3" style="margin-top:29px;text-align:left">
+      <div class="card">
+        <span class="tag o">Next</span>
+        <h3 style="margin-top:10px;color:#ffffff !important">AI theo ngữ cảnh</h3>
+        <p>Kho tri thức chuyên sâu từ video và tài liệu bài giảng.</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="background:rgba(2,101,220,0.3);color:#38bdf8;border-color:rgba(56,189,248,0.4)">Next</span>
+        <h3 style="margin-top:10px;color:#ffffff !important">Recommendation</h3>
+        <p>Gợi ý lộ trình khoá học thông minh theo hành vi người học.</p>
+      </div>
+      <div class="card">
+        <span class="tag g" style="background:rgba(5,150,105,0.3);color:#34d399;border-color:rgba(52,211,153,0.4)">Next</span>
+        <h3 style="margin-top:10px;color:#ffffff !important">Scalable platform</h3>
+        <p>Tách cụm Microservices, Redis Cache và Kubernetes (EKS).</p>
+      </div>
+    </div>
+    <p style="margin-top:30px;font-size:1.18rem;font-weight:800;letter-spacing:-0.02em;color:#ffffff;text-shadow:0 2px 10px rgba(0,0,0,0.5)">Cảm ơn Hội đồng đã lắng nghe.</p>
+  </div>
+  <div class="footer" style="color:#a4c4e2"><span>LearnOva · Dự án tốt nghiệp</span><span>23</span></div>
+</section>
+
+<script>
+class Deck {
+  constructor() {
+    this.slides = [...document.querySelectorAll('.slide')];
+    this.index = 0;
+    this.dots = document.querySelector('#dots');
+    this.progress = document.querySelector('#progress');
+    this.counter = document.querySelector('#counter');
+    this.lock = false;
+    this.init();
+  }
+  init() {
+    this.slides.forEach((slide, i) => {
+      const b = document.createElement('button');
+      b.className = 'dot';
+      b.setAttribute('aria-label', `Slide ${i + 1}`);
+      b.onclick = () => slide.scrollIntoView({ behavior: 'smooth' });
+      this.dots.append(b);
+    });
+    this.dotEls = [...this.dots.children];
+    const ob = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        this.update(this.slides.indexOf(e.target));
+      }
+    }), { threshold: 0.55 });
+    this.slides.forEach(s => ob.observe(s));
+    document.addEventListener('keydown', e => this.key(e));
+    document.addEventListener('wheel', e => this.wheel(e), { passive: true });
+    this.update(0);
+  }
+  update(i) {
+    this.index = Math.max(0, i);
+    this.dotEls.forEach((d, n) => d.classList.toggle('active', n === i));
+    this.progress.style.width = `${((i + 1) / this.slides.length) * 100}%`;
+    this.counter.innerHTML = `<strong>${String(i + 1).padStart(2, '0')}</strong> / ${String(this.slides.length).padStart(2, '0')}`;
+  }
+  go(d) {
+    const nextIdx = Math.min(this.slides.length - 1, Math.max(0, this.index + d));
+    this.slides[nextIdx].scrollIntoView({ behavior: 'smooth' });
+  }
+  key(e) {
+    if (['ArrowDown', 'ArrowRight', 'PageDown', 'Space'].includes(e.code)) {
+      e.preventDefault();
+      this.go(1);
+    }
+    if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.code)) {
+      e.preventDefault();
+      this.go(-1);
+    }
+    if (e.code === 'Home') this.slides[0].scrollIntoView({ behavior: 'smooth' });
+    if (e.code === 'End') this.slides.at(-1).scrollIntoView({ behavior: 'smooth' });
+  }
+  wheel(e) {
+    if (this.lock) return;
+    this.lock = true;
+    this.go(e.deltaY > 0 ? 1 : -1);
+    setTimeout(() => this.lock = false, 600);
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  new Deck();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
