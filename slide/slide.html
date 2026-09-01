@@ -2121,7 +2121,6 @@ class Deck {
       const b = document.createElement('button');
       b.className = 'dot';
       b.setAttribute('aria-label', `Slide ${i + 1}`);
-      b.onclick = () => slide.scrollIntoView({ behavior: 'smooth' });
       this.dots.append(b);
     });
     this.dotEls = [...this.dots.children];
@@ -2132,6 +2131,9 @@ class Deck {
     }), { threshold: 0.55 });
     this.slides.forEach(s => ob.observe(s));
     document.addEventListener('keydown', e => this.key(e));
+    document.addEventListener('click', e => {
+      if (e.button === 0) this.go(1);
+    });
     document.addEventListener('wheel', e => this.wheel(e), { passive: true });
     this.update(0);
   }
@@ -2142,7 +2144,7 @@ class Deck {
     this.counter.innerHTML = `<strong>${String(i + 1).padStart(2, '0')}</strong> / ${String(this.slides.length).padStart(2, '0')}`;
   }
   go(d) {
-    const nextIdx = Math.min(this.slides.length - 1, Math.max(0, this.index + d));
+    const nextIdx = (this.index + d + this.slides.length) % this.slides.length;
     this.slides[nextIdx].scrollIntoView({ behavior: 'smooth' });
   }
   key(e) {
