@@ -24,7 +24,10 @@ const Header = () => {
   const profileRef = useRef(null);
 
   const adminProfile = useMemo(() => {
-    const displayName = currentUser?.fullName || currentUser?.email || "Admin";
+    const baseName = currentUser?.fullName || currentUser?.email || "Admin";
+    const displayName = currentUser?.roles?.includes("ROLE_ADMIN")
+      ? `AD - ${baseName}`
+      : baseName;
     return {
       displayName,
       email: currentUser?.email || "",
