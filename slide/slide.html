@@ -1318,8 +1318,8 @@ h3 {
       <article class="card">
         <div class="number">01 · KHANH</div>
         <div class="icon o"><i data-lucide="layers-3"></i></div>
-        <h3>Core &amp; tech</h3>
-        <p>Tech stack, course creation, database, search, auto-deploy, CI/CD.</p>
+        <h3>Core, Tech &amp; DevOps</h3>
+        <p>Tech stack, course creation, database, search, CI/CD, auto-deploy và vận hành AWS.</p>
       </article>
       <article class="card">
         <div class="number">02 · HIẾU</div>
@@ -1925,36 +1925,38 @@ h3 {
     <div class="circuit-trace"></div>
   </div>
   <div class="tech-hud-corners"></div>
-  <div class="tech-watermark">DATABASE_DOMAINS // CORE_PLATFORM</div>
+  <div class="tech-watermark">POSTGRESQL_SCHEMA // DATA_INTEGRITY</div>
   <div class="inner">
     <div class="header">
-      <div class="eyebrow">Mô hình dữ liệu · Khanh</div>
-      <h2>Dữ liệu kết nối các <span class="orange">domain cốt lõi</span></h2>
+      <div class="eyebrow">Thiết kế CSDL PostgreSQL · Khanh</div>
+      <h2>46 bảng dữ liệu, <span class="orange">chuẩn hóa theo nghiệp vụ</span></h2>
+      <p class="lead">Schema được tổ chức theo các thực thể và quan hệ nghiệp vụ; ràng buộc dữ liệu ở database giúp duy trì tính nhất quán khi hệ thống vận hành.</p>
     </div>
     <div class="security">
       <article class="card">
-        <i data-lucide="users-round"></i>
-        <h3>User &amp; Role</h3><p>Tài khoản, hồ sơ và vai trò</p>
+        <i data-lucide="database"></i>
+        <h3>46 bảng</h3><p>Identity · Course · Learning · Commerce · Operations</p>
       </article>
       <article class="card">
-        <i data-lucide="book-open-check"></i>
-        <h3>Course Structure</h3><p>Course, Section, Lesson</p>
+        <i data-lucide="list-tree"></i>
+        <h3>60 index</h3><p>Tối ưu truy vấn tra cứu, thống kê và giao dịch</p>
       </article>
       <article class="card">
-        <i data-lucide="graduation-cap"></i>
-        <h3>Learning</h3><p>Enrollment, Progress, Certificate</p>
+        <i data-lucide="workflow"></i>
+        <h3>15 trigger</h3><p>Tự đồng bộ tiến độ và kiểm soát quy tắc dữ liệu</p>
       </article>
       <article class="card">
-        <i data-lucide="receipt-text"></i>
-        <h3>Commerce</h3><p>Order, Payment, Voucher</p>
+        <i data-lucide="git-branch"></i>
+        <h3>Chuẩn hóa 3NF</h3><p>Tách entity và dùng bảng trung gian cho quan hệ nhiều-nhiều</p>
       </article>
       <article class="card">
-        <i data-lucide="message-square-text"></i>
-        <h3>Engagement</h3><p>Review, Q&amp;A, Notification</p>
+        <i data-lucide="gauge"></i>
+        <h3>Tối ưu có kiểm soát</h3><p>Trường tổng hợp, JSONB và materialized view phục vụ đọc nhanh</p>
       </article>
     </div>
     <div class="card" style="margin-top:22px;border-left:4px solid var(--green)">
-      <p><strong style="color:var(--ink)">Nguyên tắc thiết kế dữ liệu:</strong> Mỗi domain sở hữu dữ liệu nghiệp vụ riêng nhưng liên kết qua các thực thể dùng chung, giúp truy vết hành trình từ khóa học, đăng ký học đến giao dịch và tiến độ.</p>
+      <p><strong style="color:var(--ink)">Quan hệ điển hình:</strong> User → Enrollment ← Course → Section → Lesson. Các bảng trung gian như UserRole, CourseCategory, CourseTag, Cart, Wishlist và Enrollment xử lý quan hệ nhiều-nhiều mà không lặp dữ liệu.</p>
+      <p><strong style="color:var(--ink)">Toàn vẹn dữ liệu:</strong> Primary key, foreign key, unique/check constraint, enum và trigger bảo đảm chỉ người đã đăng ký mới có thể học hoặc review; tiến độ và lượt dùng voucher được cập nhật theo giao dịch thực tế.</p>
     </div>
   </div>
   <div class="footer"><span>Phần IV · Core engineering · Khanh</span><span>20</span></div>
@@ -2114,6 +2116,7 @@ class Deck {
     this.progress = document.querySelector('#progress');
     this.counter = document.querySelector('#counter');
     this.lock = false;
+    this.clickTimer = null;
     this.init();
   }
   init() {
@@ -2132,7 +2135,18 @@ class Deck {
     this.slides.forEach(s => ob.observe(s));
     document.addEventListener('keydown', e => this.key(e));
     document.addEventListener('click', e => {
-      if (e.button === 0) this.go(1);
+      if (e.button !== 0) return;
+      clearTimeout(this.clickTimer);
+      this.clickTimer = setTimeout(() => {
+        this.go(1);
+        this.clickTimer = null;
+      }, 250);
+    });
+    document.addEventListener('dblclick', e => {
+      if (e.button !== 0) return;
+      clearTimeout(this.clickTimer);
+      this.clickTimer = null;
+      this.go(-1);
     });
     document.addEventListener('wheel', e => this.wheel(e), { passive: true });
     this.update(0);
