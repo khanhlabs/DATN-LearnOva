@@ -9,7 +9,6 @@ import {
   MessageCircleQuestion,
   Plus,
   Star,
-  Tag,
   User,
   Users,
   WalletCards,
@@ -23,7 +22,6 @@ const teacherNavSections = [
     items: [
       { label: "Dashboard", path: "/learnova/teacher", icon: Home, end: true },
       { label: "Courses", path: "/learnova/teacher/courses", icon: BookOpen },
-      { label: "Tags", path: "/learnova/teacher/tags", icon: Tag },
       { label: "Students", path: "/learnova/teacher/students", icon: Users },
       { label: "Reviews", path: "/learnova/teacher/reviews", icon: Star },
       { label: "Q&A", path: "/learnova/teacher/qna", icon: MessageCircleQuestion },
