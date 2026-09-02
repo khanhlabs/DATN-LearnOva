@@ -32,7 +32,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Build backend
-        run: ./mvnw clean package -DskipTests
+        run: ./mvnw clean package
 
   frontend:
     name: Frontend Build
