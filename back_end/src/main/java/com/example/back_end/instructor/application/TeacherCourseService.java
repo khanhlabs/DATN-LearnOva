@@ -14,6 +14,7 @@ import com.example.back_end.shared.exception.BusinessException;
 import com.example.back_end.shared.exception.ResourceNotFoundException;
 import com.example.back_end.course.infrastructure.persistence.CourseRepository;
 import com.example.back_end.course.infrastructure.persistence.CourseCategoryRepository;
+import com.example.back_end.course.infrastructure.persistence.LessonRepository;
 import com.example.back_end.learning.infrastructure.persistence.EnrollmentRepository;
 import com.example.back_end.assessment.infrastructure.persistence.ReviewRepository;
 import com.example.back_end.auth.infrastructure.persistence.UserRepository;
@@ -40,6 +41,7 @@ public class TeacherCourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final CourseCategoryRepository courseCategoryRepository;
+    private final LessonRepository lessonRepository;
     private final AdminCategoryRepository categoryRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final ReviewRepository reviewRepository;
@@ -115,6 +117,11 @@ public class TeacherCourseService {
 
         if (!TEACHER_SETTABLE_STATUSES.contains(newStatus)) {
             throw new BusinessException("You can only save as draft or submit for review. Publishing requires admin approval.");
+        }
+
+        if (newStatus == CourseStatus.PENDING_REVIEW
+                && !lessonRepository.existsActiveVideoByCourseId(courseId)) {
+            throw new BusinessException("Please upload at least one video before submitting the course for review");
         }
 
         course.setStatus(newStatus);

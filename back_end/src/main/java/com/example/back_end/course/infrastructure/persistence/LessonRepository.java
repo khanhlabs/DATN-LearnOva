@@ -14,6 +14,16 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findBySectionCourseId(Long courseId);
     long countBySectionCourseId(Long courseId);
 
+    @Query("""
+            SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END
+            FROM Lesson l
+            WHERE l.section.course.id = :courseId
+              AND l.isDeleted = false
+              AND l.videoKey IS NOT NULL
+              AND TRIM(l.videoKey) <> ''
+            """)
+    boolean existsActiveVideoByCourseId(@Param("courseId") Long courseId);
+
     @Query("SELECT COALESCE(SUM(l.durationSeconds), 0) FROM Lesson l WHERE l.section.course.id = :courseId")
     long sumDurationSecondsBySectionCourseId(@Param("courseId") Long courseId);
     List<Lesson> findBySectionIdOrderByLessonOrderAsc(Long sectionId);

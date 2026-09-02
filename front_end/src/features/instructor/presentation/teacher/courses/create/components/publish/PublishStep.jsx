@@ -3,6 +3,10 @@ import PublishCard from "./PublishCard";
 
 const buildChecklist = (course, sections) => {
     const lessonCount = sections.reduce((t, s) => t + s.lessons.length, 0);
+    const videoCount = sections.reduce(
+        (total, section) => total + section.lessons.filter((lesson) => lesson.videoKey?.trim()).length,
+        0
+    );
     const allSectionTitles = sections.every((s) => s.title?.trim());
     const allLessonTitles = sections.every((s) => s.lessons.every((l) => l.title?.trim()));
 
@@ -13,6 +17,7 @@ const buildChecklist = (course, sections) => {
         {label: "Price set",            ok: course.basePrice !== "" && course.basePrice !== null && course.basePrice !== undefined},
         {label: "At least one section", ok: sections.length > 0},
         {label: "At least one lesson",  ok: lessonCount > 0},
+        {label: "At least one video",   ok: videoCount > 0},
         {label: "All section titles",   ok: sections.length === 0 || allSectionTitles},
         {label: "All lesson titles",    ok: lessonCount === 0 || allLessonTitles},
     ];
@@ -28,6 +33,9 @@ const PublishStep = ({
     isSubmitting,
 }) => {
     const lessonCount = sections.reduce((total, section) => total + section.lessons.length, 0);
+    const hasVideo = sections.some((section) =>
+        section.lessons.some((lesson) => Boolean(lesson.videoKey?.trim()))
+    );
     const courseTitle = course.title || "Untitled course";
     const checklist = buildChecklist(course, sections);
     const isReady = checklist.every((item) => item.ok);
@@ -81,6 +89,7 @@ const PublishStep = ({
                     onPublish={onPublish}
                     isSubmitting={isSubmitting}
                     isReady={isReady}
+                    hasVideo={hasVideo}
                 />
             </div>
 

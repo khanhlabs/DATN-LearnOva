@@ -473,6 +473,14 @@ export const useCourseForm = ({ editCourseId = null } = {}) => {
             }
         }
 
+        const hasVideo = sections.some((section) =>
+            section.lessons.some((lesson) => Boolean(lesson.videoKey?.trim()))
+        );
+        if (!hasVideo) {
+            toast.error("Please upload at least one video before proceeding.");
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             await saveSectionsAndLessons();
@@ -513,6 +521,12 @@ export const useCourseForm = ({ editCourseId = null } = {}) => {
         if (isSubmitting) return;
         if (!course.id) {
             toast.error("Save the course draft before submitting.");
+            return;
+        }
+        if (course.status === "PENDING_REVIEW" && !sections.some((section) =>
+            section.lessons.some((lesson) => Boolean(lesson.videoKey?.trim()))
+        )) {
+            toast.error("Please upload at least one video before submitting the course for review.");
             return;
         }
         setIsSubmitting(true);

@@ -1,6 +1,7 @@
 import {Rocket} from "lucide-react";
 
-const PublishCard = ({status, onStatusChange, onPublish, isSubmitting, isReady}) => {
+const PublishCard = ({status, onStatusChange, onPublish, isSubmitting, isReady, hasVideo}) => {
+    const isSubmissionBlocked = status === "PENDING_REVIEW" && !hasVideo;
     return (
         <section className="teacher-create-card teacher-publish-settings">
             <h2>Publish Settings</h2>
@@ -28,8 +29,10 @@ const PublishCard = ({status, onStatusChange, onPublish, isSubmitting, isReady})
                 type="button"
                 className={`teacher-publish-button${!isReady ? " teacher-publish-button--warn" : ""}`}
                 onClick={onPublish}
-                disabled={isSubmitting}
-                title={!isReady ? "Some checklist items are incomplete" : undefined}
+                disabled={isSubmitting || isSubmissionBlocked}
+                title={isSubmissionBlocked
+                    ? "Upload at least one video before submitting the course for review."
+                    : !isReady ? "Some checklist items are incomplete" : undefined}
             >
                 <Rocket size={17}/>
                 {isSubmitting ? "Saving..." : status === "PENDING_REVIEW" ? "Submit for Review" : "Save Draft"}
