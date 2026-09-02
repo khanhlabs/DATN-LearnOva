@@ -32,7 +32,6 @@ import RevenuePage from "../../features/instructor/presentation/teacher/revenue/
 import EarningsPage from "../../features/instructor/presentation/teacher/earnings/EarningsPage";
 import AnalyticsPage from "../../features/instructor/presentation/teacher/analytics/AnalyticsPage";
 import ProfilePage from "../../features/instructor/presentation/teacher/profile/ProfilePage";
-import TeacherTagsPage from "../../features/instructor/presentation/teacher/tags/TeacherTagsPage";
 import UserLayout from "../layouts/user/UserLayout";
 import InstructorsPage from "../../features/user/presentation/intructor";
 import InstructorDetail from "../../features/instructor/presentation/user/intructorDetail/intructorDetail";
@@ -101,7 +100,6 @@ const App = () => {
                 <Route path="/learnova/teacher" element={<RequireRole role="ROLE_TEACHER"><TeacherLayout/></RequireRole>}>
                     <Route index element={<OverviewPage/>}/>
                     <Route path="courses" element={<CoursesPage/>}/>
-                    <Route path="tags" element={<TeacherTagsPage/>}/>
                     <Route path="courses/create" element={<CourseCreationPage/>}/>
                     <Route path="courses/edit/:courseId" element={<CourseCreationPage/>}/>
                     <Route path="promotions" element={<PromotionsPage/>}/>
