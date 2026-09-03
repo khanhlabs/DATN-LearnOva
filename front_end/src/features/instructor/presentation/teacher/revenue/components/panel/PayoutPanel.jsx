@@ -92,10 +92,6 @@ const PayoutPanel = ({ lifetimeRevenue, revenueTotal }) => {
           </div>
         )}
 
-        <button type="button" className="teacher-payout-request-btn" onClick={openModal}>
-          Request Payout
-        </button>
-
         <div className="teacher-revenue-payout-visual" aria-hidden="true">
           <Wallet size={58} />
           <TrendingUp size={34} />
